@@ -4,8 +4,10 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
 }
+
 val clientId = getClientId("CLIENT_ID")
 android {
+
     namespace = "com.hansung.sherpa"
     compileSdk = 34
 
