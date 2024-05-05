@@ -61,4 +61,13 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation("com.naver.maps:map-sdk:3.18.0")
+
+    implementation("androidx.compose.runtime:runtime:1.0.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
+
+    implementation(files("libs/tmap-sdk-1.2.aar"))
+    implementation(files("libs/vsm-tmap-sdk-v2-android-1.6.60.aar"))
+    implementation("com.beust:klaxon:5.5")
 }
