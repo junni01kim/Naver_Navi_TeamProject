@@ -1,6 +1,6 @@
 package com.hansung.sherpa.transit
 
-data class RouteResponse(
+data class TransitRouteResponse(
     val metaData: MetaData? = null
 )
 
