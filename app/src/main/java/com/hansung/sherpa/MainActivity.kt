@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID) // 본인 api key
 
         // 검색하기 전까지 값을 저장해두기 위한 viewModel이다. searchRoute.kt에 저장되어있다.
-        val viewModel = ViewModelProvider(this)[searchRouteViewModel::class.java]
+        val viewModel = ViewModelProvider(this)[SearchRouteViewModel::class.java]
 
         // 출발지점을 작성하는 textView, 출발지점 작성 후 전송하기위한 button
         val departureTextView = findViewById<EditText>(R.id.departure_textView)
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
 
         // 버튼 클릭 리스너
         searchButton.setOnClickListener{
-            SearchRoute(departureTextView.text.toString())
+            searchRoute(departureTextView.text.toString())
         }
 
         // 애매
