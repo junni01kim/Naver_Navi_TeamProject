@@ -1,6 +1,5 @@
 package com.hansung.sherpa
 
-
 import android.graphics.PointF
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
