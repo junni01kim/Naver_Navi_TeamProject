@@ -1,7 +1,7 @@
 package com.hansung.sherpa.convert
 
 import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.RouteResponse
+import com.hansung.sherpa.transit.TransitRouteResponse
 
 /**
  * API로 받아온 데이터 객체를 사용할 객체로 변환해주는 클래스
@@ -22,7 +22,7 @@ class Convert {
      *
      * @return  MutableList<MutableList<Route>>
      */
-    fun convertToRouteMutableLists(response: RouteResponse): MutableList<MutableList<LegRoute>> {
+    fun convertToRouteMutableLists(response: TransitRouteResponse): MutableList<MutableList<LegRoute>> {
         response.metaData?.plan?.itineraries?.forEach {
             legRouteMutableList.removeAll(legRouteMutableList) // 초기화
             it.legs?.forEach { leg -> navigateRouteType(leg) } // 구간별 값 추가

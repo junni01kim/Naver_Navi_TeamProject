@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">sherpa</string>
+    <string name="route_base_url">https://apis.openapi.sk.com/</string>
 </resources>
