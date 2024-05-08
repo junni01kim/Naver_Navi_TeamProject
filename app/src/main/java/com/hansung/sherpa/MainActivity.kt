@@ -1,6 +1,10 @@
 package com.hansung.sherpa
 
+import android.annotation.SuppressLint
+import android.graphics.Color
+import android.graphics.PointF
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -52,18 +56,40 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
+    // naverMap객체가 준비됨
     override fun onMapReady(p0: NaverMap){
         this.naverMap = p0
 
         naverMap.locationSource = locationSource
+
+        //좌측하단 Tracking Mode 변환 버튼
         naverMap.uiSettings.setLocationButtonEnabled(true)
 
-        val locationOverlay = naverMap.locationOverlay
+        // LocationOverlay 설정
+        val  locationOverlay = naverMap.locationOverlay
+        locationOverlay.icon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
         locationOverlay.isVisible = true
 
-        naverMap.addOnLocationChangeListener { location->
-            locationOverlay.position = LatLng(location.latitude,location.longitude)
+        var preMarker:Marker? = null
+        var currMarker:Marker? = null
 
+        naverMap.addOnLocationChangeListener { location->
+            if(preMarker==null && currMarker==null){ //초기 사용자 Marker 표시 및 생성
+                currMarker = Marker()
+                currMarker!!.icon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+                currMarker!!.position = LatLng(location)
+                currMarker!!.anchor = PointF(0.5f, 0.5f)
+                currMarker!!.map = naverMap
+            }
+            else{ // 사용자 위치 마커 최신화
+                preMarker = currMarker
+                preMarker?.map = null
+                currMarker  = Marker()
+                currMarker!!.icon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+                currMarker!!.position = LatLng(location)
+                currMarker!!.anchor = PointF(0.5f, 0.5f)
+                currMarker!!.map = naverMap
+            }
         }
 
     }
