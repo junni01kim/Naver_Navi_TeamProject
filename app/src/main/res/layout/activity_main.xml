@@ -7,11 +7,56 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!--
+    레이아웃 너비 높이 295dp, 55dp (임의로 설정 수정 가능성 있음)
+    EditText의 상단과의 간격 30으로 설정 (임의로 설정 수정 가능성 있음)
+    Edit Text의 색상 하얀색(#FFFFFF)
+    입력 전에는 "출발지를 입력하세요 문구가 나온다."
+    글자 크기는 25sp
+    글자 수 길어지면 '...'로 문구 생략
+    -->
+    <!--
+    수정 1. 키 엔터하면 줄바꿈이 된다. 버튼 클릭과 동일한 옵션을 주어야 한다.
+    수정 2. 버튼 옵션 설정
+    -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map_fragment"
+        android:name="com.naver.maps.map.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.naver.maps.map.MapFragment" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="-16dp">
 
+    </androidx.fragment.app.FragmentContainerView>
+
+    <EditText
+        android:id="@+id/departure_textView"
+        android:layout_width="295dp"
+        android:layout_height="55dp"
+
+        android:background="#FFFFFF"
+        android:ellipsize="end"
+
+        android:gravity="center_vertical"
+        android:hint="출발지를 입력하세요."
+
+        android:textSize="25sp"
+
+        android:layout_marginTop="30dp"
+        app:layout_constraintEnd_toStartOf="@+id/search_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map_fragment" />
+
+    <Button
+        android:id="@+id/search_button"
+        android:layout_width="65dp"
+        android:layout_height="55dp"
+
+        android:gravity="center_vertical"
+
+        android:layout_marginTop="30dp"
+        android:layout_marginEnd="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map_fragment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
