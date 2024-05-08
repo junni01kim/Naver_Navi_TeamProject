@@ -6,6 +6,8 @@ plugins {
 }
 
 val clientId = getClientId("CLIENT_ID")
+val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
+
 android {
 
     namespace = "com.hansung.sherpa"
@@ -20,6 +22,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "CLIENT_ID", clientId)
+        buildConfigField("String", "TMAP_APP_KEY", tmapAppKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
     }
 
@@ -50,6 +53,10 @@ fun getClientId(propertyKey : String) : String{
     return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
+fun getTmapAppKey(propertyKey : String) : String{
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
+}
+
 dependencies {
 
     implementation(libs.core.ktx)
@@ -61,13 +68,8 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation("com.naver.maps:map-sdk:3.18.0")
-
-    implementation("androidx.compose.runtime:runtime:1.0.0")
+    // for api request
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.9.0")
-
-    implementation(files("libs/tmap-sdk-1.2.aar"))
-    implementation(files("libs/vsm-tmap-sdk-v2-android-1.6.60.aar"))
-    implementation("com.beust:klaxon:5.5")
+    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
 }
