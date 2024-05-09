@@ -1,5 +1,7 @@
 package com.hansung.sherpa.convert
 
+import com.naver.maps.geometry.LatLng
+
 
 /**
  * 위도, 경도 타입 지정
@@ -20,6 +22,11 @@ class Coordinate(lat: coordinate = 0.0, lon: coordinate = 0.0) {
     val latitude: coordinate = lat
     val longitude: coordinate = lon
 }
+
+/**
+ * SearchRoute.kt에 사용하는 네이버 데이터 클래스
+ */
+data class SearchRouteCoordinate(val latLng: LatLng, val type: PathType)
 
 private fun coordinateSample() {
     val coordinate = Coordinate(37.607075, 127.00584)

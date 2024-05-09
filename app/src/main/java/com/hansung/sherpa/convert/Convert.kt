@@ -2,6 +2,7 @@ package com.hansung.sherpa.convert
 
 import com.hansung.sherpa.transit.Leg
 import com.hansung.sherpa.transit.TransitRouteResponse
+import com.naver.maps.geometry.LatLng
 
 /**
  * API로 받아온 데이터 객체를 사용할 객체로 변환해주는 클래스
@@ -141,5 +142,29 @@ class Convert {
      */
     private fun getTrainRoute(leg: Leg): LegRoute {
         return getTransportationRoute(leg).apply { pathType = PathType.TRAIN }
+    }
+
+    /**
+     * 정제된 경로 데이터 중 1개의 경로를 SearchRoute의 네이버 data class로 바꿔주는 함수
+     *  LatLng, PathType으로 구성됨.
+     *
+     *  @param routeMutableList 1개의 경로 데이터
+     *  @return MutableList
+     */
+    fun convertToSearchRouteDataClass(routeMutableList: MutableList<LegRoute>): MutableList<SearchRouteCoordinate> {
+        val searchRouteMutableList = mutableListOf<SearchRouteCoordinate>()
+        routeMutableList.forEach { legRoute -> // 구간별 경로 추출
+            legRoute.coordinates.forEach { coordinate -> // 경로의 좌표 값 추출
+                searchRouteMutableList.add(
+                    SearchRouteCoordinate(
+                        LatLng(
+                            coordinate.latitude, // 위도
+                            coordinate.longitude // 경도
+                        ), legRoute.pathType // 이동수단 타입
+                    )
+                )
+            }
+        }
+        return searchRouteMutableList
     }
 }
