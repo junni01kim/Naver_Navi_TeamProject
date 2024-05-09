@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
@@ -17,86 +18,64 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.overlay.PolylineOverlay
 
-// TemporaryClass는 임시 클래스라는 의미로 LatLng라는 클래스와 type를 값으로 가진다.
-// path의 두가지 Pair은 출발지와 도착지의 lon lag를 의미한다.(실제론 LanLng를 의미) type는 대중교통의 종류를 의미한다.
-// path:출발도착묶음Pair<출발지LanLng,도착지LanLng>
-
-fun List<SearchRouteCoordinate>.getFirstList():List<LatLng>{
-    val returnList = mutableListOf<LatLng>()
-    for (i in this){
-        returnList.add(i.latLng)
-    }
-
-    return returnList
-}
-
+// 텍스트뷰에 값이 그래도 유지되고 있게하기 위한 뷰모델이다.
+// searchRouteViewModel의 이름과 위치는 바꿀 필요가 있을듯
 class SearchRouteViewModel:ViewModel() {
-    val departureText = MutableLiveData<String>()
+    val destinationText = MutableLiveData<String>()
 }
 
 // 선 그리는 함수
-fun drawRoute(p0: NaverMap, context: Context, lifecycle: MainActivity, temporayClassList: List<SearchRouteCoordinate>){
-    // 네이버 예제 참조
-    val polyline = PolylineOverlay()
-
-    polyline.coords = temporayClassList.getFirstList()
-
+//fun drawRoute(naverMap: NaverMap, context: Context, lifecycle: MainActivity, departure:지오코딩, destination:지오코딩){
+fun drawRoute(naverMap: NaverMap, context: Context, lifecycle: MainActivity){
+    // 임시 파라미터이다.
     // 요청 param setting
     val routeRequest = TransitRouteRequest(
-        startX = "126.926493082645",
-        startY = "37.6134436427887",
-        endX = "127.126936754911",
-        endY = "37.5004198786564",
+        startX = "126.926493082645", // startX = departure.lat.toString(),
+        startY = "37.6134436427887", // startY = departure.lon.toString(),
+        endX = "127.126936754911", // endX = destination.lat.toString(),
+        endY = "37.5004198786564", // endY = destination.lon.toString(),
         lang = 0,
         format = "json",
         count = 10
     )
+
     var transitRoutes: MutableList<MutableList<LegRoute>>
+
     // 관찰 변수 변경 시 콜백
     TransitManager(context).getTransitRoutes(routeRequest).observe(lifecycle) { transitRouteResponse ->
         transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         val tt = Convert().convertToSearchRouteDataClass(transitRoutes[0])
-        drawRouteColorful(p0, tt)
-    }
 
+        val COORDS_1 = tt.map { it -> it.latLng }
 
-    // 해결해야 한다.
-    //path.map = naverMap
-}
-
-// 대중교통마다 다른 색의 선을 그리는 함수
-fun drawRouteColorful(p0: NaverMap,temporayClassList: MutableList<SearchRouteCoordinate>) {
-    val COORDS_1 = temporayClassList.map { it -> it.latLng }
-
-    val pathOverlay = PathOverlay().also {
-        it.coords = COORDS_1
-        it.width = 5
-        it.color = Color.BLUE
-        it.outlineColor = Color.WHITE
-        it.passedColor = Color.RED
-        it.passedOutlineColor = Color.WHITE
-        it.progress = 0.3
-        it.map = p0
+        val pathOverlay = PathOverlay().also {
+            it.coords = COORDS_1
+            it.width = 10
+            it.color = Color.BLUE
+            it.outlineColor = Color.WHITE
+            it.passedColor = Color.RED
+            it.passedOutlineColor = Color.WHITE
+            it.progress = 0.3
+            it.map = naverMap
+        }
     }
 }
 
-// 텍스트뷰에 값이 그래도 유지되고 있게하기 위한 뷰모델이다.
-// searchRouteViewModel의 이름과 위치는 바꿀 필요가 있을듯
-class searchRouteViewModel:ViewModel() {
-    val departureText = MutableLiveData<String>()
-}
-fun SearchRoute(departure:String) {
-    val geocodingAPI = GeocodingAPI(departure)
+fun SearchRoute(destination:String) {
+    val geocodingAPI = GeocodingAPI(destination)
 }
 
-fun searchRoute(p0: NaverMap, context: Context, lifecycle: MainActivity, departure:String) {
-    // 단순히 geocoding이 되나 확인하기 위한 코드(삭제해도 됨)
-    val geocodingAPI = GeocodingAPI(departure)
+fun searchRoute(naverMap: NaverMap, context: Context, lifecycle: MainActivity) {
+    val viewModel = SearchRouteViewModel()
 
     // TODO(geocoding한 값으로 출발 도착지 값 받아오기)
-    // TODO(값을 temporaryClassArray에 geocoding한 값 넣기 or 넣어져 있을 수도 있다.)
+    val departureText:String? = null // 출발내 위치 받아오셈
+    val destinationText = viewModel.destinationText.value
 
-    drawRoute(p0, context, lifecycle, listOf(
-        SearchRouteCoordinate(LatLng(37.57152, 126.97714),PathType.WALK)
-        ,SearchRouteCoordinate(LatLng(37.56607, 126.98268),PathType.BUS)))
+    // TODO(값을 temporaryClassArray에 geocoding한 값 넣기 or 넣어져 있을 수도 있다.)
+    // val departure = 지오코딩(departure)
+    // val destination = 지오코딩(destination)
+
+    drawRoute(naverMap, context, lifecycle)
+    //drawRoute(naverMap, context, lifecycle, departure, destination)
 }

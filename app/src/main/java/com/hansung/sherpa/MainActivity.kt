@@ -9,9 +9,6 @@ import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import android.widget.EditText
 import android.widget.ImageButton
-import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
@@ -42,8 +39,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -95,22 +90,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-
         // 검색하기 전까지 값을 저장해두기 위한 viewModel이다. searchRoute.kt에 저장되어있다.
-        val viewModel = ViewModelProvider(this)[searchRouteViewModel::class.java]
+        val viewModel = ViewModelProvider(this)[SearchRouteViewModel::class.java]
 
         // 출발지점을 작성하는 textView, 출발지점 작성 후 전송하기위한 button
-        val departureTextView = findViewById<EditText>(R.id.departure_textView)
+        val destinationTextView = findViewById<EditText>(R.id.destination_editText)
         val searchButton = findViewById<ImageButton>(R.id.search_button)
 
         // 버튼 클릭 리스너
         searchButton.setOnClickListener{
-            searchRoute(naverMap,this@MainActivity,this@MainActivity,departureTextView.text.toString())
+            searchRoute(naverMap,this@MainActivity,this@MainActivity)
         }
 
         // 애매
-        viewModel.departureText.observe(this){
-            viewModel.departureText.value = departureTextView.text.toString()
+        viewModel.destinationText.observe(this){
+            viewModel.destinationText.value = destinationTextView.text.toString()
         }
 
     }
