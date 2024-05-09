@@ -2,14 +2,14 @@ package com.hansung.sherpa
 
 import android.graphics.PointF
 import android.os.Bundle
+import android.widget.EditText
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
-import android.widget.EditText
-import android.widget.ImageButton
-import androidx.lifecycle.ViewModelProvider
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
@@ -99,13 +99,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 버튼 클릭 리스너
         searchButton.setOnClickListener{
-            searchRoute(naverMap,this@MainActivity,this@MainActivity)
+            SearchRoute(naverMap,this@MainActivity,this@MainActivity).searchRoute()
         }
 
-        // 애매
         viewModel.destinationText.observe(this){
             viewModel.destinationText.value = destinationTextView.text.toString()
         }
-
     }
 }
