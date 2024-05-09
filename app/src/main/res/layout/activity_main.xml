@@ -22,11 +22,6 @@
 
     </androidx.fragment.app.FragmentContainerView>
 
-    <FrameLayout
-        android:id="@+id/map"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
     <!--
         레이아웃 너비 높이 295dp, 55dp (임의로 설정 수정 가능성 있음)
         EditText의 상단과의 간격 30으로 설정 (임의로 설정 수정 가능성 있음)
@@ -77,8 +72,6 @@
 
         android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/map" />
-
-
+        app:layout_constraintTop_toTopOf="@+id/map_fragment" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
