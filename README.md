@@ -1,28 +1,26 @@
 # Sherpa 프로젝트
 
-## 1. 프로젝트의 목적 및 용도
+## 1.프로젝트의 목적 및 용도
 Naver_Navi_TeamProject는 한이음ICT에서 진행하는 프로보노 멘토링 프로젝트이다.  
 해당 프로젝트는 프로젝트 1, 프로젝트 2, 프로젝트 3으로 진행된다.  
 
-  
 ### 프로젝트 1
 프로젝트 1은 한성대학교 진로탐색학점제 이수 및 프로보노 프로젝트를 위한 기반을 다지는 프로젝트이다.  
 해당 프로그램은 기본적인 보행자 네비게이션을 구성하며, 길안내를 해주는 애플리케이션이다.  
 
-    
-## 2. 프로젝트를 시작하는 방법
+## 2.프로젝트를 시작하는 방법
 ## Setting
 #### project/local.properties
 다음과 같은 내용을 프로젝트 `local.properties`에 추가하세요.  
   \* 각 키 값은 개별적으로 승인 받아야합니다.  
 ```html
-CLIENT_ID="v4625bqfbq"
-TMAP_APP_KEY="pYbNXZAC0e2pATcZJ5OFe1n2jyC1wDPwcwUUtIs7"
+CLIENT_ID="NAVER CLIENT ID"
+Tmap_App_Key="TMAP API KEY"
 ```
 
-## 3. 저작권 라이선스 정보  
-  
-  
+## 3. 저작권 라이선스 정보
+
+
 ## 4. 외부 리소스 정보
 프로젝트 1은 다음과 같은 외부 리소스를 이용합니다.  
   [Naver Map](https://navermaps.github.io/android-map-sdk/guide-ko/): 네이버 지도를 기반으로 제작  
