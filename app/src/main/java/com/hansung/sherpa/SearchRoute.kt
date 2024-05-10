@@ -7,20 +7,19 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
+import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.geocoding.GeocodingAPI
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
-import java.lang.Thread.sleep
 
 // 텍스트뷰에 값이 그래도 유지되고 있게하기 위한 뷰모델이다.
 // searchRouteViewModel의 이름과 위치는 바꿀 필요가 있을듯
 class SearchRouteViewModel:ViewModel() {
     val destinationText = MutableLiveData<String>()
 }
-
 
 class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: MainActivity) {
     // 출발지(내 위치)
@@ -34,12 +33,16 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
         geoCodingApi.request(destination,"목적지")
 
         // 여기서 무한루프 발생!!
-        while(geoCodingApi.getFlag("목적지") == false) {
-            sleep(100)
+        while(true) {
+            if(geoCodingApi.getFlag("목적지")==false){
+                break;
+            }
+            Log.d("getLatLng", "탐색중")
         }
 
         val coordinate = geoCodingApi.getCoordinate("목적지")
-        val latLng = LatLng(coordinate!!.latitude, coordinate.longitude)
+        //val latLng = LatLng(coordinate!!.latitude, coordinate.longitude)
+        val latLng = LatLng(0.0, 0.0)
         return latLng
     }
 
@@ -48,7 +51,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
         val viewModel = SearchRouteViewModel()
 
         //val destinationText = viewModel.destinationText.value
-        val destinationText = "116, Samseongyo-ro 16-gil, Seongbuk-gu, Seoul, Republic of Korea"
+        val destinationText = "서울특별시 성북구 삼선교로16길 116"
 
         destinationLatLng = searchLatLng(destinationText) // 오류 원인!!
 
@@ -68,10 +71,10 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             startX = departureLatLng.longitude.toString(),
             //startY = "37.6134436427887",
             startY = departureLatLng.latitude.toString(),
-            //endX = "127.126936754911",
-            endX = destinationLatLng!!.longitude.toString(),
-            //endY = "37.5004198786564",
-            endY = destinationLatLng!!.latitude.toString(),
+            endX = "127.126936754911",
+            //endX = destinationLatLng!!.longitude.toString(),
+            endY = "37.5004198786564",
+            //endY = destinationLatLng!!.latitude.toString(),
             lang = 0,
             format = "json",
             count = 1
@@ -84,18 +87,35 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
             val tt = Convert().convertToSearchRouteDataClass(transitRoutes[0])
 
-            val COORDS_1 = tt.map { it -> it.latLng }
+            val COORDSES = mutableListOf<Pair<MutableList<LatLng>,String>>()
 
-            // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
-            val pathOverlay = PathOverlay().also {
-                it.coords = COORDS_1
-                it.width = 10
-                it.color = Color.BLUE
-                it.outlineColor = Color.WHITE
-                it.passedColor = Color.RED
-                it.passedOutlineColor = Color.WHITE
-                it.progress = 0.3
-                it.map = this.naverMap
+            // 임시 코드 각 값들 분리시키기 위함
+            COORDSES.add(Pair(mutableListOf(),tt[0].type.toString()))
+            for (i in 0..tt.size-2){
+                if(tt[i].type!=tt[i+1].type){
+                    COORDSES.add(Pair(mutableListOf(),tt[i+1].type.toString()))
+                }
+                COORDSES[COORDSES.size-1].first.add(tt[i].latLng)
+            }
+            COORDSES[COORDSES.size-1].first.add(tt[tt.size-1].latLng)
+
+            for (i in COORDSES){
+                // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
+                val pathOverlay = PathOverlay().also {
+                    it.coords = i.first
+                    it.width = 10
+                    when(i.second){
+                        PathType.WALK.toString() -> it.color = Color.BLUE
+                        PathType.BUS.toString() -> it.color = Color.DKGRAY
+                        PathType.EXPRESSBUS.toString() -> it.color = Color.RED
+                        PathType.SUBWAY.toString() -> it.color = Color.GREEN
+                        PathType.TRAIN.toString() -> it.color = Color.MAGENTA
+                        else -> it.color = Color.YELLOW
+                    }
+                    it.passedColor = Color.LTGRAY
+                    it.progress = 0.3
+                    it.map = this.naverMap
+                }
             }
         }
     }
