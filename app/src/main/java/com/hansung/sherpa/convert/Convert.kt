@@ -1,5 +1,6 @@
 package com.hansung.sherpa.convert
 
+import android.util.Log
 import com.hansung.sherpa.transit.Leg
 import com.hansung.sherpa.transit.TransitRouteResponse
 import com.naver.maps.geometry.LatLng
@@ -165,6 +166,7 @@ class Convert {
                 )
             }
         }
+        Log.d("testPrint","temporateClass로 변경 성공!")
         return searchRouteMutableList
     }
 }

@@ -36,7 +36,7 @@
         글자 수 길어지면 '...'로 문구 생략
         -->
     <EditText
-        android:id="@+id/departure_textView"
+        android:id="@+id/destination_editText"
         android:layout_width="295dp"
         android:layout_height="55dp"
         android:paddingStart="10dp"
@@ -78,7 +78,5 @@
         android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

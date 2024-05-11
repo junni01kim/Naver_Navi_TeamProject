@@ -1,6 +1,7 @@
 package com.hansung.sherpa.transit
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -55,10 +56,12 @@ class TransitManager(context: Context) {
                         val transitRouteResponse = Gson().fromJson(responseBody.string(), TransitRouteResponse::class.java)
                         // post to livedata (Change Notification) 변경된 값을 알림
                         resultLiveData.postValue(transitRouteResponse)
+                        Log.d("testPrint","역직렬화 성공")
                     }
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                    Log.d("testPrint","역직렬화 실패")
                 }
             })
         return resultLiveData
@@ -70,7 +73,7 @@ class TransitManager(context: Context) {
      * @param context Activity Context
      * @param owner Activity
      */
-    private fun sampleGetTransitRoutes(context: Context, owner: LifecycleOwner) {
+    fun sampleGetTransitRoutes(context: Context, owner: LifecycleOwner) {
         // 요청 param setting
         val routeRequest = TransitRouteRequest(
             startX = "126.926493082645",
