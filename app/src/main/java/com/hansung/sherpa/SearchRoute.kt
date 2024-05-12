@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
+import com.hansung.sherpa.deviation.RouteControl
+import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.geocoding.GeocodingAPI
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
@@ -60,6 +62,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
 
     // 정해진 루트에 선을 그리는 함수
     fun drawRoute() {
+        lateinit var routeControl:RouteControl
         // 출발지점은 현재 자신의 좌표값을 받아서 설정한다.
         departureLatLng = naverMap.locationOverlay.position
 
@@ -99,6 +102,8 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             }
             COORDSES[COORDSES.size-1].first.add(tt[tt.size-1].latLng)
 
+            routeControl = RouteControl(this.naverMap,COORDSES)
+
             for (i in COORDSES){
                 // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
                 val pathOverlay = PathOverlay().also {
@@ -118,5 +123,18 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                 }
             }
         }
+
+        naverMap.addOnLocationChangeListener {location->
+            if(routeControl!=null){
+                var section = routeControl.checkingSection(StrengthLocation("Weak",LatLng(location.latitude,location.longitude)))
+                Log.d("현재구역","시작: "+section.Start.longitude +", "+ section.Start.latitude+" 끝: " + section.End.longitude + ", " + section.End.latitude)
+                routeControl.drawProgressLine(section)
+                routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))
+            }
+
+
+
+        }
+
     }
 }
