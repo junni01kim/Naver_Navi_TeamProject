@@ -128,6 +128,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
         naverMap.addOnLocationChangeListener {location->
             if(routeControl!=null){
                 var section = routeControl.checkingSection(StrengthLocation("Weak",LatLng(location.latitude,location.longitude)))
+                Log.d("현재구역","현재위치: " + location.longitude+", "+location.latitude)
                 Log.d("현재구역","시작: "+section.Start.longitude +", "+ section.Start.latitude+" 끝: " + section.End.longitude + ", " + section.End.latitude)
                 routeControl.drawProgressLine(section)
                 routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))

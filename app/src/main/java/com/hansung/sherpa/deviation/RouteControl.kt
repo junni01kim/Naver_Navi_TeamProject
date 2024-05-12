@@ -3,6 +3,10 @@ package com.hansung.sherpa.deviation
 import android.content.Context
 import android.graphics.Color
 import android.location.Location
+import android.util.Log
+import com.hansung.sherpa.MainActivity
+import com.hansung.sherpa.SearchRoute
+import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
@@ -23,7 +27,7 @@ import kotlin.math.sqrt
 data class Section(
     val Start: LatLng,
     val End: LatLng,
-    val CurrLoaction: LatLng
+    val CurrLocation: LatLng
 )
 
 /**
@@ -56,15 +60,18 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
         }
     }
 
-    fun checkingSection(strloc:StrengthLocation):Section{
+    fun checkingSection(strloc:StrengthLocation):Section{/// ???
 
         when(strloc.Strength){
             "Strong"->{ roundRadius = 1.0 }
             "Weak"->{ roundRadius = 10.0 }
         }
 
-        while (nowIndex<routeEnum.size-1){
-            if(calceDistance(routeEnum[nowIndex], strloc.Location)>roundRadius){
+        while (nowIndex<routeEnum.size-2){
+            if(calceDistance(routeEnum[nowIndex], strloc.Location)<=roundRadius &&
+                calceDistance(routeEnum[nowIndex+1], strloc.Location)>roundRadius){
+                Log.d("거리","" + calceDistance(routeEnum[nowIndex], strloc.Location))
+                Log.d("거리","" + calceDistance(routeEnum[nowIndex+1], strloc.Location))
                 break
             }
             nowIndex+=1
@@ -91,7 +98,7 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
         val dLon = radLon2 - radLon1
         val a = sin(dLat / 2) * sin(dLat / 2) + cos(radLat1) * cos(radLat2) * sin(dLon / 2) * sin(dLon / 2)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        var distance = 6371000 * c // 지구 반지름을 곱하여 거리를 킬로미터 단위로 변환
+        var distance = 63710 * c // 지구 반지름을 곱하여 거리를 미터 단위로 변환
 
         if (distance < 0) {
             distance *= -1
