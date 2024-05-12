@@ -8,6 +8,8 @@ import androidx.lifecycle.ViewModel
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
+import com.hansung.sherpa.deviation.RouteControl
+import com.hansung.sherpa.deviation.Section
 import com.hansung.sherpa.geocoding.GeocodingAPI
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
@@ -113,6 +115,62 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                         else -> it.color = Color.YELLOW
                     }
                     it.passedColor = Color.LTGRAY
+                    it.progress = 0.3
+                    it.map = this.naverMap
+                }
+            }
+        }
+    }
+
+    fun searchRoute(routeRequest: TransitRouteRequest) {
+        val viewModel = SearchRouteViewModel()
+
+        //val destinationText = viewModel.destinationText.value
+        val destinationText = "서울특별시 성북구 삼선교로16길 116"
+
+        destinationLatLng = searchLatLng(destinationText) // 오류 원인!!
+
+        drawRoute(routeRequest)
+    }
+
+    fun drawRoute(routeRequest: TransitRouteRequest) {
+
+        // 출발지점은 현재 자신의 좌표값을 받아서 설정한다.
+        departureLatLng = naverMap.locationOverlay.position
+
+        var transitRoutes: MutableList<MutableList<LegRoute>>
+
+        // 관찰 변수 변경 시 콜백
+        TransitManager(this.context).getTransitRoutes(routeRequest).observe(this.lifecycle) { transitRouteResponse ->
+            transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+            val tt = Convert().convertToSearchRouteDataClass(transitRoutes[0])
+
+            val COORDSES = mutableListOf<Pair<MutableList<LatLng>,String>>()
+
+            // 임시 코드 각 값들 분리시키기 위함
+            COORDSES.add(Pair(mutableListOf(),tt[0].type.toString()))
+            for (i in 0..tt.size-2){
+                if(tt[i].type!=tt[i+1].type){
+                    COORDSES.add(Pair(mutableListOf(),tt[i+1].type.toString()))
+                }
+                COORDSES[COORDSES.size-1].first.add(tt[i].latLng)
+            }
+            COORDSES[COORDSES.size-1].first.add(tt[tt.size-1].latLng)
+
+            for (i in COORDSES){
+                // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
+                val pathOverlay = PathOverlay().also {
+                    it.coords = i.first
+                    it.width = 10
+                    when(i.second){
+                        PathType.WALK.toString() -> it.color = Color.BLUE
+                        PathType.BUS.toString() -> it.color = Color.DKGRAY
+                        PathType.EXPRESSBUS.toString() -> it.color = Color.RED
+                        PathType.SUBWAY.toString() -> it.color = Color.GREEN
+                        PathType.TRAIN.toString() -> it.color = Color.MAGENTA
+                        else -> it.color = Color.YELLOW
+                    }
+                    it.passedColor = Color.YELLOW
                     it.progress = 0.3
                     it.map = this.naverMap
                 }
