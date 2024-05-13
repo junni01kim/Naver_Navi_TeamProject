@@ -16,6 +16,7 @@ import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
+import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.PathOverlay
 
 // 텍스트뷰에 값이 그래도 유지되고 있게하기 위한 뷰모델이다.
@@ -70,14 +71,44 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
         Log.d("getLatLng", departureLatLng.longitude.toString())
 
         // 요청 param setting
+//        val routeRequest = TransitRouteRequest(
+//            //startX = "126.926493082645",
+//            startX = departureLatLng.longitude.toString(),
+//            //startY = "37.6134436427887",
+//            startY = departureLatLng.latitude.toString(),
+//            endX = "127.126936754911",
+//            //endX = destinationLatLng!!.longitude.toString(),
+//            endY = "37.5004198786564",
+//            //endY = destinationLatLng!!.latitude.toString(),
+//            lang = 0,
+//            format = "json",
+//            count = 1
+//        )
+
+        // Testcase - 1
+//        val routeRequest = TransitRouteRequest(
+//            //startX = "126.926493082645",
+//            startX = "126.835895",
+//            //startY = "37.6134436427887",
+//            startY = "37.642631",
+//            endX = "126.831978",
+//            //endX = destinationLatLng!!.longitude.toString(),
+//            endY = "37.634765",
+//            //endY = destinationLatLng!!.latitude.toString(),
+//            lang = 0,
+//            format = "json",
+//            count = 1
+//        )
+
+        // Testcase - 2
         val routeRequest = TransitRouteRequest(
             //startX = "126.926493082645",
-            startX = departureLatLng.longitude.toString(),
+            startX = "126.833416",
             //startY = "37.6134436427887",
-            startY = departureLatLng.latitude.toString(),
-            endX = "127.126936754911",
+            startY = "37.642396",
+            endX = "126.829695",
             //endX = destinationLatLng!!.longitude.toString(),
-            endY = "37.5004198786564",
+            endY = "37.627448",
             //endY = destinationLatLng!!.latitude.toString(),
             lang = 0,
             format = "json",
@@ -106,6 +137,11 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             routeControl = RouteControl(this.naverMap,COORDSES)
 
             for (i in COORDSES){
+                i.first.forEach{
+                    var marker = Marker()
+                    marker.position = it
+                    marker.map = this.naverMap
+                }
                 // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
                 val pathOverlay = PathOverlay().also {
                     it.coords = i.first
@@ -125,13 +161,29 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             }
         }
 
+        var pathOverlaypre: PathOverlay? = null
+        var pathOverlaycurr: PathOverlay? = null
+
         naverMap.addOnLocationChangeListener {location->
             if(routeControl!=null){
-                var section = routeControl.checkingSection(StrengthLocation("Weak",LatLng(location.latitude,location.longitude)))
+                var section = routeControl.checkingSection(StrengthLocation("Strong",LatLng(location.latitude,location.longitude)))
                 Log.d("현재구역","현재위치: " + location.longitude+", "+location.latitude)
                 Log.d("현재구역","시작: "+section.Start.longitude +", "+ section.Start.latitude+" 끝: " + section.End.longitude + ", " + section.End.latitude)
-                routeControl.drawProgressLine(section)
-                routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))
+                if(pathOverlaycurr==null){
+                    pathOverlaycurr = routeControl.drawProgressLine(section)
+                    pathOverlaycurr!!.map = this.naverMap
+                }
+                else{
+                    pathOverlaypre = pathOverlaycurr
+                    pathOverlaycurr = routeControl.drawProgressLine(section)
+                    pathOverlaypre?.map = null
+                    pathOverlaycurr!!.map = this.naverMap
+                }
+                var isOut = routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))
+                if(isOut){
+                    Log.d("이탈","이탈됨")
+                }
+
             }
 
 

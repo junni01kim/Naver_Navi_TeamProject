@@ -48,7 +48,6 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
 //    GPS 업데이트 시간 : 1.3s
 
     private var roundRadius = 1.0
-    private var nowIndex:Int=0
     private val routeEnum = ArrayList<LatLng>()
     private val outDistance = 10.0
 
@@ -63,21 +62,40 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
     fun checkingSection(strloc:StrengthLocation):Section{/// ???
 
         when(strloc.Strength){
-            "Strong"->{ roundRadius = 1.0 }
+            "Strong"->{ roundRadius = 40.0 }
             "Weak"->{ roundRadius = 10.0 }
         }
 
-        while (nowIndex<routeEnum.size-2){
-            if(calceDistance(routeEnum[nowIndex], strloc.Location)<=roundRadius &&
-                calceDistance(routeEnum[nowIndex+1], strloc.Location)>roundRadius){
-                Log.d("거리","" + calceDistance(routeEnum[nowIndex], strloc.Location))
-                Log.d("거리","" + calceDistance(routeEnum[nowIndex+1], strloc.Location))
+        var returnIndex = 0
+        var flag=0
+        while (returnIndex<routeEnum.size-2){
+            if(calcDistance(routeEnum[returnIndex], strloc.Location)<=roundRadius &&
+                calcDistance(routeEnum[returnIndex+1], strloc.Location)>roundRadius){
+                flag=1
+                Log.d("거리", "현재 index : " + returnIndex)
+                Log.d("거리","1. " + calcDistance(routeEnum[returnIndex], strloc.Location))
+                Log.d("거리","2. " + calcDistance(routeEnum[returnIndex+1], strloc.Location))
                 break
             }
-            nowIndex+=1
+            returnIndex+=1
         }
 
-        return Section(routeEnum[nowIndex],routeEnum[nowIndex+1], strloc.Location)
+        var checkDist = Double.MAX_VALUE
+        var distTmp:Double
+        if(flag==0){
+            for(i in 0..routeEnum.size-2){
+                distTmp = calcDistance(routeEnum[i],strloc.Location)
+                if(checkDist>distTmp){
+                    returnIndex = i
+                    checkDist = distTmp
+                }
+            }
+        }
+
+        Log.d("거리1", "현재 index : " + returnIndex)
+        Log.d("거리1", "CheckDist : " + checkDist)
+
+        return Section(routeEnum[returnIndex],routeEnum[returnIndex+1], strloc.Location)
     }
 
     /**
@@ -87,7 +105,7 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
      *  @param latlng2 좌표2
      *  @return Double
      */
-    fun calceDistance(latlng1:LatLng, latlng2: LatLng): Double {
+    fun calcDistance(latlng1:LatLng, latlng2: LatLng): Double {
         val radLat1 = Math.toRadians(latlng1.latitude)
         val radLon1 = Math.toRadians(latlng1.longitude)
         val radLat2 = Math.toRadians(latlng2.latitude)
@@ -98,11 +116,24 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
         val dLon = radLon2 - radLon1
         val a = sin(dLat / 2) * sin(dLat / 2) + cos(radLat1) * cos(radLat2) * sin(dLon / 2) * sin(dLon / 2)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        var distance = 63710 * c // 지구 반지름을 곱하여 거리를 미터 단위로 변환
+        var distance = 6371000 * c // 지구 반지름을 곱하여 거리를 미터 단위로 변환
 
         if (distance < 0) {
             distance *= -1
         }
+
+        return distance
+    }
+
+
+    fun calcPointLineDist(A:LatLng, B:LatLng, user:LatLng):Double{
+        val A_coeff = B.latitude - A.latitude
+        val B_coeff = A.longitude - B.longitude
+        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)
+
+        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
+        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
+        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)
 
         return distance
     }
@@ -120,11 +151,12 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
 
         // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
         // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
-        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)
+        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)*10000
 
 //        Log.d("경로사이의거리","거리: "+distance+" 구역: "+location.latitude +", " +location.longitude)
 
-        if(distance>=outDistance){
+        Log.d("이탈: ","거리: "+distance)
+        if(distance>=5){
             return true
         }
         else{
