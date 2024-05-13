@@ -138,7 +138,6 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
         return distance
     }
 
-
     fun detectOutRoute(section:Section, location:LatLng):Boolean{
 
         val A = section.Start
