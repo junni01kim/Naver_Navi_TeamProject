@@ -1,11 +1,19 @@
 package com.hansung.sherpa.deviation
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
-import android.location.Location
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import com.hansung.sherpa.MainActivity
+import com.hansung.sherpa.R
 import com.hansung.sherpa.SearchRoute
+import com.hansung.sherpa.databinding.ActivityMainBinding
+import com.hansung.sherpa.databinding.AlertBinding
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
@@ -201,6 +209,22 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
             SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
         }
     }
+
+    object AlterToast {
+        fun createToast(context: Context): Toast? {
+            val inflater = LayoutInflater.from(context)
+            val binding: AlertBinding = DataBindingUtil.inflate(inflater, R.layout.alert, null, false)
+
+            return Toast(context).apply {
+                setGravity(Gravity.BOTTOM or Gravity.CENTER, 0, 16.toPx())
+                duration = Toast.LENGTH_SHORT
+                view = binding.root
+            }
+        }
+
+        private fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
+    }
+
 
 
 }

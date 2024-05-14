@@ -182,6 +182,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                 var isOut = routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))
                 if(isOut){
                     Log.d("이탈","이탈됨")
+                    RouteControl.AlterToast.createToast(context)?.show()
                 }
 
             }
