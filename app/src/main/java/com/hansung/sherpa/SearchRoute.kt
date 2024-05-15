@@ -30,6 +30,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
     lateinit var departureLatLng:LatLng
     // 목적지는 값이 없을 수도 있다.
     var destinationLatLng:LatLng? = null
+    val pathOverlayList:MutableList<PathOverlay> = mutableListOf<PathOverlay>()
 
     // GeocodingAPI 클래스를 이용하여 원하는 주소의 좌표를 받아오는 함수이다.
     fun searchLatLng(destination:String): LatLng {
@@ -86,34 +87,34 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
 //        )
 
         // Testcase - 1
-//        val routeRequest = TransitRouteRequest(
-//            //startX = "126.926493082645",
-//            startX = "126.835895",
-//            //startY = "37.6134436427887",
-//            startY = "37.642631",
-//            endX = "126.831978",
-//            //endX = destinationLatLng!!.longitude.toString(),
-//            endY = "37.634765",
-//            //endY = destinationLatLng!!.latitude.toString(),
-//            lang = 0,
-//            format = "json",
-//            count = 1
-//        )
-
-        // Testcase - 2
         val routeRequest = TransitRouteRequest(
             //startX = "126.926493082645",
-            startX = "126.833416",
+            startX = "126.835895",
             //startY = "37.6134436427887",
-            startY = "37.642396",
-            endX = "126.829695",
+            startY = "37.642631",
+            endX = "126.831978",
             //endX = destinationLatLng!!.longitude.toString(),
-            endY = "37.627448",
+            endY = "37.634765",
             //endY = destinationLatLng!!.latitude.toString(),
             lang = 0,
             format = "json",
             count = 1
         )
+
+        // Testcase - 2
+//        val routeRequest = TransitRouteRequest(
+//            //startX = "126.926493082645",
+//            startX = "126.833416",
+//            //startY = "37.6134436427887",
+//            startY = "37.642396",
+//            endX = "126.829695",
+//            //endX = destinationLatLng!!.longitude.toString(),
+//            endY = "37.627448",
+//            //endY = destinationLatLng!!.latitude.toString(),
+//            lang = 0,
+//            format = "json",
+//            count = 1
+//        )
 
         var transitRoutes: MutableList<MutableList<LegRoute>>
 
@@ -134,7 +135,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             }
             COORDSES[COORDSES.size-1].first.add(tt[tt.size-1].latLng)
 
-            routeControl = RouteControl(this.naverMap,COORDSES)
+            routeControl = RouteControl(this.naverMap,COORDSES,this)
 
             for (i in COORDSES){
                 i.first.forEach{
@@ -158,6 +159,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                     it.progress = 0.3
                     it.map = this.naverMap
                 }
+                pathOverlayList.add(pathOverlay)
             }
         }
 
@@ -183,6 +185,13 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                 if(isOut){
                     Log.d("이탈","이탈됨")
                     RouteControl.AlterToast.createToast(context)?.show()
+//                    naverMap.map = null
+                    for(i in this.pathOverlayList){
+                        i.map = null
+                    }
+//                    section.End = LatLng(routeRequest.endY.toDouble(), routeRequest.endX.toDouble())
+                    section.End = LatLng(37.583159,127.011074) // 한성대 좌표
+                    routeControl.redrawDeviationRoute(section)
                 }
 
             }
@@ -197,7 +206,8 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
         //val destinationText = viewModel.destinationText.value
         val destinationText = "서울특별시 성북구 삼선교로16길 116"
 
-        destinationLatLng = searchLatLng(destinationText) // 오류 원인!!
+        //////////////////////////////////////////////////
+//        destinationLatLng = searchLatLng(destinationText) // 오류 원인!!
 
         drawRoute(routeRequest)
     }

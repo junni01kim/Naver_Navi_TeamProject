@@ -33,9 +33,9 @@ import kotlin.math.sqrt
  *  @property CurrLocation 현재 사용자의 좌표
  */
 data class Section(
-    val Start: LatLng,
-    val End: LatLng,
-    val CurrLocation: LatLng
+    var Start: LatLng,
+    var End: LatLng,
+    var CurrLocation: LatLng
 )
 
 /**
@@ -49,7 +49,7 @@ data class StrengthLocation (
     val Location: LatLng
 )
 
-class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<MutableList<LatLng>, String>>) {
+class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<MutableList<LatLng>, String>>, val searchRoute: SearchRoute) {
 
 //    경로 이탈 : 10m
 //    경로 구간 확인 : 동적
@@ -194,7 +194,7 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
      *  @param section 시작(안씀), 목적지 벡터 좌표, 현재 사용자 위치를 가져옴
      *  @return (NaverMap, Context, MainActivity) -> Unit
      */
-    fun redrawDeviationRoute(section: Section): (NaverMap, Context, MainActivity) -> Unit {
+    fun redrawDeviationRoute(section: Section){
 
         val routeRequest = TransitRouteRequest(
             startX = section.CurrLocation.longitude.toString(),
@@ -205,9 +205,11 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
             format = "json",
             count = 1
         )
-        return { naverMap, context, lifecycle ->
-            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
-        }
+        searchRoute.searchRoute(routeRequest)
+//        return { naverMap, context, lifecycle ->
+////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
+//            searchRoute.searchRoute(routeRequest)
+//        }
     }
 
     object AlterToast {
