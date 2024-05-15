@@ -187,8 +187,6 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
 
             }
 
-
-
         }
 
     }
