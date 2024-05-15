@@ -1,11 +1,15 @@
 package com.hansung.sherpa
 
 import android.graphics.PointF
+import android.os.Build
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.hansung.sherpa.gps.GPSDatas
+import com.hansung.sherpa.gps.GpsLocationSource
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
@@ -38,7 +42,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapFragment.getMapAsync(this)
 
-        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        locationSource = GpsLocationSource.getInstance(this)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,

@@ -2,7 +2,9 @@ package com.hansung.sherpa
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.hansung.sherpa.convert.Convert
@@ -12,6 +14,7 @@ import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.deviation.Section
 import com.hansung.sherpa.geocoding.GeocodingAPI
+import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
@@ -26,11 +29,17 @@ class SearchRouteViewModel:ViewModel() {
 }
 
 class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: MainActivity) {
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    val gpsDatas = GPSDatas(context)
+
+    lateinit var routeControl:RouteControl
+
     // 출발지(내 위치)
     lateinit var departureLatLng:LatLng
     // 목적지는 값이 없을 수도 있다.
     var destinationLatLng:LatLng? = null
-    val pathOverlayList:MutableList<PathOverlay> = mutableListOf<PathOverlay>()
+    var pathOverlayList:MutableList<PathOverlay> = mutableListOf<PathOverlay>()
 
     // GeocodingAPI 클래스를 이용하여 원하는 주소의 좌표를 받아오는 함수이다.
     fun searchLatLng(destination:String): LatLng {
@@ -52,6 +61,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
     }
 
     // 대중교통 이동 루트 검색 함수
+    @RequiresApi(Build.VERSION_CODES.R)
     fun searchRoute() {
         val viewModel = SearchRouteViewModel()
 
@@ -64,8 +74,8 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
     }
 
     // 정해진 루트에 선을 그리는 함수
+    @RequiresApi(Build.VERSION_CODES.R)
     fun drawRoute() {
-        lateinit var routeControl:RouteControl
         // 출발지점은 현재 자신의 좌표값을 받아서 설정한다.
         departureLatLng = naverMap.locationOverlay.position
 
@@ -87,34 +97,34 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
 //        )
 
         // Testcase - 1
-        val routeRequest = TransitRouteRequest(
-            //startX = "126.926493082645",
-            startX = "126.835895",
-            //startY = "37.6134436427887",
-            startY = "37.642631",
-            endX = "126.831978",
-            //endX = destinationLatLng!!.longitude.toString(),
-            endY = "37.634765",
-            //endY = destinationLatLng!!.latitude.toString(),
-            lang = 0,
-            format = "json",
-            count = 1
-        )
-
-        // Testcase - 2
 //        val routeRequest = TransitRouteRequest(
 //            //startX = "126.926493082645",
-//            startX = "126.833416",
+//            startX = "126.835895",
 //            //startY = "37.6134436427887",
-//            startY = "37.642396",
-//            endX = "126.829695",
+//            startY = "37.642631",
+//            endX = "126.831978",
 //            //endX = destinationLatLng!!.longitude.toString(),
-//            endY = "37.627448",
+//            endY = "37.634765",
 //            //endY = destinationLatLng!!.latitude.toString(),
 //            lang = 0,
 //            format = "json",
 //            count = 1
 //        )
+
+        // Testcase - 2
+        val routeRequest = TransitRouteRequest(
+            //startX = "126.926493082645",
+            startX = "126.833416",
+            //startY = "37.6134436427887",
+            startY = "37.642396",
+            endX = "126.829695",
+            //endX = destinationLatLng!!.longitude.toString(),
+            endY = "37.627448",
+            //endY = destinationLatLng!!.latitude.toString(),
+            lang = 0,
+            format = "json",
+            count = 1
+        )
 
         var transitRoutes: MutableList<MutableList<LegRoute>>
 
@@ -138,11 +148,11 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             routeControl = RouteControl(this.naverMap,COORDSES,this)
 
             for (i in COORDSES){
-                i.first.forEach{
-                    var marker = Marker()
-                    marker.position = it
-                    marker.map = this.naverMap
-                }
+//                i.first.forEach{
+//                    var marker = Marker()
+//                    marker.position = it
+//                    marker.map = this.naverMap
+//                }
                 // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
                 val pathOverlay = PathOverlay().also {
                     it.coords = i.first
@@ -168,7 +178,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
 
         naverMap.addOnLocationChangeListener {location->
             if(routeControl!=null){
-                var section = routeControl.checkingSection(StrengthLocation("Strong",LatLng(location.latitude,location.longitude)))
+                var section = routeControl.checkingSection(StrengthLocation(gpsDatas.getGpsSignalAccuracy().Strength,LatLng(location.latitude,location.longitude)))
                 Log.d("현재구역","현재위치: " + location.longitude+", "+location.latitude)
                 Log.d("현재구역","시작: "+section.Start.longitude +", "+ section.Start.latitude+" 끝: " + section.End.longitude + ", " + section.End.latitude)
                 if(pathOverlaycurr==null){
@@ -190,7 +200,8 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                         i.map = null
                     }
 //                    section.End = LatLng(routeRequest.endY.toDouble(), routeRequest.endX.toDouble())
-                    section.End = LatLng(37.583159,127.011074) // 한성대 좌표
+//                    section.End = LatLng(37.612746,127.834092) // 원당 좌표
+                    section.End = LatLng(37.583145,127.011046) // 원당 좌표
                     routeControl.redrawDeviationRoute(section)
                 }
 
@@ -219,6 +230,8 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
 
         var transitRoutes: MutableList<MutableList<LegRoute>>
 
+        pathOverlayList = mutableListOf<PathOverlay>()
+
         // 관찰 변수 변경 시 콜백
         TransitManager(this.context).getTransitRoutes(routeRequest).observe(this.lifecycle) { transitRouteResponse ->
             transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
@@ -235,6 +248,8 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                 COORDSES[COORDSES.size-1].first.add(tt[i].latLng)
             }
             COORDSES[COORDSES.size-1].first.add(tt[tt.size-1].latLng)
+
+            this.routeControl.upDateRouteEnum(COORDSES)
 
             for (i in COORDSES){
                 // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
@@ -253,6 +268,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                     it.progress = 0.3
                     it.map = this.naverMap
                 }
+                pathOverlayList.add(pathOverlay)
             }
         }
     }

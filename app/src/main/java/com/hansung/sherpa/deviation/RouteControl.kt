@@ -14,6 +14,7 @@ import com.hansung.sherpa.R
 import com.hansung.sherpa.SearchRoute
 import com.hansung.sherpa.databinding.ActivityMainBinding
 import com.hansung.sherpa.databinding.AlertBinding
+import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
@@ -56,10 +57,20 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
 //    GPS 업데이트 시간 : 1.3s
 
     private var roundRadius = 1.0
-    private val routeEnum = ArrayList<LatLng>()
+    private var routeEnum = ArrayList<LatLng>()
     private val outDistance = 10.0
 
     init {
+        for(i in route){
+            for(j in i.first){
+                routeEnum.add(j)
+            }
+        }
+    }
+
+    fun upDateRouteEnum(route:MutableList<Pair<MutableList<LatLng>, String>>){
+        this.routeEnum = ArrayList<LatLng>()
+
         for(i in route){
             for(j in i.first){
                 routeEnum.add(j)
@@ -71,7 +82,7 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
 
         when(strloc.Strength){
             "Strong"->{ roundRadius = 40.0 }
-            "Weak"->{ roundRadius = 10.0 }
+            "Weak"->{ roundRadius = 43.0 }
         }
 
         var returnIndex = 0
