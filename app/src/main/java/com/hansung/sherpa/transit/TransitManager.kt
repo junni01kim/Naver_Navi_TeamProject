@@ -10,12 +10,17 @@ import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 
 /**
  * 교통수단 API를 관리하는 클래스
@@ -65,6 +70,37 @@ class TransitManager(context: Context) {
                 }
             })
         return resultLiveData
+    }
+
+    /**
+     * 교통수단 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
+     *
+     * @param routeRequest 요청할 정보 객체
+     * @return TransitRouteResponse
+     */
+    fun getTransitRoutes2(routeRequest: TransitRouteRequest): TransitRouteResponse {
+        val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
+        lateinit var rr: TransitRouteResponse
+        runBlocking<Job> {
+            launch(Dispatchers.IO) {
+                try {
+                    val response = Retrofit.Builder()
+                        .baseUrl(context.getString(R.string.route_base_url))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<TransitRouteService?>(TransitRouteService::class.java)
+                        .postTransitRoutes(appKey, routeRequest).execute() // API 호출
+                    rr = Gson().fromJson(
+                        response.body()!!.string(),
+                        TransitRouteResponse::class.java
+                    )
+                } catch (e: IOException) {
+                    Log.i("Error", "Transit API Exception")
+                    rr = TransitRouteResponse()
+                }
+            }
+        }
+        return rr
     }
 
     /**
