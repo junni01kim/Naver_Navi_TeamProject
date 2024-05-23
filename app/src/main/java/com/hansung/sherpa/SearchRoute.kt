@@ -28,10 +28,10 @@ class SearchRouteViewModel:ViewModel() {
     val destinationText = MutableLiveData<String>()
 }
 
-class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: MainActivity) {
+class SearchRoute() {
 
     @RequiresApi(Build.VERSION_CODES.R)
-    val gpsDatas = GPSDatas(context)
+    val gpsDatas = GPSDatas(StaticValue.mainActivity)
 
     lateinit var routeControl:RouteControl
 
@@ -77,7 +77,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
     @RequiresApi(Build.VERSION_CODES.R)
     fun drawRoute() {
         // 출발지점은 현재 자신의 좌표값을 받아서 설정한다.
-        departureLatLng = naverMap.locationOverlay.position
+        departureLatLng = StaticValue.naverMap.locationOverlay.position
 
         Log.d("getLatLng", departureLatLng.longitude.toString())
 
@@ -129,7 +129,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
         var transitRoutes: MutableList<MutableList<LegRoute>>
 
         // 관찰 변수 변경 시 콜백
-        TransitManager(this.context).getTransitRoutes(routeRequest).observe(this.lifecycle) { transitRouteResponse ->
+        TransitManager(StaticValue.mainActivity).getTransitRoutes(routeRequest).observe(StaticValue.mainActivity) { transitRouteResponse ->
             transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
             val tt = Convert().convertToSearchRouteDataClass(transitRoutes[0])
 
@@ -145,7 +145,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
             }
             COORDSES[COORDSES.size-1].first.add(tt[tt.size-1].latLng)
 
-            routeControl = RouteControl(this.naverMap,COORDSES,this)
+            routeControl = RouteControl(StaticValue.naverMap,COORDSES,this)
 
             for (i in COORDSES){
 //                i.first.forEach{
@@ -167,7 +167,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                     }
                     it.passedColor = Color.LTGRAY
                     it.progress = 0.3
-                    it.map = this.naverMap
+                    it.map = StaticValue.naverMap
                 }
                 pathOverlayList.add(pathOverlay)
             }
@@ -176,25 +176,25 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
         var pathOverlaypre: PathOverlay? = null
         var pathOverlaycurr: PathOverlay? = null
 
-        naverMap.addOnLocationChangeListener {location->
+        StaticValue.naverMap.addOnLocationChangeListener {location->
             if(routeControl!=null){
                 var section = routeControl.checkingSection(StrengthLocation(gpsDatas.getGpsSignalAccuracy().Strength,LatLng(location.latitude,location.longitude)))
                 Log.d("현재구역","현재위치: " + location.longitude+", "+location.latitude)
                 Log.d("현재구역","시작: "+section.Start.longitude +", "+ section.Start.latitude+" 끝: " + section.End.longitude + ", " + section.End.latitude)
                 if(pathOverlaycurr==null){
                     pathOverlaycurr = routeControl.drawProgressLine(section)
-                    pathOverlaycurr!!.map = this.naverMap
+                    pathOverlaycurr!!.map = StaticValue.naverMap
                 }
                 else{
                     pathOverlaypre = pathOverlaycurr
                     pathOverlaycurr = routeControl.drawProgressLine(section)
                     pathOverlaypre?.map = null
-                    pathOverlaycurr!!.map = this.naverMap
+                    pathOverlaycurr!!.map = StaticValue.naverMap
                 }
                 var isOut = routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))
                 if(isOut){
                     Log.d("이탈","이탈됨")
-                    RouteControl.AlterToast.createToast(context)?.show()
+                    RouteControl.AlterToast.createToast(StaticValue.mainActivity)?.show()
 //                    naverMap.map = null
                     for(i in this.pathOverlayList){
                         i.map = null
@@ -226,14 +226,14 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
     fun drawRoute(routeRequest: TransitRouteRequest) {
 
         // 출발지점은 현재 자신의 좌표값을 받아서 설정한다.
-        departureLatLng = naverMap.locationOverlay.position
+        departureLatLng = StaticValue.naverMap.locationOverlay.position
 
         var transitRoutes: MutableList<MutableList<LegRoute>>
 
         pathOverlayList = mutableListOf<PathOverlay>()
 
         // 관찰 변수 변경 시 콜백
-        TransitManager(this.context).getTransitRoutes(routeRequest).observe(this.lifecycle) { transitRouteResponse ->
+        TransitManager(StaticValue.mainActivity).getTransitRoutes(routeRequest).observe(StaticValue.mainActivity) { transitRouteResponse ->
             transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
             val tt = Convert().convertToSearchRouteDataClass(transitRoutes[0])
 
@@ -266,7 +266,7 @@ class SearchRoute(val naverMap: NaverMap, val context: Context, val lifecycle: M
                     }
                     it.passedColor = Color.YELLOW
                     it.progress = 0.3
-                    it.map = this.naverMap
+                    it.map = StaticValue.naverMap
                 }
                 pathOverlayList.add(pathOverlay)
             }

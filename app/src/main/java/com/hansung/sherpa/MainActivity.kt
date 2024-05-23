@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        StaticValue.mainActivity = this
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID) // 본인 api key
 
@@ -60,8 +61,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     }
 
     // naverMap객체가 준비됨
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap){
         this.naverMap = p0
+        StaticValue.naverMap = naverMap
 
         naverMap.locationSource = locationSource
 
@@ -104,7 +107,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 버튼 클릭 리스너
         searchButton.setOnClickListener{
-            SearchRoute(naverMap,this@MainActivity,this@MainActivity).searchRoute()
+            SearchRoute().searchRoute()
         }
 
         viewModel.destinationText.observe(this){
