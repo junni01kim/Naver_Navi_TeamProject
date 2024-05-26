@@ -1,4 +1,4 @@
-package com.hansung.sherpa
+package com.hansung.sherpa.location
 
 import android.util.Log
 import com.hansung.sherpa.geocoding.GeocodingAPI

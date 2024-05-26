@@ -1,4 +1,4 @@
-package com.hansung.sherpa
+package com.hansung.sherpa.navigation
 
 import android.graphics.Color
 import android.os.Build.VERSION_CODES
@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
@@ -114,7 +115,7 @@ class Navigation() {
         var pathOverlaypre: PathOverlay? = null
         var pathOverlaycurr: PathOverlay? = null
 
-        StaticValue.naverMap.addOnLocationChangeListener {location->
+        StaticValue.naverMap.addOnLocationChangeListener { location->
             if(routeControl!=null){
                 var section = routeControl.checkingSection(StrengthLocation(gpsDatas.getGpsSignalAccuracy().Strength,LatLng(location.latitude,location.longitude)))
                 Log.d("현재구역","현재위치: " + location.longitude+", "+location.latitude)

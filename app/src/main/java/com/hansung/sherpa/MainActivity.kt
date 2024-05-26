@@ -8,7 +8,8 @@ import android.widget.ImageButton
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.hansung.sherpa.gps.GPSDatas
+import com.hansung.sherpa.navigation.Navigation
+import com.hansung.sherpa.navigation.SearchRouteViewModel
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode

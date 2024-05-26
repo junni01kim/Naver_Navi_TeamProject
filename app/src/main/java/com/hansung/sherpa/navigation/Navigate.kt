@@ -1,7 +1,6 @@
-package com.hansung.sherpa
+package com.hansung.sherpa.navigation
 
 import com.hansung.sherpa.convert.LegRoute
-import com.naver.maps.geometry.LatLng
 
 class Navigate(val route:MutableList<LegRoute>) {
     fun run(){
