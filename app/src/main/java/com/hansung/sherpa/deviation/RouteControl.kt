@@ -10,8 +10,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import com.hansung.sherpa.MainActivity
+import com.hansung.sherpa.Navigation
 import com.hansung.sherpa.R
-import com.hansung.sherpa.SearchRoute
+import com.hansung.sherpa.convert.Coordinate
+import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.databinding.ActivityMainBinding
 import com.hansung.sherpa.databinding.AlertBinding
 import com.hansung.sherpa.gps.GPSDatas
@@ -50,7 +52,7 @@ data class StrengthLocation (
     val Location: LatLng
 )
 
-class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<MutableList<LatLng>, String>>, val searchRoute: SearchRoute) {
+class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegRoute>, val navigation: Navigation) {
 
 //    경로 이탈 : 10m
 //    경로 구간 확인 : 동적
@@ -62,8 +64,8 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
 
     init {
         for(i in route){
-            for(j in i.first){
-                routeEnum.add(j)
+            for(j in i.coordinates){
+                routeEnum.add(LatLng(j.latitude,j.longitude))
             }
         }
     }
@@ -216,7 +218,7 @@ class RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<
             format = "json",
             count = 1
         )
-        searchRoute.searchRoute(routeRequest)
+        navigation.searchRoute(routeRequest)
 //        return { naverMap, context, lifecycle ->
 ////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
 //            searchRoute.searchRoute(routeRequest)

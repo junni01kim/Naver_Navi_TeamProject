@@ -1,5 +1,7 @@
 package com.hansung.sherpa.convert
 
+import com.naver.maps.geometry.LatLng
+
 /**
  *  Enum Class
  *  이동수단 타입 지정
@@ -30,4 +32,13 @@ enum class PathType {
 class LegRoute(coordinates: MutableList<Coordinate> = mutableListOf(), pathType: PathType = PathType.WALK) {
     var coordinates: MutableList<Coordinate> = coordinates
     var pathType: PathType = pathType
+}
+
+fun changeCoordinate2LatLnges(coordinates: MutableList<Coordinate>): MutableList<LatLng> {
+    val latLngs: MutableList<LatLng> = mutableListOf()
+    for (i in coordinates) {
+        latLngs.add(LatLng(i.latitude, i.longitude))
+    }
+
+    return latLngs
 }
