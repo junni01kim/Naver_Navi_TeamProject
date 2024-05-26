@@ -10,7 +10,6 @@ import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
-import com.hansung.sherpa.convert.changeCoordinate2LatLnges
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
@@ -94,7 +93,7 @@ class Navigation() {
 
             // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
             val pathOverlay = PathOverlay().also {
-                it.coords = changeCoordinate2LatLnges(i.coordinates)
+                it.coords = Convert().convertCoordinateToLatLng(i.coordinates)
                 it.width = 10
                 when(i.pathType){
                     PathType.WALK -> it.color = Color.BLUE

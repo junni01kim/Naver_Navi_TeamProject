@@ -169,4 +169,14 @@ class Convert {
         Log.d("testPrint","temporateClass로 변경 성공!")
         return searchRouteMutableList
     }
+
+    /**
+     *  Coordinate 리스트를 LatLng 리스트로 변환하는 함수
+     *
+     *  @param coordinates 공용 좌표 타입
+     *  @return List
+     */
+    fun convertCoordinateToLatLng(coordinates: MutableList<Coordinate>): List<LatLng> {
+        return coordinates.map { LatLng(it.latitude, it.longitude) }
+    }
 }
