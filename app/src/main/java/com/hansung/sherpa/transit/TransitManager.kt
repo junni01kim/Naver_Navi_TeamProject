@@ -61,13 +61,10 @@ class TransitManager(context: Context) {
                         val transitRouteResponse = Gson().fromJson(responseBody.string(), TransitRouteResponse::class.java)
                         // post to livedata (Change Notification) 변경된 값을 알림
                         resultLiveData.postValue(transitRouteResponse)
-                        Log.d("testPrint","역직렬화 성공")
                     }
                 }
 
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                    Log.d("testPrint","역직렬화 실패")
-                }
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
             })
         return resultLiveData
     }
