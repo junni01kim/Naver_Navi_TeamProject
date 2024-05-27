@@ -8,15 +8,13 @@ import com.naver.maps.geometry.LatLng
 /**
  * API로 받아온 데이터 객체를 사용할 객체로 변환해주는 클래스
  *
- * @since 2024-05-09
+ * @since 2024-05-27
  * @author HS-JNYLee
  *
  * @property routeMutableLists 여러 경로의 데이터를 가지고 있는 프로퍼티
- * @property legRouteMutableList 1개의 경로의 데이터를 저장하는 프로퍼티
  */
 class Convert {
     private val routeMutableLists = mutableListOf<MutableList<LegRoute>>()
-    private val legRouteMutableList = mutableListOf<LegRoute>()
 
     /**
      * API reponse 값을 경로 리스트로 바꿔주는 함수
@@ -26,9 +24,9 @@ class Convert {
      */
     fun convertToRouteMutableLists(response: TransitRouteResponse): MutableList<MutableList<LegRoute>> {
         response.metaData?.plan?.itineraries?.forEach {
-            legRouteMutableList.removeAll(legRouteMutableList) // 초기화
-            it.legs?.forEach { leg -> navigateRouteType(leg) } // 구간별 값 추가
-            routeMutableLists.add(legRouteMutableList) // 완성된 경로 저장
+            val legRouteList = mutableListOf<LegRoute>()                         // 1개의 경로를 담는 리스트
+            it.legs?.forEach { leg -> legRouteList.add(navigateRouteType(leg)) } // 구간별 값 추가
+            routeMutableLists.add(legRouteList) // 완성된 경로 저장
         }
         return routeMutableLists
     }
@@ -36,14 +34,17 @@ class Convert {
     /**
      * 각 구간별 이동수단 타입에 따라 구분해주는 함수
      * @param leg 구간의 정보
+     *
+     * @return LegRoute
      */
-    private fun navigateRouteType(leg: Leg) {
-        when (leg.mode) {
-            "WALK" -> legRouteMutableList.add(getWalkRoute(leg))
-            "SUBWAY" -> legRouteMutableList.add(getSubwayRoute(leg))
-            "BUS" -> legRouteMutableList.add(getBusRoute(leg))
-            "EXPRESSBUS" -> legRouteMutableList.add(getExpressBusRoute(leg))
-            "TRAIN" -> legRouteMutableList.add(getTrainRoute(leg))
+    private fun navigateRouteType(leg: Leg): LegRoute {
+        return when (leg.mode) {
+            "WALK" -> getWalkRoute(leg)
+            "SUBWAY" -> getSubwayRoute(leg)
+            "BUS" -> getBusRoute(leg)
+            "EXPRESSBUS" -> getExpressBusRoute(leg)
+            "TRAIN" -> getTrainRoute(leg)
+            else -> LegRoute()
         }
     }
 
@@ -61,8 +62,8 @@ class Convert {
             .forEach {
                 coordinateList.add(
                     Coordinate(
-                        it.key.toDouble(), // latitude
-                        it.value.toDouble() // longitude
+                        it.key.toDouble(),             // latitude
+                        it.value.toDouble()            // longitude
                     )
                 )
             }
@@ -154,14 +155,14 @@ class Convert {
      */
     fun convertToSearchRouteDataClass(routeMutableList: MutableList<LegRoute>): MutableList<SearchRouteCoordinate> {
         val searchRouteMutableList = mutableListOf<SearchRouteCoordinate>()
-        routeMutableList.forEach { legRoute -> // 구간별 경로 추출
-            legRoute.coordinates.forEach { coordinate -> // 경로의 좌표 값 추출
+        routeMutableList.forEach { legRoute ->              // 구간별 경로 추출
+            legRoute.coordinates.forEach { coordinate ->    // 경로의 좌표 값 추출
                 searchRouteMutableList.add(
                     SearchRouteCoordinate(
                         LatLng(
-                            coordinate.latitude, // 위도
-                            coordinate.longitude // 경도
-                        ), legRoute.pathType // 이동수단 타입
+                            coordinate.latitude,            // 위도
+                            coordinate.longitude            // 경도
+                        ), legRoute.pathType                // 이동수단 타입
                     )
                 )
             }
