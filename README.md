@@ -16,8 +16,8 @@ Naver_Navi_TeamProject는 한이음ICT에서 진행하는 프로보노 멘토링
 다음과 같은 내용을 프로젝트 `local.properties`에 추가하세요.  
   \* 각 키 값은 개별적으로 승인 받아야합니다.  
 ```html
-CLIENT_ID="NAVER CLIENT ID"
-TMAP_APP_KEY="e8wHh2tya84M88aReEpXCa5XTQf3xgo01aZG39k5"
+CLIENT_ID="v4625bqfbq"
+TMAP_APP_KEY="pYbNXZAC0e2pATcZJ5OFe1n2jyC1wDPwcwUUtIs7"
 ```
 
 ## 3. 저작권 라이선스 정보  
