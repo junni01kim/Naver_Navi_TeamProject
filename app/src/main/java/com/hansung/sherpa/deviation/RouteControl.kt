@@ -3,10 +3,12 @@ package com.hansung.sherpa.deviation
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.R
@@ -202,6 +204,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
      *  @param section 시작(안씀), 목적지 벡터 좌표, 현재 사용자 위치를 가져옴
      *  @return (NaverMap, Context, MainActivity) -> Unit
      */
+
     fun redrawDeviationRoute(section: Section){
 
         val routeRequest = TransitRouteRequest(
@@ -213,7 +216,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
             format = "json",
             count = 1
         )
-        navigation.searchRoute(routeRequest)
+        navigation.process(routeRequest)
 //        return { naverMap, context, lifecycle ->
 ////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
 //            searchRoute.searchRoute(routeRequest)

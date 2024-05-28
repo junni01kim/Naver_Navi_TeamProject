@@ -2,4 +2,10 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="WALK">#000000</color>
+    <color name="BUS">#90EE90</color>
+    <color name="SUBWAY">#0d3692</color>
+    <color name="EXPRESSBUS">#FF0000</color>
+    <color name="TRAIN">#EE82EE</color>
 </resources>
