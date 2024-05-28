@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 버튼 클릭 리스너
         searchButton.setOnClickListener{
-            Navigation().run()
+            Navigation().process()
         }
 
         viewModel.destinationText.observe(this){

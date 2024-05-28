@@ -3,9 +3,12 @@ package com.hansung.sherpa.navigation
 import android.graphics.Color
 import android.os.Build.VERSION_CODES
 import android.util.Log
+import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.PathType
@@ -37,7 +40,7 @@ class Navigation {
 
     // 경로와 안내는 순서대로 진행된다.
     @RequiresApi(VERSION_CODES.R)
-    fun run() {
+    fun process() {
         // 0. 사용자가 가고 싶은 출발지 목적지를 구하는 클래스
         //TODO("장소 찾기 SearchLocation 클래스 활용(출발지)")
         //TODO("장소 찾기 SearchLocation 클래스 활용(목적지)")
@@ -57,16 +60,14 @@ class Navigation {
 
         Log.d("getLatLng", departureLatLng.longitude.toString())
 
-        // Testcase - 2
         val routeRequest = TransitRouteRequest(
-            //startX = "126.926493082645",
-            startX = "126.833416",
-            //startY = "37.6134436427887",
-            startY = "37.642396",
+            startX = departureLatLng.longitude.toString(),
+            startY = departureLatLng.latitude.toString(),
+            //출발지 샘플
+            //startX = "126.833416",
+            //startY = "37.642396",
             endX = "126.829695",
-            //endX = destinationLatLng!!.longitude.toString(),
             endY = "37.627448",
-            //endY = destinationLatLng!!.latitude.toString(),
             lang = 0,
             format = "json",
             count = 1
@@ -86,14 +87,14 @@ class Navigation {
                 it.coords = Convert().convertCoordinateToLatLng(i.coordinates)
                 it.width = 10
                 when(i.pathType){
-                    PathType.WALK -> it.color = Color.BLUE
-                    PathType.BUS -> it.color = Color.DKGRAY
-                    PathType.EXPRESSBUS -> it.color = Color.RED
-                    PathType.SUBWAY -> it.color = Color.GREEN
-                    PathType.TRAIN -> it.color = Color.MAGENTA
+                    PathType.WALK -> it.color = convertIntToStr(R.color.WALK)
+                    PathType.BUS -> it.color = convertIntToStr(R.color.BUS)
+                    PathType.EXPRESSBUS -> it.color = convertIntToStr(R.color.EXPRESSBUS)
+                    PathType.SUBWAY -> it.color = convertIntToStr(R.color.SUBWAY)
+                    PathType.TRAIN -> it.color = convertIntToStr(R.color.TRAIN)
                 }
-                it.passedColor = Color.LTGRAY
-                it.progress = 0.3
+                //it.passedColor = Color.LTGRAY
+                //it.progress = 0.3
                 it.map = StaticValue.naverMap
             }
             pathOverlayList.add(pathOverlay)
@@ -101,8 +102,7 @@ class Navigation {
         return pathOverlayList
     }
 
-    @RequiresApi(VERSION_CODES.R)
-    fun run(routeRequest: TransitRouteRequest) {
+    fun process(routeRequest: TransitRouteRequest) {
         // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
         val route = drawRoute(routeRequest)
 
@@ -124,18 +124,20 @@ class Navigation {
                 it.coords = Convert().convertCoordinateToLatLng(i.coordinates)
                 it.width = 10
                 when(i.pathType){
-                    PathType.WALK -> it.color = Color.BLUE
-                    PathType.BUS -> it.color = Color.DKGRAY
-                    PathType.EXPRESSBUS -> it.color = Color.RED
-                    PathType.SUBWAY -> it.color = Color.GREEN
-                    PathType.TRAIN -> it.color = Color.MAGENTA
+                    PathType.WALK -> it.color = convertIntToStr(R.color.WALK)
+                    PathType.BUS -> it.color = convertIntToStr(R.color.BUS)
+                    PathType.EXPRESSBUS -> it.color = convertIntToStr(R.color.EXPRESSBUS)
+                    PathType.SUBWAY -> it.color = convertIntToStr(R.color.SUBWAY)
+                    PathType.TRAIN -> it.color = convertIntToStr(R.color.TRAIN)
                 }
-                it.passedColor = Color.LTGRAY
-                it.progress = 0.3
                 it.map = StaticValue.naverMap
             }
             pathOverlayList.add(pathOverlay)
         }
         return pathOverlayList
     }
+}
+
+fun convertIntToStr(color:Int) : Int {
+    return ContextCompat.getColor(StaticValue.mainActivity, color)
 }
