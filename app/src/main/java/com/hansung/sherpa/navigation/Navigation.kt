@@ -8,11 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.convert.Convert
-import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.deviation.StrengthLocation
-import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
@@ -29,15 +26,14 @@ class SearchRouteViewModel:ViewModel() {
 // 내비게이션 클래스는 다음과 같은 하위 기능을 가진다.
 // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
 // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스
-class Navigation() {
-    lateinit var routeControl:RouteControl
+class Navigation {
+    private lateinit var routeControl:RouteControl
 
     // 출발지(내 위치)
-    lateinit var departureLatLng:LatLng
+    private lateinit var departureLatLng:LatLng
 
     // 목적지는 값이 없을 수도 있다.
-    var destinationLatLng:LatLng? = null
-    var pathOverlayList:MutableList<PathOverlay> = mutableListOf<PathOverlay>()
+    private var pathOverlayList:MutableList<PathOverlay> = mutableListOf()
 
     // 경로와 안내는 순서대로 진행된다.
     @RequiresApi(VERSION_CODES.R)
@@ -78,7 +74,7 @@ class Navigation() {
 
         // 관찰 변수 변경 시 콜백
         val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
-        var transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         val transitRoute = transitRoutes[0]
 
         routeControl = RouteControl(StaticValue.naverMap,transitRoutes[0],this)
@@ -95,7 +91,6 @@ class Navigation() {
                     PathType.EXPRESSBUS -> it.color = Color.RED
                     PathType.SUBWAY -> it.color = Color.GREEN
                     PathType.TRAIN -> it.color = Color.MAGENTA
-                    else -> it.color = Color.YELLOW
                 }
                 it.passedColor = Color.LTGRAY
                 it.progress = 0.3
@@ -103,11 +98,6 @@ class Navigation() {
             }
             pathOverlayList.add(pathOverlay)
         }
-
-
-        var pathOverlaypre: PathOverlay? = null
-        var pathOverlaycurr: PathOverlay? = null
-
         return pathOverlayList
     }
 
@@ -120,11 +110,10 @@ class Navigation() {
         //Navigate(route).run()
     }
 
-    fun drawRoute(routeRequest: TransitRouteRequest) : MutableList<PathOverlay> {
-
+    private fun drawRoute(routeRequest: TransitRouteRequest) : MutableList<PathOverlay> {
         // 관찰 변수 변경 시 콜백
         val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
-        var transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         val transitRoute = transitRoutes[0]
 
         routeControl = RouteControl(StaticValue.naverMap,transitRoutes[0],this)
@@ -140,7 +129,6 @@ class Navigation() {
                     PathType.EXPRESSBUS -> it.color = Color.RED
                     PathType.SUBWAY -> it.color = Color.GREEN
                     PathType.TRAIN -> it.color = Color.MAGENTA
-                    else -> it.color = Color.YELLOW
                 }
                 it.passedColor = Color.LTGRAY
                 it.progress = 0.3
