@@ -213,7 +213,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
             format = "json",
             count = 1
         )
-        navigation.searchRoute(routeRequest)
+        navigation.run(routeRequest)
 //        return { naverMap, context, lifecycle ->
 ////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
 //            searchRoute.searchRoute(routeRequest)

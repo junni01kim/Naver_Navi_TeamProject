@@ -30,10 +30,6 @@ class SearchRouteViewModel:ViewModel() {
 // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
 // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스
 class Navigation() {
-
-    @RequiresApi(VERSION_CODES.R)
-    val gpsDatas = GPSDatas(StaticValue.mainActivity)
-
     lateinit var routeControl:RouteControl
 
     // 출발지(내 위치)
@@ -54,13 +50,13 @@ class Navigation() {
         val route = drawRoute()
 
         // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
-        Navigate(route).run()
+        //Navigate(route).run()
     }
 
     // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
     // 반환 값은 사용자가 확정한 경로이다.
     @RequiresApi(VERSION_CODES.R)
-    fun drawRoute() : MutableList<LegRoute> {
+    fun drawRoute() : MutableList<PathOverlay> {
         departureLatLng = StaticValue.naverMap.locationOverlay.position
 
         Log.d("getLatLng", departureLatLng.longitude.toString())
@@ -80,11 +76,9 @@ class Navigation() {
             count = 1
         )
 
-        var transitRoutes: MutableList<MutableList<LegRoute>>
-
         // 관찰 변수 변경 시 콜백
         val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
-        transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+        var transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         val transitRoute = transitRoutes[0]
 
         routeControl = RouteControl(StaticValue.naverMap,transitRoutes[0],this)
@@ -114,100 +108,46 @@ class Navigation() {
         var pathOverlaypre: PathOverlay? = null
         var pathOverlaycurr: PathOverlay? = null
 
-        StaticValue.naverMap.addOnLocationChangeListener { location->
-            if(routeControl!=null){
-                var section = routeControl.checkingSection(StrengthLocation(gpsDatas.getGpsSignalAccuracy().Strength,LatLng(location.latitude,location.longitude)))
-                Log.d("현재구역","현재위치: " + location.longitude+", "+location.latitude)
-                Log.d("현재구역","시작: "+section.Start.longitude +", "+ section.Start.latitude+" 끝: " + section.End.longitude + ", " + section.End.latitude)
-                if(pathOverlaycurr==null){
-                    pathOverlaycurr = routeControl.drawProgressLine(section)
-                    pathOverlaycurr!!.map = StaticValue.naverMap
-                }
-                else{
-                    pathOverlaypre = pathOverlaycurr
-                    pathOverlaycurr = routeControl.drawProgressLine(section)
-                    pathOverlaypre?.map = null
-                    pathOverlaycurr!!.map = StaticValue.naverMap
-                }
-                var isOut = routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))
-                if(isOut){
-                    Log.d("이탈","이탈됨")
-                    RouteControl.AlterToast.createToast(StaticValue.mainActivity)?.show()
-//                    naverMap.map = null
-                    for(i in this.pathOverlayList){
-                        i.map = null
-                    }
-//                    section.End = LatLng(routeRequest.endY.toDouble(), routeRequest.endX.toDouble())
-//                    section.End = LatLng(37.612746,127.834092) // 원당 좌표
-                    section.End = LatLng(37.583145,127.011046) // 원당 좌표
-                    routeControl.redrawDeviationRoute(section)
-                }
-
-            }
-
-        }
-        return transitRoute
+        return pathOverlayList
     }
 
-    fun searchRoute(routeRequest: TransitRouteRequest) {
-        val viewModel = SearchRouteViewModel()
+    @RequiresApi(VERSION_CODES.R)
+    fun run(routeRequest: TransitRouteRequest) {
+        // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
+        val route = drawRoute(routeRequest)
 
-        //val destinationText = viewModel.destinationText.value
-        val destinationText = "서울특별시 성북구 삼선교로16길 116"
-
-        //////////////////////////////////////////////////
-//        destinationLatLng = searchLatLng(destinationText) // 오류 원인!!
-
-        drawRoute(routeRequest)
+        // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
+        //Navigate(route).run()
     }
 
-    fun drawRoute(routeRequest: TransitRouteRequest) {
-
-        // 출발지점은 현재 자신의 좌표값을 받아서 설정한다.
-        departureLatLng = StaticValue.naverMap.locationOverlay.position
-
-        var transitRoutes: MutableList<MutableList<LegRoute>>
-
-        pathOverlayList = mutableListOf<PathOverlay>()
+    fun drawRoute(routeRequest: TransitRouteRequest) : MutableList<PathOverlay> {
 
         // 관찰 변수 변경 시 콜백
-        TransitManager(StaticValue.mainActivity).getTransitRoutes(routeRequest).observe(StaticValue.mainActivity) { transitRouteResponse ->
-            transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
-            val tt = Convert().convertToSearchRouteDataClass(transitRoutes[0])
+        val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
+        var transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+        val transitRoute = transitRoutes[0]
 
-            val COORDSES = mutableListOf<Pair<MutableList<LatLng>,String>>()
+        routeControl = RouteControl(StaticValue.naverMap,transitRoutes[0],this)
 
-            // 임시 코드 각 값들 분리시키기 위함
-            COORDSES.add(Pair(mutableListOf(),tt[0].type.toString()))
-            for (i in 0..tt.size-2){
-                if(tt[i].type!=tt[i+1].type){
-                    COORDSES.add(Pair(mutableListOf(),tt[i+1].type.toString()))
+        for (i in transitRoute){
+            // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
+            val pathOverlay = PathOverlay().also {
+                it.coords = Convert().convertCoordinateToLatLng(i.coordinates)
+                it.width = 10
+                when(i.pathType){
+                    PathType.WALK -> it.color = Color.BLUE
+                    PathType.BUS -> it.color = Color.DKGRAY
+                    PathType.EXPRESSBUS -> it.color = Color.RED
+                    PathType.SUBWAY -> it.color = Color.GREEN
+                    PathType.TRAIN -> it.color = Color.MAGENTA
+                    else -> it.color = Color.YELLOW
                 }
-                COORDSES[COORDSES.size-1].first.add(tt[i].latLng)
+                it.passedColor = Color.LTGRAY
+                it.progress = 0.3
+                it.map = StaticValue.naverMap
             }
-            COORDSES[COORDSES.size-1].first.add(tt[tt.size-1].latLng)
-
-            this.routeControl.upDateRouteEnum(COORDSES)
-
-            for (i in COORDSES){
-                // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
-                val pathOverlay = PathOverlay().also {
-                    it.coords = i.first
-                    it.width = 10
-                    when(i.second){
-                        PathType.WALK.toString() -> it.color = Color.BLUE
-                        PathType.BUS.toString() -> it.color = Color.DKGRAY
-                        PathType.EXPRESSBUS.toString() -> it.color = Color.RED
-                        PathType.SUBWAY.toString() -> it.color = Color.GREEN
-                        PathType.TRAIN.toString() -> it.color = Color.MAGENTA
-                        else -> it.color = Color.YELLOW
-                    }
-                    it.passedColor = Color.YELLOW
-                    it.progress = 0.3
-                    it.map = StaticValue.naverMap
-                }
-                pathOverlayList.add(pathOverlay)
-            }
+            pathOverlayList.add(pathOverlay)
         }
+        return pathOverlayList
     }
 }

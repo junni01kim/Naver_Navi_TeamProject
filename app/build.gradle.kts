@@ -59,7 +59,6 @@ fun getTmapAppKey(propertyKey : String) : String{
 }
 
 dependencies {
-
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
