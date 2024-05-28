@@ -58,12 +58,12 @@ class Convert {
         val coordinateList = mutableListOf<Coordinate>()
         lineString.split(" ")               // "111,222 333,444" -> ["111,222", "333,444"]
             .map { it.split(",") }          // ["111,222", "333,444"] -> ["111", "222"], ["333", "444"]
-            .associate { (lon, lat) -> lat to lon }   // ["111", "222"], ["333", "444"] -> [("111", "222"), ("333", "444")]
+            .map { (lon, lat) -> lat to lon }   // ["111", "222"], ["333", "444"] -> [("111", "222"), ("333", "444")]
             .forEach {
                 coordinateList.add(
                     Coordinate(
-                        it.key.toDouble(),             // latitude
-                        it.value.toDouble()            // longitude
+                        it.first.toDouble(),             // latitude
+                        it.second.toDouble()            // longitude
                     )
                 )
             }
