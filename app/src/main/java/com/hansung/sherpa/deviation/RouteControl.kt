@@ -205,9 +205,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
      *  @return (NaverMap, Context, MainActivity) -> Unit
      */
 
-    @RequiresApi(Build.VERSION_CODES.R)
     fun redrawDeviationRoute(section: Section){
-
         val routeRequest = TransitRouteRequest(
             startX = section.CurrLocation.longitude.toString(),
             startY = section.CurrLocation.latitude.toString(),
@@ -217,7 +215,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
             format = "json",
             count = 1
         )
-        navigation.process()
+        navigation.process(routeRequest)
 //        return { naverMap, context, lifecycle ->
 ////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
 //            searchRoute.searchRoute(routeRequest)
