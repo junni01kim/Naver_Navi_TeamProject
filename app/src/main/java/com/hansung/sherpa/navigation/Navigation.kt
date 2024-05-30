@@ -39,7 +39,6 @@ class Navigation {
     private var pathOverlayList:MutableList<PathOverlay> = mutableListOf()
 
     // 경로와 안내는 순서대로 진행된다.
-    @RequiresApi(VERSION_CODES.R)
     fun process() {
         // 0. 사용자가 가고 싶은 출발지 목적지를 구하는 클래스
         //TODO("장소 찾기 SearchLocation 클래스 활용(출발지)")
@@ -47,6 +46,14 @@ class Navigation {
 
         val routeRequest = getRouteRequest()
 
+        // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
+        val route = drawRoute(routeRequest)
+
+        // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
+        //Navigate(route).run()
+    }
+
+    fun process(routeRequest: TransitRouteRequest) {
         // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
         val route = drawRoute(routeRequest)
 
@@ -75,19 +82,6 @@ class Navigation {
 
     // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
     // 반환 값은 사용자가 확정한 경로이다.
-    @RequiresApi(VERSION_CODES.R)
-    /**
-     *  경로가 이탈 되었을 때 현재 사용자 위치로 부터 경로 재요청
-     *  @param routeRequest 사용자 위치->목적지 요청
-     */
-    fun process(routeRequest: TransitRouteRequest) {
-        // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
-        val route = drawRoute(routeRequest)
-
-        // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
-        //Navigate(route).run()
-    }
-
     private fun drawRoute(routeRequest: TransitRouteRequest) : MutableList<PathOverlay> {
         // 관찰 변수 변경 시 콜백
         val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
