@@ -49,33 +49,14 @@ data class StrengthLocation (
     val Location: LatLng
 )
 
-class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegRoute>, val navigation: Navigation) {
+class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, val navigation: Navigation) {
 
 //    경로 이탈 : 10m
 //    경로 구간 확인 : 동적
 //    GPS 업데이트 시간 : 1.3s
 
     private var roundRadius = 1.0
-    private var routeEnum = ArrayList<LatLng>()
     private val outDistance = 10.0
-
-    init {
-        for(i in route){
-            for(j in i.coordinates){
-                routeEnum.add(LatLng(j.latitude,j.longitude))
-            }
-        }
-    }
-
-    fun upDateRouteEnum(route:MutableList<Pair<MutableList<LatLng>, String>>){
-        this.routeEnum = ArrayList<LatLng>()
-
-        for(i in route){
-            for(j in i.first){
-                routeEnum.add(j)
-            }
-        }
-    }
 
     fun checkingSection(strloc:StrengthLocation):Section{/// ???
 
@@ -86,13 +67,13 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
 
         var returnIndex = 0
         var flag=0
-        while (returnIndex<routeEnum.size-2){
-            if(calcDistance(routeEnum[returnIndex], strloc.Location)<=roundRadius &&
-                calcDistance(routeEnum[returnIndex+1], strloc.Location)>roundRadius){
+        while (returnIndex<route.size-2){
+            if(calcDistance(route[returnIndex], strloc.Location)<=roundRadius &&
+                calcDistance(route[returnIndex+1], strloc.Location)>roundRadius){
                 flag=1
                 Log.d("거리", "현재 index : " + returnIndex)
-                Log.d("거리","1. " + calcDistance(routeEnum[returnIndex], strloc.Location))
-                Log.d("거리","2. " + calcDistance(routeEnum[returnIndex+1], strloc.Location))
+                Log.d("거리","1. " + calcDistance(route[returnIndex], strloc.Location))
+                Log.d("거리","2. " + calcDistance(route[returnIndex+1], strloc.Location))
                 break
             }
             returnIndex+=1
@@ -101,8 +82,8 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
         var checkDist = Double.MAX_VALUE
         var distTmp:Double
         if(flag==0){
-            for(i in 0..routeEnum.size-2){
-                distTmp = calcDistance(routeEnum[i],strloc.Location)
+            for(i in 0..route.size-2){
+                distTmp = calcDistance(route[i],strloc.Location)
                 if(checkDist>distTmp){
                     returnIndex = i
                     checkDist = distTmp
@@ -113,7 +94,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
         Log.d("거리1", "현재 index : " + returnIndex)
         Log.d("거리1", "CheckDist : " + checkDist)
 
-        return Section(routeEnum[returnIndex],routeEnum[returnIndex+1], strloc.Location)
+        return Section(route[returnIndex],route[returnIndex+1], strloc.Location)
     }
 
     /**
@@ -217,11 +198,8 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
             format = "json",
             count = 1
         )
-        navigation.process()
-//        return { naverMap, context, lifecycle ->
-////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
-//            searchRoute.searchRoute(routeRequest)
-//        }
+        // 현재 위치에서 기존 경로와 연결 ㄴ되는 거리가 너무 짧아서 경로 탐색 불가의 경우? (해결X)
+        navigation.process(routeRequest)
     }
 
     object AlterToast {

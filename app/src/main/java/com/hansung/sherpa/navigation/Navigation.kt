@@ -76,13 +76,25 @@ class Navigation {
     // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
     // 반환 값은 사용자가 확정한 경로이다.
     @RequiresApi(VERSION_CODES.R)
+    /**
+     *  경로가 이탈 되었을 때 현재 사용자 위치로 부터 경로 재요청
+     *  @param routeRequest 사용자 위치->목적지 요청
+     */
+    fun process(routeRequest: TransitRouteRequest) {
+        // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
+        val route = drawRoute(routeRequest)
+
+        // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
+        //Navigate(route).run()
+    }
+
     private fun drawRoute(routeRequest: TransitRouteRequest) : MutableList<PathOverlay> {
         // 관찰 변수 변경 시 콜백
         val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         val transitRoute = transitRoutes[0]
 
-        routeControl = RouteControl(StaticValue.naverMap,transitRoutes[0],this)
+        routeControl = RouteControl(StaticValue.naverMap,Convert().convertLegRouteToLatLng(transitRoute),this)
 
         for (i in transitRoute){
             // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.

@@ -153,17 +153,15 @@ class Convert {
      *  @param routeMutableList 1개의 경로 데이터
      *  @return MutableList
      */
-    fun convertToSearchRouteDataClass(routeMutableList: MutableList<LegRoute>): MutableList<SearchRouteCoordinate> {
-        val searchRouteMutableList = mutableListOf<SearchRouteCoordinate>()
+    fun convertLegRouteToLatLng(routeMutableList: MutableList<LegRoute>): MutableList<LatLng> {
+        val searchRouteMutableList = mutableListOf<LatLng>()
         routeMutableList.forEach { legRoute ->              // 구간별 경로 추출
             legRoute.coordinates.forEach { coordinate ->    // 경로의 좌표 값 추출
                 searchRouteMutableList.add(
-                    SearchRouteCoordinate(
                         LatLng(
                             coordinate.latitude,            // 위도
                             coordinate.longitude            // 경도
-                        ), legRoute.pathType                // 이동수단 타입
-                    )
+                        )
                 )
             }
         }
@@ -180,4 +178,7 @@ class Convert {
     fun convertCoordinateToLatLng(coordinates: MutableList<Coordinate>): List<LatLng> {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
+
+
+
 }
