@@ -206,7 +206,6 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
      */
 
     fun redrawDeviationRoute(section: Section){
-
         val routeRequest = TransitRouteRequest(
             startX = section.CurrLocation.longitude.toString(),
             startY = section.CurrLocation.latitude.toString(),

@@ -39,28 +39,34 @@ class Navigation {
     private var pathOverlayList:MutableList<PathOverlay> = mutableListOf()
 
     // 경로와 안내는 순서대로 진행된다.
-    @RequiresApi(VERSION_CODES.R)
     fun process() {
         // 0. 사용자가 가고 싶은 출발지 목적지를 구하는 클래스
         //TODO("장소 찾기 SearchLocation 클래스 활용(출발지)")
         //TODO("장소 찾기 SearchLocation 클래스 활용(목적지)")
 
+        val routeRequest = getRouteRequest()
+
         // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
-        val route = drawRoute()
+        val route = drawRoute(routeRequest)
 
         // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
         //Navigate(route).run()
     }
 
-    // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
-    // 반환 값은 사용자가 확정한 경로이다.
-    @RequiresApi(VERSION_CODES.R)
-    fun drawRoute() : MutableList<PathOverlay> {
+    fun process(routeRequest: TransitRouteRequest) {
+        // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
+        val route = drawRoute(routeRequest)
+
+        // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
+        //Navigate(route).run()
+    }
+
+    fun getRouteRequest():TransitRouteRequest {
         departureLatLng = StaticValue.naverMap.locationOverlay.position
 
         Log.d("getLatLng", departureLatLng.longitude.toString())
 
-        val routeRequest = TransitRouteRequest(
+        return TransitRouteRequest(
             startX = departureLatLng.longitude.toString(),
             startY = departureLatLng.latitude.toString(),
             //출발지 샘플
@@ -72,44 +78,10 @@ class Navigation {
             format = "json",
             count = 1
         )
-
-        // 관찰 변수 변경 시 콜백
-        val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
-        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
-        val transitRoute = transitRoutes[0]
-
-        routeControl = RouteControl(StaticValue.naverMap,transitRoutes[0],this)
-
-        for (i in transitRoute){
-
-            // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
-            val pathOverlay = PathOverlay().also {
-                it.coords = Convert().convertCoordinateToLatLng(i.coordinates)
-                it.width = 10
-                when(i.pathType){
-                    PathType.WALK -> it.color = convertIntToStr(R.color.WALK)
-                    PathType.BUS -> it.color = convertIntToStr(R.color.BUS)
-                    PathType.EXPRESSBUS -> it.color = convertIntToStr(R.color.EXPRESSBUS)
-                    PathType.SUBWAY -> it.color = convertIntToStr(R.color.SUBWAY)
-                    PathType.TRAIN -> it.color = convertIntToStr(R.color.TRAIN)
-                }
-                //it.passedColor = Color.LTGRAY
-                //it.progress = 0.3
-                it.map = StaticValue.naverMap
-            }
-            pathOverlayList.add(pathOverlay)
-        }
-        return pathOverlayList
     }
 
-    fun process(routeRequest: TransitRouteRequest) {
-        // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
-        val route = drawRoute(routeRequest)
-
-        // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
-        //Navigate(route).run()
-    }
-
+    // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
+    // 반환 값은 사용자가 확정한 경로이다.
     private fun drawRoute(routeRequest: TransitRouteRequest) : MutableList<PathOverlay> {
         // 관찰 변수 변경 시 콜백
         val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)
