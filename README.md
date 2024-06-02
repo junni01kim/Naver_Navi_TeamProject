@@ -45,7 +45,8 @@ TMAP_APP_KEY="pYbNXZAC0e2pATcZJ5OFe1n2jyC1wDPwcwUUtIs7"
 * 함수 설명 [변수]
 */
 ```
-## 6. Convention
+## 6. Convention  [![Static Badge](https://img.shields.io/badge/code_convention-kotlin_docs-8A2BE2)](https://kotlinlang.org/docs/coding-conventions.html#source-file-names)
+
 1. 기본은 Camel Case, 상수는 Scream Snake Case, 백킹 프로퍼티는 _이름 / 클래스는 대문자, 패키지는 소문자 시작
 2. 파일 이름은 해당 내용을 설명하는 것으로 * Utiil, Data와 같은 단어 지양!  
 3. 클래스는 명사/명사구, 메서드는 동사/동사구 * 모호한 단어는 지양!
@@ -53,4 +54,3 @@ TMAP_APP_KEY="pYbNXZAC0e2pATcZJ5OFe1n2jyC1wDPwcwUUtIs7"
 5. 긴 Args List / Chained Call / 쿼리의 경우 들여쓰기
 6. 한 줄 코드의 경우 중괄호 생략
 7. 조건이 3개 이상이면, when / 단순 반복문보다 고차 함수 권장
-[Kotlin Coding-Convention](https://kotlinlang.org/docs/coding-conventions.html#directory-structure)
