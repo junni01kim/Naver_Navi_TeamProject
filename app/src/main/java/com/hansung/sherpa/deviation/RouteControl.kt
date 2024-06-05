@@ -49,6 +49,11 @@ data class StrengthLocation (
     val Location: LatLng
 )
 
+/**
+ * @property naverMap NaverMap객체
+ * @property route 그려질 경로 좌표 리스트
+ * @property navigation RouteControl을 생성한 Navigation 객체
+ */
 class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, val navigation: Navigation) {
 
 //    경로 이탈 : 10m
@@ -151,10 +156,8 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
         // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
         val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)*10000
 
-//        Log.d("경로사이의거리","거리: "+distance+" 구역: "+location.latitude +", " +location.longitude)
-
         Log.d("이탈: ","거리: "+distance)
-        if(distance>=5){
+        if(distance>=4){
             return true
         }
         else{
@@ -170,7 +173,6 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
      *  @return PathOverlay
      */
     fun drawProgressLine(section: Section): PathOverlay {
-
         return PathOverlay().also {
             it.coords = listOf(section.Start, section.CurrLocation)
             it.width = 10
@@ -198,7 +200,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
             format = "json",
             count = 1
         )
-        // 현재 위치에서 기존 경로와 연결 ㄴ되는 거리가 너무 짧아서 경로 탐색 불가의 경우? (해결X)
+        // 현재 위치에서 기존 경로와 연결 되는 거리가 너무 짧아서 경로 탐색 불가의 경우? (해결X)
         navigation.process(routeRequest)
     }
 

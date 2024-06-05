@@ -11,8 +11,7 @@ import com.hansung.sherpa.gps.GPSDatas
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.PathOverlay
 
-class Navigate(val pathOverlayList:MutableList<PathOverlay>) {
-    lateinit var routeControl:RouteControl
+class Navigate(val pathOverlayList:MutableList<PathOverlay>, val routeControl: RouteControl) {
 
     @RequiresApi(Build.VERSION_CODES.R)
     val gpsDatas = GPSDatas(StaticValue.mainActivity)
@@ -42,16 +41,13 @@ class Navigate(val pathOverlayList:MutableList<PathOverlay>) {
                     pathOverlaypre?.map = null
                     pathOverlaycurr!!.map = StaticValue.naverMap
                 }
-                var isOut = routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))
-                if(isOut){
+                if(routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))){// 경로이탈 탐지
                     Log.d("이탈","이탈됨")
                     RouteControl.AlterToast.createToast(StaticValue.mainActivity)?.show()
 //                    naverMap.map = null
                     for(i in pathOverlayList){
                         i.map = null
                     }
-//                    section.End = LatLng(routeRequest.endY.toDouble(), routeRequest.endX.toDouble())
-//                    section.End = LatLng(37.612746,127.834092) // 원당 좌표
                     section.End = LatLng(37.583145,127.011046) // 원당 좌표
                     routeControl.redrawDeviationRoute(section)
                 }

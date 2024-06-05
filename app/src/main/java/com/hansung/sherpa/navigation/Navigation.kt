@@ -1,9 +1,8 @@
 package com.hansung.sherpa.navigation
 
-import android.graphics.Color
+
 import android.os.Build.VERSION_CODES
 import android.util.Log
-import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
@@ -39,6 +38,7 @@ class Navigation {
     private var pathOverlayList:MutableList<PathOverlay> = mutableListOf()
 
     // 경로와 안내는 순서대로 진행된다.
+    @RequiresApi(VERSION_CODES.R)
     fun process() {
         // 0. 사용자가 가고 싶은 출발지 목적지를 구하는 클래스
         //TODO("장소 찾기 SearchLocation 클래스 활용(출발지)")
@@ -50,15 +50,16 @@ class Navigation {
         val route = drawRoute(routeRequest)
 
         // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
-        //Navigate(route).run()
+        Navigate(route, routeControl).run()
     }
 
-    fun process(routeRequest: TransitRouteRequest) {
+    @RequiresApi(VERSION_CODES.R)
+    fun process(routeRequest: TransitRouteRequest) {// 이탈된 시점으로 경로 재요청
         // 1. 사용자가 가고 싶은 출발지 목적지의 전체 경로를 그리는 함수
         val route = drawRoute(routeRequest)
 
         // 2. 원하는 경로를 사용자 위치를 기반으로 안내하는 클래스 (새로운 스레드로 빼낸다.)
-        //Navigate(route).run()
+        Navigate(route, routeControl).run()
     }
 
     fun getRouteRequest():TransitRouteRequest {
@@ -88,7 +89,7 @@ class Navigation {
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         val transitRoute = transitRoutes[0]
 
-        routeControl = RouteControl(StaticValue.naverMap,Convert().convertLegRouteToLatLng(transitRoute),this)
+        this.routeControl = RouteControl(StaticValue.naverMap,Convert().convertLegRouteToLatLng(transitRoute),this)
 
         for (i in transitRoute){
             // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
