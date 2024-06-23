@@ -50,11 +50,10 @@ data class StrengthLocation (
 )
 
 /**
- * @property naverMap NaverMap객체
  * @property route 그려질 경로 좌표 리스트
  * @property navigation RouteControl을 생성한 Navigation 객체
  */
-class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, val navigation: Navigation) {
+class RouteControl constructor(val navigation: Navigation) {
 
 //    경로 이탈 : 10m
 //    경로 구간 확인 : 동적
@@ -62,9 +61,10 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
 
     private var roundRadius = 1.0
     private val outDistance = 10.0
+    var route : List<LatLng> = emptyList()
 
-    fun checkingSection(strloc:StrengthLocation):Section{/// ???
-
+    fun checkingSection(strloc:StrengthLocation): Section? {/// ???
+        if (route.isEmpty()) return null
         when(strloc.Strength){
             "Strong"->{ roundRadius = 40.0 }
             "Weak"->{ roundRadius = 43.0 }
@@ -201,7 +201,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
             count = 1
         )
         // 현재 위치에서 기존 경로와 연결 되는 거리가 너무 짧아서 경로 탐색 불가의 경우? (해결X)
-        navigation.process(routeRequest)
+        navigation.redrawRoute(routeRequest)
     }
 
     object AlterToast {

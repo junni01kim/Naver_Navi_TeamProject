@@ -8,9 +8,16 @@ import android.widget.ImageButton
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import com.hansung.sherpa.StaticValue.Companion.routeControl
+import com.hansung.sherpa.convert.Convert
+import com.hansung.sherpa.deviation.RouteControl
+import com.hansung.sherpa.deviation.StrengthLocation
+import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.SearchRouteViewModel
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.navigation.Navigate
+import com.hansung.sherpa.transit.TransitManager
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
@@ -23,7 +30,7 @@ import com.naver.maps.map.util.FusedLocationSource
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
-    private lateinit var naverMap:NaverMap
+    private lateinit var naverMap: NaverMap
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
     private lateinit var locationSource: FusedLocationSource
@@ -48,11 +55,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         locationSource = GpsLocationSource.getInstance(this)
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                            permissions: Array<String>,
-                                            grantResults: IntArray) {
-        if (locationSource.onRequestPermissionsResult(requestCode, permissions,
-                grantResults)) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        if (locationSource.onRequestPermissionsResult(
+                requestCode, permissions,
+                grantResults
+            )
+        ) {
             if (!locationSource.isActivated) { // 권한 거부됨
                 naverMap.locationTrackingMode = LocationTrackingMode.None
             }
@@ -63,7 +75,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // naverMap객체가 준비됨
     @RequiresApi(Build.VERSION_CODES.R)
-    override fun onMapReady(p0: NaverMap){
+    override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
         StaticValue.naverMap = naverMap
 
@@ -73,26 +85,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         naverMap.uiSettings.setLocationButtonEnabled(true)
 
         // LocationOverlay 설정
-        val  locationOverlay = naverMap.locationOverlay
-        locationOverlay.icon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+        val locationOverlay = naverMap.locationOverlay
+        locationOverlay.icon =
+            OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
         locationOverlay.isVisible = true
 
-        var preMarker:Marker? = null
-        var currMarker:Marker? = null
+        var preMarker: Marker? = null
+        var currMarker: Marker? = null
 
-        naverMap.addOnLocationChangeListener { location->
-            if(preMarker==null && currMarker==null){ //초기 사용자 Marker 표시 및 생성
+        naverMap.addOnLocationChangeListener { location ->
+            if (preMarker == null && currMarker == null) { //초기 사용자 Marker 표시 및 생성
                 currMarker = Marker()
-                currMarker!!.icon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+                currMarker!!.icon =
+                    OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
                 currMarker!!.position = LatLng(location)
                 currMarker!!.anchor = PointF(0.5f, 0.5f)
                 currMarker!!.map = naverMap
-            }
-            else{ // 사용자 위치 마커 최신화
+            } else { // 사용자 위치 마커 최신화
                 preMarker = currMarker
                 preMarker?.map = null
-                currMarker  = Marker()
-                currMarker!!.icon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+                currMarker = Marker()
+                currMarker!!.icon =
+                    OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
                 currMarker!!.position = LatLng(location)
                 currMarker!!.anchor = PointF(0.5f, 0.5f)
                 currMarker!!.map = naverMap
@@ -106,12 +120,35 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val destinationTextView = findViewById<EditText>(R.id.destination_editText)
         val searchButton = findViewById<ImageButton>(R.id.search_button)
 
+
+        val navigation = Navigation()
         // 버튼 클릭 리스너
-        searchButton.setOnClickListener{
-            Navigation().process()
+        searchButton.setOnClickListener {
+            navigation.getTransitRoutes("한성대학교", destinationTextView.text.toString())
+            // Navigation().process()
         }
 
-        viewModel.destinationText.observe(this){
+        val gpsDatas = GPSDatas(this)
+
+        routeControl = RouteControl(navigation)
+        naverMap.addOnLocationChangeListener { location ->
+            val section = routeControl.checkingSection(
+                StrengthLocation(
+                    gpsDatas.getGpsSignalAccuracy().Strength,
+                    LatLng(location.latitude, location.longitude)
+                )
+            )
+            if (section != null && routeControl.detectOutRoute(
+                    section,
+                    LatLng(location.latitude, location.longitude)
+                )
+            ) {// 경로이탈 탐지
+                section.End = LatLng(37.5004198786564, 127.126936754911) // 원당 좌표
+                routeControl.redrawDeviationRoute(section)
+            }
+        }
+
+        viewModel.destinationText.observe(this) {
             viewModel.destinationText.value = destinationTextView.text.toString()
         }
     }
