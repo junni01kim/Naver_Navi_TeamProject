@@ -53,7 +53,7 @@ data class StrengthLocation (
  * @property route 그려질 경로 좌표 리스트
  * @property navigation RouteControl을 생성한 Navigation 객체
  */
-class RouteControl constructor(val navigation: Navigation) {
+class RouteControl {
 
 //    경로 이탈 : 10m
 //    경로 구간 확인 : 동적
@@ -189,7 +189,7 @@ class RouteControl constructor(val navigation: Navigation) {
      */
 
     @RequiresApi(Build.VERSION_CODES.R)
-    fun redrawDeviationRoute(section: Section){
+    fun redrawDeviationRoute(section: Section, navigation: Navigation){
 
         val routeRequest = TransitRouteRequest(
             startX = section.CurrLocation.longitude.toString(),

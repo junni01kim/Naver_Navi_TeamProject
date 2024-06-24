@@ -9,15 +9,12 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.hansung.sherpa.StaticValue.Companion.routeControl
-import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.SearchRouteViewModel
 import com.hansung.sherpa.gps.GpsLocationSource
-import com.hansung.sherpa.navigation.Navigate
-import com.hansung.sherpa.transit.TransitManager
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
@@ -122,29 +119,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
 
         val navigation = Navigation()
-        // 버튼 클릭 리스너
+        // 검색 버튼 클릭 리스너
         searchButton.setOnClickListener {
             navigation.getTransitRoutes("한성대학교", destinationTextView.text.toString())
-            // Navigation().process()
         }
 
         val gpsDatas = GPSDatas(this)
 
-        routeControl = RouteControl(navigation)
+        routeControl = RouteControl()
         naverMap.addOnLocationChangeListener { location ->
+            val nowLocation = LatLng(location.latitude, location.longitude)
             val section = routeControl.checkingSection(
                 StrengthLocation(
                     gpsDatas.getGpsSignalAccuracy().Strength,
-                    LatLng(location.latitude, location.longitude)
+                    nowLocation
                 )
             )
             if (section != null && routeControl.detectOutRoute(
                     section,
-                    LatLng(location.latitude, location.longitude)
+                    nowLocation
                 )
             ) {// 경로이탈 탐지
-                section.End = LatLng(37.5004198786564, 127.126936754911) // 원당 좌표
-                routeControl.redrawDeviationRoute(section)
+                section.CurrLocation = nowLocation
+                section.End = navigation.tempEndLatLng
+                routeControl.redrawDeviationRoute(section, navigation)
             }
         }
 
@@ -153,3 +151,4 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 }
+
