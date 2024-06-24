@@ -92,13 +92,14 @@ class Navigation {
     }
 
     // 경로를 지우는 함수
-    private fun clearRoute(pathOverlayList: MutableList<PathOverlay>) {
+    private fun clearRoute() {
         pathOverlayList.forEach { it.map = null }
+        pathOverlayList = mutableListOf<PathOverlay>()
     }
 
     fun redrawRoute(routeRequest: TransitRouteRequest) {
         // 경로 초기화
-        clearRoute(pathOverlayList)
+        clearRoute()
 
         // 요청 좌표 기반 경로 검색
         val transitRouteResponse = TransitManager(StaticValue.mainActivity).getTransitRoutes2(routeRequest)

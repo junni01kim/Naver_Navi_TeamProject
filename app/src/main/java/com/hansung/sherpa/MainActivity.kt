@@ -1,6 +1,7 @@
 package com.hansung.sherpa
 
 import android.graphics.PointF
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.widget.EditText
@@ -15,6 +16,8 @@ import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.SearchRouteViewModel
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.navigation.MyOnLocationChangeListener
+import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
@@ -127,24 +130,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val gpsDatas = GPSDatas(this)
 
         routeControl = RouteControl()
-        naverMap.addOnLocationChangeListener { location ->
-            val nowLocation = LatLng(location.latitude, location.longitude)
-            val section = routeControl.checkingSection(
-                StrengthLocation(
-                    gpsDatas.getGpsSignalAccuracy().Strength,
-                    nowLocation
+        val i = object : MyOnLocationChangeListener {
+            override fun callback(location: Location) {
+                val nowLocation = LatLng(location.latitude, location.longitude)
+                val section = routeControl.checkingSection(
+                    StrengthLocation(
+                        gpsDatas.getGpsSignalAccuracy().Strength,
+                        nowLocation
+                    )
                 )
-            )
-            if (section != null && routeControl.detectOutRoute(
-                    section,
-                    nowLocation
-                )
-            ) {// 경로이탈 탐지
-                section.CurrLocation = nowLocation
-                section.End = navigation.tempEndLatLng
-                routeControl.redrawDeviationRoute(section, navigation)
+                if (section != null && routeControl.detectOutRoute(
+                        section,
+                        nowLocation
+                    )
+                ) {// 경로이탈 탐지
+                    val l = naverMap.locationOverlay.position
+                    section.CurrLocation = l
+                    section.End = navigation.tempEndLatLng
+                    routeControl.redrawDeviationRoute(section, navigation)
+                }
             }
         }
+        OnLocationChangeManager.addMyOnLocationChangeListener(i)
 
         viewModel.destinationText.observe(this) {
             viewModel.destinationText.value = destinationTextView.text.toString()

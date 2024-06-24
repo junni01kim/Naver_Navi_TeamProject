@@ -150,6 +150,7 @@ class RouteControl {
 
         val A_coeff = B.latitude - A.latitude
         val B_coeff = A.longitude - B.longitude
+        if (A_coeff == 0.0 && B_coeff == 0.0) return false
         val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)
 
         // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
