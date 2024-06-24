@@ -10,6 +10,13 @@ import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.overlay.PathOverlay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import okhttp3.Dispatcher
+import java.lang.Thread.sleep
 
 class Navigate(val pathOverlayList:MutableList<PathOverlay>, val routeControl: RouteControl) {
 
@@ -41,17 +48,16 @@ class Navigate(val pathOverlayList:MutableList<PathOverlay>, val routeControl: R
                     pathOverlaypre?.map = null
                     pathOverlaycurr!!.map = StaticValue.naverMap
                 }
-                if(routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))){// 경로이탈 탐지
-                    Log.d("이탈","이탈됨")
+                if(routeControl.detectOutRoute(section, LatLng(location.latitude,location.longitude))) {// 경로이탈 탐지
+                    Log.d("이탈", "이탈됨")
                     RouteControl.AlterToast.createToast(StaticValue.mainActivity)?.show()
 //                    naverMap.map = null
-                    for(i in pathOverlayList){
+                    for (i in pathOverlayList) {
                         i.map = null
                     }
-                    section.End = LatLng(37.583145,127.011046) // 원당 좌표
+                    section.End = LatLng(37.583145, 127.011046) // 원당 좌표
                     routeControl.redrawDeviationRoute(section)
                 }
-
             }
         }
     }
