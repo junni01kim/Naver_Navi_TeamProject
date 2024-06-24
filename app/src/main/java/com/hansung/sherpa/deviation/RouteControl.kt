@@ -16,6 +16,7 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.databinding.AlertBinding
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
 import kotlin.collections.*
@@ -73,12 +74,12 @@ class RouteControl {
         var returnIndex = 0
         var flag=0
         while (returnIndex<route.size-2){
-            if(calcDistance(route[returnIndex], strloc.Location)<=roundRadius &&
-                calcDistance(route[returnIndex+1], strloc.Location)>roundRadius){
+            if(route[returnIndex].distanceTo(strloc.Location)<=roundRadius &&
+                route[returnIndex+1].distanceTo(strloc.Location)>roundRadius){
                 flag=1
                 Log.d("거리", "현재 index : " + returnIndex)
-                Log.d("거리","1. " + calcDistance(route[returnIndex], strloc.Location))
-                Log.d("거리","2. " + calcDistance(route[returnIndex+1], strloc.Location))
+                Log.d("거리","1. " + route[returnIndex].distanceTo(strloc.Location))
+                Log.d("거리","2. " + route[returnIndex+1].distanceTo(strloc.Location))
                 break
             }
             returnIndex+=1
@@ -88,7 +89,7 @@ class RouteControl {
         var distTmp:Double
         if(flag==0){
             for(i in 0..route.size-2){
-                distTmp = calcDistance(route[i],strloc.Location)
+                distTmp = route[i].distanceTo(strloc.Location)
                 if(checkDist>distTmp){
                     returnIndex = i
                     checkDist = distTmp
@@ -103,62 +104,33 @@ class RouteControl {
     }
 
     /**
-     *  두 좌표 사이의 거리 계산 m단위
+     * 사용자와 섹션 사이의 거리 값 m단위 반환
      *
-     *  @param latlng1 좌표1
-     *  @param latlng2 좌표2
-     *  @return Double
-     */
-    fun calcDistance(latlng1:LatLng, latlng2: LatLng): Double {
-        val radLat1 = Math.toRadians(latlng1.latitude)
-        val radLon1 = Math.toRadians(latlng1.longitude)
-        val radLat2 = Math.toRadians(latlng2.latitude)
-        val radLon2 = Math.toRadians(latlng2.longitude)
-
-        // Haversine 공식을 사용하여 거리 계산
-        val dLat = radLat2 - radLat1
-        val dLon = radLon2 - radLon1
-        val a = sin(dLat / 2) * sin(dLat / 2) + cos(radLat1) * cos(radLat2) * sin(dLon / 2) * sin(dLon / 2)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        var distance = 6371000 * c // 지구 반지름을 곱하여 거리를 미터 단위로 변환
-
-        if (distance < 0) {
-            distance *= -1
-        }
-
-        return distance
-    }
-
-
-    fun calcPointLineDist(A:LatLng, B:LatLng, user:LatLng):Double{
-        val A_coeff = B.latitude - A.latitude
-        val B_coeff = A.longitude - B.longitude
-        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)
-
-        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
-        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
-        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)
-
-        return distance
-    }
-
+     * @param section 섹션값
+     * @param location 사용자 위치
+    * */
     fun detectOutRoute(section:Section, location:LatLng):Boolean{
+        var res = 0.0
 
-        val A = section.Start
-        val B = section.End
-        val user = location
+        //Utm-K로 좌표계 변환
+        val from = Utmk.valueOf(section.Start)
+        val to = Utmk.valueOf(section.End)
+        val user = Utmk.valueOf(location)
 
-        val A_coeff = B.latitude - A.latitude
-        val B_coeff = A.longitude - B.longitude
-        if (A_coeff == 0.0 && B_coeff == 0.0) return false
-        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)
+        //기울기
+        var slope = (from.y - to.y)/(from.x - to.x)
 
-        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
-        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
-        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)*10000
+        // y절편
+        var yCoeff = from.y - slope*from.x
 
-        Log.d("이탈: ","거리: "+distance)
-        if(distance>=4){
+        var a = -1*slope
+        var b = 1
+        var c = -1*yCoeff
+
+        res = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
+
+        Log.d("이탈: ","거리: "+res)
+        if(res>=8){
             return true
         }
         else{
