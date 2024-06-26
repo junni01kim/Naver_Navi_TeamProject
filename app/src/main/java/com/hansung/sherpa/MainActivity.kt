@@ -130,7 +130,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             navigation.getTransitRoutes("한성대학교", destinationTextView.text.toString())
         }
 
-        var idx = 0
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
