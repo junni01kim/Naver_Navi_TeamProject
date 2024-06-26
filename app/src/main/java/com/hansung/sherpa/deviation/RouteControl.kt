@@ -111,7 +111,7 @@ class RouteControl {
     * */
     fun detectOutRoute(section:Section, location:LatLng):Boolean{
         var res = 0.0
-
+        if (section.Start.latitude == section.End.latitude && section.Start.longitude == section.End.longitude) return false
         //Utm-K로 좌표계 변환
         val from = Utmk.valueOf(section.Start)
         val to = Utmk.valueOf(section.End)
