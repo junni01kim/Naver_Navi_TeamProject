@@ -1,8 +1,6 @@
 package com.hansung.sherpa.navigation
 
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
@@ -16,27 +14,22 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
 
-class SearchRouteViewModel:ViewModel() {
-    val destinationText = MutableLiveData<String>()
-}
 class Navigation {
     private var startLatLng: LatLng = LatLng(0.0, 0.0)
-    private var endLatLng: LatLng = LatLng(0.0, 0.0)
-    private var routeRequest: TransitRouteRequest
+    var endLatLng: LatLng = LatLng(0.0, 0.0)
+    private var routeRequest: TransitRouteRequest = setRouteRequest(startLatLng, endLatLng)
     private var pathOverlayList:MutableList<PathOverlay> = mutableListOf()
     lateinit var naverMap: NaverMap
     lateinit var mainActivity: MainActivity
     lateinit var routeControl: RouteControl
 
-    // 빈 값 초기화
-    init {
-        routeRequest = setRouteRequest(startLatLng, endLatLng)
-    }
-
-    // 좌표 찾기 대신 넣는 임시 값
+    // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
+    // [개발]: 시작, 도착 좌표
     private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911)
     val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645)
-
+    // 반드시 지울 것!!
+    
+    // 경로 탐색
     fun getTransitRoutes(start: String, end: String){
         // 검색어 기반 좌표 검색
         /**
@@ -75,9 +68,10 @@ class Navigation {
     // 경로를 지우는 함수
     private fun clearRoute() {
         pathOverlayList.forEach { it.map = null }
-        pathOverlayList = mutableListOf<PathOverlay>()
+        pathOverlayList = mutableListOf()
     }
 
+    // 재탐색 후 경로를 그리는 함수
     fun redrawRoute(section: Section) {
         // 경로 초기화
         clearRoute()
@@ -96,7 +90,6 @@ class Navigation {
     // 경로를 그리는 함수
     private fun drawRoute(transitRoute: MutableList<LegRoute>) {
         for (i in transitRoute){
-            // pathOverlay는 네이버에서 제공하는 선 그리기 함수이며, 거기에 각 속성을 더 추가하여 색상을 칠했다.
             val pathOverlay = PathOverlay().also {
                 it.coords = Convert().convertCoordinateToLatLng(i.coordinates)
                 it.width = 10
@@ -112,6 +105,8 @@ class Navigation {
             pathOverlayList.add(pathOverlay)
         }
     }
+    
+    // 색상 값 변환 HEXACODE(#ffffff) -> INT(@ColorInt)
     private fun convertIntToStr(color:Int) : Int {
         return ContextCompat.getColor(mainActivity, color)
     }

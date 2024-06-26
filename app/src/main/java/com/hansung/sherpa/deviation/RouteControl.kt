@@ -154,29 +154,6 @@ class RouteControl {
         }
     }
 
-    /**
-     *  현재 경로에서 이탈시 현재 위치에서 목적지까지 경로를 그리는 함수
-     *
-     *  @param section 시작(안씀), 목적지 벡터 좌표, 현재 사용자 위치를 가져옴
-     *  @return (NaverMap, Context, MainActivity) -> Unit
-     */
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun redrawDeviationRoute(section: Section, navigation: Navigation){
-
-        val routeRequest = TransitRouteRequest(
-            startX = section.CurrLocation.longitude.toString(),
-            startY = section.CurrLocation.latitude.toString(),
-            endX = section.End.longitude.toString(),
-            endY = section.End.latitude.toString(),
-            lang = 0,
-            format = "json",
-            count = 1
-        )
-        // 현재 위치에서 기존 경로와 연결 되는 거리가 너무 짧아서 경로 탐색 불가의 경우? (해결X)
-        //navigation.redrawRoute(routeRequest)
-    }
-
     object AlterToast {
         fun createToast(context: Context): Toast? {
             val inflater = LayoutInflater.from(context)
