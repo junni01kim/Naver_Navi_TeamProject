@@ -4,12 +4,12 @@ import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
-import com.hansung.sherpa.StaticValue.Companion.routeControl
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
@@ -24,6 +24,7 @@ import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.overlay.Align
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
@@ -34,14 +35,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
     private lateinit var locationSource: FusedLocationSource
+    private lateinit var destinationTextView: EditText
+    private lateinit var searchButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        StaticValue.mainActivity = this
+
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID) // 본인 api key
-
 
         val fm = supportFragmentManager
         val mapFragment = fm.findFragmentById(R.id.map) as MapFragment?
@@ -51,7 +53,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         mapFragment.getMapAsync(this)
 
-//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        // 출발 지점을 작성하는 textView, 출발 지점 작성 후 전송하기 위한 button
+        destinationTextView = findViewById(R.id.destination_editText)
+        searchButton = findViewById(R.id.search_button)
+
         locationSource = GpsLocationSource.getInstance(this)
     }
 
@@ -77,12 +82,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
-        StaticValue.naverMap = naverMap
-
+        val routeControl = RouteControl()
+        val gpsData = GPSDatas(this)
+        val navigation = Navigation()
+        navigation.naverMap = naverMap
+        navigation.mainActivity = this
+        navigation.routeControl = routeControl
         naverMap.locationSource = locationSource
 
         //좌측하단 Tracking Mode 변환 버튼
-        naverMap.uiSettings.setLocationButtonEnabled(true)
+        naverMap.uiSettings.isLocationButtonEnabled = true
 
         // LocationOverlay 설정
         val locationOverlay = naverMap.locationOverlay
@@ -116,46 +125,54 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // 검색하기 전까지 값을 저장해두기 위한 viewModel이다. searchRoute.kt에 저장되어있다.
         val viewModel = ViewModelProvider(this)[SearchRouteViewModel::class.java]
 
-        // 출발지점을 작성하는 textView, 출발지점 작성 후 전송하기위한 button
-        val destinationTextView = findViewById<EditText>(R.id.destination_editText)
-        val searchButton = findViewById<ImageButton>(R.id.search_button)
-
-
-        val navigation = Navigation()
         // 검색 버튼 클릭 리스너
         searchButton.setOnClickListener {
             navigation.getTransitRoutes("한성대학교", destinationTextView.text.toString())
         }
 
-        val gpsDatas = GPSDatas(this)
-
-        routeControl = RouteControl()
+        var idx = 0
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
                 val section = routeControl.checkingSection(
                     StrengthLocation(
-                        gpsDatas.getGpsSignalAccuracy().Strength,
+                        gpsData.getGpsSignalAccuracy().Strength,
                         nowLocation
                     )
                 )
-                if (section != null && routeControl.detectOutRoute(
-                        section,
-                        nowLocation
-                    )
-                ) {// 경로이탈 탐지
-                    val l = naverMap.locationOverlay.position
-                    section.CurrLocation = l
+                if(section != null) {
+                    try {
+                        setMarker(section.Start, "시작", idx)
+                        setMarker(section.End, "끝", idx)
+                        setMarker(nowLocation, "나", idx)
+                        idx++
+                    } catch (e : Exception) {
+                        Log.d("Error", e.message.toString())
+                    }
+                }
+                if (section != null && routeControl.detectOutRoute(section, nowLocation)) {// 경로이탈 탐지
+                    section.CurrLocation = nowLocation
                     section.End = navigation.tempEndLatLng
-                    routeControl.redrawDeviationRoute(section, navigation)
+                    navigation.redrawRoute(section)
                 }
             }
         }
-        OnLocationChangeManager.addMyOnLocationChangeListener(i)
+
+        val OLCM = OnLocationChangeManager
+        OLCM.naverMap = naverMap
+        OLCM.addMyOnLocationChangeListener(i)
 
         viewModel.destinationText.observe(this) {
             viewModel.destinationText.value = destinationTextView.text.toString()
         }
+    }
+
+    fun setMarker(latLng: LatLng, text: String, index: Int) {
+        val marker:Marker = Marker()
+        marker.position = latLng
+        marker.map = naverMap
+        marker.captionText = "$text : $index"
+        marker.setCaptionAligns(Align.Top)
     }
 }
 

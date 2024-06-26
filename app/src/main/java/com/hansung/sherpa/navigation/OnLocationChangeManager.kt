@@ -2,12 +2,14 @@ package com.hansung.sherpa.navigation
 
 import android.location.Location
 import com.hansung.sherpa.StaticValue
+import com.naver.maps.map.NaverMap
 
 class OnLocationChangeManager {
     companion object{
         private var lastLocation : Location? = null
+        lateinit var naverMap: NaverMap
         fun addMyOnLocationChangeListener(myOnLocationChangeListener: MyOnLocationChangeListener) {
-            StaticValue.naverMap.addOnLocationChangeListener { location ->
+            naverMap.addOnLocationChangeListener { location ->
                 val shouldUpdate : Boolean = when(lastLocation){
                     null -> { true }
                     else -> {

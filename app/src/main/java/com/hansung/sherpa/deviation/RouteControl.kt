@@ -202,7 +202,7 @@ class RouteControl {
             count = 1
         )
         // 현재 위치에서 기존 경로와 연결 되는 거리가 너무 짧아서 경로 탐색 불가의 경우? (해결X)
-        navigation.redrawRoute(routeRequest)
+        //navigation.redrawRoute(routeRequest)
     }
 
     object AlterToast {
