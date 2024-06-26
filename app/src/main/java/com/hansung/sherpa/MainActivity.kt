@@ -140,16 +140,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                         nowLocation
                     )
                 )
-                if(section != null) {
-                    try {
-                        setMarker(section.Start, "시작", idx)
-                        setMarker(section.End, "끝", idx)
-                        setMarker(nowLocation, "나", idx)
-                        idx++
-                    } catch (e : Exception) {
-                        Log.d("Error", e.message.toString())
-                    }
-                }
                 if (section != null && routeControl.detectOutRoute(section, nowLocation)) {// 경로이탈 탐지
                     section.CurrLocation = nowLocation
                     section.End = navigation.tempEndLatLng
@@ -165,14 +155,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         viewModel.destinationText.observe(this) {
             viewModel.destinationText.value = destinationTextView.text.toString()
         }
-    }
-
-    fun setMarker(latLng: LatLng, text: String, index: Int) {
-        val marker:Marker = Marker()
-        marker.position = latLng
-        marker.map = naverMap
-        marker.captionText = "$text : $index"
-        marker.setCaptionAligns(Align.Top)
     }
 }
 
