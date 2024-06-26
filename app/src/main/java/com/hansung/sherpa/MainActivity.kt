@@ -57,16 +57,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         searchButton = findViewById(R.id.search_button)
 
         locationSource = GpsLocationSource.getInstance(this)
-
-        // LocationOverlay 설정
-        val locationOverlay = naverMap.locationOverlay
-        locationOverlay.icon = markerIcon
-        locationOverlay.isVisible = true
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
+
+        // LocationOverlay 설정
+        val locationOverlay = naverMap.locationOverlay
+        locationOverlay.icon = markerIcon
+        locationOverlay.isVisible = true
 
         //좌측하단 Tracking Mode 변환 버튼
         naverMap.uiSettings.isLocationButtonEnabled = true
