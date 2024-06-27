@@ -16,6 +16,7 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.databinding.AlertBinding
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
 import kotlin.collections.*
