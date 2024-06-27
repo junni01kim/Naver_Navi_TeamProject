@@ -16,7 +16,6 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.databinding.AlertBinding
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
 import kotlin.collections.*
@@ -51,11 +50,10 @@ data class StrengthLocation (
 )
 
 /**
- * @property naverMap NaverMap객체
  * @property route 그려질 경로 좌표 리스트
  * @property navigation RouteControl을 생성한 Navigation 객체
  */
-class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, val navigation: Navigation) {
+class RouteControl {
 
 //    경로 이탈 : 10m
 //    경로 구간 확인 : 동적
@@ -63,10 +61,10 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
 
     private var roundRadius = 1.0
     private val outDistance = 10.0
-    private var currSectionIndex=0
+    var route : List<LatLng> = emptyList()
 
-    fun checkingSection(strloc:StrengthLocation):Section{/// ???
-
+    fun checkingSection(strloc:StrengthLocation): Section? {/// ???
+        if (route.isEmpty()) return null
         when(strloc.Strength){
             "Strong"->{ roundRadius = 40.0 }
             "Weak"->{ roundRadius = 43.0 }
@@ -102,7 +100,6 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
         Log.d("거리1", "CheckDist : " + checkDist)
 
         return Section(route[returnIndex],route[returnIndex+1], strloc.Location)
-
     }
 
     /**
@@ -113,7 +110,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
     * */
     fun detectOutRoute(section:Section, location:LatLng):Boolean{
         var res = 0.0
-
+        if (section.Start.latitude == section.End.latitude && section.Start.longitude == section.End.longitude) return false
         //Utm-K로 좌표계 변환
         val from = Utmk.valueOf(section.Start)
         val to = Utmk.valueOf(section.End)
@@ -133,7 +130,6 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
 
         Log.d("이탈: ","거리: "+res)
         if(res>=8){
-            currSectionIndex = 0
             return true
         }
         else{
@@ -155,29 +151,6 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
             it.passedColor = Color.YELLOW
             it.progress = 1.0
         }
-    }
-
-    /**
-     *  현재 경로에서 이탈시 현재 위치에서 목적지까지 경로를 그리는 함수
-     *
-     *  @param section 시작(안씀), 목적지 벡터 좌표, 현재 사용자 위치를 가져옴
-     *  @return (NaverMap, Context, MainActivity) -> Unit
-     */
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    fun redrawDeviationRoute(section: Section){
-
-        val routeRequest = TransitRouteRequest(
-            startX = section.CurrLocation.longitude.toString(),
-            startY = section.CurrLocation.latitude.toString(),
-            endX = section.End.longitude.toString(),
-            endY = section.End.latitude.toString(),
-            lang = 0,
-            format = "json",
-            count = 1
-        )
-        // 현재 위치에서 기존 경로와 연결 되는 거리가 너무 짧아서 경로 탐색 불가의 경우? (해결X)
-        navigation.process(routeRequest)
     }
 
     object AlterToast {
