@@ -1,66 +1,45 @@
-/*
-
-         ----------------  호출 예시  ----------------
-
-        (findViewById<Button>(R.id.Button)).setOnClickListener { it ->
-            var address = findViewById<EditText>(R.id.editTextText).text.toString();
-            if (address != "")
-                GeocodingAPI(address).request()
-        }
-
-        ----------------  호출 예시  ----------------
-
- */
 
 package com.hansung.sherpa.geocoding
 
 import android.net.Uri
-import android.util.Log
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.convert.Coordinate
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.util.concurrent.ConcurrentHashMap
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
-class GeocodingAPI() {
-    private val coordinatesHashMap = ConcurrentHashMap<String,Coordinate>()
-    private val flagHashMap = ConcurrentHashMap<String, Boolean>()
+interface GeocodingAPICallBack{
+    fun onSuccess(coord : List<Coordinate>)
+    fun onFailure(message : String)
+}
 
-    fun request(address : String, key : String){
-        flagHashMap.put(key, false);
+class GeocodingAPI(){
+    val retrofitService = Retrofit.Builder()
+        .baseUrl("https://apis.openapi.sk.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+        .create(GeocodingService::class.java)
+    fun request(address : String, geocodingAPICallBack: GeocodingAPICallBack){
         val encodedAddress : String = Uri.encode(address)
-        GeocodingRetrofitManager.getGeocodingServiceInstance()
-            .geocoding(BuildConfig.TMAP_APP_KEY,"1", encodedAddress)
-            .enqueue(object : Callback<Geocoding> {
-                override fun onResponse(call: Call<Geocoding>, response: Response<Geocoding>) {
-                    if(response.isSuccessful) {
-                        try {
-                            val coordinate = response.body()?.coordinateInfo?.coordinate?.get(0)
-                            val lat: String = if (coordinate?.lat != null) coordinate.lat!!
-                            else throw IllegalArgumentException("null")
 
-                            val lon: String = if (coordinate.lon != null) coordinate.lon!!
-                            else throw IllegalArgumentException("null")
-
-                            coordinatesHashMap[key] = Coordinate(lat.toDouble(),lon.toDouble())
-                            flagHashMap[key] = true
-                        } catch (_: Exception) {
-                            Log.d("status", "GeocodingAPI : Exception")
+        retrofitService.geocoding(BuildConfig.TMAP_APP_KEY, "1", encodedAddress)
+            .execute()
+            .also { response ->
+                if(response.isSuccessful){
+                    val coordinateList = arrayListOf<Coordinate>()
+                    response.body()?.coordinateInfo?.coordinate?.let { coordinates ->
+                        coordinates.forEachIndexed { _, item ->
+                            val lat = item.lat
+                            val lon = item.lon
+                            if (lat != null && lon != null) {
+                                coordinateList.add(Coordinate(lat.toDouble(), lon.toDouble()))
+                            }
                         }
                     }
+                    geocodingAPICallBack.onSuccess(coordinateList)
                 }
-                override fun onFailure(call: Call<Geocoding>, t: Throwable) {
-                    Log.d("status", "GeocodingAPI : failure")
+                else {
+                    geocodingAPICallBack.onFailure("Geocoding API requests failed.")
                 }
-            })
-    }
-
-    fun getFlag(key : String) : Boolean? {
-        return flagHashMap[key]
-    }
-
-    fun getCoordinate(key : String) : Coordinate?{
-        return coordinatesHashMap[key];
+            }
     }
 }

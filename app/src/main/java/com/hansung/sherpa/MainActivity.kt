@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
 //        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
-        locationSource = GpsLocationSource.getInstance(this)
+        locationSource = GpsLocationSource.createInstance(this)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
