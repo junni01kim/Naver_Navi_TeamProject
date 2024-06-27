@@ -63,6 +63,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
 
     private var roundRadius = 1.0
     private val outDistance = 10.0
+    private var currSectionIndex=0
 
     fun checkingSection(strloc:StrengthLocation):Section{/// ???
 
@@ -101,6 +102,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
         Log.d("거리1", "CheckDist : " + checkDist)
 
         return Section(route[returnIndex],route[returnIndex+1], strloc.Location)
+
     }
 
     /**
@@ -131,6 +133,7 @@ class RouteControl constructor(val naverMap:NaverMap, val route:List<LatLng>, va
 
         Log.d("이탈: ","거리: "+res)
         if(res>=8){
+            currSectionIndex = 0
             return true
         }
         else{
