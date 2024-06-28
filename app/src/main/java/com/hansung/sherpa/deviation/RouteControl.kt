@@ -19,6 +19,8 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
+import com.naver.maps.map.overlay.PolygonOverlay
+import com.naver.maps.map.overlay.PolylineOverlay
 import kotlin.collections.*
 import kotlin.math.abs
 import kotlin.math.atan2
