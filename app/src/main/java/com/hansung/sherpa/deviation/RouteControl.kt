@@ -16,6 +16,7 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.databinding.AlertBinding
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
 import kotlin.collections.*
@@ -49,36 +50,22 @@ data class StrengthLocation (
     val Location: LatLng
 )
 
-class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegRoute>, val navigation: Navigation) {
+/**
+ * @property route 그려질 경로 좌표 리스트
+ * @property navigation RouteControl을 생성한 Navigation 객체
+ */
+class RouteControl {
 
 //    경로 이탈 : 10m
 //    경로 구간 확인 : 동적
 //    GPS 업데이트 시간 : 1.3s
 
     private var roundRadius = 1.0
-    private var routeEnum = ArrayList<LatLng>()
     private val outDistance = 10.0
+    var route : List<LatLng> = emptyList()
 
-    init {
-        for(i in route){
-            for(j in i.coordinates){
-                routeEnum.add(LatLng(j.latitude,j.longitude))
-            }
-        }
-    }
-
-    fun upDateRouteEnum(route:MutableList<Pair<MutableList<LatLng>, String>>){
-        this.routeEnum = ArrayList<LatLng>()
-
-        for(i in route){
-            for(j in i.first){
-                routeEnum.add(j)
-            }
-        }
-    }
-
-    fun checkingSection(strloc:StrengthLocation):Section{/// ???
-
+    fun checkingSection(strloc:StrengthLocation): Section? {/// ???
+        if (route.isEmpty()) return null
         when(strloc.Strength){
             "Strong"->{ roundRadius = 40.0 }
             "Weak"->{ roundRadius = 43.0 }
@@ -86,13 +73,13 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
 
         var returnIndex = 0
         var flag=0
-        while (returnIndex<routeEnum.size-2){
-            if(calcDistance(routeEnum[returnIndex], strloc.Location)<=roundRadius &&
-                calcDistance(routeEnum[returnIndex+1], strloc.Location)>roundRadius){
+        while (returnIndex<route.size-2){
+            if(route[returnIndex].distanceTo(strloc.Location)<=roundRadius &&
+                route[returnIndex+1].distanceTo(strloc.Location)>roundRadius){
                 flag=1
                 Log.d("거리", "현재 index : " + returnIndex)
-                Log.d("거리","1. " + calcDistance(routeEnum[returnIndex], strloc.Location))
-                Log.d("거리","2. " + calcDistance(routeEnum[returnIndex+1], strloc.Location))
+                Log.d("거리","1. " + route[returnIndex].distanceTo(strloc.Location))
+                Log.d("거리","2. " + route[returnIndex+1].distanceTo(strloc.Location))
                 break
             }
             returnIndex+=1
@@ -101,8 +88,8 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
         var checkDist = Double.MAX_VALUE
         var distTmp:Double
         if(flag==0){
-            for(i in 0..routeEnum.size-2){
-                distTmp = calcDistance(routeEnum[i],strloc.Location)
+            for(i in 0..route.size-2){
+                distTmp = route[i].distanceTo(strloc.Location)
                 if(checkDist>distTmp){
                     returnIndex = i
                     checkDist = distTmp
@@ -113,67 +100,37 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
         Log.d("거리1", "현재 index : " + returnIndex)
         Log.d("거리1", "CheckDist : " + checkDist)
 
-        return Section(routeEnum[returnIndex],routeEnum[returnIndex+1], strloc.Location)
+        return Section(route[returnIndex],route[returnIndex+1], strloc.Location)
     }
 
     /**
-     *  두 좌표 사이의 거리 계산 m단위
+     * 사용자와 섹션 사이의 거리 값 m단위 반환
      *
-     *  @param latlng1 좌표1
-     *  @param latlng2 좌표2
-     *  @return Double
-     */
-    fun calcDistance(latlng1:LatLng, latlng2: LatLng): Double {
-        val radLat1 = Math.toRadians(latlng1.latitude)
-        val radLon1 = Math.toRadians(latlng1.longitude)
-        val radLat2 = Math.toRadians(latlng2.latitude)
-        val radLon2 = Math.toRadians(latlng2.longitude)
-
-        // Haversine 공식을 사용하여 거리 계산
-        val dLat = radLat2 - radLat1
-        val dLon = radLon2 - radLon1
-        val a = sin(dLat / 2) * sin(dLat / 2) + cos(radLat1) * cos(radLat2) * sin(dLon / 2) * sin(dLon / 2)
-        val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        var distance = 6371000 * c // 지구 반지름을 곱하여 거리를 미터 단위로 변환
-
-        if (distance < 0) {
-            distance *= -1
-        }
-
-        return distance
-    }
-
-
-    fun calcPointLineDist(A:LatLng, B:LatLng, user:LatLng):Double{
-        val A_coeff = B.latitude - A.latitude
-        val B_coeff = A.longitude - B.longitude
-        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)
-
-        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
-        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
-        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)
-
-        return distance
-    }
-
+     * @param section 섹션값
+     * @param location 사용자 위치
+    * */
     fun detectOutRoute(section:Section, location:LatLng):Boolean{
+        var res = 0.0
+        if (section.Start.latitude == section.End.latitude && section.Start.longitude == section.End.longitude) return false
+        //Utm-K로 좌표계 변환
+        val from = Utmk.valueOf(section.Start)
+        val to = Utmk.valueOf(section.End)
+        val user = Utmk.valueOf(location)
 
-        val A = section.Start
-        val B = section.End
-        val user = location
+        //기울기
+        var slope = (from.y - to.y)/(from.x - to.x)
 
-        val A_coeff = B.latitude - A.latitude
-        val B_coeff = A.longitude - B.longitude
-        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)
+        // y절편
+        var yCoeff = from.y - slope*from.x
 
-        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
-        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
-        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)*10000
+        var a = -1*slope
+        var b = 1
+        var c = -1*yCoeff
 
-//        Log.d("경로사이의거리","거리: "+distance+" 구역: "+location.latitude +", " +location.longitude)
+        res = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
 
-        Log.d("이탈: ","거리: "+distance)
-        if(distance>=5){
+        Log.d("이탈: ","거리: "+res)
+        if(res>=8){
             return true
         }
         else{
@@ -189,37 +146,12 @@ class RouteControl constructor(val naverMap:NaverMap, val route:MutableList<LegR
      *  @return PathOverlay
      */
     fun drawProgressLine(section: Section): PathOverlay {
-
         return PathOverlay().also {
             it.coords = listOf(section.Start, section.CurrLocation)
             it.width = 10
             it.passedColor = Color.YELLOW
             it.progress = 1.0
         }
-    }
-
-    /**
-     *  현재 경로에서 이탈시 현재 위치에서 목적지까지 경로를 그리는 함수
-     *
-     *  @param section 시작(안씀), 목적지 벡터 좌표, 현재 사용자 위치를 가져옴
-     *  @return (NaverMap, Context, MainActivity) -> Unit
-     */
-
-    fun redrawDeviationRoute(section: Section){
-        val routeRequest = TransitRouteRequest(
-            startX = section.CurrLocation.longitude.toString(),
-            startY = section.CurrLocation.latitude.toString(),
-            endX = section.End.longitude.toString(),
-            endY = section.End.latitude.toString(),
-            lang = 0,
-            format = "json",
-            count = 1
-        )
-        navigation.process(routeRequest)
-//        return { naverMap, context, lifecycle ->
-////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)
-//            searchRoute.searchRoute(routeRequest)
-//        }
     }
 
     object AlterToast {
