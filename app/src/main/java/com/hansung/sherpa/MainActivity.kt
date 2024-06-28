@@ -52,11 +52,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
         mapFragment.getMapAsync(this)
-        
+
         destinationTextView = findViewById(R.id.destination_editText)
         searchButton = findViewById(R.id.search_button)
 
-        locationSource = GpsLocationSource.getInstance(this)
+//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        locationSource = GpsLocationSource.createInstance(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -81,12 +82,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 검색 필요 클래스 초기화
         val routeControl = RouteControl() // 사용자 위치 확인
-        val gpsData = GPSDatas(this) // gps 위치 
+        val gpsData = GPSDatas(this) // gps 위치
         val navigation = Navigation() // 경로 그리기 & 탐색
         navigation.naverMap = naverMap
         navigation.mainActivity = this
         navigation.routeControl = routeControl
-        
+
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
             navigation.getTransitRoutes(startKeyword, endKeyword)
@@ -123,7 +124,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             viewModel.destinationText.value = destinationTextView.text.toString()
         }
     }
-    
+
     // 사용자 마커 표시
     private fun onChangeUserMarker() {
         val currMarker = Marker()

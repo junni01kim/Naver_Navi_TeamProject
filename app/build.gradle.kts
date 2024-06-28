@@ -7,7 +7,8 @@ plugins {
 
 val clientId = getClientId("CLIENT_ID")
 val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
-
+val searchAPIClientID = getSearchAPIClientID("SEARCH_API_CLIENT_ID")
+val searchAPIClientSecret = getSearchAPIClientSecret("SEARCH_API_CLIENT_SECRET")
 android {
 
     namespace = "com.hansung.sherpa"
@@ -23,6 +24,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "CLIENT_ID", clientId)
         buildConfigField("String", "TMAP_APP_KEY", tmapAppKey)
+        buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
+        buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
         manifestPlaceholders["CLIENT_ID"] = clientId
     }
 
@@ -55,6 +58,14 @@ fun getClientId(propertyKey : String) : String{
 }
 
 fun getTmapAppKey(propertyKey : String) : String{
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
+}
+
+fun getSearchAPIClientID(propertyKey : String) : String{
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
+}
+
+fun getSearchAPIClientSecret(propertyKey : String) : String{
     return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
