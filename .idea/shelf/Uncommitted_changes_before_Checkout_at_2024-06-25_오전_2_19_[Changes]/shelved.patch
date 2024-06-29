@@ -1,0 +1,52 @@
+Index: app/src/main/java/com/hansung/sherpa/deviation/RouteControl.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.hansung.sherpa.deviation\r\n\r\nimport android.content.Context\r\nimport android.content.res.Resources\r\nimport android.graphics.Color\r\nimport android.util.Log\r\nimport android.view.Gravity\r\nimport android.view.LayoutInflater\r\nimport android.view.ViewGroup\r\nimport android.widget.Toast\r\nimport androidx.databinding.DataBindingUtil\r\nimport com.hansung.sherpa.MainActivity\r\nimport com.hansung.sherpa.R\r\nimport com.hansung.sherpa.SearchRoute\r\nimport com.hansung.sherpa.databinding.ActivityMainBinding\r\nimport com.hansung.sherpa.databinding.AlertBinding\r\nimport com.hansung.sherpa.gps.GPSDatas\r\nimport com.hansung.sherpa.transit.TransitRouteRequest\r\nimport com.naver.maps.geometry.LatLng\r\nimport com.naver.maps.map.NaverMap\r\nimport com.naver.maps.map.overlay.PathOverlay\r\nimport kotlin.collections.*\r\nimport kotlin.math.abs\r\nimport kotlin.math.atan2\r\nimport kotlin.math.cos\r\nimport kotlin.math.sin\r\nimport kotlin.math.sqrt\r\n\r\n/**\r\n *  경로를 그리는 인접한 두 좌표와 현재 위치를 정의하는 클래스\r\n *\r\n *  @property Start 구간의 시작 좌표\r\n *  @property End 구간의 끝 좌표\r\n *  @property CurrLocation 현재 사용자의 좌표\r\n */\r\ndata class Section(\r\n    var Start: LatLng,\r\n    var End: LatLng,\r\n    var CurrLocation: LatLng\r\n)\r\n\r\n/**\r\n *  GPS의 세기와 현재 사용자 위치를 정의하는 클래스\r\n *\r\n *  @property Strength GPS의 세기\r\n *  @property Loncation 사용자의 현재 위치\r\n */\r\ndata class StrengthLocation (\r\n    val Strength: String,\r\n    val Location: LatLng\r\n)\r\n\r\nclass RouteControl constructor(val naverMap:NaverMap,val route:MutableList<Pair<MutableList<LatLng>, String>>, val searchRoute: SearchRoute) {\r\n\r\n//    경로 이탈 : 10m\r\n//    경로 구간 확인 : 동적\r\n//    GPS 업데이트 시간 : 1.3s\r\n\r\n    private var roundRadius = 1.0\r\n    private var routeEnum = ArrayList<LatLng>()\r\n    private val outDistance = 10.0\r\n\r\n    init {\r\n        for(i in route){\r\n            for(j in i.first){\r\n                routeEnum.add(j)\r\n            }\r\n        }\r\n    }\r\n\r\n    fun upDateRouteEnum(route:MutableList<Pair<MutableList<LatLng>, String>>){\r\n        this.routeEnum = ArrayList<LatLng>()\r\n\r\n        for(i in route){\r\n            for(j in i.first){\r\n                routeEnum.add(j)\r\n            }\r\n        }\r\n    }\r\n\r\n    fun checkingSection(strloc:StrengthLocation):Section{/// ???\r\n\r\n        when(strloc.Strength){\r\n            \"Strong\"->{ roundRadius = 40.0 }\r\n            \"Weak\"->{ roundRadius = 43.0 }\r\n        }\r\n\r\n        var returnIndex = 0\r\n        var flag=0\r\n        while (returnIndex<routeEnum.size-2){\r\n            if(calcDistance(routeEnum[returnIndex], strloc.Location)<=roundRadius &&\r\n                calcDistance(routeEnum[returnIndex+1], strloc.Location)>roundRadius){\r\n                flag=1\r\n                Log.d(\"거리\", \"현재 index : \" + returnIndex)\r\n                Log.d(\"거리\",\"1. \" + calcDistance(routeEnum[returnIndex], strloc.Location))\r\n                Log.d(\"거리\",\"2. \" + calcDistance(routeEnum[returnIndex+1], strloc.Location))\r\n                break\r\n            }\r\n            returnIndex+=1\r\n        }\r\n\r\n        var checkDist = Double.MAX_VALUE\r\n        var distTmp:Double\r\n        if(flag==0){\r\n            for(i in 0..routeEnum.size-2){\r\n                distTmp = calcDistance(routeEnum[i],strloc.Location)\r\n                if(checkDist>distTmp){\r\n                    returnIndex = i\r\n                    checkDist = distTmp\r\n                }\r\n            }\r\n        }\r\n\r\n        Log.d(\"거리1\", \"현재 index : \" + returnIndex)\r\n        Log.d(\"거리1\", \"CheckDist : \" + checkDist)\r\n\r\n        return Section(routeEnum[returnIndex],routeEnum[returnIndex+1], strloc.Location)\r\n    }\r\n\r\n    /**\r\n     *  두 좌표 사이의 거리 계산 m단위\r\n     *\r\n     *  @param latlng1 좌표1\r\n     *  @param latlng2 좌표2\r\n     *  @return Double\r\n     */\r\n    fun calcDistance(latlng1:LatLng, latlng2: LatLng): Double {\r\n        val radLat1 = Math.toRadians(latlng1.latitude)\r\n        val radLon1 = Math.toRadians(latlng1.longitude)\r\n        val radLat2 = Math.toRadians(latlng2.latitude)\r\n        val radLon2 = Math.toRadians(latlng2.longitude)\r\n\r\n        // Haversine 공식을 사용하여 거리 계산\r\n        val dLat = radLat2 - radLat1\r\n        val dLon = radLon2 - radLon1\r\n        val a = sin(dLat / 2) * sin(dLat / 2) + cos(radLat1) * cos(radLat2) * sin(dLon / 2) * sin(dLon / 2)\r\n        val c = 2 * atan2(sqrt(a), sqrt(1 - a))\r\n        var distance = 6371000 * c // 지구 반지름을 곱하여 거리를 미터 단위로 변환\r\n\r\n        if (distance < 0) {\r\n            distance *= -1\r\n        }\r\n\r\n        return distance\r\n    }\r\n\r\n\r\n    fun calcPointLineDist(A:LatLng, B:LatLng, user:LatLng):Double{\r\n        val A_coeff = B.latitude - A.latitude\r\n        val B_coeff = A.longitude - B.longitude\r\n        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)\r\n\r\n        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.\r\n        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)\r\n        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)\r\n\r\n        return distance\r\n    }\r\n\r\n    fun detectOutRoute(section:Section, location:LatLng):Boolean{\r\n\r\n        val A = section.Start\r\n        val B = section.End\r\n        val user = location\r\n\r\n        val A_coeff = B.latitude - A.latitude\r\n        val B_coeff = A.longitude - B.longitude\r\n        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)\r\n\r\n        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.\r\n        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)\r\n        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)*10000\r\n\r\n//        Log.d(\"경로사이의거리\",\"거리: \"+distance+\" 구역: \"+location.latitude +\", \" +location.longitude)\r\n\r\n        Log.d(\"이탈: \",\"거리: \"+distance)\r\n        if(distance>=5){\r\n            return true\r\n        }\r\n        else{\r\n            return false\r\n        }\r\n    }\r\n\r\n\r\n    /**\r\n     *  전체 경로 중 벡터 좌표 사이 구간의 사용자 이동 경로를 설정하는 함수\r\n     *\r\n     *  @param section 시작, 끝 벡터 좌표, 현재 사용자 위치를 가져옴\r\n     *  @return PathOverlay\r\n     */\r\n    fun drawProgressLine(section: Section): PathOverlay {\r\n\r\n        return PathOverlay().also {\r\n            it.coords = listOf(section.Start, section.CurrLocation)\r\n            it.width = 10\r\n            it.passedColor = Color.YELLOW\r\n            it.progress = 1.0\r\n        }\r\n    }\r\n\r\n    /**\r\n     *  현재 경로에서 이탈시 현재 위치에서 목적지까지 경로를 그리는 함수\r\n     *\r\n     *  @param section 시작(안씀), 목적지 벡터 좌표, 현재 사용자 위치를 가져옴\r\n     *  @return (NaverMap, Context, MainActivity) -> Unit\r\n     */\r\n    fun redrawDeviationRoute(section: Section){\r\n\r\n        val routeRequest = TransitRouteRequest(\r\n            startX = section.CurrLocation.longitude.toString(),\r\n            startY = section.CurrLocation.latitude.toString(),\r\n            endX = section.End.longitude.toString(),\r\n            endY = section.End.latitude.toString(),\r\n            lang = 0,\r\n            format = \"json\",\r\n            count = 1\r\n        )\r\n        searchRoute.searchRoute(routeRequest)\r\n//        return { naverMap, context, lifecycle ->\r\n////            SearchRoute(naverMap, context, lifecycle).searchRoute(routeRequest)\r\n//            searchRoute.searchRoute(routeRequest)\r\n//        }\r\n    }\r\n\r\n    object AlterToast {\r\n        fun createToast(context: Context): Toast? {\r\n            val inflater = LayoutInflater.from(context)\r\n            val binding: AlertBinding = DataBindingUtil.inflate(inflater, R.layout.alert, null, false)\r\n\r\n            return Toast(context).apply {\r\n                setGravity(Gravity.BOTTOM or Gravity.CENTER, 0, 16.toPx())\r\n                duration = Toast.LENGTH_SHORT\r\n                view = binding.root\r\n            }\r\n        }\r\n\r\n        private fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()\r\n    }\r\n\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/com/hansung/sherpa/deviation/RouteControl.kt b/app/src/main/java/com/hansung/sherpa/deviation/RouteControl.kt
+--- a/app/src/main/java/com/hansung/sherpa/deviation/RouteControl.kt	(revision 6f618dffc14a2eaa61fbb449612f9653aff52ec8)
++++ b/app/src/main/java/com/hansung/sherpa/deviation/RouteControl.kt	(date 1719249325835)
+@@ -157,29 +157,23 @@
+         return distance
+     }
+ 
+-    fun detectOutRoute(section:Section, location:LatLng):Boolean{
+-
+-        val A = section.Start
+-        val B = section.End
++    fun detectOutRoute(section: Section, location: LatLng): Boolean {
++        val start = section.Start
++        val end = section.End
+         val user = location
+ 
+-        val A_coeff = B.latitude - A.latitude
+-        val B_coeff = A.longitude - B.longitude
+-        val C_coeff = A.latitude * (B.longitude - A.longitude) - A.longitude * (B.latitude - A.latitude)
++        val slopeX = end.longitude - start.longitude
++        val slopeY = end.latitude - start.latitude
++        val constant = start.latitude * slopeX - start.longitude * slopeY
+ 
+-        // MY의 위치를 직선의 방정식에 대입하여 거리를 구합니다.
+-        // 거리 공식: distance = |Ax + By + C| / sqrt(A^2 + B^2)
+-        val distance = abs(A_coeff * user.longitude + B_coeff * user.latitude + C_coeff) / sqrt(A_coeff * A_coeff + B_coeff * B_coeff)*10000
++        // 점과 직선 사이의 최단 거리 계산
++        val distance = abs(slopeX * user.latitude - slopeY * user.longitude + constant) / sqrt(slopeX * slopeX + slopeY * slopeY)
+ 
+-//        Log.d("경로사이의거리","거리: "+distance+" 구역: "+location.latitude +", " +location.longitude)
++        Log.d("distance", "위치: ${location.longitude} ${location.longitude}")
++        Log.d("distance", "거리: ${distance}")
+ 
+-        Log.d("이탈: ","거리: "+distance)
+-        if(distance>=5){
+-            return true
+-        }
+-        else{
+-            return false
+-        }
++        // 부동 소수점 오차 처리
++        return distance > 5.0
+     }
+ 
+ 

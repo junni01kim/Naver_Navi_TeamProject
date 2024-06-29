@@ -86,6 +86,21 @@ class Navigation {
         // 기타
         routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
     }
+
+    fun redrawRoute2(location:LatLng, endLatLng: LatLng) {
+        // 경로 초기화
+        clearRoute()
+        // 좌표 기반 경로 검색
+        routeRequest = setRouteRequest(location, endLatLng)
+        // 요청 좌표 기반 경로 검색
+        val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
+        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+        val transitRoute = transitRoutes[0]
+        // 경로 그리기
+        drawRoute(transitRoute)
+        // 기타
+        routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
+    }
     
     // 경로를 그리는 함수
     private fun drawRoute(transitRoute: MutableList<LegRoute>) {

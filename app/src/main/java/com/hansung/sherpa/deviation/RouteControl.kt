@@ -130,12 +130,48 @@ class RouteControl {
         res = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
 
         Log.d("이탈: ","거리: "+res)
-        if(res>=8){
-            return true
-        }
-        else{
-            return false
-        }
+
+        return res>=8
+    }
+
+    var nowSection = 0
+
+    // 섹션 통과 판단
+    fun detectNextSection(location:LatLng) {
+        var distance = 0.0
+
+        val to = Utmk.valueOf(route[nowSection+1])
+        val user = Utmk.valueOf(location)
+
+        // 목적지까지의 거리
+        val differenceX = to.x-user.x
+        val differenceY = to.y-user.y
+        distance = sqrt(differenceX*differenceX+differenceY*differenceY)
+        if(distance <= 4) nowSection++
+    }
+
+    fun detectOutRoute2(location:LatLng):Boolean{
+        var distance = 0.0
+
+        detectNextSection(location)
+
+        val from = Utmk.valueOf(route[nowSection])
+        val to = Utmk.valueOf(route[nowSection+1])
+        val user = Utmk.valueOf(location)
+
+        // 점과 직선 사이의 거리
+        //기울기
+        val slope = (from.y - to.y)/(from.x - to.x)
+
+        // y절편
+        val yCoeff = from.y - slope*from.x
+
+        val a = -1*slope
+        val b = 1
+        val c = -1*yCoeff
+
+        distance = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
+        return distance>=8
     }
 
 
