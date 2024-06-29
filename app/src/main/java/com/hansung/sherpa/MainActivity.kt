@@ -98,18 +98,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
-                /*val section = routeControl.checkingSection(
-                    StrengthLocation(
-                        gpsData.getGpsSignalAccuracy().Strength,
-                        nowLocation
-                    )
-                )
-                if (section != null && routeControl.detectOutRoute(section, nowLocation)) {// 경로이탈 탐지
-                    section.CurrLocation = nowLocation
-                    section.End = navigation.tempEndLatLng // 개발용
-                    // section.End = navigation.endLatLng // 실제 코드
-                    navigation.redrawRoute(section)
-                }*/
 
                 // TODO : 김명준이 만들거
                 if (routeControl.detectOutRoute2(nowLocation)) {// 경로이탈 탐지

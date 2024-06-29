@@ -65,75 +65,12 @@ class RouteControl {
     private val outDistance = 10.0
     var route : List<LatLng> = emptyList()
 
-    fun checkingSection(strloc:StrengthLocation): Section? {/// ???
-        if (route.isEmpty()) return null
-        when(strloc.Strength){
-            "Strong"->{ roundRadius = 40.0 }
-            "Weak"->{ roundRadius = 43.0 }
-        }
-
-        var returnIndex = 0
-        var flag=0
-        while (returnIndex<route.size-2){
-            if(route[returnIndex].distanceTo(strloc.Location)<=roundRadius &&
-                route[returnIndex+1].distanceTo(strloc.Location)>roundRadius){
-                flag=1
-                Log.d("거리", "현재 index : " + returnIndex)
-                Log.d("거리","1. " + route[returnIndex].distanceTo(strloc.Location))
-                Log.d("거리","2. " + route[returnIndex+1].distanceTo(strloc.Location))
-                break
-            }
-            returnIndex+=1
-        }
-
-        var checkDist = Double.MAX_VALUE
-        var distTmp:Double
-        if(flag==0){
-            for(i in 0..route.size-2){
-                distTmp = route[i].distanceTo(strloc.Location)
-                if(checkDist>distTmp){
-                    returnIndex = i
-                    checkDist = distTmp
-                }
-            }
-        }
-
-        Log.d("거리1", "현재 index : " + returnIndex)
-        Log.d("거리1", "CheckDist : " + checkDist)
-
-        return Section(route[returnIndex],route[returnIndex+1], strloc.Location)
-    }
-
     /**
      * 사용자와 섹션 사이의 거리 값 m단위 반환
      *
      * @param section 섹션값
      * @param location 사용자 위치
     * */
-    fun detectOutRoute(section:Section, location:LatLng):Boolean{
-        var res = 0.0
-        if (section.Start.latitude == section.End.latitude && section.Start.longitude == section.End.longitude) return false
-        //Utm-K로 좌표계 변환
-        val from = Utmk.valueOf(section.Start)
-        val to = Utmk.valueOf(section.End)
-        val user = Utmk.valueOf(location)
-
-        //기울기
-        var slope = (from.y - to.y)/(from.x - to.x)
-
-        // y절편
-        var yCoeff = from.y - slope*from.x
-
-        var a = -1*slope
-        var b = 1
-        var c = -1*yCoeff
-
-        res = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
-
-        Log.d("이탈: ","거리: "+res)
-
-        return res>=8
-    }
 
     // Todo: 김명준이 작성
     var nowSection = 0
@@ -160,7 +97,7 @@ class RouteControl {
     // 직선 공식을 위한 요소를 담는 클래스
     data class Straight(var slope:Double, var yCoeff:Double)
     fun findIntersectionPoints(straight:Straight, point:Utmk): Pair<Utmk, Utmk> {
-        straight.slope = -1 / straight.slope
+        straight.slope = Math.acos(straight.slope)
 
         // A: 2차항, B: 1차항 C: 상수항
         val A = 1 + straight.slope.pow(2)
@@ -177,58 +114,48 @@ class RouteControl {
         return Pair(bigPoint,smallPoint)
     }
 
+    fun toScalar(point:Utmk) = sqrt(point.x.pow(2)+point.y.pow(2))
+
+    fun getCosine(vector1:Utmk, vector2:Utmk) = (vector1.x*vector2.x+vector1.y+vector2.y)/(toScalar(vector1)*toScalar(vector2))
+
+    fun getAngle(cosine:Double) = Math.acos(cosine) * 180 / Math.PI
+
     fun checkFlag(froms:Pair<Utmk,Utmk>, tos:Pair<Utmk,Utmk>, location: Utmk): Boolean {
         val (bigFrom, smallFrom) = froms
         val (bigTo, smallTo) = tos
 
-        val vector1 = Pair(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.y)
-        val vector2 = Pair(smallTo.x - smallFrom.x, smallTo.y - smallFrom.y)
-        val vector3 = Pair(bigTo.x - smallFrom.x, bigTo.y - smallFrom.y)
+        val vector1 = Utmk(bigFrom.x - smallFrom.x, smallFrom.y - smallFrom.x)
+        val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.x)
+        val locationVector = Utmk(location.x - smallFrom.x, location.y - smallFrom.x)
 
-        val locationVector = Pair(location.x - smallFrom.x, location.y - smallFrom.y)
+        val angle = getAngle(getCosine(vector1, locationVector))
+        val x = toScalar(locationVector) * Math.cos(angle)
+        val y = toScalar(locationVector) * Math.sin(angle)
 
-        val crossProduct1 = vector1.first * locationVector.second - vector1.second * locationVector.first
-        val crossProduct2 = vector2.first * locationVector.second - vector2.second * locationVector.first
-
-        return crossProduct1 >= 0 && crossProduct2 >= 0
+        return x >= toScalar(vector1) && y >= toScalar(vector2)
     }
 
     fun detectOutRoute2(location:LatLng):Boolean{
-        var distanceA = 0.0
+        var distance = 0.0
 
-        while(detectNextSection(location)){continue}
+        while(detectNextSection(location)){ continue }
 
         val from = Utmk.valueOf(route[nowSection])
         val to = Utmk.valueOf(route[nowSection+1])
         val user = Utmk.valueOf(location)
 
         // 출발지 이탈 범위
-        val differenceX = from.x-user.x
-        val differenceY = from.y-user.y
-        distanceA = sqrt(differenceX*differenceX+differenceY*differenceY)
+        distance = location.distanceTo(route[nowSection])
 
         // 점과 직선 사이의 거리
         val slope = (from.y - to.y)/(from.x - to.x) //기울기
         val yCoeff = from.y - slope*from.x  // y절편
 
         // Todo: 점과 직선 간의 거리 영역 제한
-        val flag = checkFlag(slope, findIntersectionPoints(Straight(slope,yCoeff),from), findIntersectionPoints(Straight(slope,yCoeff),to), location)
+        val flag = checkFlag(findIntersectionPoints(Straight(slope,yCoeff),from), findIntersectionPoints(Straight(slope,yCoeff),to), user)
 
-        if(distanceA>10) {
-            Log.d("explain", "detectOutRoute2: 잠재적 이탈")
-            Log.d("explain", "distanceA: ${distanceA}")
-        }
-        if(flag){
-            Log.d("explain", "detectOutRoute2: 잠재적 이탈")
-            Log.d("explain", "flag: ${flag}")
-        }
-        if(distanceA>10 && flag){
-            Log.d("explain", "detectOutRoute2: 이탈, redraw")
-        }
-
-        return distanceA > 10 && flag
+        return distance > 10 && flag
     }
-
 
     /**
      *  전체 경로 중 벡터 좌표 사이 구간의 사용자 이동 경로를 설정하는 함수
