@@ -147,11 +147,12 @@ class RouteControl {
         val differenceX = to.x-user.x
         val differenceY = to.y-user.y
         distance = sqrt(differenceX*differenceX+differenceY*differenceY)
-        if(distance <= 4) nowSection++
+        if(distance <= 5) nowSection++
     }
 
     fun detectOutRoute2(location:LatLng):Boolean{
-        var distance = 0.0
+        var distanceA = 0.0
+        var distanceB = 0.0
 
         detectNextSection(location)
 
@@ -159,19 +160,21 @@ class RouteControl {
         val to = Utmk.valueOf(route[nowSection+1])
         val user = Utmk.valueOf(location)
 
-        // 점과 직선 사이의 거리
-        //기울기
-        val slope = (from.y - to.y)/(from.x - to.x)
+        // 출발지 이탈 범위
+        val differenceX = from.x-user.x
+        val differenceY = from.y-user.y
+        distanceA = sqrt(differenceX*differenceX+differenceY*differenceY)
 
-        // y절편
-        val yCoeff = from.y - slope*from.x
+        // 점과 직선 사이의 거리
+        val slope = (from.y - to.y)/(from.x - to.x) //기울기
+        val yCoeff = from.y - slope*from.x  // y절편
 
         val a = -1*slope
         val b = 1
         val c = -1*yCoeff
 
-        distance = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
-        return distance>=8
+        distanceB = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
+        return distanceA>=8 || distanceB>=5
     }
 
 
