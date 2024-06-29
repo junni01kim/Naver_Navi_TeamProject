@@ -1,5 +1,6 @@
 package com.hansung.sherpa.navigation
 
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
@@ -13,6 +14,7 @@ import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
+import kotlinx.coroutines.delay
 
 class Navigation {
     private var startLatLng: LatLng = LatLng(0.0, 0.0)
@@ -25,8 +27,8 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911)
-    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645)
+    private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
+    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
     // 반드시 지울 것!!
     
     // 경로 탐색
@@ -85,6 +87,7 @@ class Navigation {
         drawRoute(transitRoute)
         // 기타
         routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
+        routeControl.nowSection = 0
     }
 
     fun redrawRoute2(location:LatLng, endLatLng: LatLng) {
@@ -92,10 +95,12 @@ class Navigation {
         clearRoute()
         // 좌표 기반 경로 검색
         routeRequest = setRouteRequest(location, endLatLng)
+
         // 요청 좌표 기반 경로 검색
         val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         val transitRoute = transitRoutes[0]
+
         // 경로 그리기
         drawRoute(transitRoute)
         // 기타

@@ -4,6 +4,7 @@ import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.annotation.RequiresApi
@@ -112,7 +113,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 // TODO : 김명준이 만들거
                 if (routeControl.detectOutRoute2(nowLocation)) {// 경로이탈 탐지
-                    navigation.redrawRoute2(nowLocation, routeControl.route[routeControl.nowSection+1])
+                    navigation.redrawRoute2(nowLocation, navigation.tempEndLatLng)
                 }
             }
         }

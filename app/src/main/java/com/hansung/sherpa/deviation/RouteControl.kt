@@ -23,6 +23,7 @@ import kotlin.collections.*
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -134,10 +135,11 @@ class RouteControl {
         return res>=8
     }
 
+    // Todo: 김명준이 작성
     var nowSection = 0
 
     // 섹션 통과 판단
-    fun detectNextSection(location:LatLng) {
+    fun detectNextSection(location:LatLng):Boolean {
         var distance = 0.0
 
         val to = Utmk.valueOf(route[nowSection+1])
@@ -146,15 +148,55 @@ class RouteControl {
         // 목적지까지의 거리
         val differenceX = to.x-user.x
         val differenceY = to.y-user.y
-        distance = sqrt(differenceX*differenceX+differenceY*differenceY)
-        if(distance <= 5) nowSection++
+        distance = sqrt(differenceX.pow(2)+differenceY.pow(2))
+        if(distance <= 8) {
+            Log.d("explain", "detctNextSection: 섹션 이동 ${nowSection}")
+            nowSection++
+            return true
+        }
+        return false
+    }
+
+    // 직선 공식을 위한 요소를 담는 클래스
+    data class Straight(var slope:Double, var yCoeff:Double)
+    fun findIntersectionPoints(straight:Straight, point:Utmk): Pair<Utmk, Utmk> {
+        straight.slope = -1 / straight.slope
+
+        // A: 2차항, B: 1차항 C: 상수항
+        val A = 1 + straight.slope.pow(2)
+        val B = 2 * (straight.slope * straight.yCoeff - straight.slope * point.x - point.y)
+        val C = point.y.pow(2) + point.x.pow(2) + straight.yCoeff.pow(2) - 2 * point.x * straight.yCoeff - 64
+
+        // 판별식
+        val discriminant = B.pow(2) - 4 * A * C
+
+        // 2개의 교점
+        val bigPoint = Utmk((-B + sqrt(discriminant)) / (2 * A),  straight.slope * (-B + sqrt(discriminant)) / (2 * A) + straight.yCoeff)
+        val smallPoint = Utmk((-B - sqrt(discriminant)) / (2 * A), straight.slope * (-B - sqrt(discriminant)) / (2 * A) + straight.yCoeff)
+
+        return Pair(bigPoint,smallPoint)
+    }
+
+    fun checkFlag(froms:Pair<Utmk,Utmk>, tos:Pair<Utmk,Utmk>, location: Utmk): Boolean {
+        val (bigFrom, smallFrom) = froms
+        val (bigTo, smallTo) = tos
+
+        val vector1 = Pair(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.y)
+        val vector2 = Pair(smallTo.x - smallFrom.x, smallTo.y - smallFrom.y)
+        val vector3 = Pair(bigTo.x - smallFrom.x, bigTo.y - smallFrom.y)
+
+        val locationVector = Pair(location.x - smallFrom.x, location.y - smallFrom.y)
+
+        val crossProduct1 = vector1.first * locationVector.second - vector1.second * locationVector.first
+        val crossProduct2 = vector2.first * locationVector.second - vector2.second * locationVector.first
+
+        return crossProduct1 >= 0 && crossProduct2 >= 0
     }
 
     fun detectOutRoute2(location:LatLng):Boolean{
         var distanceA = 0.0
-        var distanceB = 0.0
 
-        detectNextSection(location)
+        while(detectNextSection(location)){continue}
 
         val from = Utmk.valueOf(route[nowSection])
         val to = Utmk.valueOf(route[nowSection+1])
@@ -169,12 +211,22 @@ class RouteControl {
         val slope = (from.y - to.y)/(from.x - to.x) //기울기
         val yCoeff = from.y - slope*from.x  // y절편
 
-        val a = -1*slope
-        val b = 1
-        val c = -1*yCoeff
+        // Todo: 점과 직선 간의 거리 영역 제한
+        val flag = checkFlag(slope, findIntersectionPoints(Straight(slope,yCoeff),from), findIntersectionPoints(Straight(slope,yCoeff),to), location)
 
-        distanceB = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
-        return distanceA>=8 || distanceB>=5
+        if(distanceA>10) {
+            Log.d("explain", "detectOutRoute2: 잠재적 이탈")
+            Log.d("explain", "distanceA: ${distanceA}")
+        }
+        if(flag){
+            Log.d("explain", "detectOutRoute2: 잠재적 이탈")
+            Log.d("explain", "flag: ${flag}")
+        }
+        if(distanceA>10 && flag){
+            Log.d("explain", "detectOutRoute2: 이탈, redraw")
+        }
+
+        return distanceA > 10 && flag
     }
 
 
