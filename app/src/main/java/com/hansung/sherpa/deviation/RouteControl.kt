@@ -63,8 +63,9 @@ class RouteControl {
 //    GPS 업데이트 시간 : 1.3s
 
     private var roundRadius = 1.0
-    private val outDistance = 10.0
+    private val outDistance = 8.0
     var route : List<LatLng> = emptyList()
+    private var currSectionIndex=0
 
     fun checkingSection(strloc:StrengthLocation): Section? {/// ???
         if (route.isEmpty()) return null
@@ -131,8 +132,9 @@ class RouteControl {
 
         res = abs(a*(user.x) + b*(user.y) + c) / sqrt(a*a + b*b)
 
-        Log.d("이탈: ","거리: "+res)
-        if(res>=8){
+        Log.d("이탈","거리: "+res)
+        if(res>=outDistance){
+            Log.d("이탈", "true")
             return true
         }
         else{

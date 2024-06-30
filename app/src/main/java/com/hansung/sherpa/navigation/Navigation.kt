@@ -25,8 +25,8 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911)
-    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645)
+    private val tempStartLatLng = LatLng(37.642636, 127.835763)
+    val tempEndLatLng = LatLng(37.627448, 126.829388)
     // 반드시 지울 것!!
     
     // 경로 탐색
