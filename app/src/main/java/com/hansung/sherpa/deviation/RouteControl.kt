@@ -117,19 +117,20 @@ class RouteControl {
         val a = point.x
         val b = point.y
         val r = 8.0
+        val interceptY = b-m*a
 
         val W = m.pow(2)+1
-        val L = -2 * (a + m * b)
-        val M = a.pow(2) + b.pow(2) - r.pow(2)
+        val L = -2 * a * W
+        val M = W * a.pow(2) - r.pow(2)
 
         // 결과적인 근의 공식 x'=(-L±sqrt(b^2-4WM))/2W, y'=ax'+b
-        Log.d("explain", "이게 계속 음수가 나옴: ${b.pow(2)-4*W*M}")
+        Log.d("explain", "이게 계속 음수가 나옴: ${interceptY.pow(2)-4*W*M}")
 
-        val bigPointX = (-L + sqrt(b.pow(2)-4*W*M))/(2*W)
-        val smallPointX = (-L - sqrt(b.pow(2)-4*W*M))/(2*W)
+        val bigPointX = (-L + sqrt(interceptY.pow(2)-4*W*M))/(2*W)
+        val smallPointX = (-L - sqrt(interceptY.pow(2)-4*W*M))/(2*W)
         Log.d("explain", "bigPointX: ${bigPointX}")
 
-        return Pair(Utmk(bigPointX, a*bigPointX+b), Utmk(smallPointX, a*bigPointX+b))
+        return Pair(Utmk(bigPointX, a*bigPointX+interceptY), Utmk(smallPointX, a*bigPointX+interceptY))
     }
 
     fun toScalar(point:Utmk) = sqrt(point.x.pow(2)+point.y.pow(2))
