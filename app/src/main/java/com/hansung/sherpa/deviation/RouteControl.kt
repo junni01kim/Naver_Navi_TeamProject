@@ -12,15 +12,19 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.R
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.databinding.AlertBinding
+import com.hansung.sherpa.transit.Station
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
+import com.naver.maps.map.overlay.PolylineOverlay
 import kotlin.collections.*
 import kotlin.math.abs
+import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -74,65 +78,117 @@ class RouteControl {
 
     // Todo: 김명준이 작성
     var nowSection = 0
+    lateinit var from: Utmk
+    lateinit var to: Utmk
+    lateinit var froms:Pair<Utmk, Utmk>
+    lateinit var tos: Pair<Utmk, Utmk>
 
     // 섹션 통과 판단
     fun detectNextSection(location:LatLng):Boolean {
         var distance = 0.0
 
-        val to = Utmk.valueOf(route[nowSection+1])
-        val user = Utmk.valueOf(location)
+        val toLatLng = route[nowSection+1]
 
         // 목적지까지의 거리
-        val differenceX = to.x-user.x
-        val differenceY = to.y-user.y
-        distance = sqrt(differenceX.pow(2)+differenceY.pow(2))
+        distance = location.distanceTo(toLatLng)
+
         if(distance <= 8) {
             Log.d("explain", "detctNextSection: 섹션 이동 ${nowSection}")
             nowSection++
+
+            // 재설정
+            from = Utmk.valueOf(route[nowSection])
+            to = Utmk.valueOf(route[nowSection+1])
+
+            Log.d("explain", "findIntersectionPoints: 함수 진입")
+            froms = findIntersectionPoints(from)
+            tos = findIntersectionPoints(to)
+            Log.d("explain", "froms: ${froms}, tos: ${tos}")
             return true
         }
         return false
     }
 
-    // 직선 공식을 위한 요소를 담는 클래스
-    data class Straight(var slope:Double, var yCoeff:Double)
-    fun findIntersectionPoints(straight:Straight, point:Utmk): Pair<Utmk, Utmk> {
-        straight.slope = Math.acos(straight.slope)
+    fun findIntersectionPoints(point:Utmk): Pair<Utmk, Utmk> {
+        // 교점을 구하는 방정식 Wx^2 + Lx + M = 0
+        // 계산 결과 W=m^2+1, L=--2*(a+m*b), M=a^2+b^2-r^2
+        // m은 기울기(slope), (a, b)는 원의 중점과 직선이 지나는 한 점(point)
+        val m = -1*(from.x - to.x)/(from.y - to.y)
+        val a = point.x
+        val b = point.y
+        val r = 8.0
 
-        // A: 2차항, B: 1차항 C: 상수항
-        val A = 1 + straight.slope.pow(2)
-        val B = 2 * (straight.slope * straight.yCoeff - straight.slope * point.x - point.y)
-        val C = point.y.pow(2) + point.x.pow(2) + straight.yCoeff.pow(2) - 2 * point.x * straight.yCoeff - 64
+        val W = m.pow(2)+1
+        val L = -2 * (a + m * b)
+        val M = a.pow(2) + b.pow(2) - r.pow(2)
 
-        // 판별식
-        val discriminant = B.pow(2) - 4 * A * C
+        // 결과적인 근의 공식 x'=(-L±sqrt(b^2-4WM))/2W, y'=ax'+b
+        Log.d("explain", "이게 계속 음수가 나옴: ${b.pow(2)-4*W*M}")
 
-        // 2개의 교점
-        val bigPoint = Utmk((-B + sqrt(discriminant)) / (2 * A),  straight.slope * (-B + sqrt(discriminant)) / (2 * A) + straight.yCoeff)
-        val smallPoint = Utmk((-B - sqrt(discriminant)) / (2 * A), straight.slope * (-B - sqrt(discriminant)) / (2 * A) + straight.yCoeff)
+        val bigPointX = (-L + sqrt(b.pow(2)-4*W*M))/(2*W)
+        val smallPointX = (-L - sqrt(b.pow(2)-4*W*M))/(2*W)
+        Log.d("explain", "bigPointX: ${bigPointX}")
 
-        return Pair(bigPoint,smallPoint)
+        return Pair(Utmk(bigPointX, a*bigPointX+b), Utmk(smallPointX, a*bigPointX+b))
     }
 
     fun toScalar(point:Utmk) = sqrt(point.x.pow(2)+point.y.pow(2))
-
     fun getCosine(vector1:Utmk, vector2:Utmk) = (vector1.x*vector2.x+vector1.y+vector2.y)/(toScalar(vector1)*toScalar(vector2))
 
-    fun getAngle(cosine:Double) = Math.acos(cosine) * 180 / Math.PI
+    // 두 벡터 사이의 각도 계산 함수
+    fun angleBetweenVectors(vector1:Utmk, vector2:Utmk): Double {
+        // 내적 계산
+        val dotProduct = vector1.x * vector2.x + vector1.y * vector2.y
 
-    fun checkFlag(froms:Pair<Utmk,Utmk>, tos:Pair<Utmk,Utmk>, location: Utmk): Boolean {
+        // 벡터 크기 계산
+        val magnitudeA = sqrt(vector1.x * vector1.y + vector1.y * vector1.y)
+        val magnitudeB = sqrt(vector2.x * vector2.y + vector2.y * vector2.y)
+
+        // 각도 계산 (라디안)
+        val theta = acos(dotProduct / (magnitudeA * magnitudeB))
+
+        // 외적 계산
+        val crossProduct = vector1.x * vector2.y - vector1.y * vector2.x
+
+        // 시계 방향 각도 조정
+        return if (crossProduct > 0) {
+            2 * Math.PI - theta
+        } else {
+            theta
+        }
+    }
+
+    fun checkFlag(location: Utmk): Boolean {
+        val coords = mutableListOf(
+            route[nowSection],
+            route[nowSection+1],
+        )
+
+        val polyline = PolylineOverlay()
+        polyline.coords = coords
+        polyline.width = 30
+        polyline.color = Color.RED
+
+        // 아직 반영되지 않음
+        polyline.coords = coords
+        polyline.map = StaticValue.naverMap
+        // 반영됨
+
         val (bigFrom, smallFrom) = froms
         val (bigTo, smallTo) = tos
+        Log.d("explain", "bigFrom: ${bigFrom} smallFrom: ${smallFrom} smallTo: ${smallTo}")
 
-        val vector1 = Utmk(bigFrom.x - smallFrom.x, smallFrom.y - smallFrom.x)
+        val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.x)
         val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.x)
         val locationVector = Utmk(location.x - smallFrom.x, location.y - smallFrom.x)
 
-        val angle = getAngle(getCosine(vector1, locationVector))
-        val x = toScalar(locationVector) * Math.cos(angle)
-        val y = toScalar(locationVector) * Math.sin(angle)
+        // 2. cosine의 주파수를 1/2로 줄인다.
+        val cosine = getCosine(vector1, locationVector)
 
-        return x >= toScalar(vector1) && y >= toScalar(vector2)
+        val x = toScalar(locationVector) * cosine
+        val y = toScalar(locationVector) * sqrt(1-cosine.pow(2))
+
+        return x > toScalar(vector1) || y > toScalar(vector2) || angleBetweenVectors(vector1,vector2) < -1 || angleBetweenVectors(vector1,vector2) > 91
     }
 
     fun detectOutRoute2(location:LatLng):Boolean{
@@ -140,19 +196,14 @@ class RouteControl {
 
         while(detectNextSection(location)){ continue }
 
-        val from = Utmk.valueOf(route[nowSection])
-        val to = Utmk.valueOf(route[nowSection+1])
         val user = Utmk.valueOf(location)
 
         // 출발지 이탈 범위
         distance = location.distanceTo(route[nowSection])
 
-        // 점과 직선 사이의 거리
-        val slope = (from.y - to.y)/(from.x - to.x) //기울기
-        val yCoeff = from.y - slope*from.x  // y절편
-
         // Todo: 점과 직선 간의 거리 영역 제한
-        val flag = checkFlag(findIntersectionPoints(Straight(slope,yCoeff),from), findIntersectionPoints(Straight(slope,yCoeff),to), user)
+        val flag = checkFlag(user)
+        if(distance >= 10 && flag) Log.d("explain", "---- 경로 재탐색 -----")
 
         return distance > 10 && flag
     }

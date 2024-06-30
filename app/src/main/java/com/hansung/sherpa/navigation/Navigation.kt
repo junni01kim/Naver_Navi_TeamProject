@@ -12,6 +12,7 @@ import com.hansung.sherpa.deviation.Section
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
 import kotlinx.coroutines.delay
@@ -52,6 +53,11 @@ class Navigation {
 
         // 기타
         routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
+        routeControl.nowSection = 0
+        routeControl.from = Utmk.valueOf(routeControl.route[routeControl.nowSection])
+        routeControl.to = Utmk.valueOf(routeControl.route[routeControl.nowSection+1])
+        routeControl.froms = routeControl.findIntersectionPoints(routeControl.from)
+        routeControl.tos = routeControl.findIntersectionPoints(routeControl.to)
     }
 
     // 경로 요청 값 만들기

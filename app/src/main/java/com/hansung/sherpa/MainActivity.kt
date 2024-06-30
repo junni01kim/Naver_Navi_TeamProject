@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
+        StaticValue.naverMap = naverMap // todo: 임시 바로 삭제할 것(김명준)
 
         // LocationOverlay 설정
         val locationOverlay = naverMap.locationOverlay
