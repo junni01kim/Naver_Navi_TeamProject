@@ -20,6 +20,7 @@ import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
+import com.naver.maps.map.overlay.CircleOverlay
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.overlay.PolygonOverlay
 import com.naver.maps.map.overlay.PolylineOverlay
@@ -92,6 +93,7 @@ class RouteControl {
 
         if(distance <= 8) {
             polyline.map = null
+            circle.map = null
 
             nowSection++
             //Log.d("explain", "현재 섹션: ${nowSection}")
@@ -134,7 +136,7 @@ class RouteControl {
     }
 
     fun toScalar(point:Utmk) = sqrt(point.x.pow(2)+point.y.pow(2))
-    fun getCosine(vector1:Utmk, vector2:Utmk) = (vector1.x*vector2.x+vector1.y+vector2.y)/(toScalar(vector1)*toScalar(vector2))
+    fun getCosine(vector1: Utmk, vector2: Utmk) = (vector1.x * vector2.x + vector1.y * vector2.y) / (toScalar(vector1) * toScalar(vector2))
 
     // 두 벡터 사이의 각도 계산 함수
     fun angleBetweenVectors(vector1: Utmk, vector2: Utmk): Double {
@@ -163,6 +165,7 @@ class RouteControl {
     }
 
     val polyline = PolygonOverlay()
+    val circle = CircleOverlay()
 
     fun checkFlag(location: Utmk): Boolean {
 
@@ -184,6 +187,13 @@ class RouteControl {
 
         polyline.coords = coords
         polyline.map = StaticValue.naverMap
+
+        circle.center = LatLng(from.toLatLng().latitude, from.toLatLng().longitude)
+        circle.outlineWidth = 5
+        circle.outlineColor = Color.RED
+        circle.color = Color.TRANSPARENT
+        circle.radius = 10.0
+        circle.map = StaticValue.naverMap
         //---------- <김명준> 여기까지 ----------
 
         val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.y)
