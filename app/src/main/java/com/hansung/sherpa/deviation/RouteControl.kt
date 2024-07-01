@@ -21,6 +21,7 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
+import com.naver.maps.map.overlay.PolygonOverlay
 import com.naver.maps.map.overlay.PolylineOverlay
 import kotlin.collections.*
 import kotlin.math.abs
@@ -65,8 +66,6 @@ class RouteControl {
 //    경로 구간 확인 : 동적
 //    GPS 업데이트 시간 : 1.3s
 
-    private var roundRadius = 1.0
-    private val outDistance = 10.0
     var route : List<LatLng> = emptyList()
 
     /**
@@ -95,6 +94,7 @@ class RouteControl {
             polyline.map = null
 
             nowSection++
+            //Log.d("explain", "현재 섹션: ${nowSection}")
 
             // 재설정
             from = Utmk.valueOf(route[nowSection])
@@ -137,13 +137,13 @@ class RouteControl {
     fun getCosine(vector1:Utmk, vector2:Utmk) = (vector1.x*vector2.x+vector1.y+vector2.y)/(toScalar(vector1)*toScalar(vector2))
 
     // 두 벡터 사이의 각도 계산 함수
-    fun angleBetweenVectors(vector1:Utmk, vector2:Utmk): Double {
+    fun angleBetweenVectors(vector1: Utmk, vector2: Utmk): Double {
         // 내적 계산
         val dotProduct = vector1.x * vector2.x + vector1.y * vector2.y
 
         // 벡터 크기 계산
-        val magnitudeA = sqrt(vector1.x * vector1.y + vector1.y * vector1.y)
-        val magnitudeB = sqrt(vector2.x * vector2.y + vector2.y * vector2.y)
+        val magnitudeA = sqrt(vector1.x * vector1.x + vector1.y * vector1.y)
+        val magnitudeB = sqrt(vector2.x * vector2.x + vector2.y * vector2.y)
 
         // 각도 계산 (라디안)
         val theta = acos(dotProduct / (magnitudeA * magnitudeB))
@@ -152,33 +152,39 @@ class RouteControl {
         val crossProduct = vector1.x * vector2.y - vector1.y * vector2.x
 
         // 시계 방향 각도 조정
-        return if (crossProduct > 0) {
+        val returnValue = if (crossProduct < 0) {
             2 * Math.PI - theta
         } else {
             theta
         }
+
+        Log.d("explain", "라디안 값: ${returnValue}")
+        return returnValue
     }
 
-    val polyline = PolylineOverlay()
+    val polyline = PolygonOverlay()
 
     fun checkFlag(location: Utmk): Boolean {
 
+        val (bigFrom, smallFrom) = froms
+        val (bigTo, smallTo) = tos
+
         //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
         val coords = mutableListOf(
-            route[nowSection],
-            route[nowSection+1],
+            bigFrom.toLatLng(),
+            bigTo.toLatLng(),
+            smallTo.toLatLng(),
+            smallFrom.toLatLng()
         )
 
         polyline.coords = coords
-        polyline.width = 30
-        polyline.color = Color.RED
+        polyline.outlineWidth = 5
+        polyline.outlineColor = Color.RED
+        polyline.color = Color.TRANSPARENT
 
         polyline.coords = coords
         polyline.map = StaticValue.naverMap
         //---------- <김명준> 여기까지 ----------
-
-        val (bigFrom, smallFrom) = froms
-        val (bigTo, smallTo) = tos
 
         val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.x)
         val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.x)
@@ -190,7 +196,10 @@ class RouteControl {
         val x = toScalar(locationVector) * cosine
         val y = toScalar(locationVector) * sqrt(1-cosine.pow(2))
 
-        return x > toScalar(vector1) || y > toScalar(vector2) || angleBetweenVectors(vector1,vector2) < -1 || angleBetweenVectors(vector1,vector2) > 91
+        val angle = angleBetweenVectors(vector1,vector2)
+        // 포함되는지 판단하고 값의 역으로 리턴
+        return !(x <= toScalar(vector1) && y <= toScalar(vector2) // 직사각형 내부에 내 위치가 존재
+                && angle >= 0 && angle <= 1.5708) // 내 위치의 각이 90보다 작아야 함
     }
 
     fun detectOutRoute(location:LatLng):Boolean{
@@ -206,6 +215,8 @@ class RouteControl {
         // Todo: 점과 직선 간의 거리 영역 제한
         val flag = checkFlag(user)
 
+        //Log.d("explain", "distance > 10:${distance > 10} ${distance}")
+        Log.d("explain", "flag: ${flag}")
         return distance > 10 && flag
     }
 
@@ -238,7 +249,5 @@ class RouteControl {
 
         private fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
     }
-
-
 
 }
