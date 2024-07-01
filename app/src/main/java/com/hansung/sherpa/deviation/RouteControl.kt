@@ -158,7 +158,7 @@ class RouteControl {
             theta
         }
 
-        Log.d("explain", "라디안 값: ${returnValue}")
+        Log.d("explain", "라디안 값:${returnValue >= 0 && returnValue <= 1.5708} ${returnValue}")
         return returnValue
     }
 
@@ -186,19 +186,21 @@ class RouteControl {
         polyline.map = StaticValue.naverMap
         //---------- <김명준> 여기까지 ----------
 
-        val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.x)
-        val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.x)
-        val locationVector = Utmk(location.x - smallFrom.x, location.y - smallFrom.x)
+        val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.y)
+        val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.y)
+        val locationVector = Utmk(location.x - smallFrom.x, location.y - smallFrom.y)
 
         // 2. cosine의 주파수를 1/2로 줄인다.
         val cosine = getCosine(vector1, locationVector)
 
         val x = toScalar(locationVector) * cosine
-        val y = toScalar(locationVector) * sqrt(1-cosine.pow(2))
+        val y = toScalar(locationVector) * sqrt(1-cosine.pow(2)) // sqrt(1-cosine.pow(2)) = 사인값
 
         val angle = angleBetweenVectors(vector1,vector2)
         // 포함되는지 판단하고 값의 역으로 리턴
-        return !(x <= toScalar(vector1) && y <= toScalar(vector2) // 직사각형 내부에 내 위치가 존재
+
+        Log.d("explain", "x:${x}, vector1:${16}, y:${y}, vector2:${toScalar(vector2)}")
+        return !(x <= 16 && y <= toScalar(vector2) // 직사각형 내부에 내 위치가 존재
                 && angle >= 0 && angle <= 1.5708) // 내 위치의 각이 90보다 작아야 함
     }
 
