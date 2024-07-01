@@ -52,6 +52,28 @@ TMAP_APP_KEY="e8wHh2tya84M88aReEpXCa5XTQf3xgo01aZG39k5"
   [Naver Map](https://navermaps.github.io/android-map-sdk/guide-ko/): 네이버 지도를 기반으로 제작  
   [Tmap Open API](https://skopenapi.readme.io/reference/%EC%86%8C%EA%B0%9C): 대중교통 api를 활용  
 
+<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+# PR 양식  
+__Pull Request는 다음과 같은 구성으로 작성한다.__    
+__제목__    
+Add: <구현사항 요약> // Add, Update, Bug ect...
+
+__내용__  
+\# :: 작업 주제  
+\**SRPA-??**  : <진행 사항> // 추가, 완료, 버그, 수정 중 ect...   
+
+
+\# :: 구현사항 설명      
+<구현사항 설명1> ...  
+
+\# :: 보완할점     
+<보완사항, 주의사항>      
+  \\* <추가로 알아야할 사항>    
+
+
+# 주석 양식
+
+
 ## 5. KDoc 양식
 1. 긴 설명이 필요한 경우
 ```
@@ -78,25 +100,3 @@ TMAP_APP_KEY="e8wHh2tya84M88aReEpXCa5XTQf3xgo01aZG39k5"
 5. 긴 Args List / Chained Call / 쿼리의 경우 들여쓰기
 6. 한 줄 코드의 경우 중괄호 생략
 7. 조건이 3개 이상이면, when / 단순 반복문보다 고차 함수 권장
-
-<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
-# PR 양식  
-__Pull Request는 다음과 같은 구성으로 작성한다.__    
-__제목__    
-Add: <구현사항 요약> // Add, Update, Bug ect...
-
-__내용__  
-\# :: 작업 주제  
-\**SRPA-??**  : <진행 사항> // 추가, 완료, 버그, 수정 중 ect...   
-
-
-\# :: 구현사항 설명      
-<구현사항 설명1> ...  
-
-\# :: 보완할점     
-<보완사항, 주의사항>      
-  \\* <추가로 알아야할 사항>    
-
-
-# 주석 양식
-
