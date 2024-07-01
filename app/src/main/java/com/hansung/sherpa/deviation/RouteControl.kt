@@ -113,24 +113,23 @@ class RouteControl {
         // 교점을 구하는 방정식 Wx^2 + Lx + M = 0
         // 계산 결과 W=m^2+1, L=--2*(a+m*b), M=a^2+b^2-r^2
         // m은 기울기(slope), (a, b)는 원의 중점과 직선이 지나는 한 점(point)
+
         val m = -1*(from.x - to.x)/(from.y - to.y)
+
         val a = point.x
         val b = point.y
         val r = 8.0
-        val interceptY = b-m*a
 
-        val W = m.pow(2)+1
-        val L = -2 * a * W
-        val M = W * a.pow(2) - r.pow(2)
+        //Log.d("explain", "이게 계속 음수가 나옴: ${interceptY.pow(2)-4*W*M}")
 
-        // 결과적인 근의 공식 x'=(-L±sqrt(b^2-4WM))/2W, y'=ax'+b
-        Log.d("explain", "이게 계속 음수가 나옴: ${interceptY.pow(2)-4*W*M}")
-
-        val bigPointX = (-L + sqrt(interceptY.pow(2)-4*W*M))/(2*W)
-        val smallPointX = (-L - sqrt(interceptY.pow(2)-4*W*M))/(2*W)
+        // 결과적인 근의 공식
+        val L = m.pow(2)+1
+        val M = sqrt(4*L*r.pow(2))
+        val bigPointX = (2*a*L+M)/(2*L)
+        val smallPointX = (2*a*L-M)/(2*L)
         Log.d("explain", "bigPointX: ${bigPointX}")
 
-        return Pair(Utmk(bigPointX, a*bigPointX+interceptY), Utmk(smallPointX, a*bigPointX+interceptY))
+        return Pair(Utmk(bigPointX, m*(bigPointX-a)+b), Utmk(smallPointX, m*(smallPointX-a)+b))
     }
 
     fun toScalar(point:Utmk) = sqrt(point.x.pow(2)+point.y.pow(2))
