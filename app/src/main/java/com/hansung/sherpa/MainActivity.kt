@@ -100,9 +100,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
 
-                // TODO : 김명준이 만들거
-                if (routeControl.detectOutRoute2(nowLocation)) {// 경로이탈 탐지
-                    navigation.redrawRoute2(nowLocation, navigation.tempEndLatLng)
+                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
                 }
             }
         }

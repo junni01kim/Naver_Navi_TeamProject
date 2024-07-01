@@ -76,7 +76,6 @@ class RouteControl {
      * @param location 사용자 위치
     * */
 
-    // Todo: 김명준이 작성
     var nowSection = 0
     lateinit var from: Utmk
     lateinit var to: Utmk
@@ -93,17 +92,16 @@ class RouteControl {
         distance = location.distanceTo(toLatLng)
 
         if(distance <= 8) {
-            Log.d("explain", "detctNextSection: 섹션 이동 ${nowSection}")
+            polyline.map = null
+
             nowSection++
 
             // 재설정
             from = Utmk.valueOf(route[nowSection])
             to = Utmk.valueOf(route[nowSection+1])
 
-            Log.d("explain", "findIntersectionPoints: 함수 진입")
             froms = findIntersectionPoints(from)
             tos = findIntersectionPoints(to)
-            Log.d("explain", "froms: ${froms}, tos: ${tos}")
             return true
         }
         return false
@@ -114,20 +112,23 @@ class RouteControl {
         // 계산 결과 W=m^2+1, L=--2*(a+m*b), M=a^2+b^2-r^2
         // m은 기울기(slope), (a, b)는 원의 중점과 직선이 지나는 한 점(point)
 
+        // Utmk from과 to의 직선과 수직인 직선 기울기
         val m = -1*(from.x - to.x)/(from.y - to.y)
 
+        // 직선 y = m(x-a)+b
         val a = point.x
         val b = point.y
         val r = 8.0
 
-        //Log.d("explain", "이게 계속 음수가 나옴: ${interceptY.pow(2)-4*W*M}")
+        // 원의 방정식 0 = (x-a)^2 + (y-b)^2 - r^2
+        // 원과 직선의 교점 방정식 2a(m^2)±sqrt(4(m^2+1)r^2)/2(m^2+1) -> 원본: 2a(m^2)±sqrt(4a^2(m^2+1)^2-4a^2(m^2+1)^2+4(m^2+1)r^2)/2(m^2+1)
+        // 자주 사용하는 m^2+1는 L, ±할 sqrt(4(m^2+1)r^2)/2(m^2+1)는 M으로 지정
+        // 계산식 = (2aL±M)/(2L)
 
-        // 결과적인 근의 공식
         val L = m.pow(2)+1
         val M = sqrt(4*L*r.pow(2))
         val bigPointX = (2*a*L+M)/(2*L)
         val smallPointX = (2*a*L-M)/(2*L)
-        Log.d("explain", "bigPointX: ${bigPointX}")
 
         return Pair(Utmk(bigPointX, m*(bigPointX-a)+b), Utmk(smallPointX, m*(smallPointX-a)+b))
     }
@@ -158,25 +159,26 @@ class RouteControl {
         }
     }
 
+    val polyline = PolylineOverlay()
+
     fun checkFlag(location: Utmk): Boolean {
+
+        //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
         val coords = mutableListOf(
             route[nowSection],
             route[nowSection+1],
         )
 
-        val polyline = PolylineOverlay()
         polyline.coords = coords
         polyline.width = 30
         polyline.color = Color.RED
 
-        // 아직 반영되지 않음
         polyline.coords = coords
         polyline.map = StaticValue.naverMap
-        // 반영됨
+        //---------- <김명준> 여기까지 ----------
 
         val (bigFrom, smallFrom) = froms
         val (bigTo, smallTo) = tos
-        Log.d("explain", "bigFrom: ${bigFrom} smallFrom: ${smallFrom} smallTo: ${smallTo}")
 
         val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.x)
         val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.x)
@@ -191,7 +193,7 @@ class RouteControl {
         return x > toScalar(vector1) || y > toScalar(vector2) || angleBetweenVectors(vector1,vector2) < -1 || angleBetweenVectors(vector1,vector2) > 91
     }
 
-    fun detectOutRoute2(location:LatLng):Boolean{
+    fun detectOutRoute(location:LatLng):Boolean{
         var distance = 0.0
 
         while(detectNextSection(location)){ continue }
@@ -203,7 +205,6 @@ class RouteControl {
 
         // Todo: 점과 직선 간의 거리 영역 제한
         val flag = checkFlag(user)
-        if(distance >= 10 && flag) Log.d("explain", "---- 경로 재탐색 -----")
 
         return distance > 10 && flag
     }

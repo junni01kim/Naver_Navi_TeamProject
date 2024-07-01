@@ -52,12 +52,14 @@ class Navigation {
         drawRoute(transitRoute)
 
         // 기타
+        //---------- <김명준> 리팩토링 필요 ----------
         routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
         routeControl.nowSection = 0
         routeControl.from = Utmk.valueOf(routeControl.route[routeControl.nowSection])
         routeControl.to = Utmk.valueOf(routeControl.route[routeControl.nowSection+1])
         routeControl.froms = routeControl.findIntersectionPoints(routeControl.from)
         routeControl.tos = routeControl.findIntersectionPoints(routeControl.to)
+        //---------- 여기까지 ----------
     }
 
     // 경로 요청 값 만들기
@@ -80,11 +82,11 @@ class Navigation {
     }
 
     // 재탐색 후 경로를 그리는 함수
-    fun redrawRoute(section: Section) {
+    fun redrawRoute(location:LatLng, endLatLng: LatLng) {
         // 경로 초기화
         clearRoute()
         // 좌표 기반 경로 검색
-        routeRequest = setRouteRequest(section.CurrLocation, section.End)
+        routeRequest = setRouteRequest(location, endLatLng)
         // 요청 좌표 기반 경로 검색
         val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
@@ -94,23 +96,6 @@ class Navigation {
         // 기타
         routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
         routeControl.nowSection = 0
-    }
-
-    fun redrawRoute2(location:LatLng, endLatLng: LatLng) {
-        // 경로 초기화
-        clearRoute()
-        // 좌표 기반 경로 검색
-        routeRequest = setRouteRequest(location, endLatLng)
-
-        // 요청 좌표 기반 경로 검색
-        val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
-        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
-        val transitRoute = transitRoutes[0]
-
-        // 경로 그리기
-        drawRoute(transitRoute)
-        // 기타
-        routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
     }
     
     // 경로를 그리는 함수
