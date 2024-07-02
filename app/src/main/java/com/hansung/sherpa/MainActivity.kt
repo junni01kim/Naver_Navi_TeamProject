@@ -56,7 +56,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         destinationTextView = findViewById(R.id.destination_editText)
         searchButton = findViewById(R.id.search_button)
 
-        locationSource = GpsLocationSource.getInstance(this)
+//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        locationSource = GpsLocationSource.createInstance(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
