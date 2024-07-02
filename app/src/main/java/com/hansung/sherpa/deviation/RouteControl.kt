@@ -67,48 +67,102 @@ class RouteControl {
 //    경로 구간 확인 : 동적
 //    GPS 업데이트 시간 : 1.3s
 
+    /**
+     * @param route 이동할 네비게이션 경로
+     * @param nowSection route에서 지금 이동하고 있는 경로
+     */
     var route : List<LatLng> = emptyList()
+    var nowSection = 0
 
     /**
-     * 사용자와 섹션 사이의 거리 값 m단위 반환
-     *
-     * @param section 섹션값
-     * @param location 사용자 위치
-    * */
-
-    var nowSection = 0
+     * ※ from, to는 연산을 요구하기 보다 코드를 짧게 유지하기 위해 만든 함수이다. 변수로 만들지 않아도 이용 가능하다. ※
+     * @param from 섹션의 시작점. 항상 route[nowSection]
+     * @param to 섹션의 도착점. 항상 route[nowSection+1]
+     */
     lateinit var from: Utmk
     lateinit var to: Utmk
+
+    /**
+     * 실질적인 이탈 영역의 범위
+     *
+     * @param froms 섹션의 시작점에서의 이탈 영역
+     * @param tos 섹션의 시작점에서의 이탈 영역
+     */
     lateinit var froms:Pair<Utmk, Utmk>
     lateinit var tos: Pair<Utmk, Utmk>
 
-    // 섹션 통과 판단
+    //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
+    val polyline = PolygonOverlay()
+    val circle = CircleOverlay()
+    //---------- <김명준> 여기까지 ----------
+
+    /**
+     * 현재 섹션을 다음 섹션으로 이동할지 판단하는 함수
+     *
+     * @param location 현재 내 위치
+     * @return to의 도착지 좌표 8m 이내에 진입할 시 true
+     */
     fun detectNextSection(location:LatLng):Boolean {
-        var distance = 0.0
+        // 거리를 탐색할 섹션 목적지 좌표
+        val destination = route[nowSection+1]
 
-        val toLatLng = route[nowSection+1]
+        // 내 위치에서 목적지까지의 거리
+        val distance = location.distanceTo(destination)
 
-        // 목적지까지의 거리
-        distance = location.distanceTo(toLatLng)
-
+        // 섹션 목적지 도달
         if(distance <= 8) {
+            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
             polyline.map = null
             circle.map = null
+            //---------- <김명준> 여기까지 ----------
 
+            // 다음 섹션 이동
             nowSection++
-            //Log.d("explain", "현재 섹션: ${nowSection}")
 
-            // 재설정
+            // 섹션 값 재설정
             from = Utmk.valueOf(route[nowSection])
             to = Utmk.valueOf(route[nowSection+1])
 
+            // 섹션 영역 재설정
             froms = findIntersectionPoints(from)
             tos = findIntersectionPoints(to)
+
+            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
+            val coords = mutableListOf(
+                froms.first.toLatLng(),
+                froms.second.toLatLng(),
+                tos.second.toLatLng(),
+                tos.first.toLatLng()
+            )
+
+            polyline.coords = coords
+            polyline.outlineWidth = 5
+            polyline.outlineColor = Color.RED
+            polyline.color = Color.TRANSPARENT
+
+            polyline.coords = coords
+            polyline.map = StaticValue.naverMap
+
+            circle.center = LatLng(from.toLatLng().latitude, from.toLatLng().longitude)
+            circle.outlineWidth = 5
+            circle.outlineColor = Color.RED
+            circle.color = Color.TRANSPARENT
+            circle.radius = 10.0
+            circle.map = StaticValue.naverMap
+            //---------- <김명준> 여기까지 ----------
             return true
         }
         return false
     }
 
+    /**
+     * 원과 직선의 교점을 구하는 함수
+     * to, from을 지나는 직선의 방정식에 수직인 기울기와 원의 중심 좌표를 갖는 직선과의 교점을 구한다.
+     * Pair.first: x값이 더 큰 좌표
+     *
+     * @param point 원의 중점
+     * @return 교점1, 교점2 - Pair() 혹은 val (get1, get2)로 반환 받을 것
+     */
     fun findIntersectionPoints(point:Utmk): Pair<Utmk, Utmk> {
         // 교점을 구하는 방정식 Wx^2 + Lx + M = 0
         // 계산 결과 W=m^2+1, L=--2*(a+m*b), M=a^2+b^2-r^2
@@ -135,101 +189,84 @@ class RouteControl {
         return Pair(Utmk(bigPointX, m*(bigPointX-a)+b), Utmk(smallPointX, m*(smallPointX-a)+b))
     }
 
+    /**
+     * Utmk 좌표에서 벡터의 스칼라를 구하는 함수
+     *
+     * @param vector 스칼라 값을 구할 벡터
+     * @return 스칼라 값
+     */
     fun toScalar(vector:Utmk) = sqrt(vector.x.pow(2)+vector.y.pow(2))
+
+    /**
+     * Utmk 좌표에서 두 벡터의 코사인 값을 구하는 함수
+     *
+     * @param vector1 첫번째 벡터
+     * @param vector2 두번째 벡터
+     * @return 코사인 값
+     */
     fun getCosine(vector1: Utmk, vector2: Utmk) = (vector1.x * vector2.x + vector1.y * vector2.y) / (toScalar(vector1) * toScalar(vector2))
 
-    // 두 벡터 사이의 각도 계산 함수
-    fun angleBetweenVectors(vector1: Utmk, vector2: Utmk): Double {
-        // 내적 계산
-        val dotProduct = vector1.x * vector2.x + vector1.y * vector2.y
+    /**
+     * 두 벡터 사이의 각도를 구하는 함수이다.
+     * 시계 방향으로 각도를 구한다.
+     *
+     * @param vector1 방향을 정하는 기준 벡터
+     * @param vector2 각도를 정하는 벡터
+     * @return 두 벡터 사이의 각도
+     */
+    fun getTheta(vector1: Utmk, vector2: Utmk): Double {
+        // 코사인 값 계산
+        val cosine = getCosine(vector1, vector2)
+        var theta = acos(cosine)
 
-        // 벡터 크기 계산
-        val magnitudeA = sqrt(vector1.x * vector1.x + vector1.y * vector1.y)
-        val magnitudeB = sqrt(vector2.x * vector2.x + vector2.y * vector2.y)
+        val direction = vector1.x*vector2.y - vector1.y*vector2.x
 
-        // 각도 계산 (라디안)
-        val theta = acos(dotProduct / (magnitudeA * magnitudeB))
+        if(direction < 0) theta = 360-theta
+        Log.d("explain", "${if(direction < 0) "반시계 방향" else "시계 방향"}")
 
-        // 외적 계산
-        val crossProduct = vector1.x * vector2.y - vector1.y * vector2.x
-
-        // 시계 방향 각도 조정
-        val returnValue = if (crossProduct < 0) {
-            2 * Math.PI - theta
-        } else {
-            theta
-        }
-
-        Log.d("explain", "라디안 값:${returnValue >= 0 && returnValue <= 1.5708} ${returnValue}")
-        return returnValue
+        return theta
     }
 
-    val polyline = PolygonOverlay()
-    val circle = CircleOverlay()
-
-    fun checkFlag(location: Utmk): Boolean {
+    /**
+     * 출발지와 도착지 간의 점과 직선 사이의 거리가 8m 이하인지 확인한다.
+     * @param location 내 위치
+     * @return 섹션 출발지와 목적지로부터 수직으로 8m 안에 존재한다면 true
+     */
+    fun isInArea(location: Utmk): Boolean {
 
         val (bigFrom, smallFrom) = froms
         val (bigTo, smallTo) = tos
-
-        //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-        val coords = mutableListOf(
-            bigFrom.toLatLng(),
-            bigTo.toLatLng(),
-            smallTo.toLatLng(),
-            smallFrom.toLatLng()
-        )
-
-        polyline.coords = coords
-        polyline.outlineWidth = 5
-        polyline.outlineColor = Color.RED
-        polyline.color = Color.TRANSPARENT
-
-        polyline.coords = coords
-        polyline.map = StaticValue.naverMap
-
-        circle.center = LatLng(from.toLatLng().latitude, from.toLatLng().longitude)
-        circle.outlineWidth = 5
-        circle.outlineColor = Color.RED
-        circle.color = Color.TRANSPARENT
-        circle.radius = 10.0
-        circle.map = StaticValue.naverMap
-        //---------- <김명준> 여기까지 ----------
 
         val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.y)
         val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.y)
         val locationVector = Utmk(location.x - smallFrom.x, location.y - smallFrom.y)
 
         val cosine = getCosine(vector1, locationVector)
-        if(cosine >= 0) return false
 
         val x = toScalar(locationVector) * cosine
         val y = toScalar(locationVector) * sqrt(1-cosine.pow(2)) // sqrt(1-cosine.pow(2)) = 사인값
 
-        val angle = angleBetweenVectors(vector2,locationVector)
+        val angle = getTheta(vector1,locationVector)
+        Log.d("explain", "radian: ${if(angle in 0.0..90.0) "각도 맞음" else "각도 이탈"} ${angle}")
         // 포함되는지 판단하고 값의 역으로 리턴
 
         Log.d("explain", "x:${x}, vector1:${16}, y:${y}, vector2:${toScalar(vector2)}")
-        return !(x <= 16 && y <= toScalar(vector2) // 직사각형 내부에 내 위치가 존재
-                && angle >= 0 && angle <= 1.5708) // 내 위치의 각이 90보다 작아야 함
+        return x in 0.0..16.0 && y in 0.0..toScalar(vector2) // 직사각형 내부에 내 위치가 존재
+                && angle in 0.0..90.0 // 내 위치의 각이 90보다 작아야 함
     }
 
     fun detectOutRoute(location:LatLng):Boolean{
-        var distance = 0.0
-
         while(detectNextSection(location)){ continue }
 
+        // 출발지와 내 위치의 거리를 판단한다.
+        val distance = location.distanceTo(route[nowSection])
+
+        // 출발지와 도착지 간의 점과 직선거리가 올바른지 판단한다.
         val user = Utmk.valueOf(location)
+        val inArea = isInArea(user)
 
-        // 출발지 이탈 범위
-        distance = location.distanceTo(route[nowSection])
-
-        // Todo: 점과 직선 간의 거리 영역 제한
-        val flag = checkFlag(user)
-
-        //Log.d("explain", "distance > 10:${distance > 10} ${distance}")
-        Log.d("explain", "flag: ${flag}")
-        return distance > 10 && flag
+        Log.d("explain", "flag: ${if(inArea) "영역 범위 안" else "영역 범위 밖"}")
+        return distance > 10 && !inArea
     }
 
     /**
