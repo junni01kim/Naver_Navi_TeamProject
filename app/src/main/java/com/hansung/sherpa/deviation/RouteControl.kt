@@ -92,7 +92,8 @@ class RouteControl {
     lateinit var tos: Pair<Utmk, Utmk>
 
     //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-    val polyline = PolygonOverlay()
+    val polyline = PolylineOverlay()
+    val polygonOverlay = PolygonOverlay()
     val circle = CircleOverlay()
     //---------- <김명준> 여기까지 ----------
 
@@ -113,7 +114,8 @@ class RouteControl {
         if(distance <= 8) {
             //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
             polyline.map = null
-            circle.map = null
+            // polygonOverlay.map = null
+            // circle.map = null
             //---------- <김명준> 여기까지 ----------
 
             // 다음 섹션 이동
@@ -128,27 +130,27 @@ class RouteControl {
             tos = findIntersectionPoints(to)
 
             //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-            val coords = mutableListOf(
+            /*val coords = mutableListOf(
                 froms.first.toLatLng(),
                 froms.second.toLatLng(),
                 tos.second.toLatLng(),
                 tos.first.toLatLng()
             )
 
-            polyline.coords = coords
-            polyline.outlineWidth = 5
-            polyline.outlineColor = Color.RED
-            polyline.color = Color.TRANSPARENT
+            polygonOverlay.coords = coords
+            polygonOverlay.outlineWidth = 5
+            polygonOverlay.outlineColor = Color.RED
+            polygonOverlay.color = Color.RED
 
-            polyline.coords = coords
-            polyline.map = StaticValue.naverMap
+            polygonOverlay.coords = coords
+            polygonOverlay.map = StaticValue.naverMap
 
             circle.center = LatLng(from.toLatLng().latitude, from.toLatLng().longitude)
             circle.outlineWidth = 5
             circle.outlineColor = Color.RED
             circle.color = Color.TRANSPARENT
             circle.radius = 10.0
-            circle.map = StaticValue.naverMap
+            circle.map = StaticValue.naverMap*/
             //---------- <김명준> 여기까지 ----------
             return true
         }
@@ -158,7 +160,7 @@ class RouteControl {
     /**
      * 원과 직선의 교점을 구하는 함수
      * to, from을 지나는 직선의 방정식에 수직인 기울기와 원의 중심 좌표를 갖는 직선과의 교점을 구한다.
-     * Pair.first: x값이 더 큰 좌표
+     * Pair.first: 직사각형의 왼쪽 꼭짓점 Pair.second: 직사각형의 오른쪽 꼭짓점
      *
      * @param point 원의 중점
      * @return 교점1, 교점2 - Pair() 혹은 val (get1, get2)로 반환 받을 것
@@ -168,8 +170,10 @@ class RouteControl {
         // 계산 결과 W=m^2+1, L=--2*(a+m*b), M=a^2+b^2-r^2
         // m은 기울기(slope), (a, b)는 원의 중점과 직선이 지나는 한 점(point)
 
+        val deltaY = to.y - from.y
+        val deltaX = to.x - from.x
         // Utmk from과 to의 직선과 수직인 직선 기울기
-        val m = -1*(from.x - to.x)/(from.y - to.y)
+        val m = -1*deltaX/deltaY
 
         // 직선 y = m(x-a)+b
         val a = point.x
@@ -186,7 +190,12 @@ class RouteControl {
         val bigPointX = (2*a*L+M)/(2*L)
         val smallPointX = (2*a*L-M)/(2*L)
 
-        return Pair(Utmk(bigPointX, m*(bigPointX-a)+b), Utmk(smallPointX, m*(smallPointX-a)+b))
+        val bigPoint = Utmk(bigPointX, m*(bigPointX-a)+b)
+        val smallPoint = Utmk(smallPointX, m*(smallPointX-a)+b)
+
+        // 방향성에 따라 직사각형의 위치 관계가 달라진다.
+        if (deltaY>=0) return Pair(smallPoint,bigPoint)
+        else return Pair(bigPoint,smallPoint)
     }
 
     /**
@@ -217,12 +226,13 @@ class RouteControl {
     fun getTheta(vector1: Utmk, vector2: Utmk): Double {
         // 코사인 값 계산
         val cosine = getCosine(vector1, vector2)
-        var theta = acos(cosine)
+        val radian = acos(cosine)
 
         val direction = vector1.x*vector2.y - vector1.y*vector2.x
 
-        if(direction < 0) theta = 360-theta
-        Log.d("explain", "${if(direction < 0) "반시계 방향" else "시계 방향"}")
+        var theta = Math.toDegrees(radian)
+
+        if(direction > 0) theta = 360-theta
 
         return theta
     }
@@ -234,12 +244,12 @@ class RouteControl {
      */
     fun isInArea(location: Utmk): Boolean {
 
-        val (bigFrom, smallFrom) = froms
-        val (bigTo, smallTo) = tos
+        val (leftFrom, rightFrom) = froms
+        val (leftTo, rightTo) = tos
 
-        val vector1 = Utmk(bigFrom.x - smallFrom.x, bigFrom.y - smallFrom.y)
-        val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.y)
-        val locationVector = Utmk(location.x - smallFrom.x, location.y - smallFrom.y)
+        val vector1 = Utmk(leftFrom.x - rightFrom.x, leftFrom.y - rightFrom.y)
+        val vector2 = Utmk(rightTo.x - rightFrom.x, rightTo.y - rightFrom.y)
+        val locationVector = Utmk(location.x - rightFrom.x, location.y - rightFrom.y)
 
         val cosine = getCosine(vector1, locationVector)
 
@@ -247,16 +257,30 @@ class RouteControl {
         val y = toScalar(locationVector) * sqrt(1-cosine.pow(2)) // sqrt(1-cosine.pow(2)) = 사인값
 
         val angle = getTheta(vector1,locationVector)
-        Log.d("explain", "radian: ${if(angle in 0.0..90.0) "각도 맞음" else "각도 이탈"} ${angle}")
-        // 포함되는지 판단하고 값의 역으로 리턴
 
-        Log.d("explain", "x:${x}, vector1:${16}, y:${y}, vector2:${toScalar(vector2)}")
+        if(!(angle in 0.0..90.0)) {Log.d("explain", "angle issue")}
+        if(!(x in 0.0..16.0 && y in 0.0..toScalar(vector2))) {Log.d("explain", "length issue")}
+
         return x in 0.0..16.0 && y in 0.0..toScalar(vector2) // 직사각형 내부에 내 위치가 존재
                 && angle in 0.0..90.0 // 내 위치의 각이 90보다 작아야 함
     }
 
     fun detectOutRoute(location:LatLng):Boolean{
         while(detectNextSection(location)){ continue }
+
+        //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
+        val coords = mutableListOf(
+            from.toLatLng(),
+            to.toLatLng()
+        )
+
+        polyline.coords = coords
+        polyline.color = Color.RED
+        polyline.width = 20
+
+        polyline.coords = coords
+        polyline.map = StaticValue.naverMap
+        //---------- <김명준> 여기까지 ----------
 
         // 출발지와 내 위치의 거리를 판단한다.
         val distance = location.distanceTo(route[nowSection])
@@ -265,7 +289,7 @@ class RouteControl {
         val user = Utmk.valueOf(location)
         val inArea = isInArea(user)
 
-        Log.d("explain", "flag: ${if(inArea) "영역 범위 안" else "영역 범위 밖"}")
+        if(distance > 10 && inArea) {Log.d("explain", "distance issue")}
         return distance > 10 && !inArea
     }
 
