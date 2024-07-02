@@ -135,7 +135,7 @@ class RouteControl {
         return Pair(Utmk(bigPointX, m*(bigPointX-a)+b), Utmk(smallPointX, m*(smallPointX-a)+b))
     }
 
-    fun toScalar(point:Utmk) = sqrt(point.x.pow(2)+point.y.pow(2))
+    fun toScalar(vector:Utmk) = sqrt(vector.x.pow(2)+vector.y.pow(2))
     fun getCosine(vector1: Utmk, vector2: Utmk) = (vector1.x * vector2.x + vector1.y * vector2.y) / (toScalar(vector1) * toScalar(vector2))
 
     // 두 벡터 사이의 각도 계산 함수
@@ -200,13 +200,13 @@ class RouteControl {
         val vector2 = Utmk(smallTo.x - smallFrom.x, smallTo.y - smallFrom.y)
         val locationVector = Utmk(location.x - smallFrom.x, location.y - smallFrom.y)
 
-        // 2. cosine의 주파수를 1/2로 줄인다.
         val cosine = getCosine(vector1, locationVector)
+        if(cosine >= 0) return false
 
         val x = toScalar(locationVector) * cosine
         val y = toScalar(locationVector) * sqrt(1-cosine.pow(2)) // sqrt(1-cosine.pow(2)) = 사인값
 
-        val angle = angleBetweenVectors(vector1,vector2)
+        val angle = angleBetweenVectors(vector2,locationVector)
         // 포함되는지 판단하고 값의 역으로 리턴
 
         Log.d("explain", "x:${x}, vector1:${16}, y:${y}, vector2:${toScalar(vector2)}")
