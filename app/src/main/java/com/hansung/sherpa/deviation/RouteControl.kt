@@ -92,7 +92,6 @@ class RouteControl {
     lateinit var tos: Pair<Utmk, Utmk>
 
     //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-    val polyline = PolylineOverlay()
     val polygonOverlay = PolygonOverlay()
     val circle = CircleOverlay()
     //---------- <김명준> 여기까지 ----------
@@ -113,9 +112,8 @@ class RouteControl {
         // 섹션 목적지 도달
         if(distance <= 8) {
             //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-            polyline.map = null
-            // polygonOverlay.map = null
-            // circle.map = null
+            polygonOverlay.map = null
+            circle.map = null
             //---------- <김명준> 여기까지 ----------
 
             // 다음 섹션 이동
@@ -130,7 +128,7 @@ class RouteControl {
             tos = findIntersectionPoints(to)
 
             //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-            /*val coords = mutableListOf(
+            val coords = mutableListOf(
                 froms.first.toLatLng(),
                 froms.second.toLatLng(),
                 tos.second.toLatLng(),
@@ -140,7 +138,7 @@ class RouteControl {
             polygonOverlay.coords = coords
             polygonOverlay.outlineWidth = 5
             polygonOverlay.outlineColor = Color.RED
-            polygonOverlay.color = Color.RED
+            polygonOverlay.color = Color.TRANSPARENT
 
             polygonOverlay.coords = coords
             polygonOverlay.map = StaticValue.naverMap
@@ -150,7 +148,7 @@ class RouteControl {
             circle.outlineColor = Color.RED
             circle.color = Color.TRANSPARENT
             circle.radius = 10.0
-            circle.map = StaticValue.naverMap*/
+            circle.map = StaticValue.naverMap
             //---------- <김명준> 여기까지 ----------
             return true
         }
@@ -267,20 +265,6 @@ class RouteControl {
 
     fun detectOutRoute(location:LatLng):Boolean{
         while(detectNextSection(location)){ continue }
-
-        //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-        val coords = mutableListOf(
-            from.toLatLng(),
-            to.toLatLng()
-        )
-
-        polyline.coords = coords
-        polyline.color = Color.RED
-        polyline.width = 20
-
-        polyline.coords = coords
-        polyline.map = StaticValue.naverMap
-        //---------- <김명준> 여기까지 ----------
 
         // 출발지와 내 위치의 거리를 판단한다.
         val distance = location.distanceTo(route[nowSection])
