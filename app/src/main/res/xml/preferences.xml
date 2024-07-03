@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory app:title="사용자 설정"
+        app:iconSpaceReserved="false">
+        <Preference
+            app:key="user_id"
+            app:title="계정 설정"
+            app:summary="user_kjdf28fkds"
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory app:title="알림"
+        app:iconSpaceReserved="false">
+        <Preference
+            app:key="setting_alarm"
+            app:title="알림 설정"
+            app:summary="클릭하여 알림 설정이 가능합니다."
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory app:title="이용자 서비스"
+        app:iconSpaceReserved="false">
+        <SwitchPreference
+            app:key="service_voice"
+            app:title="음성 길안내"
+            app:iconSpaceReserved="false"/>
+        <SwitchPreference
+            app:key="service_alert_route"
+            app:title="경로 이탈 알림"
+            app:iconSpaceReserved="false"/>
+        <SwitchPreference
+            app:key="service_alert_danger"
+            app:title="위험 지역 알림"
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
+    <com.hansung.sherpa.ui.preference.ProtectorPreferencesCategory
+        app:key="protector"
+        app:layout="@layout/setting_protector_preferences_category"
+        app:title=""
+        app:iconSpaceReserved="false">
+    </com.hansung.sherpa.ui.preference.ProtectorPreferencesCategory>
+
+    <PreferenceCategory app:title="본인 이용 서비스"
+        app:iconSpaceReserved="false">
+        <SwitchPreference
+            app:key="service_prefer_bus"
+            app:title="저상버스 우선 안내"
+            app:iconSpaceReserved="false"/>
+        <SwitchPreference
+            app:key="service_prefer_elevator"
+            app:title="엘레베이터 우선 안내"
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
+</PreferenceScreen>
