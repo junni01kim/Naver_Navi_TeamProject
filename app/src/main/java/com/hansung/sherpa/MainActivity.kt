@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
@@ -18,6 +19,7 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.ui.main.FloatIconEvent
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
@@ -38,6 +40,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var searchButton: ImageButton // 검색 버튼
     private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
+    // Float Icons
+    private lateinit var medicalIconEvent: ExtendedFloatingActionButton
+    private lateinit var manIconEvent: ExtendedFloatingActionButton
+    private lateinit var womanIconEvent: ExtendedFloatingActionButton
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -52,11 +59,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
 
         mapFragment.getMapAsync(this)
-        
+
         destinationTextView = findViewById(R.id.destination_editText)
         searchButton = findViewById(R.id.search_button)
 
-        locationSource = GpsLocationSource.getInstance(this)
+//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
+        locationSource = GpsLocationSource.createInstance(this)
+
+        // Float Icons Events
+        val fIEvent = FloatIconEvent()
+        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
+        manIconEvent = findViewById(R.id.floating_action_button_man)
+        womanIconEvent = findViewById(R.id.floating_action_button_woman)
+        fIEvent.setOnClick(medicalIconEvent)
+        fIEvent.setOnClick(manIconEvent)
+        fIEvent.setOnClick(womanIconEvent)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -81,12 +98,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 검색 필요 클래스 초기화
         val routeControl = RouteControl() // 사용자 위치 확인
-        val gpsData = GPSDatas(this) // gps 위치 
+        val gpsData = GPSDatas(this) // gps 위치
         val navigation = Navigation() // 경로 그리기 & 탐색
         navigation.naverMap = naverMap
         navigation.mainActivity = this
         navigation.routeControl = routeControl
-        
+
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
             navigation.getTransitRoutes(startKeyword, endKeyword)
@@ -123,7 +140,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             viewModel.destinationText.value = destinationTextView.text.toString()
         }
     }
-    
+
     // 사용자 마커 표시
     private fun onChangeUserMarker() {
         val currMarker = Marker()

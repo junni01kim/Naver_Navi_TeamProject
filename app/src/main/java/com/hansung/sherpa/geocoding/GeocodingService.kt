@@ -10,5 +10,7 @@ import retrofit2.http.Query
 interface GeocodingService {
     @Headers("Accept: application/json")
     @GET("tmap/geo/fullAddrGeo")
-    fun geocoding(@Header("appKey") appKey: String, @Query("version") version : String, @Query("fullAddr") fullAddr : String): Call<Geocoding>
+    fun geocoding(@Header("appKey") appKey: String,
+                  @Query("version") version : String? = "1",
+                  @Query("fullAddr") fullAddr : String): Call<Geocoding>
 }

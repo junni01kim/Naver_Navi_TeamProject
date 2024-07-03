@@ -7,7 +7,8 @@ plugins {
 
 val clientId = getClientId("CLIENT_ID")
 val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
-
+val searchAPIClientID = getSearchAPIClientID("SEARCH_API_CLIENT_ID")
+val searchAPIClientSecret = getSearchAPIClientSecret("SEARCH_API_CLIENT_SECRET")
 android {
 
     namespace = "com.hansung.sherpa"
@@ -23,6 +24,8 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "CLIENT_ID", clientId)
         buildConfigField("String", "TMAP_APP_KEY", tmapAppKey)
+        buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
+        buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
         manifestPlaceholders["CLIENT_ID"] = clientId
     }
 
@@ -58,6 +61,14 @@ fun getTmapAppKey(propertyKey : String) : String{
     return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
+fun getSearchAPIClientID(propertyKey : String) : String{
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
+}
+
+fun getSearchAPIClientSecret(propertyKey : String) : String{
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
+}
+
 dependencies {
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
@@ -76,5 +87,8 @@ dependencies {
     //for User Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
+    // Material Design 3
+    implementation("com.google.android.material:material:1.2.1")
+    implementation("androidx.core:core-ktx:1.0.2")
 
 }
