@@ -92,8 +92,8 @@ class RouteControl {
     lateinit var tos: Pair<Utmk, Utmk>
 
     //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-    val polygonOverlay = PolygonOverlay()
-    val circle = CircleOverlay()
+    /*val polygonOverlay = PolygonOverlay()
+    val circle = CircleOverlay()*/
     //---------- <김명준> 여기까지 ----------
 
     /**
@@ -112,8 +112,8 @@ class RouteControl {
         // 섹션 목적지 도달
         if(distance <= 8) {
             //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-            polygonOverlay.map = null
-            circle.map = null
+            /*polygonOverlay.map = null
+            circle.map = null*/
             //---------- <김명준> 여기까지 ----------
 
             // 다음 섹션 이동
@@ -128,7 +128,7 @@ class RouteControl {
             tos = findIntersectionPoints(to)
 
             //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
-            val coords = mutableListOf(
+            /*val coords = mutableListOf(
                 froms.first.toLatLng(),
                 froms.second.toLatLng(),
                 tos.second.toLatLng(),
@@ -148,7 +148,7 @@ class RouteControl {
             circle.outlineColor = Color.RED
             circle.color = Color.TRANSPARENT
             circle.radius = 10.0
-            circle.map = StaticValue.naverMap
+            circle.map = StaticValue.naverMap*/
             //---------- <김명준> 여기까지 ----------
             return true
         }
@@ -256,8 +256,8 @@ class RouteControl {
 
         val angle = getTheta(vector1,locationVector)
 
-        if(!(angle in 0.0..90.0)) {Log.d("explain", "angle issue")}
-        if(!(x in 0.0..16.0 && y in 0.0..toScalar(vector2))) {Log.d("explain", "length issue")}
+        //if(!(angle in 0.0..90.0)) {Log.d("explain", "angle issue")}
+        //if(!(x in 0.0..16.0 && y in 0.0..toScalar(vector2))) {Log.d("explain", "length issue")}
 
         return x in 0.0..16.0 && y in 0.0..toScalar(vector2) // 직사각형 내부에 내 위치가 존재
                 && angle in 0.0..90.0 // 내 위치의 각이 90보다 작아야 함
@@ -273,7 +273,7 @@ class RouteControl {
         val user = Utmk.valueOf(location)
         val inArea = isInArea(user)
 
-        if(distance > 10 && inArea) {Log.d("explain", "distance issue")}
+        //if(distance > 10 && inArea) {Log.d("explain", "distance issue")}
         return distance > 10 && !inArea
     }
 

@@ -102,6 +102,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
                     navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
+                    //navigation.redrawRoute(LatLng(126.8328164,37.6409022), navigation.tempEndLatLng)
                 }
             }
         }

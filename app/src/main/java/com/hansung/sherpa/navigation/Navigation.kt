@@ -28,8 +28,12 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
-    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
+    //private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
+    //val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
+
+    // 재호 경로
+    private val tempStartLatLng = LatLng(37.6417, 126.8364)
+    val tempEndLatLng = LatLng(37.6274, 126.829613)
     // 반드시 지울 것!!
     
     // 경로 탐색
@@ -81,16 +85,22 @@ class Navigation {
         pathOverlayList = mutableListOf()
     }
 
+    var count = 0;
     // 재탐색 후 경로를 그리는 함수
     fun redrawRoute(location:LatLng, endLatLng: LatLng) {
         // 경로 초기화
         clearRoute()
+        Log.d("explain", "pathOverlayList: $pathOverlayList")
         // 좌표 기반 경로 검색
         routeRequest = setRouteRequest(location, endLatLng)
+        Log.d("explain", "routeRequest: $routeRequest")
         // 요청 좌표 기반 경로 검색
         val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
+        Log.d("explain", "transitRouteResponse: $transitRouteResponse")
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+        Log.d("explain", "transitRoutes: $transitRoutes")
         val transitRoute = transitRoutes[0]
+        Log.d("explain", "transitRoutes[0]: ${transitRoutes[0]}")
         // 경로 그리기
         drawRoute(transitRoute)
         // 기타
