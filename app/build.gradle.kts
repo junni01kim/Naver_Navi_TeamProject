@@ -87,5 +87,8 @@ dependencies {
     //for User Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
+    // Material Design 3
+    implementation("com.google.android.material:material:1.2.1")
+    implementation("androidx.core:core-ktx:1.0.2")
 
 }

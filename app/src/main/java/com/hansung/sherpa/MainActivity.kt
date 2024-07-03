@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
@@ -18,6 +19,7 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.ui.main.FloatIconEvent
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
@@ -37,6 +39,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var destinationTextView: EditText // 목적지 textview
     private lateinit var searchButton: ImageButton // 검색 버튼
     private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+
+    // Float Icons
+    private lateinit var medicalIconEvent: ExtendedFloatingActionButton
+    private lateinit var manIconEvent: ExtendedFloatingActionButton
+    private lateinit var womanIconEvent: ExtendedFloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +65,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
 //        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         locationSource = GpsLocationSource.createInstance(this)
+
+        // Float Icons Events
+        val fIEvent = FloatIconEvent()
+        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
+        manIconEvent = findViewById(R.id.floating_action_button_man)
+        womanIconEvent = findViewById(R.id.floating_action_button_woman)
+        fIEvent.setOnClick(medicalIconEvent)
+        fIEvent.setOnClick(manIconEvent)
+        fIEvent.setOnClick(womanIconEvent)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
