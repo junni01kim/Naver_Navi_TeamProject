@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/specific_route_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp">
+        
+        <ImageView
+            android:id="@+id/specific_item_image"
+            android:layout_width="25dp"
+            android:layout_height="50dp"
+            app:layout_constraintLeft_toLeftOf="@id/specific_route_item"
+            app:layout_constraintTop_toTopOf="@id/specific_route_item"
+            app:layout_constraintBottom_toBottomOf="@id/specific_route_item"
+            android:src="@drawable/pedestrianrouteimage"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toRightOf="@+id/specific_item_image"
+            app:layout_constraintBottom_toBottomOf="@+id/specific_route_item"
+            app:layout_constraintTop_toTopOf="@id/specific_route_item">
+
+            <TextView
+                android:id="@+id/specific_item_text"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_margin="4dp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="한성대학교 공학관"/>
+
+            <TextView
+                android:id="@+id/specific_item_summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/specific_item_text"
+                android:layout_margin="4dp"
+                android:textColor="#8c8c8c"
+                android:textSize="12sp"
+                android:text="도보 150m"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintRight_toRightOf="@id/specific_item_text"
+                app:layout_constraintTop_toBottomOf="@id/specific_item_text"
+                android:layout_margin="4dp"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:text="2분"/>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="160dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintRight_toLeftOf="@+id/show_details_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_margin="4dp"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:maxLines="1"
+            android:maxLength="10"
+            android:ellipsize="end"
+            android:text="한성대학교 공학관"/>
+
+        <ImageButton
+            android:id="@+id/show_details_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintRight_toRightOf="@id/specific_route_item"
+            app:layout_constraintTop_toTopOf="@id/specific_route_item"
+            app:layout_constraintBottom_toBottomOf="@id/specific_route_item"
+            android:background="@android:color/transparent"
+            android:src="@drawable/baseline_arrow_forward_ios_24"
+            android:onClick="tmp"/>
+        <!-- 아직 보이기 함수 정의X -->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
