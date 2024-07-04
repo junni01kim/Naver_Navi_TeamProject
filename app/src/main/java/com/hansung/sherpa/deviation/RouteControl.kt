@@ -3,34 +3,18 @@ package com.hansung.sherpa.deviation
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Color
-import android.os.Build
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
-import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.R
-import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.databinding.AlertBinding
-import com.hansung.sherpa.transit.Station
-import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
-import com.naver.maps.map.NaverMap
-import com.naver.maps.map.overlay.CircleOverlay
 import com.naver.maps.map.overlay.PathOverlay
-import com.naver.maps.map.overlay.PolygonOverlay
-import com.naver.maps.map.overlay.PolylineOverlay
 import kotlin.collections.*
-import kotlin.math.abs
 import kotlin.math.acos
-import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.pow
-import kotlin.math.sin
 import kotlin.math.sqrt
 
 /**
@@ -63,16 +47,18 @@ data class StrengthLocation (
  */
 class RouteControl {
 
-//    경로 이탈 : 10m
+//    경로 이탈 : 8m
 //    경로 구간 확인 : 동적
 //    GPS 업데이트 시간 : 1.3s
 
     /**
      * @param route 이동할 네비게이션 경로
      * @param nowSection route에서 지금 이동하고 있는 경로
+     * @param outRouteDistance 이탈 되었다고 판단 할 거리
      */
     var route : List<LatLng> = emptyList()
     var nowSection = 0
+    val outRouteDistance = 8.0
 
     /**
      * ※ from, to는 연산을 요구하기 보다 코드를 짧게 유지하기 위해 만든 함수이다. 변수로 만들지 않아도 이용 가능하다. ※
@@ -91,10 +77,22 @@ class RouteControl {
     lateinit var froms:Pair<Utmk, Utmk>
     lateinit var tos: Pair<Utmk, Utmk>
 
-    //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
+    //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것(SRPA-96: 경로 이탈을 확인하기 위해 우선 남겨둠) ----------
     /*val polygonOverlay = PolygonOverlay()
     val circle = CircleOverlay()*/
     //---------- <김명준> 여기까지 ----------
+
+    /**
+     * 새로운 경로가 발생할 때 기존 값을 초기화 하고 새로운 값들로 변경하는 함수
+     * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
+     */
+    fun initializeRoute() {
+        nowSection = 0
+        from = Utmk.valueOf(route[nowSection])
+        to = Utmk.valueOf(route[nowSection+1])
+        froms = findIntersectionPoints(from)
+        tos = findIntersectionPoints(to)
+    }
 
     /**
      * 현재 섹션을 다음 섹션으로 이동할지 판단하는 함수
@@ -110,8 +108,8 @@ class RouteControl {
         val distance = location.distanceTo(destination)
 
         // 섹션 목적지 도달
-        if(distance <= 8) {
-            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
+        if(distance <= outRouteDistance) {
+            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것(SRPA-96: 경로 이탈을 확인하기 위해 우선 남겨둠) ----------
             /*polygonOverlay.map = null
             circle.map = null*/
             //---------- <김명준> 여기까지 ----------
@@ -127,7 +125,7 @@ class RouteControl {
             froms = findIntersectionPoints(from)
             tos = findIntersectionPoints(to)
 
-            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것 ----------
+            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것(SRPA-96: 경로 이탈을 확인하기 위해 우선 남겨둠) ----------
             /*val coords = mutableListOf(
                 froms.first.toLatLng(),
                 froms.second.toLatLng(),
@@ -176,7 +174,7 @@ class RouteControl {
         // 직선 y = m(x-a)+b
         val a = point.x
         val b = point.y
-        val r = 8.0
+        val r = outRouteDistance
 
         // 원의 방정식 0 = (x-a)^2 + (y-b)^2 - r^2
         // 원과 직선의 교점 방정식 2a(m^2)±sqrt(4(m^2+1)r^2)/2(m^2+1) -> 원본: 2a(m^2)±sqrt(4a^2(m^2+1)^2-4a^2(m^2+1)^2+4(m^2+1)r^2)/2(m^2+1)
@@ -256,13 +254,15 @@ class RouteControl {
 
         val angle = getTheta(vector1,locationVector)
 
-        //if(!(angle in 0.0..90.0)) {Log.d("explain", "angle issue")}
-        //if(!(x in 0.0..16.0 && y in 0.0..toScalar(vector2))) {Log.d("explain", "length issue")}
-
-        return x in 0.0..16.0 && y in 0.0..toScalar(vector2) // 직사각형 내부에 내 위치가 존재
+        return x in 0.0..outRouteDistance*2 && y in 0.0..toScalar(vector2) // 직사각형 내부에 내 위치가 존재
                 && angle in 0.0..90.0 // 내 위치의 각이 90보다 작아야 함
     }
 
+    /**
+     * 사용자가 주어진 경로에서 이탈되었는지 판단하는 함수
+     * @param location 내 위치 좌표
+     * @return 출발지점에서 반경 n+2미터, 직선 과의 거리 n미터에서 이탈되었다면 true
+     */
     fun detectOutRoute(location:LatLng):Boolean{
         while(detectNextSection(location)){ continue }
 
@@ -273,8 +273,7 @@ class RouteControl {
         val user = Utmk.valueOf(location)
         val inArea = isInArea(user)
 
-        //if(distance > 10 && inArea) {Log.d("explain", "distance issue")}
-        return distance > 10 && !inArea
+        return distance > outRouteDistance+2 && !inArea
     }
 
     /**
