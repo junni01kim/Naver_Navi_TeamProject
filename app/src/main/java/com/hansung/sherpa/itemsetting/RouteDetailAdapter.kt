@@ -31,10 +31,10 @@ class RouteHolder(val binding:SpecificRouteItemBinding):RecyclerView.ViewHolder(
     fun setItem(item:RouteDetailItem){
         try {
             if(item.summary.contains("도보")){
-                binding.specificItemImage.setImageDrawable(R.drawable.pedestrianrouteimage.toDrawable())
+                binding.specificItemImage.setImageResource(R.drawable.pedestrianrouteimage)
             }
             else if(item.summary.contains("정류장")){
-                binding.specificItemImage.setImageDrawable(R.drawable.greenbusrouteimage.toDrawable())
+                binding.specificItemImage.setImageResource(R.drawable.greenbusrouteimage)
             }
             binding.specificItemFromText.text = item.fromName
             binding.specificItemToText.text = item.toName

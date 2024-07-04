@@ -1,0 +1,20 @@
+Index: .idea/deploymentTargetDropDown.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"deploymentTargetDropDown\">\r\n    <value>\r\n      <entry key=\"sherpa.app\">\r\n        <State />\r\n      </entry>\r\n    </value>\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/deploymentTargetDropDown.xml b/.idea/deploymentTargetDropDown.xml
+--- a/.idea/deploymentTargetDropDown.xml	(revision eefec49df83f95de65aa1dfd647bfe9b3c156a2f)
++++ b/.idea/deploymentTargetDropDown.xml	(date 1719999680608)
+@@ -2,6 +2,9 @@
+ <project version="4">
+   <component name="deploymentTargetDropDown">
+     <value>
++      <entry key="app">
++        <State />
++      </entry>
+       <entry key="sherpa.app">
+         <State />
+       </entry>
