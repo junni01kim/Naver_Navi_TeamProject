@@ -27,11 +27,10 @@
         </activity>
 
         <activity
-            android:name=".routelist.RouteList"
+            android:name=".routelist.RouteListActivity"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.ROUTELIST" />
             </intent-filter>
         </activity>
     </application>

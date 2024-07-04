@@ -19,7 +19,7 @@ import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.routelist.RouteList
+import com.hansung.sherpa.routelist.RouteListActivity
 import com.hansung.sherpa.ui.main.FloatIconEvent
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -28,7 +28,6 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
-import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
 
@@ -112,7 +111,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             //navigation.getTransitRoutes(startKeyword, endKeyword)
             val intent = Intent(
                 applicationContext,
-                RouteList::class.java
+                RouteListActivity::class.java
             )
             startActivity(intent)
         }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,8 +9,7 @@
         android:id="@+id/textInputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintEnd_toStartOf="@+id/imageButton2"
         app:layout_constraintStart_toEndOf="@+id/imageButton4"
         app:layout_constraintTop_toTopOf="parent">
@@ -17,7 +17,8 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="출발지를 입력하세요" />
+            android:hint="출발지를 입력하세요"
+            android:maxLines="1" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -25,52 +26,107 @@
         android:id="@+id/textInputLayout2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="@+id/textInputLayout"
-        app:layout_constraintStart_toEndOf="@+id/imageButton4"
+        app:layout_constraintEnd_toStartOf="@+id/imageButton"
+        app:layout_constraintStart_toStartOf="@+id/textInputLayout"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="도착지를 입력하세요" />
+            android:hint="도착지를 입력하세요"
+            android:maxLines="1" />
     </com.google.android.material.textfield.TextInputLayout>
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
-
-    <ImageButton
-        android:id="@+id/imageButton2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="10dp"
-        android:background="@color/transparent"
-        android:contentDescription="뒤로가기 버튼"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textInputLayout"
-        app:srcCompat="@drawable/cancel_widget" />
 
     <ImageButton
         android:id="@+id/imageButton4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+
         android:background="@color/transparent"
-        android:contentDescription="출발 목적지 변경 버튼"
-        app:layout_constraintBottom_toTopOf="@+id/recyclerView"
+        android:contentDescription="텍스트 위치 변경 버튼"
+        app:layout_constraintBottom_toBottomOf="@+id/textInputLayout2"
+        app:layout_constraintEnd_toStartOf="@+id/textInputLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textInputLayout"
-        app:srcCompat="@drawable/change_departure_destination" />
+        app:srcCompat="@drawable/change_departure_destination"
+        app:tint="@color/black" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+
+        android:background="@color/transparent"
+        android:contentDescription="검색 버튼"
+        app:layout_constraintBottom_toBottomOf="@+id/textInputLayout2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textInputLayout2"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
+        app:srcCompat="?android:attr/actionModeWebSearchDrawable"
+        app:tint="@color/black" />
+
+    <ImageButton
+        android:id="@+id/imageButton2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+
+        android:background="@color/transparent"
+        android:contentDescription="뒤로가기 버튼"
+        app:layout_constraintBottom_toTopOf="@+id/imageButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textInputLayout"
+        app:layout_constraintTop_toTopOf="@+id/textInputLayout"
+        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel"
+        app:tint="@color/black" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_View"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+
+        android:background="@color/bright_gray"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:text="출발시간 9:41"
+        app:layout_constraintBottom_toTopOf="@+id/recycler_View"
+        app:layout_constraintEnd_toStartOf="@+id/textView2"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        android:textSize="10sp"
+        android:text="최적 경로 순"
+        app:layout_constraintBottom_toTopOf="@+id/recycler_View"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/textView"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout2" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
