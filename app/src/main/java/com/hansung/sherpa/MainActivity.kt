@@ -6,17 +6,24 @@ import android.os.Build
 import android.os.Bundle
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.hansung.sherpa.databinding.ActivityMainBinding
+import com.hansung.sherpa.databinding.ShowSpecificRouteBinding
+import com.hansung.sherpa.databinding.SpecificRouteItemBinding
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.itemsetting.RouteDetailAdapter
+import com.hansung.sherpa.itemsetting.RouteDetailItem
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.main.FloatIconEvent
@@ -31,6 +38,13 @@ import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+
+    private var showRouteDetails:MutableList<RouteDetailItem> = mutableListOf(
+        RouteDetailItem("한성대공학관", "한성대학교 정문", "도보150m", "2분"),
+        RouteDetailItem("한성대학교정문", "한성대입구역, 성북02", "6개정류장", "8분"),
+        RouteDetailItem("한성대입구역, 성북02", "한성대입구역2번출구", "도보84m", "2분")
+    )//임시 변수 이후 삭제
+    val binding by lazy {ActivityMainBinding.inflate(layoutInflater)}
 
     private lateinit var naverMap: NaverMap
 
@@ -48,6 +62,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
+
+        var adapter = RouteDetailAdapter(showRouteDetails)
+        binding.specificRoute.adapter = adapter
+        binding.specificRoute.layoutManager = LinearLayoutManager(this)
+
+
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
@@ -67,13 +89,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         locationSource = GpsLocationSource.createInstance(this)
 
         // Float Icons Events
-        val fIEvent = FloatIconEvent()
-        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
-        manIconEvent = findViewById(R.id.floating_action_button_man)
-        womanIconEvent = findViewById(R.id.floating_action_button_woman)
-        fIEvent.setOnClick(medicalIconEvent)
-        fIEvent.setOnClick(manIconEvent)
-        fIEvent.setOnClick(womanIconEvent)
+//        val fIEvent = FloatIconEvent()
+//        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
+//        manIconEvent = findViewById(R.id.floating_action_button_man)
+//        womanIconEvent = findViewById(R.id.floating_action_button_woman)
+//        fIEvent.setOnClick(medicalIconEvent)
+//        fIEvent.setOnClick(manIconEvent)
+//        fIEvent.setOnClick(womanIconEvent)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
