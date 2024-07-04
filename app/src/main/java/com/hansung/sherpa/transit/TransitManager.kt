@@ -41,8 +41,8 @@ class TransitManager(context: Context) {
      * @param routeRequest 요청할 정보 객체
      * @return LiveData<TransitRouteResponse>
      */
-    fun getTransitRoutes(routeRequest: TransitRouteRequest): LiveData<TransitRouteResponse> {
-        val resultLiveData = MutableLiveData<TransitRouteResponse>()
+    fun getTransitRoutes(routeRequest: TmapTransitRouteRequest): LiveData<TmapTransitRouteResponse> {
+        val resultLiveData = MutableLiveData<TmapTransitRouteResponse>()
         val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
         Retrofit.Builder()
             .baseUrl(context.getString(R.string.route_base_url))
@@ -58,9 +58,9 @@ class TransitManager(context: Context) {
                     val responseBody = response.body()
                     if (responseBody != null) {
                         // Deserialized 역직렬화
-                        val transitRouteResponse = Gson().fromJson(responseBody.string(), TransitRouteResponse::class.java)
+                        val tmapTransitRouteResponse = Gson().fromJson(responseBody.string(), TmapTransitRouteResponse::class.java)
                         // post to livedata (Change Notification) 변경된 값을 알림
-                        resultLiveData.postValue(transitRouteResponse)
+                        resultLiveData.postValue(tmapTransitRouteResponse)
                     }
                 }
 
@@ -75,9 +75,9 @@ class TransitManager(context: Context) {
      * @param routeRequest 요청할 정보 객체
      * @return TransitRouteResponse
      */
-    fun getTransitRoutes2(routeRequest: TransitRouteRequest): TransitRouteResponse {
+    fun getTmapTransitRoutes(routeRequest: TmapTransitRouteRequest): TmapTransitRouteResponse {
         val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
-        lateinit var rr: TransitRouteResponse
+        lateinit var rr: TmapTransitRouteResponse
         runBlocking<Job> {
             launch(Dispatchers.IO) {
                 try {
@@ -87,13 +87,40 @@ class TransitManager(context: Context) {
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
                         .postTransitRoutes(appKey, routeRequest).execute() // API 호출
-                    rr = Gson().fromJson(
-                        response.body()!!.string(),
-                        TransitRouteResponse::class.java
-                    )
+                    rr = Gson().fromJson(response.body()!!.string(), TmapTransitRouteResponse::class.java)
+                    if (rr.metaData == null) {
+                        val errorCode = Gson().fromJson(response.body()!!.string(), TmapTransitErrorCode::class.java)
+                        Log.e("Error", "Error Code: ${errorCode.result.status}, ${errorCode.result.message}")
+                    }
                 } catch (e: IOException) {
-                    Log.i("Error", "Transit API Exception")
-                    rr = TransitRouteResponse()
+                    Log.e("Error", "Transit API Exception")
+                    rr = TmapTransitRouteResponse()
+                }
+            }
+        }
+        return rr
+    }
+
+    fun getOdsayTransitRoute(routeRequest: TmapTransitRouteRequest): TmapTransitRouteResponse {
+        val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
+        lateinit var rr: TmapTransitRouteResponse
+        runBlocking<Job> {
+            launch(Dispatchers.IO) {
+                try {
+                    val response = Retrofit.Builder()
+                        .baseUrl(context.getString(R.string.route_base_url))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<TransitRouteService?>(TransitRouteService::class.java)
+                        .postTransitRoutes(appKey, routeRequest).execute() // API 호출
+                    rr = Gson().fromJson(response.body()!!.string(), TmapTransitRouteResponse::class.java)
+                    if (rr.metaData == null) {
+                        val errorCode = Gson().fromJson(response.body()!!.string(), TmapTransitErrorCode::class.java)
+                        Log.e("Error", "Error Code: ${errorCode.result.status}, ${errorCode.result.message}")
+                    }
+                } catch (e: IOException) {
+                    Log.e("Error", "Transit API Exception")
+                    rr = TmapTransitRouteResponse()
                 }
             }
         }
@@ -108,7 +135,7 @@ class TransitManager(context: Context) {
      */
     fun sampleGetTransitRoutes(context: Context, owner: LifecycleOwner) {
         // 요청 param setting
-        val routeRequest = TransitRouteRequest(
+        val routeRequest = TmapTransitRouteRequest(
             startX = "126.926493082645",
             startY = "37.6134436427887",
             endX = "127.126936754911",

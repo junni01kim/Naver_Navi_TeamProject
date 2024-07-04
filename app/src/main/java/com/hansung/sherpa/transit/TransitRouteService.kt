@@ -26,5 +26,5 @@ interface TransitRouteService {
         "content-type: application/json",
     )
     @POST("transit/routes")
-    fun postTransitRoutes(@Header("appKey") appKey: String, @Body body: TransitRouteRequest): Call<ResponseBody>
+    fun postTransitRoutes(@Header("appKey") appKey: String, @Body body: TmapTransitRouteRequest): Call<ResponseBody>
 }

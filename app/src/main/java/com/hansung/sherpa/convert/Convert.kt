@@ -2,7 +2,7 @@ package com.hansung.sherpa.convert
 
 import android.util.Log
 import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.TransitRouteResponse
+import com.hansung.sherpa.transit.TmapTransitRouteResponse
 import com.naver.maps.geometry.LatLng
 
 /**
@@ -22,7 +22,7 @@ class Convert {
      *
      * @return  MutableList<MutableList<Route>>
      */
-    fun convertToRouteMutableLists(response: TransitRouteResponse): MutableList<MutableList<LegRoute>> {
+    fun convertToRouteMutableLists(response: TmapTransitRouteResponse): MutableList<MutableList<LegRoute>> {
         response.metaData?.plan?.itineraries?.forEach {
             val legRouteList = mutableListOf<LegRoute>()                         // 1개의 경로를 담는 리스트
             it.legs?.forEach { leg -> legRouteList.add(navigateRouteType(leg)) } // 구간별 값 추가

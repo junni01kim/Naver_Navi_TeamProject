@@ -5,10 +5,11 @@ plugins {
     alias(libs.plugins.kotlinAndroid)
 }
 
-val clientId = getClientId("CLIENT_ID")
-val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
-val searchAPIClientID = getSearchAPIClientID("SEARCH_API_CLIENT_ID")
-val searchAPIClientSecret = getSearchAPIClientSecret("SEARCH_API_CLIENT_SECRET")
+val clientId = getLocalPropertyKey("CLIENT_ID")
+val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
+val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
+val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
+val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
 android {
 
     namespace = "com.hansung.sherpa"
@@ -26,6 +27,7 @@ android {
         buildConfigField("String", "TMAP_APP_KEY", tmapAppKey)
         buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
+        buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
     }
 
@@ -53,19 +55,7 @@ android {
     }
 }
 
-fun getClientId(propertyKey : String) : String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
-
-fun getTmapAppKey(propertyKey : String) : String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
-
-fun getSearchAPIClientID(propertyKey : String) : String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
-
-fun getSearchAPIClientSecret(propertyKey : String) : String{
+fun getLocalPropertyKey(propertyKey : String) : String{
     return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
