@@ -1,10 +1,10 @@
 package com.hansung.sherpa
 
+import android.content.Intent
 import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.annotation.RequiresApi
@@ -14,12 +14,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
-import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
+import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.routelist.RouteList
 import com.hansung.sherpa.ui.main.FloatIconEvent
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -31,6 +31,7 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
+
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var naverMap: NaverMap
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationSource: FusedLocationSource
     private lateinit var destinationTextView: EditText // 목적지 textview
     private lateinit var searchButton: ImageButton // 검색 버튼
-    private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+    private val markerIcon = Marker.DEFAULT_ICON
 
     // Float Icons
     private lateinit var medicalIconEvent: ExtendedFloatingActionButton
@@ -108,7 +109,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
-            navigation.getTransitRoutes(startKeyword, endKeyword)
+            //navigation.getTransitRoutes(startKeyword, endKeyword)
+            val intent = Intent(
+                applicationContext,
+                RouteList::class.java
+            )
+            startActivity(intent)
         }
 
         // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
