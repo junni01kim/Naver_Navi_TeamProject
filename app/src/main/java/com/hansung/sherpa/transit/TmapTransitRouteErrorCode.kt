@@ -1,7 +1,7 @@
 package com.hansung.sherpa.transit
 
 data class TmapTransitErrorCode(
-    val result: Result
+    val result: Result? = null
 )
 
 data class Result(

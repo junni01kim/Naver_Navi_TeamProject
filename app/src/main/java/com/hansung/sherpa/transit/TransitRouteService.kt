@@ -3,9 +3,11 @@ package com.hansung.sherpa.transit
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.QueryMap
 
 /**
  * retrofit을 사용한 Transit API 쿼리 클래스
@@ -27,4 +29,7 @@ interface TransitRouteService {
     )
     @POST("transit/routes")
     fun postTransitRoutes(@Header("appKey") appKey: String, @Body body: TmapTransitRouteRequest): Call<ResponseBody>
+
+    @GET("searchPubTransPathT")
+    fun getOdsayTransitRoutes(@QueryMap options: Map<String, String>): Call<ResponseBody>
 }
