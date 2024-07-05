@@ -12,19 +12,21 @@ import com.hansung.sherpa.R
 
 data class RouteItem(val remainingTime: String, val arrivalTime: String, var isExpanded:Boolean)
 
-class RouteListAdapter(val itemList: ArrayList<RouteItem>) :
+class RouteListAdapter(val itemList: List<RouteItem>) :
     RecyclerView.Adapter<RouteListAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        var remainingTime = itemView.findViewById<TextView>(R.id.remaining_time)
-        var arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
-        var expandButton = itemView.findViewById<ImageButton>(R.id.expand_button)
-        var layoutExpand = itemView.findViewById<LinearLayout>(R.id.expand_layout)
-
         fun bind(routeItem: RouteItem){
+            val remainingTime = itemView.findViewById<TextView>(R.id.remaining_time)
+            val arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
+            val expandButton = itemView.findViewById<ImageButton>(R.id.expand_button)
+            val layoutExpand = itemView.findViewById<LinearLayout>(R.id.expand_layout)
+
+            remainingTime.text = routeItem.remainingTime
+            arrivalTime.text = routeItem.arrivalTime
             expandButton.setOnClickListener{
                 val show = toggleLayout(!routeItem.isExpanded, it, layoutExpand)
-                routeItem.isExpanded = true
+                routeItem.isExpanded = show
             }
         }
     }
@@ -44,8 +46,7 @@ class RouteListAdapter(val itemList: ArrayList<RouteItem>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.remainingTime.text = itemList[position].remainingTime
-        holder.arrivalTime.text = itemList[position].arrivalTime
+        holder.bind(itemList[position])
 
         holder.itemView.setOnClickListener {
             itemClickListener.onClick(it, position)
