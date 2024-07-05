@@ -1,7 +1,10 @@
 package com.hansung.sherpa.convert
 
 import android.util.Log
+import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.transit.Leg
+import com.hansung.sherpa.transit.OdsayTransitRouteRequest
+import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteResponse
 import com.naver.maps.geometry.LatLng
 
@@ -179,6 +182,7 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
-
-
+    fun convertTmapToOdsayRequest(t: TmapTransitRouteRequest): OdsayTransitRouteRequest{
+        return OdsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
+    }
 }

@@ -88,10 +88,12 @@ class TransitManager(context: Context) {
                         .create<TransitRouteService?>(TransitRouteService::class.java)
                         .postTransitRoutes(appKey, routeRequest).execute() // API 호출
                     rr = Gson().fromJson(response.body()!!.string(), TmapTransitRouteResponse::class.java)
-                    if (rr.metaData == null) {
+                    // Error Log
+                    /*if (rr.metaData == null) {
                         val errorCode = Gson().fromJson(response.body()!!.string(), TmapTransitErrorCode::class.java)
-                        Log.e("Error", "Error Code: ${errorCode.result.status}, ${errorCode.result.message}")
-                    }
+                        Log.e("Error", "Error Code: ${errorCode.result?.status}, ${errorCode.result?.message}")
+                        // getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
+                    }*/
                 } catch (e: IOException) {
                     Log.e("Error", "Transit API Exception")
                     rr = TmapTransitRouteResponse()
@@ -101,26 +103,25 @@ class TransitManager(context: Context) {
         return rr
     }
 
-    fun getOdsayTransitRoute(routeRequest: TmapTransitRouteRequest): TmapTransitRouteResponse {
-        val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
-        lateinit var rr: TmapTransitRouteResponse
+    fun getOdsayTransitRoute(routeRequest: OdsayTransitRouteRequest): OdsayTransitRouteResponse? {
+        var rr: OdsayTransitRouteResponse? = null
         runBlocking<Job> {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl(context.getString(R.string.route_base_url))
+                        .baseUrl(context.getString(R.string.odsay_route_base_url))
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
-                        .postTransitRoutes(appKey, routeRequest).execute() // API 호출
-                    rr = Gson().fromJson(response.body()!!.string(), TmapTransitRouteResponse::class.java)
-                    if (rr.metaData == null) {
-                        val errorCode = Gson().fromJson(response.body()!!.string(), TmapTransitErrorCode::class.java)
-                        Log.e("Error", "Error Code: ${errorCode.result.status}, ${errorCode.result.message}")
-                    }
+                        .getOdsayTransitRoutes(odsayRequestToMap(routeRequest)).execute()
+                    rr = Gson().fromJson(response.body()!!.string(), OdsayTransitRouteResponse::class.java)
+                    // Error Log
+                    /*if (rr!!.result == null) {
+                        val errorCode = Gson().fromJson(response.body()!!.string(), OdsayTransitRouteErrorCode::class.java)
+                        Log.e("Error", "Error Code: ${errorCode.error.code}, ${errorCode.error.msg}")
+                    }*/
                 } catch (e: IOException) {
-                    Log.e("Error", "Transit API Exception")
-                    rr = TmapTransitRouteResponse()
+                    Log.e("Error", "Transit API Exception ${rr}")
                 }
             }
         }
@@ -149,5 +150,18 @@ class TransitManager(context: Context) {
         TransitManager(context).getTransitRoutes(routeRequest).observe(owner) { transitRouteResponse ->
             transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
         }
+    }
+
+    fun odsayRequestToMap(request: OdsayTransitRouteRequest): Map<String, String> {
+        return mapOf(
+            "apiKey" to request.apiKey,
+            "SX" to request.SX,
+            "SY" to request.SY,
+            "EX" to request.EX,
+            "EY" to request.EY,
+            "OPT" to request.OPT,
+            "SearchType" to request.SearchType,
+            "SearchPathType" to request.SearchPathType
+        )
     }
 }
