@@ -55,7 +55,9 @@ class PreferenceFragment : PreferenceFragmentCompat() {
         })
     }
 
+    // 사용자 서비스
     private fun setUserServcies(){
+        // 음성 길 안내
         findPreference<SwitchPreference>("service_voice")?.apply {
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
                 when (newValue as Boolean){
@@ -69,6 +71,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        // 경로 이탈 안내
         findPreference<SwitchPreference>("service_alert_route")?.apply {
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
                 when (newValue as Boolean){
@@ -83,6 +86,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                 true
             }
         }
+        // 위험 지역 알림
         findPreference<SwitchPreference>("service_alert_danger")?.apply {
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
                 when (newValue as Boolean){
@@ -99,8 +103,9 @@ class PreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
-
+    // 경로 설정
     private fun setRouteServices() {
+        // 버스 우서
         findPreference<SwitchPreference>("service_prefer_bus")?.apply {
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
                 when (newValue as Boolean){
@@ -115,7 +120,7 @@ class PreferenceFragment : PreferenceFragmentCompat() {
                 true
             }
         }
-
+        // 엘리베이터 우선
         findPreference<SwitchPreference>("service_prefer_elevator")?.apply {
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
                 when (newValue as Boolean){
