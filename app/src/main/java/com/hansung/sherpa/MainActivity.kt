@@ -28,6 +28,7 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
 
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var locationSource: FusedLocationSource
     private lateinit var destinationTextView: EditText // 목적지 textview
     private lateinit var searchButton: ImageButton // 검색 버튼
-    private val markerIcon = Marker.DEFAULT_ICON
+    private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
     // Float Icons
     private lateinit var medicalIconEvent: ExtendedFloatingActionButton

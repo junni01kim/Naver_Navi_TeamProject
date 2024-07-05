@@ -10,6 +10,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 
+data class Transport(var name: String, var type:String)
+
 data class RouteItem(val remainingTime: String, val arrivalTime: String, var isExpanded:Boolean)
 
 class RouteListAdapter(val itemList: List<RouteItem>) :
