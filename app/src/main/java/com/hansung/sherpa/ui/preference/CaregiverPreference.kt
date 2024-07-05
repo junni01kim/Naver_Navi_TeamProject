@@ -13,17 +13,23 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.hansung.sherpa.R
+import com.hansung.sherpa.database.CaregiverDao
+import com.hansung.sherpa.database.UserDatabase
 
-class ProtectorPreference : Preference{
+class CaregiverPreference : Preference{
     constructor(context: Context, attributeSet: AttributeSet? = null) : super(context,attributeSet)
-    constructor(context : Context, name : String, phone : String) : this(context, null){
-        this.name = name
-        this.phone = phone
+    constructor(context : Context, relation : String, telnum : String) : this(context, null){
+        this.relation = relation
+        this.telnum = telnum
         isIconSpaceReserved = false
     }
 
-    private var name : String = ""
-    private var phone: String = ""
+    private var relation : String = ""
+    private var telnum: String = ""
+    interface PreferenceRemoveOnClickListener {
+        fun removePreference();
+    }
+    private lateinit var preferenceRemoveOnClickListener : PreferenceRemoveOnClickListener
 
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
@@ -38,7 +44,7 @@ class ProtectorPreference : Preference{
 
         val textView1 = TextView(context).apply {
             id = View.generateViewId()
-            text = name
+            text = relation
             setTextColor(Color.BLACK)
             layoutParams = ConstraintLayout.LayoutParams(
                 ConstraintLayout.LayoutParams.WRAP_CONTENT,
@@ -48,7 +54,7 @@ class ProtectorPreference : Preference{
 
         val textView2 = TextView(context).apply {
             id = View.generateViewId()
-            text = phone
+            text = telnum
             setTextColor(Color.BLACK)
             layoutParams = ConstraintLayout.LayoutParams(
                 ConstraintLayout.LayoutParams.WRAP_CONTENT,
@@ -70,11 +76,11 @@ class ProtectorPreference : Preference{
         constraintLayout.setOnClickListener{
             val constraint = View.inflate(
                 context,
-                R.layout.setting_protector_dialog,
+                R.layout.setting_caregiver_dialog,
                 null
             ) as ConstraintLayout
 
-            constraint.findViewById<TextView>(R.id.protector_dialog_title).apply {
+            constraint.findViewById<TextView>(R.id.caregiver_dialog_title).apply {
                 setText("정보 수정")
             }
 
@@ -83,13 +89,16 @@ class ProtectorPreference : Preference{
                 .setPositiveButton(
                     "확인"
                 ) { dialog, _ ->
-                    constraint.findViewById<EditText>(R.id.name).apply {
-                        name = text.toString()
+                    val caregiverDao = UserDatabase.getInstance().caregiverDao()
+                    val id : Long = caregiverDao.getCaregiverID(relation, telnum)
+                    constraint.findViewById<EditText>(R.id.relation).apply {
+                        relation = text.toString()
                     }
-                    constraint.findViewById<EditText>(R.id.phone).apply {
-                        phone = text.toString()
+                    constraint.findViewById<EditText>(R.id.telnum).apply {
+                        telnum = text.toString()
                     }
                     notifyChanged()
+                    caregiverDao.updateCaregiver(id,relation,telnum)
                     dialog.dismiss()
                 }
                 .setNegativeButton(
@@ -99,7 +108,26 @@ class ProtectorPreference : Preference{
                 }
                 .show()
         }
+        constraintLayout.setOnLongClickListener {
+            AlertDialog.Builder(context)
+                .setMessage("삭제하시겠습니까?")
+                .setPositiveButton("삭제") { dialog, _ ->
+                    val caregiverDao: CaregiverDao = UserDatabase.getInstance().caregiverDao()
+                    val id: Long = caregiverDao.getCaregiverID(relation, telnum)
+                    caregiverDao.deleteCaregiver(id)
+                    dialog.dismiss()
+                    preferenceRemoveOnClickListener.removePreference()
+                    (holder.itemView as ViewGroup).removeView(constraintLayout)
+                }
+                .setNegativeButton("취소") { dialog, _ ->
+                    dialog.dismiss()
+                }.show()
+            true
+        }
         (holder.itemView as ViewGroup).removeAllViews()
         (holder.itemView as ViewGroup).addView(constraintLayout)
+    }
+    fun setRemovePreferenceClickListener(preferenceRemoveOnClickListener: PreferenceRemoveOnClickListener) {
+        this.preferenceRemoveOnClickListener = preferenceRemoveOnClickListener
     }
 }

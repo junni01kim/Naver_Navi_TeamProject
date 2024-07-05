@@ -83,7 +83,7 @@ dependencies {
     implementation("com.google.android.material:material:1.2.1")
     implementation("androidx.core:core-ktx:1.0.2")
 
-    implementation(libs.androidx.preference.ktx)
+    implementation ("androidx.preference:preference-ktx:1.2.1")
 
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")

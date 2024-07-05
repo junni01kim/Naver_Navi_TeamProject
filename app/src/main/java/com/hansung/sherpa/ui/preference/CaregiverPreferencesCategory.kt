@@ -8,16 +8,15 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceViewHolder
 import com.hansung.sherpa.R
 
-class ProtectorPreferencesCategory : PreferenceCategory{
+class CaregiverPreferencesCategory : PreferenceCategory{
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet): super(context,attrs)
 
-    private lateinit var textClickListener: View.OnClickListener
-    private var count : Int = 0
+    private var textClickListener: View.OnClickListener? = null
     override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
 
-        val addTextView = holder.findViewById(R.id.add_protector) as TextView
+        val addTextView = holder.findViewById(R.id.add_caregiver) as TextView
         addTextView.setOnClickListener(textClickListener)
     }
     fun setTextClickListener(onClickListener: View.OnClickListener){

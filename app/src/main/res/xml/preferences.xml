@@ -32,12 +32,12 @@
             app:title="위험 지역 알림"
             app:iconSpaceReserved="false"/>
     </PreferenceCategory>
-    <com.hansung.sherpa.ui.preference.ProtectorPreferencesCategory
-        app:key="protector"
-        app:layout="@layout/setting_protector_preferences_category"
+    <com.hansung.sherpa.ui.preference.CaregiverPreferencesCategory
+        app:key="caregiver"
+        app:layout="@layout/setting_caregiver_preferences_category"
         app:title=""
         app:iconSpaceReserved="false">
-    </com.hansung.sherpa.ui.preference.ProtectorPreferencesCategory>
+    </com.hansung.sherpa.ui.preference.CaregiverPreferencesCategory>
 
     <PreferenceCategory app:title="본인 이용 서비스"
         app:iconSpaceReserved="false">

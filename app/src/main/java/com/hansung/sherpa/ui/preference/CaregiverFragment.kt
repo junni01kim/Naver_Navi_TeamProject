@@ -11,48 +11,77 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.hansung.sherpa.R
+import com.hansung.sherpa.database.CaregiverDao
+import com.hansung.sherpa.database.CaregiverData
+import com.hansung.sherpa.database.UserDatabase
 
 
-class PreferenceFragment : PreferenceFragmentCompat() {
+class CaregiverFragment : PreferenceFragmentCompat() {
     private var count : Int = 0
+    private lateinit var caregiverDao : CaregiverDao
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        caregiverDao = UserDatabase.getInstance().caregiverDao()
         setPreferencesFromResource(R.xml.preferences, rootKey)
         setUserServcies()
         setRouteServices()
-        findPreference<ProtectorPreferencesCategory>("protector")?.setTextClickListener(View.OnClickListener { view ->
+        setInitialSavedCaregiverState()
+        findPreference<CaregiverPreferencesCategory>("caregiver")?.setTextClickListener(View.OnClickListener {
             run {
-                var name: String = ""
-                var phone: String = ""
-
-                val constraint = View.inflate(
-                    context,
-                    R.layout.setting_protector_dialog,
-                    null
-                ) as ConstraintLayout
-
-                AlertDialog.Builder(requireContext())
-                    .setView(constraint)
-                    .setPositiveButton(
-                        "확인"
-                ) { dialog, _ ->
-                   val nameEditText = constraint.findViewById<EditText>(R.id.name)
-                    val phoneEditText = constraint.findViewById<EditText>(R.id.phone)
-                    name = nameEditText.text.toString()
-                    phone = phoneEditText.text.toString()
-                    val newPreference: ProtectorPreference = ProtectorPreference(requireContext(), name, phone).apply {
-                        key = "protector_${count++}"
-                    }
-                    findPreference<PreferenceCategory>("protector")?.addPreference(newPreference)
-                    dialog.dismiss()
-                }
-                .setNegativeButton(
-                    "취소"
-                ) { dialog, whichButton ->
-                    dialog.dismiss()
-                }
-                .show()
+                showDialogToAddCaregiver()
             }
         })
+    }
+
+    private fun setInitialSavedCaregiverState(){
+        val caregiverDataList : List<CaregiverData> = caregiverDao.getAll()
+        if(caregiverDataList.isEmpty())
+            return
+        for (caregiverData : CaregiverData in caregiverDataList){
+            val preference = CaregiverPreference(requireContext(), caregiverData.relation, caregiverData.telnum)
+            findPreference<PreferenceCategory>("caregiver")?.addPreference(preference)
+        }
+    }
+    /**
+     * Caregiver 정보 추가를 위함 Dialog 생성
+     */
+    private fun showDialogToAddCaregiver() {
+        var relation: String = ""
+        var telnum: String = ""
+
+        val constraint = View.inflate(
+            context,
+            R.layout.setting_caregiver_dialog,
+            null
+        ) as ConstraintLayout
+
+        AlertDialog.Builder(requireContext())
+            .setView(constraint)
+            .setPositiveButton(
+                "확인"
+            ) { dialog, _ ->
+                val relationEditText = constraint.findViewById<EditText>(R.id.relation)
+                val telnumEditText = constraint.findViewById<EditText>(R.id.telnum)
+                relation = relationEditText.text.toString()
+                telnum = telnumEditText.text.toString()
+                val newPreference: CaregiverPreference =
+                    CaregiverPreference(requireContext(), relation, telnum).apply {
+                        key = "caregiver${count++}"
+                    }
+                newPreference.setRemovePreferenceClickListener(object : CaregiverPreference.PreferenceRemoveOnClickListener{
+                    override fun removePreference() {
+                        findPreference<PreferenceCategory>("caregiver")?.removePreference(newPreference)
+                    }
+                })
+                findPreference<PreferenceCategory>("caregiver")?.addPreference(newPreference)
+                caregiverDao.insertCaregiverData(CaregiverData(relation, telnum))
+                dialog.dismiss()
+            }
+            .setNegativeButton(
+                "취소"
+            ) { dialog, whichButton ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     // 사용자 서비스
