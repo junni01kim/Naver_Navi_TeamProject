@@ -15,13 +15,36 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
+fun getPedestrianRoute(routeRequest: PedestrianRouteRequest): PedestrianResponse {
+    val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
+    lateinit var rr: PedestrianResponse
+    runBlocking<Job> {
+        launch(Dispatchers.IO) {
+            try {
+                val response = Retrofit.Builder()
+                    .baseUrl("https://apis.openapi.sk.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
+                    .postPedestrianRoutes(appKey, routeRequest).execute() // API 호출
+                rr = Gson().fromJson(
+                    response.body()!!.string(),
+                    PedestrianResponse::class.java
+                )
+            } catch (e: IOException) {
+                Log.i("Error", "Transit API Exception")
+                rr = PedestrianResponse()
+            }
+        }
+    }
+    return rr
+}
+
 fun main(){
     val tempStartLatLng = LatLng(37.642743, 126.835375)
     val tempEndLatLng = LatLng(37.627444, 126.829600)
 
-    val tm = Test()
-
-    var res:PedestrianResponse = tm.getPedestrianRoute(
+    var res:PedestrianResponse = getPedestrianRoute(
         PedestrianRouteRequest(
             startX = tempStartLatLng.latitude.toFloat(),
             startY = tempStartLatLng.longitude.toFloat(),
@@ -31,31 +54,4 @@ fun main(){
     )
 
     println(res)
-}
-
-class Test{
-    fun getPedestrianRoute(routeRequest: PedestrianRouteRequest): PedestrianResponse {
-        val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
-        lateinit var rr: PedestrianResponse
-        runBlocking<Job> {
-            launch(Dispatchers.IO) {
-                try {
-                    val response = Retrofit.Builder()
-                        .baseUrl("https://apis.openapi.sk.com/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                        .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
-                        .postPedestrianRoutes(appKey, routeRequest).execute() // API 호출
-                    rr = Gson().fromJson(
-                        response.body()!!.string(),
-                        PedestrianResponse::class.java
-                    )
-                } catch (e: IOException) {
-                    Log.i("Error", "Transit API Exception")
-                    rr = PedestrianResponse()
-                }
-            }
-        }
-        return rr
-    }
 }
