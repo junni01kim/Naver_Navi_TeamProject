@@ -16,7 +16,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.hansung.sherpa.databinding.ActivityMainBinding
-import com.hansung.sherpa.databinding.ShowSpecificRouteBinding
 import com.hansung.sherpa.databinding.SpecificRouteItemBinding
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
@@ -45,8 +44,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         RouteDetailItem("한성대학교정문", "한성대입구역, 성북02", "6개정류장", "8분"),
         RouteDetailItem("한성대입구역, 성북02", "한성대입구역2번출구", "도보84m", "2분")
     )//임시 변수 이후 삭제
-    //val binding by lazy { ShowSpecificRouteBinding.inflate(layoutInflater) }
-    val binding by lazy {ActivityMainBinding.inflate(layoutInflater)} //여기 위로 바꾸고 xml 파일도 이동시키기(main->showSpeicif)
+    val binding by lazy {ActivityMainBinding.inflate(layoutInflater)}
 
     private lateinit var naverMap: NaverMap
 
@@ -65,13 +63,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-
-
         var adapter = RouteDetailAdapter(showRouteDetails)
         binding.specificRoute.adapter = adapter
         binding.specificRoute.layoutManager = LinearLayoutManager(this)
-
-
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)

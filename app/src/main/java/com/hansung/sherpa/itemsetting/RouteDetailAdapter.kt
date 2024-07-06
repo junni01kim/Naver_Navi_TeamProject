@@ -6,7 +6,6 @@ import androidx.constraintlayout.widget.ConstraintSet.Layout
 import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
-import com.hansung.sherpa.databinding.ShowSpecificRouteBinding
 import com.hansung.sherpa.databinding.SpecificRouteItemBinding
 import java.lang.Exception
 
