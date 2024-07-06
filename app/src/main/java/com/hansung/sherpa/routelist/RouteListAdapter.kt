@@ -1,20 +1,24 @@
 package com.hansung.sherpa.routelist
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 
-data class Transport(var name: String, var type:String)
+data class Transport(var type:Int, var name: String, var remainingTime: String)
 
-data class RouteItem(val remainingTime: String, val arrivalTime: String, var isExpanded:Boolean)
+data class RouteItem(val remainingTime: String, val arrivalTime: String, var isExpanded:Boolean, val transportList:List<Transport>)
 
-class RouteListAdapter(val itemList: List<RouteItem>) :
+class RouteListAdapter(val itemList: List<RouteItem>, val context: Context) :
     RecyclerView.Adapter<RouteListAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -24,6 +28,9 @@ class RouteListAdapter(val itemList: List<RouteItem>) :
             val expandButton = itemView.findViewById<ImageButton>(R.id.expand_button)
             val layoutExpand = itemView.findViewById<LinearLayout>(R.id.expand_layout)
 
+            for (i in routeItem.transportList)
+            layoutExpand.addView(createLayout(i))
+
             remainingTime.text = routeItem.remainingTime
             arrivalTime.text = routeItem.arrivalTime
             expandButton.setOnClickListener{
@@ -31,6 +38,26 @@ class RouteListAdapter(val itemList: List<RouteItem>) :
                 routeItem.isExpanded = show
             }
         }
+    }
+
+    fun createLayout(transport: Transport) : View{
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val layout = inflater.inflate(R.layout.expand_item, null) as LinearLayout
+
+        val expandIcon = layout.findViewById<ImageView>(R.id.icon)
+        val expandName = layout.findViewById<TextView>(R.id.name)
+        val expandRemainingTime = layout.findViewById<TextView>(R.id.expand_remaining_time)
+
+        val icon = when(transport.type){ // 샘플
+            1 -> R.drawable.add
+            2 -> R.drawable.cancel_widget
+            else -> {R.drawable.add}
+        }
+        expandIcon.setImageResource(icon)
+        expandName.text = transport.name
+        expandRemainingTime.text = transport.remainingTime
+
+        return layout
     }
 
     private fun toggleLayout(isExpanded: Boolean, view: View, layoutExpand:LinearLayout):Boolean{

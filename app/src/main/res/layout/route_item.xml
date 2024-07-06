@@ -73,45 +73,8 @@
             android:id="@+id/expand_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:id="@+id/icon"
-                    android:layout_width="25dp"
-                    android:layout_height="25dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginBottom="5dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/bus_number"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:srcCompat="@tools:sample/avatars" />
-
-                <TextView
-                    android:id="@+id/bus_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:text="버스 번호"
-                    android:textSize="15sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/icon"
-                    app:layout_constraintEnd_toStartOf="@+id/expand_remaining_time" />
-
-                <TextView
-                    android:id="@+id/expand_remaining_time"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:text="세부 요구 시간"
-                    android:textSize="11sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/icon"
-                    app:layout_constraintEnd_toEndOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </LinearLayout>
+            android:orientation="vertical"
+            android:visibility="gone"/>
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
