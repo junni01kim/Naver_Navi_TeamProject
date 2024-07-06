@@ -4,6 +4,7 @@ import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -102,6 +103,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
+        StaticValue.naverMap = naverMap // todo: 임시 바로 삭제할 것(김명준)
 
         // LocationOverlay 설정
         val locationOverlay = naverMap.locationOverlay
@@ -136,17 +138,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
-                val section = routeControl.checkingSection(
-                    StrengthLocation(
-                        gpsData.getGpsSignalAccuracy().Strength,
-                        nowLocation
-                    )
-                )
-                if (section != null && routeControl.detectOutRoute(section, nowLocation)) {// 경로이탈 탐지
-                    section.CurrLocation = nowLocation
-                    section.End = navigation.tempEndLatLng // 개발용
-                    // section.End = navigation.endLatLng // 실제 코드
-                    navigation.redrawRoute(section)
+
+                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
+                    //navigation.redrawRoute(LatLng(126.8328164,37.6409022), navigation.tempEndLatLng)
                 }
             }
         }
