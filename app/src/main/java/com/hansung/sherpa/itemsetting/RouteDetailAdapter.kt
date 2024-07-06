@@ -2,8 +2,6 @@ package com.hansung.sherpa.itemsetting
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.constraintlayout.widget.ConstraintSet.Layout
-import androidx.core.graphics.drawable.toDrawable
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 import com.hansung.sherpa.databinding.SpecificRouteItemBinding

@@ -27,8 +27,8 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911)
-    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645)
+    private val tempStartLatLng = LatLng(37.642743, 126.835375)
+    val tempEndLatLng = LatLng(37.627444, 126.829600)
     // 반드시 지울 것!!
     
     // 경로 탐색
@@ -74,7 +74,7 @@ class Navigation {
         pathOverlayList = mutableListOf()
     }
 
-    var count = 0;
+
     // 재탐색 후 경로를 그리는 함수
     fun redrawRoute(location:LatLng, endLatLng: LatLng) {
         // 경로 초기화

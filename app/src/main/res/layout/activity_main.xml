@@ -201,7 +201,7 @@
             android:background="@drawable/round_corner_layout"
             android:clickable="true"
             android:focusable="true"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent">
             <!-- 향후 이부분을 visibility를 visible로 변경 -->
 
