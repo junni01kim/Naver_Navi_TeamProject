@@ -109,7 +109,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
-            //navigation.getTransitRoutes(startKeyword, endKeyword)
+            
+            //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
+            
+            // 프로젝트 2 진행 코드
             val intent = Intent(
                 applicationContext,
                 RouteListActivity::class.java
@@ -124,7 +127,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
                     navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
-                    //navigation.redrawRoute(LatLng(126.8328164,37.6409022), navigation.tempEndLatLng)
                 }
             }
         }

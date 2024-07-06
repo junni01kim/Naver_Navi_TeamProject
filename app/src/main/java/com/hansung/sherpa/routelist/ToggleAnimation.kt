@@ -6,8 +6,13 @@ import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.Transformation
 
+/**
+ * expand item을 적용하기 위한 코드
+ * https://dvlpseo.tistory.com/56 참고
+ */
 class ToggleAnimation {
     companion object{
+        // 애니메이션 적용 함수
         fun toggleArrow(view: View, isExpanded: Boolean): Boolean{
             if(isExpanded){
                 view.animate().setDuration(200).rotation(180f)
@@ -19,6 +24,7 @@ class ToggleAnimation {
             }
         }
 
+        // expand_item 확장 코드
         fun expand(view:View){
             val animation = expandAction(view)
             view.startAnimation(animation)
@@ -47,6 +53,7 @@ class ToggleAnimation {
             return animation
         }
 
+        // expand_item 축소 코드
         fun collapse(view: View){
             val actualHeight = view.measuredHeight
 
