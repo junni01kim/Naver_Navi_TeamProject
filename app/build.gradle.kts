@@ -70,7 +70,9 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    // for naver map SDK
     implementation("com.naver.maps:map-sdk:3.18.0")
+
     // for api request
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -79,8 +81,16 @@ dependencies {
     //for User Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    // Material Design 3
+    // for Material Design 3
     implementation("com.google.android.material:material:1.2.1")
     implementation("androidx.core:core-ktx:1.0.2")
 
+    // for PreferenceCategory
+    implementation ("androidx.preference:preference-ktx:1.2.1")
+
+    // for Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 }
