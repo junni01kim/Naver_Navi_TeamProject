@@ -1,5 +1,6 @@
 package com.hansung.sherpa.navigation
 
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
@@ -11,8 +12,10 @@ import com.hansung.sherpa.deviation.Section
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
+import kotlinx.coroutines.delay
 
 class Navigation {
     private var startLatLng: LatLng = LatLng(0.0, 0.0)
@@ -25,8 +28,12 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    private val tempStartLatLng = LatLng(37.642636, 127.835763)
-    val tempEndLatLng = LatLng(37.627448, 126.829388)
+    //private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
+    //val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
+
+    // 재호 경로
+    private val tempStartLatLng = LatLng(37.6417, 126.8364)
+    val tempEndLatLng = LatLng(37.6274, 126.829613)
     // 반드시 지울 것!!
     
     // 경로 탐색
@@ -50,6 +57,7 @@ class Navigation {
 
         // 기타
         routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
+        routeControl.initializeRoute()
     }
 
     // 경로 요청 값 만들기
@@ -71,20 +79,28 @@ class Navigation {
         pathOverlayList = mutableListOf()
     }
 
+    var count = 0;
     // 재탐색 후 경로를 그리는 함수
-    fun redrawRoute(section: Section) {
+    fun redrawRoute(location:LatLng, endLatLng: LatLng) {
         // 경로 초기화
         clearRoute()
+
         // 좌표 기반 경로 검색
-        routeRequest = setRouteRequest(section.CurrLocation, section.End)
+        routeRequest = setRouteRequest(location, endLatLng)
+
         // 요청 좌표 기반 경로 검색
         val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
+
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+
         val transitRoute = transitRoutes[0]
+
         // 경로 그리기
         drawRoute(transitRoute)
+
         // 기타
         routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
+        routeControl.initializeRoute()
     }
     
     // 경로를 그리는 함수

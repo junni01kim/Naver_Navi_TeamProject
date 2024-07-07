@@ -4,6 +4,7 @@ import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.annotation.RequiresApi
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
@@ -18,6 +20,7 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.ui.main.FloatIconEvent
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.MapFragment
@@ -37,6 +40,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var destinationTextView: EditText // 목적지 textview
     private lateinit var searchButton: ImageButton // 검색 버튼
     private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+
+    // Float Icons
+    private lateinit var medicalIconEvent: ExtendedFloatingActionButton
+    private lateinit var manIconEvent: ExtendedFloatingActionButton
+    private lateinit var womanIconEvent: ExtendedFloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,11 +66,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
 //        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         locationSource = GpsLocationSource.createInstance(this)
+
+        // Float Icons Events
+        val fIEvent = FloatIconEvent()
+        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
+        manIconEvent = findViewById(R.id.floating_action_button_man)
+        womanIconEvent = findViewById(R.id.floating_action_button_woman)
+        fIEvent.setOnClick(medicalIconEvent)
+        fIEvent.setOnClick(manIconEvent)
+        fIEvent.setOnClick(womanIconEvent)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
+        StaticValue.naverMap = naverMap // todo: 임시 바로 삭제할 것(김명준)
 
         // LocationOverlay 설정
         val locationOverlay = naverMap.locationOverlay
@@ -97,17 +115,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
-                val section = routeControl.checkingSection(
-                    StrengthLocation(
-                        gpsData.getGpsSignalAccuracy().Strength,
-                        nowLocation
-                    )
-                )
-                if (section != null && routeControl.detectOutRoute(section, nowLocation)) {// 경로이탈 탐지
-                    section.CurrLocation = nowLocation
-                    section.End = navigation.tempEndLatLng // 개발용
-                    // section.End = navigation.endLatLng // 실제 코드
-                    navigation.redrawRoute(section)
+
+                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
+                    //navigation.redrawRoute(LatLng(126.8328164,37.6409022), navigation.tempEndLatLng)
                 }
             }
         }
