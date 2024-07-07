@@ -29,9 +29,6 @@
         <activity
             android:name=".routelist.RouteListActivity"
             android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.ROUTELIST" />
-            </intent-filter>
         </activity>
     </application>
 

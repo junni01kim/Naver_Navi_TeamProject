@@ -41,9 +41,7 @@ class RouteListActivity : AppCompatActivity() {
 
         val backActivityImageButton = findViewById<ImageButton>(R.id.back_activity_image_button)
         val searchImageButton = findViewById<ImageButton>(R.id.search_image_button)
-
-        /*val destinationTextView = findViewById<TextInputEditText>(R.id.destination_text_input_edit_text)
-        val departureTextView = findViewById<TextInputEditText>(R.id.departure_text_input_edit_text)*/
+        val changeImageButton = findViewById<ImageButton>(R.id.change_image_button)
 
         val destinationTextView = findViewById<EditText>(R.id.destination_edit_text)
         val departureTextView = findViewById<EditText>(R.id.departure_edit_text)
@@ -72,6 +70,12 @@ class RouteListActivity : AppCompatActivity() {
 
         searchImageButton.setOnClickListener{
             TODO("검색 버튼 기능 구현")
+        }
+
+        changeImageButton.setOnClickListener {
+            val temp = departureTextView.text.toString()
+            departureTextView.setText(destinationTextView.text.toString())
+            destinationTextView.setText(temp)
         }
     }
 }

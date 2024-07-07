@@ -111,16 +111,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
-
             //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
 
-            // 프로젝트 2 진행 코드
             val intent = Intent(
                 applicationContext,
                 RouteListActivity::class.java
             )
-
-            Log.d("explain", destinationTextView.text.toString())
             intent.putExtra("destination", destinationTextView.text.toString())
             startActivity(intent)
         }
