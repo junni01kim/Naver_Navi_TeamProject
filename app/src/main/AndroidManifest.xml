@@ -17,6 +17,11 @@
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="{CLIENT_ID}" />
+
+        <activity
+            android:name=".ui.preference.SettingActivity"
+            android:exported="false">
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">

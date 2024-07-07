@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
+import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.deviation.StrengthLocation
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.util.FusedLocationSource
@@ -79,6 +80,17 @@ class GpsLocationSource {
             if(!this::fusedLocationSource.isInitialized)
                 return fusedLocationSource
             return null
+        }
+
+        fun getInstance(activity: MainActivity) : FusedLocationSource {
+            if (!this::fusedLocationSource.isInitialized) {
+                synchronized(this) {
+                    if (!this::fusedLocationSource.isInitialized) {
+                        fusedLocationSource = FusedLocationSource(activity,LOCATION_PERMISSION_REQUEST_CODE)
+                    }
+                }
+            }
+            return fusedLocationSource
         }
 
         fun createInstance(activity: Activity) : FusedLocationSource {

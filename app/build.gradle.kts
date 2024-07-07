@@ -3,12 +3,15 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id("com.google.devtools.ksp")
 }
 
-val clientId = getClientId("CLIENT_ID")
-val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
-val searchAPIClientID = getSearchAPIClientID("SEARCH_API_CLIENT_ID")
-val searchAPIClientSecret = getSearchAPIClientSecret("SEARCH_API_CLIENT_SECRET")
+val clientId = getLocalPropertyKey("CLIENT_ID")
+val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
+val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
+val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
+val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
+
 android {
 
     namespace = "com.hansung.sherpa"
@@ -26,6 +29,7 @@ android {
         buildConfigField("String", "TMAP_APP_KEY", tmapAppKey)
         buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
+        buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
     }
 
@@ -53,19 +57,7 @@ android {
     }
 }
 
-fun getClientId(propertyKey : String) : String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
-
-fun getTmapAppKey(propertyKey : String) : String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
-
-fun getSearchAPIClientID(propertyKey : String) : String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
-
-fun getSearchAPIClientSecret(propertyKey : String) : String{
+fun getLocalPropertyKey(propertyKey : String) : String{
     return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
@@ -91,4 +83,10 @@ dependencies {
     implementation("com.google.android.material:material:1.2.1")
     implementation("androidx.core:core-ktx:1.0.2")
 
+    implementation ("androidx.preference:preference-ktx:1.2.1")
+
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 }
