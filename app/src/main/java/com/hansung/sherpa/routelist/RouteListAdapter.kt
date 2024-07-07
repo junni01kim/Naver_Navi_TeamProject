@@ -12,12 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 
 /**
- * 'expand_item.xml'에 작성할 내용 sample
+ * 'expand_item.xml'에 작성할 내용 sample parameter
  */
 data class Transport(var type:Int, var name: String, var remainingTime: String)
 
 /**
- * searchLocation에서 받아올 데이터 sample
+ * searchLocation에서 받아올 데이터 sample parameter
  */
 data class RouteItem(val remainingTime: String, val arrivalTime: String, var isExpanded:Boolean, val transportList:List<Transport>)
 

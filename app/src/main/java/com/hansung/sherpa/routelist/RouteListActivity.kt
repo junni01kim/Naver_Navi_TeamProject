@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextClock
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -39,43 +40,49 @@ class RouteListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.route_list)
 
+        // RouteListActivity 내부의 Button
         val backActivityImageButton = findViewById<ImageButton>(R.id.back_activity_image_button)
         val searchImageButton = findViewById<ImageButton>(R.id.search_image_button)
         val changeImageButton = findViewById<ImageButton>(R.id.change_image_button)
 
+        // RouteListActivity 내부의 TextView
         val destinationTextView = findViewById<EditText>(R.id.destination_edit_text)
         val departureTextView = findViewById<EditText>(R.id.departure_edit_text)
+        val departureTimeTextView = findViewById<TextClock>(R.id.departure_time_text_clock)
+        val routeSortingTextView = findViewById<TextView>(R.id.route_sorting_text_view)
 
-        val string = intent.getStringExtra("destination")
-        Log.d("explain", string.toString())
-        destinationTextView.setText(string)
+        // HomeActivity의 destinationEditText 값 전달
+        destinationTextView.setText(intent.getStringExtra("destination"))
 
-        val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
-
-        val routeListAdapter = RouteListAdapter(itemList, this)
-        routeListAdapter.notifyDataSetChanged()
-
-        recyclerView.adapter = routeListAdapter
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
-            override fun onClick(v: View, position: Int) {
-                TODO("클릭 시 이벤트 작성")
-            }
-        })
-
+        // MainActivity로 이동하는 리스너(뒤로가기)
         backActivityImageButton.setOnClickListener{
             finish()
         }
 
+        // 출발지와 목적지의 경로 리스트를 보여주는 리스너
         searchImageButton.setOnClickListener{
-            TODO("검색 버튼 기능 구현")
+            //TODO("검색 버튼 기능 구현")
         }
 
+        // 출발지와 목적지 text를 바꿔주는 버튼(리스너)
         changeImageButton.setOnClickListener {
             val temp = departureTextView.text.toString()
             departureTextView.setText(destinationTextView.text.toString())
             destinationTextView.setText(temp)
         }
+
+        // RecyclerView 동작 코드
+        val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
+        val routeListAdapter = RouteListAdapter(itemList, this)
+        routeListAdapter.notifyDataSetChanged()
+        recyclerView.adapter = routeListAdapter
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
+        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
+            override fun onClick(v: View, position: Int) {
+                //TODO("클릭 시 이벤트 작성")
+            }
+        })
     }
 }

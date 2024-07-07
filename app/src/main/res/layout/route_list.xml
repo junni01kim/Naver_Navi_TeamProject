@@ -7,7 +7,7 @@
         android:id="@+id/departure_edit_text"
         android:contentDescription="출발지를 입력하기 위한 EditText이다."
         android:layout_width="0dp" android:layout_height="wrap_content"
-        android:hint="출발지를 입력하세요" android:maxLines="1" android:inputType="text"
+        android:hint="@string/departure_edit_text_hint" android:maxLines="1" android:inputType="text"
         android:imeOptions="actionNext"
 
         android:layout_marginTop="5dp"
@@ -18,7 +18,7 @@
         android:id="@+id/destination_edit_text"
         android:contentDescription="도착지를 입력하기 위한 EditText이다."
         android:layout_width="0dp" android:layout_height="wrap_content"
-        android:hint="도착지를 입력하세요" android:maxLines="1" android:inputType="text"
+        android:hint="@string/destination_edit_text_hint" android:maxLines="1" android:inputType="text"
         android:imeOptions="actionDone"
 
         app:layout_constraintTop_toBottomOf="@+id/departure_edit_text"
@@ -58,11 +58,12 @@
         app:layout_constraintStart_toEndOf="@+id/departure_edit_text" app:layout_constraintEnd_toEndOf="parent" />
 
 
-    <TextView
-        android:id="@+id/departure_time_text_view"
-        android:contentDescription="대중교통 출발 시간을 나타내는 TextView이다."
+    <TextClock
+        android:id="@+id/departure_time_text_clock"
+        android:contentDescription="대중교통 출발 시간을 나타내는 TextClock이다."
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="출발시간 00:00" android:textSize="11sp"
+        android:format12Hour="출발시간 hh:mm"
+        android:format24Hour="출발시간 hh:mm" android:textSize="11sp"
 
         android:layout_marginStart="10dp" android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
@@ -73,7 +74,7 @@
         android:id="@+id/route_sorting_text_view"
         android:contentDescription="경로 정렬 기능을 지정하는 TextView(레이아웃 수정 예정)이다."
         android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="00 경로 순" android:textSize="11sp"
+        android:text="@string/route_sorting_text_view" android:textSize="11sp"
 
         android:layout_marginTop="5dp" android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
