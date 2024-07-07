@@ -22,7 +22,7 @@ class CaregiverFragment : PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         caregiverDao = UserDatabase.getInstance().caregiverDao()
         setPreferencesFromResource(R.xml.preferences, rootKey)
-        setUserServcies()
+        setUserServices()
         setRouteServices()
         setInitialSavedCaregiverState()
         findPreference<CaregiverPreferencesCategory>("caregiver")?.setTextClickListener(View.OnClickListener {
@@ -85,7 +85,7 @@ class CaregiverFragment : PreferenceFragmentCompat() {
     }
 
     // 사용자 서비스
-    private fun setUserServcies(){
+    private fun setUserServices(){
         // 음성 길 안내
         findPreference<SwitchPreference>("service_voice")?.apply {
             onPreferenceChangeListener = Preference.OnPreferenceChangeListener { preference, newValue ->
