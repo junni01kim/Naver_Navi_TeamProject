@@ -26,6 +26,7 @@ import com.hansung.sherpa.itemsetting.RouteDetailAdapter
 import com.hansung.sherpa.itemsetting.RouteDetailItem
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.ui.main.FlipperEvent
 import com.hansung.sherpa.ui.main.FloatIconEvent
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -85,13 +86,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         locationSource = GpsLocationSource.createInstance(this)
 
         // Float Icons Events
-//        val fIEvent = FloatIconEvent()
-//        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
-//        manIconEvent = findViewById(R.id.floating_action_button_man)
-//        womanIconEvent = findViewById(R.id.floating_action_button_woman)
-//        fIEvent.setOnClick(medicalIconEvent)
-//        fIEvent.setOnClick(manIconEvent)
-//        fIEvent.setOnClick(womanIconEvent)
+        val fIEvent = FloatIconEvent()
+        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
+        manIconEvent = findViewById(R.id.floating_action_button_man)
+        womanIconEvent = findViewById(R.id.floating_action_button_woman)
+        fIEvent.setOnClick(medicalIconEvent)
+        fIEvent.setOnClick(manIconEvent)
+        fIEvent.setOnClick(womanIconEvent)
+
+        // 목적지, 내 위치 Flipper Event
+        FlipperEvent().onFlip(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

@@ -1,5 +1,6 @@
 package com.hansung.sherpa.navigation
 
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
@@ -74,7 +75,7 @@ class Navigation {
         pathOverlayList = mutableListOf()
     }
 
-
+    var count = 0;
     // 재탐색 후 경로를 그리는 함수
     fun redrawRoute(location:LatLng, endLatLng: LatLng) {
         // 경로 초기화
