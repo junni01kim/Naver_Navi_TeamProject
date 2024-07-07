@@ -5,8 +5,10 @@ import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
@@ -109,14 +111,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
-            
+
             //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
-            
+
             // 프로젝트 2 진행 코드
             val intent = Intent(
                 applicationContext,
                 RouteListActivity::class.java
             )
+
+            Log.d("explain", destinationTextView.text.toString())
+            intent.putExtra("destination", destinationTextView.text.toString())
             startActivity(intent)
         }
 
@@ -134,14 +139,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val OLCM = OnLocationChangeManager
         OLCM.naverMap = naverMap
         OLCM.addMyOnLocationChangeListener(i)
-        // ----- 경로 이탈 확인 로직 끝 -----
-
-        // 검색하기 전까지 값을 저장해두기 위한 viewModel이다. searchRoute.kt에 저장되어있다.
-        val viewModel = ViewModelProvider(this)[SearchRouteViewModel::class.java]
-
-        viewModel.destinationText.observe(this) {
-            viewModel.destinationText.value = destinationTextView.text.toString()
-        }
     }
 
     // 사용자 마커 표시
@@ -179,9 +176,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-}
-
-class SearchRouteViewModel: ViewModel() {
-    val destinationText = MutableLiveData<String>()
 }
 

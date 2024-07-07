@@ -3,9 +3,15 @@ package com.hansung.sherpa.routelist
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import com.hansung.sherpa.R
 
 /**
@@ -33,6 +39,19 @@ class RouteListActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.route_list)
 
+        val backActivityImageButton = findViewById<ImageButton>(R.id.back_activity_image_button)
+        val searchImageButton = findViewById<ImageButton>(R.id.search_image_button)
+
+        /*val destinationTextView = findViewById<TextInputEditText>(R.id.destination_text_input_edit_text)
+        val departureTextView = findViewById<TextInputEditText>(R.id.departure_text_input_edit_text)*/
+
+        val destinationTextView = findViewById<EditText>(R.id.destination_edit_text)
+        val departureTextView = findViewById<EditText>(R.id.departure_edit_text)
+
+        val string = intent.getStringExtra("destination")
+        Log.d("explain", string.toString())
+        destinationTextView.setText(string)
+
         val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
 
         val routeListAdapter = RouteListAdapter(itemList, this)
@@ -43,9 +62,16 @@ class RouteListActivity : AppCompatActivity() {
 
         routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
-                // 클릭 시 이벤트 작성
-                Log.d("explain", "클릭")
+                TODO("클릭 시 이벤트 작성")
             }
         })
+
+        backActivityImageButton.setOnClickListener{
+            finish()
+        }
+
+        searchImageButton.setOnClickListener{
+            TODO("검색 버튼 기능 구현")
+        }
     }
 }
