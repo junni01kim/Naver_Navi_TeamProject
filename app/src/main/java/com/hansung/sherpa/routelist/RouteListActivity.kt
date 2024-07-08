@@ -1,6 +1,9 @@
 package com.hansung.sherpa.routelist
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -58,6 +61,13 @@ class RouteListActivity : AppCompatActivity() {
         // 출발지와 목적지의 경로 리스트를 보여주는 리스너
         searchImageButton.setOnClickListener{
             //TODO("검색 버튼 기능 구현")
+            val intent = Intent()
+            Log.d("explain","${departureTextView.text}, ${destinationTextView.text}")
+            //intent.putExtra("startKeyword", departureTextView.text)
+            intent.putExtra("startKeyword", departureTextView.text.toString())
+            intent.putExtra("endKeyword", destinationTextView.text.toString())
+            setResult(Activity.RESULT_OK, intent)
+            finish()
         }
 
         // 출발지와 목적지 text를 바꿔주는 버튼(리스너)
@@ -77,7 +87,7 @@ class RouteListActivity : AppCompatActivity() {
         // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
         routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
-                //TODO("클릭 시 이벤트 작성")
+                //TODO("클릭 시 이벤트 작성(김재호 팀원 파트로 이동)")
             }
         })
     }

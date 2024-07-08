@@ -1,10 +1,12 @@
 package com.hansung.sherpa
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
 import androidx.annotation.RequiresApi
@@ -77,7 +79,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
-        StaticValue.naverMap = naverMap // todo: 임시 바로 삭제할 것(김명준)
 
         // LocationOverlay 설정
         val locationOverlay = naverMap.locationOverlay
@@ -112,7 +113,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                 RouteListActivity::class.java
             )
             intent.putExtra("destination", destinationTextView.text.toString())
-            startActivity(intent)
+            startActivityForResult(intent, 1) // activityResultLauncher로 수정 예정
         }
 
         // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
@@ -165,6 +166,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    // ---------- 수정예정 ----------
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                1 -> {
+                    val text = data?.getStringExtra("startKeyword")
+                    val value = data?.getStringExtra("endKeyword")
+                    Log.d("explain","$text is $value")
+                }
+            }
+        }
     }
 }
 
