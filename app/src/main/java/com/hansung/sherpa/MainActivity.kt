@@ -213,4 +213,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 }
+}
 
