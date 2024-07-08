@@ -108,6 +108,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         navigation.mainActivity = this
         navigation.routeControl = routeControl
 
+        // ---------- 삭제할 것 ----------
+        StaticValue.navigation = navigation
+        // ---------- 여기까지 ----------
+
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
             //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
@@ -178,11 +182,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                1 -> { // RouteList Activity
+                1 -> { // RouteList Activity 문제점 좀 있음
                     val startKeyword = data?.getStringExtra("startKeyword")!!
                     val endKeyword = data.getStringExtra("endKeyword")!!
-                    Log.d("explain","$startKeyword is $endKeyword")
-                    navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드                }
+                    Log.d("explain", "$startKeyword is $endKeyword")
+                    navigation.getTransitRoutes(startKeyword, endKeyword)
+                }
             }
         }
     }

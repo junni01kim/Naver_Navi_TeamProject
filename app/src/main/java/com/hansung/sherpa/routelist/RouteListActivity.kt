@@ -13,6 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
+import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.convert.LegRoute
+import com.hansung.sherpa.navigation.Navigation
 
 /**
  * 샘플 데이터
@@ -29,6 +32,8 @@ val itemList = arrayListOf(
     RouteItem("1시간","10시 41분 도착", false,
         listOf(Transport(1,"2번","12분 뒤 도착"),Transport(1,"12번","7분 뒤 도착"),Transport(1, "1302번","곧 도착")))
 )
+
+var sample = mutableListOf<MutableList<LegRoute>>()
 
 /**
  * 경로 검색창(Activity) 내비게이션을 조회 할 출발지와 목적지를 입력한다.
@@ -52,6 +57,20 @@ class RouteListActivity : AppCompatActivity() {
         val departureTimeTextView = findViewById<TextClock>(R.id.departure_time_text_clock)
         val routeSortingTextView = findViewById<TextView>(R.id.route_sorting_text_view)
 
+        // RecyclerView 동작 코드
+        val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
+        val routeListAdapter = RouteListAdapter( sample, this)
+        routeListAdapter.notifyDataSetChanged()
+        recyclerView.adapter = routeListAdapter
+        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+
+        // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
+        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
+            override fun onClick(v: View, position: Int) {
+                //TODO("클릭 시 이벤트 작성(김재호 팀원 파트로 이동)")
+            }
+        })
+
         // HomeActivity의 destinationEditText 값 전달
         destinationTextView.setText(intent.getStringExtra("destination"))
 
@@ -72,14 +91,14 @@ class RouteListActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            //TODO("검색 버튼 기능 구현")
-            val intent = Intent()
             Log.d("explain","${departureTextView.text}, ${destinationTextView.text}")
 
-            intent.putExtra("startKeyword", departureTextView.text.toString())
-            intent.putExtra("endKeyword", destinationTextView.text.toString())
-            setResult(Activity.RESULT_OK, intent)
-            finish()
+            val navigation = StaticValue.navigation
+            val routeList = navigation.getTransitRoutesMJ(departureTextView.text.toString(), destinationTextView.text.toString())
+            Log.d("explain", routeList[0][0].toString())
+            routeListAdapter.routeList = routeList
+
+            routeListAdapter.notifyDataSetChanged()
         }
 
         // 출발지와 목적지 text를 바꿔주는 버튼(리스너)
@@ -88,19 +107,5 @@ class RouteListActivity : AppCompatActivity() {
             departureTextView.setText(destinationTextView.text.toString())
             destinationTextView.setText(temp)
         }
-
-        // RecyclerView 동작 코드
-        val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
-        val routeListAdapter = RouteListAdapter(itemList, this)
-        routeListAdapter.notifyDataSetChanged()
-        recyclerView.adapter = routeListAdapter
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-        // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
-        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
-            override fun onClick(v: View, position: Int) {
-                //TODO("클릭 시 이벤트 작성(김재호 팀원 파트로 이동)")
-            }
-        })
     }
 }

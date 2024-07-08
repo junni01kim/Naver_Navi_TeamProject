@@ -10,6 +10,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
+import com.hansung.sherpa.convert.LegRoute
+import com.hansung.sherpa.convert.PathType
 
 /**
  * 'expand_item.xml'에 작성할 내용 sample parameter
@@ -27,29 +29,35 @@ data class Transport(var type:Int, var name: String, var remainingTime: String)
  */
 data class RouteItem(val remainingTime: String, val arrivalTime: String, var isExpanded:Boolean, val transportList:List<Transport>)
 
+data class TempClass(val legRouteList: MutableList<LegRoute>, var isExpanded: Boolean)
+
 /**
  * RouteListRecyclerView를 이용하기 위한 Adapter이다.
  * @param itemList 출발지에서 목적지까지 이동할 수 잇는 경우의 수 리스트
  * @param context
  */
-class RouteListAdapter(val itemList: List<RouteItem>, val context: Context) :
+class RouteListAdapter(var routeList: MutableList<MutableList<LegRoute>>, val context: Context) :
     RecyclerView.Adapter<RouteListAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(routeItem: RouteItem){
+        fun bind(legRouteList: MutableList<LegRoute>){
             val remainingTime = itemView.findViewById<TextView>(R.id.remaining_time)
             val arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
             val expandButton = itemView.findViewById<ImageButton>(R.id.expand_button)
             val layoutExpand = itemView.findViewById<LinearLayout>(R.id.expand_layout)
 
-            for (i in routeItem.transportList) layoutExpand.addView(createLayout(i))
+            val tempClass = TempClass(legRouteList, false)
 
-            remainingTime.text = routeItem.remainingTime
-            arrivalTime.text = routeItem.arrivalTime
+            for (i in tempClass.legRouteList) layoutExpand.addView(createLayout(i.pathType))
+
+            remainingTime.text = "전체 소요시간"
+            arrivalTime.text = "전체 도착 시간"
+            /*remainingTime.text = routeItem.remainingTime
+            arrivalTime.text = routeItem.arrivalTime*/
 
             expandButton.setOnClickListener{
-                val show = toggleLayout(!routeItem.isExpanded, it, layoutExpand)
-                routeItem.isExpanded = show
+                val show = toggleLayout(!tempClass.isExpanded, it, layoutExpand)
+                tempClass.isExpanded = show
             }
         }
     }
@@ -58,7 +66,7 @@ class RouteListAdapter(val itemList: List<RouteItem>, val context: Context) :
      * 각각의 세부경로를 표현하기 위함
      * @param transport 단일 대중교통 정보
      */
-    fun createLayout(transport: Transport) : View{
+    fun createLayout(transport: PathType) : View{
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val layout = inflater.inflate(R.layout.expand_route_item, null) as LinearLayout
 
@@ -67,15 +75,18 @@ class RouteListAdapter(val itemList: List<RouteItem>, val context: Context) :
         val expandRemainingTime = layout.findViewById<TextView>(R.id.expand_remaining_time)
 
         // 타입 단위로 이미지를 설정한다.
-        val icon = when(transport.type){
-            1 -> R.drawable.directions_bus
-            2 -> R.drawable.train
-            3 -> R.drawable.walk
+        val icon = when(transport){
+            PathType.BUS -> R.drawable.directions_bus
+            PathType.SUBWAY -> R.drawable.train
+            PathType.WALK -> R.drawable.walk
             else -> {R.drawable.cancel_widget} // 예외처리: 없는 타입
         }
         expandIcon.setImageResource(icon)
-        expandName.text = transport.name
-        expandRemainingTime.text = transport.remainingTime
+        expandName.text = "대중교통 번호"
+        expandRemainingTime.text = "소요 시간"
+
+        /*expandName.text = transport.name
+        expandRemainingTime.text = transport.remainingTime*/
 
         return layout
     }
@@ -103,7 +114,7 @@ class RouteListAdapter(val itemList: List<RouteItem>, val context: Context) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(itemList[position])
+        holder.bind(routeList[position])
 
         holder.itemView.setOnClickListener {
             itemClickListener.onClick(it, position)
@@ -111,7 +122,7 @@ class RouteListAdapter(val itemList: List<RouteItem>, val context: Context) :
     }
 
     override fun getItemCount(): Int {
-        return itemList.count()
+        return routeList.count()
     }
 
     interface OnItemClickListener {
