@@ -1,6 +1,5 @@
 package com.hansung.sherpa.navigation
 
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
@@ -8,14 +7,11 @@ import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.deviation.Section
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
-import kotlinx.coroutines.delay
 
 class Navigation {
     private var startLatLng: LatLng = LatLng(0.0, 0.0)

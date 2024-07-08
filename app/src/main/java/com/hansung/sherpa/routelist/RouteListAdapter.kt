@@ -27,8 +27,6 @@ data class Transport(var type:Int, var name: String, var remainingTime: String)
  * @param isExpanded 세부사항 확장 여부
  * @param transportList 대중교통 이용 정보(변경 가능)
  */
-data class RouteItem(val remainingTime: String, val arrivalTime: String, var isExpanded:Boolean, val transportList:List<Transport>)
-
 data class TempClass(val legRouteList: MutableList<LegRoute>, var isExpanded: Boolean)
 
 /**

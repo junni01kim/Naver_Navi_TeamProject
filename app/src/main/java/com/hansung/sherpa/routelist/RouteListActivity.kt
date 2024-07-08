@@ -1,9 +1,6 @@
 package com.hansung.sherpa.routelist
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -14,8 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.convert.LegRoute
-import com.hansung.sherpa.navigation.Navigation
 
 /**
  * 경로 검색창(Activity) 내비게이션을 조회 할 출발지와 목적지를 입력한다.
