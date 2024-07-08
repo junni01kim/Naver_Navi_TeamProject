@@ -1,5 +1,7 @@
 package com.hansung.sherpa
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.PointF
 import android.location.Location
 import android.os.Build
@@ -7,18 +9,12 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.hansung.sherpa.databinding.ActivityMainBinding
 import com.hansung.sherpa.databinding.SpecificRouteItemBinding
 import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.deviation.StrengthLocation
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
@@ -60,6 +56,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var manIconEvent: ExtendedFloatingActionButton
     private lateinit var womanIconEvent: ExtendedFloatingActionButton
 
+    // 내비게이션 안내 값을 전송하기 위함
+    lateinit var navigation:Navigation
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -82,25 +82,25 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         destinationTextView = findViewById(R.id.destination_editText)
         searchButton = findViewById(R.id.search_button)
 
+//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         locationSource = GpsLocationSource.createInstance(this)
 
         // Float Icons Events
-//        val fIEvent = FloatIconEvent()
-//        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
-//        manIconEvent = findViewById(R.id.floating_action_button_man)
-//        womanIconEvent = findViewById(R.id.floating_action_button_woman)
-//        fIEvent.setOnClick(medicalIconEvent)
-//        fIEvent.setOnClick(manIconEvent)
-//        fIEvent.setOnClick(womanIconEvent)
+        val fIEvent = FloatIconEvent()
+        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
+        manIconEvent = findViewById(R.id.floating_action_button_man)
+        womanIconEvent = findViewById(R.id.floating_action_button_woman)
+        fIEvent.setOnClick(medicalIconEvent)
+        fIEvent.setOnClick(manIconEvent)
+        fIEvent.setOnClick(womanIconEvent)
 
         // 목적지, 내 위치 Flipper Event
-//        FlipperEvent().onFlip(this)
+        FlipperEvent().onFlip(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
     override fun onMapReady(p0: NaverMap) {
         this.naverMap = p0
-        StaticValue.naverMap = naverMap // todo: 임시 바로 삭제할 것(김명준)
 
         // LocationOverlay 설정
         val locationOverlay = naverMap.locationOverlay
@@ -114,21 +114,28 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // 움직이는 사용자 마커 따라 그리기
         onChangeUserMarker()
 
-        // 검색어 키워드
-        val startKeyword = "반드시 지우시오!" // TODO : SearchLocation.kt 완성 시 반드시 수정할 것 !!!
-        val endKeyword = destinationTextView.text.toString()
-
         // 검색 필요 클래스 초기화
         val routeControl = RouteControl() // 사용자 위치 확인
         val gpsData = GPSDatas(this) // gps 위치
-        val navigation = Navigation() // 경로 그리기 & 탐색
+        navigation = Navigation() // 경로 그리기 & 탐색
         navigation.naverMap = naverMap
         navigation.mainActivity = this
         navigation.routeControl = routeControl
 
+        // ---------- 삭제할 것 ----------
+        StaticValue.navigation = navigation
+        // ---------- 여기까지 ----------
+
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
-            navigation.getTransitRoutes(startKeyword, endKeyword)
+            //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
+
+            val intent = Intent(
+                applicationContext,
+                RouteListActivity::class.java
+            )
+            intent.putExtra("destination", destinationTextView.text.toString())
+            startActivityForResult(intent, 1) // activityResultLauncher로 수정 예정
         }
 
         // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
@@ -143,7 +150,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     routeControl.delRouteToIndex(shortestRouteIndex)
                     navigation.redrawRoute(nowLocation, toLatLng)
 
-                    //navigation.redrawRoute(LatLng(126.8328164,37.6409022), navigation.tempEndLatLng)
+                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
                 }
             }
         }
@@ -151,14 +159,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val OLCM = OnLocationChangeManager
         OLCM.naverMap = naverMap
         OLCM.addMyOnLocationChangeListener(i)
-        // ----- 경로 이탈 확인 로직 끝 -----
-
-        // 검색하기 전까지 값을 저장해두기 위한 viewModel이다. searchRoute.kt에 저장되어있다.
-        val viewModel = ViewModelProvider(this)[SearchRouteViewModel::class.java]
-
-        viewModel.destinationText.observe(this) {
-            viewModel.destinationText.value = destinationTextView.text.toString()
-        }
     }
 
     // 사용자 마커 표시
@@ -196,9 +196,21 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-}
 
-class SearchRouteViewModel: ViewModel() {
-    val destinationText = MutableLiveData<String>()
+    // ---------- 수정예정 ----------
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                1 -> { // RouteList Activity 문제점 좀 있음
+                    val startKeyword = data?.getStringExtra("startKeyword")!!
+                    val endKeyword = data.getStringExtra("endKeyword")!!
+                    Log.d("explain", "$startKeyword is $endKeyword")
+                    navigation.getTransitRoutes(startKeyword, endKeyword)
+                }
+            }
+        }
+    }
 }
 

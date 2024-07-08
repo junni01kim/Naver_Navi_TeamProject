@@ -1,6 +1,5 @@
 package com.hansung.sherpa.navigation
 
-import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
@@ -14,10 +13,8 @@ import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.Utmk
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
-import kotlinx.coroutines.delay
 
 class Navigation {
     private var startLatLng: LatLng = LatLng(0.0, 0.0)
@@ -33,9 +30,27 @@ class Navigation {
     var tempStartLatLng = LatLng(37.642743, 126.835375)
     val tempEndLatLng = LatLng(37.627444, 126.829600)
     // 반드시 지울 것!!
-    
-    // 경로 탐색
-    fun getTransitRoutes(start: String, end: String){
+
+    // 경로 탐색(경로만 탐색)
+    fun getTransitRoutes(start: String, end: String): MutableList<MutableList<LegRoute>> {
+        // 검색어 기반 좌표 검색
+        /**
+         * 미완성이라 주석처리
+         * val SL = SearchLocation()
+         * startLatLng = SL.searchLatLng(start)
+         * endLatLng = SL.searchLatLng(end)
+         **/
+
+        // 좌표 기반 경로 검색
+        routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
+        val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
+        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+
+        return transitRoutes
+    }
+
+    // 이전 경로 탐색 코드
+    fun getTransitRoutesBefore(start: String, end: String){
         // 검색어 기반 좌표 검색
         /**
          * 미완성이라 주석처리
@@ -67,7 +82,7 @@ class Navigation {
             endY = endLatLng.latitude.toString(),
             lang = 0,
             format = "json",
-            count = 1
+            count = 10
         )
     }
 
