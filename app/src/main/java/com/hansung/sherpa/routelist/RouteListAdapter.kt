@@ -52,8 +52,6 @@ class RouteListAdapter(var routeList: MutableList<MutableList<LegRoute>>, val co
 
             remainingTime.text = "전체 소요시간"
             arrivalTime.text = "전체 도착 시간"
-            /*remainingTime.text = routeItem.remainingTime
-            arrivalTime.text = routeItem.arrivalTime*/
 
             expandButton.setOnClickListener{
                 val show = toggleLayout(!tempClass.isExpanded, it, layoutExpand)
@@ -67,6 +65,7 @@ class RouteListAdapter(var routeList: MutableList<MutableList<LegRoute>>, val co
      * @param transport 단일 대중교통 정보
      */
     fun createLayout(transport: PathType) : View{
+        // 리스트가 늘어나는 오류 발생
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val layout = inflater.inflate(R.layout.expand_route_item, null) as LinearLayout
 
@@ -84,9 +83,6 @@ class RouteListAdapter(var routeList: MutableList<MutableList<LegRoute>>, val co
         expandIcon.setImageResource(icon)
         expandName.text = "대중교통 번호"
         expandRemainingTime.text = "소요 시간"
-
-        /*expandName.text = transport.name
-        expandRemainingTime.text = transport.remainingTime*/
 
         return layout
     }
@@ -107,8 +103,7 @@ class RouteListAdapter(var routeList: MutableList<MutableList<LegRoute>>, val co
         return isExpanded
     }
 
-    // 이후는 일반적인 코드 로직이다.
-
+    // ---------- 이후는 일반적인 코드 로직이다. ----------
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.route_item,parent,false))
     }
