@@ -36,8 +36,8 @@ class Navigation {
     //val tempEndLatLng = LatLng(37.6274, 126.829613)
     // 반드시 지울 것!!
 
-    // 경로 탐색
-    fun getTransitRoutesMJ(start: String, end: String): MutableList<MutableList<LegRoute>> {
+    // 경로 탐색(경로만 탐색)
+    fun getTransitRoutes(start: String, end: String): MutableList<MutableList<LegRoute>> {
         // 검색어 기반 좌표 검색
         /**
          * 미완성이라 주석처리
@@ -54,8 +54,8 @@ class Navigation {
         return transitRoutes
     }
 
-    // 경로 탐색
-    fun getTransitRoutes(start: String, end: String){
+    // 이전 경로 탐색 코드
+    fun getTransitRoutesBefore(start: String, end: String){
         // 검색어 기반 좌표 검색
         /**
          * 미완성이라 주석처리
