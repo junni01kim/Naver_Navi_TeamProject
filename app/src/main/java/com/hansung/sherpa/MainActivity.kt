@@ -45,6 +45,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var manIconEvent: ExtendedFloatingActionButton
     private lateinit var womanIconEvent: ExtendedFloatingActionButton
 
+    // 내비게이션 안내 값을 전송하기 위함
+    lateinit var navigation:Navigation
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -92,14 +96,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // 움직이는 사용자 마커 따라 그리기
         onChangeUserMarker()
 
-        // 검색어 키워드
-        val startKeyword = "반드시 지우시오!" // TODO : SearchLocation.kt 완성 시 반드시 수정할 것 !!!
-        val endKeyword = destinationTextView.text.toString()
-
         // 검색 필요 클래스 초기화
         val routeControl = RouteControl() // 사용자 위치 확인
         val gpsData = GPSDatas(this) // gps 위치
-        val navigation = Navigation() // 경로 그리기 & 탐색
+        navigation = Navigation() // 경로 그리기 & 탐색
         navigation.naverMap = naverMap
         navigation.mainActivity = this
         navigation.routeControl = routeControl
@@ -174,10 +174,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
-                1 -> {
-                    val text = data?.getStringExtra("startKeyword")
-                    val value = data?.getStringExtra("endKeyword")
-                    Log.d("explain","$text is $value")
+                1 -> { // RouteList Activity
+                    val startKeyword = data?.getStringExtra("startKeyword")!!
+                    val endKeyword = data.getStringExtra("endKeyword")!!
+                    Log.d("explain","$startKeyword is $endKeyword")
+                    navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
                 }
             }
         }
