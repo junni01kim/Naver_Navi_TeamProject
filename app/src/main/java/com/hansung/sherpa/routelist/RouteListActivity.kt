@@ -60,10 +60,15 @@ class RouteListActivity : AppCompatActivity() {
 
         // 출발지와 목적지의 경로 리스트를 보여주는 리스너
         searchImageButton.setOnClickListener{
-            if(departureTextView.text.toString() == "")
+            if(departureTextView.text.toString() == "") {
                 departureTextView.requestFocus()
-            if(destinationTextView.text.toString() == "")
+                return@setOnClickListener
+            }
+
+            if(destinationTextView.text.toString() == "") {
                 destinationTextView.requestFocus()
+                return@setOnClickListener
+            }
 
             //TODO("검색 버튼 기능 구현")
             val intent = Intent()
