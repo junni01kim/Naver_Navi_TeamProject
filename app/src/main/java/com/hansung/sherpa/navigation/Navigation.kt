@@ -35,7 +35,25 @@ class Navigation {
     private val tempStartLatLng = LatLng(37.6417, 126.8364)
     val tempEndLatLng = LatLng(37.6274, 126.829613)
     // 반드시 지울 것!!
-    
+
+    // 경로 탐색
+    fun getTransitRoutesMJ(start: String, end: String): MutableList<MutableList<LegRoute>> {
+        // 검색어 기반 좌표 검색
+        /**
+         * 미완성이라 주석처리
+         * val SL = SearchLocation()
+         * startLatLng = SL.searchLatLng(start)
+         * endLatLng = SL.searchLatLng(end)
+         **/
+
+        // 좌표 기반 경로 검색
+        routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
+        val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
+        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+
+        return transitRoutes
+    }
+
     // 경로 탐색
     fun getTransitRoutes(start: String, end: String){
         // 검색어 기반 좌표 검색

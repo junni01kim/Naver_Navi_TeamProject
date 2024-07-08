@@ -182,8 +182,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
                     val startKeyword = data?.getStringExtra("startKeyword")!!
                     val endKeyword = data.getStringExtra("endKeyword")!!
                     Log.d("explain","$startKeyword is $endKeyword")
-                    navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
-                }
+                    navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드                }
             }
         }
     }

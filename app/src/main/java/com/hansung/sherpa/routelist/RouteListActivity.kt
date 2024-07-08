@@ -47,6 +47,8 @@ class RouteListActivity : AppCompatActivity() {
         // RouteListActivity 내부의 TextView
         val destinationTextView = findViewById<EditText>(R.id.destination_edit_text)
         val departureTextView = findViewById<EditText>(R.id.departure_edit_text)
+        
+        // 현재는 미구현
         val departureTimeTextView = findViewById<TextClock>(R.id.departure_time_text_clock)
         val routeSortingTextView = findViewById<TextView>(R.id.route_sorting_text_view)
 
@@ -73,7 +75,7 @@ class RouteListActivity : AppCompatActivity() {
             //TODO("검색 버튼 기능 구현")
             val intent = Intent()
             Log.d("explain","${departureTextView.text}, ${destinationTextView.text}")
-            //intent.putExtra("startKeyword", departureTextView.text)
+
             intent.putExtra("startKeyword", departureTextView.text.toString())
             intent.putExtra("endKeyword", destinationTextView.text.toString())
             setResult(Activity.RESULT_OK, intent)
