@@ -19,6 +19,7 @@ import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.routelist.RouteListActivity
+import com.hansung.sherpa.ui.main.FlipperEvent
 import com.hansung.sherpa.ui.main.FloatIconEvent
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -78,6 +79,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         fIEvent.setOnClick(medicalIconEvent)
         fIEvent.setOnClick(manIconEvent)
         fIEvent.setOnClick(womanIconEvent)
+
+        // 목적지, 내 위치 Flipper Event
+        FlipperEvent().onFlip(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

@@ -29,6 +29,7 @@ android {
         buildConfigField("String", "TMAP_APP_KEY", tmapAppKey)
         buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
+        buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
     }
 
@@ -85,12 +86,6 @@ dependencies {
     implementation("com.google.android.material:material:1.2.1")
     implementation("androidx.core:core-ktx:1.0.2")
 
-    // for PreferenceCategory
-    implementation ("androidx.preference:preference-ktx:1.2.1")
-
-    // for Room
-    implementation("androidx.room:room-runtime:2.6.1")
-    annotationProcessor("androidx.room:room-compiler:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
+    implementation ("androidx.activity:activity-ktx:1.1.0")
+    implementation("androidx.fragment:fragment-ktx:1.2.5")
 }
