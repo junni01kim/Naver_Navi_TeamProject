@@ -79,124 +79,227 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/map" />
 
-    <ViewFlipper
-        android:id="@+id/v_flipper"
-        android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:background="@color/white"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_weight="3"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/bottom_navigation"
-        app:layout_constraintBottom_toBottomOf="parent" />
-    <!-- 하단 Tab Navigation -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/bottom_navigation"
-        android:layout_width="0dp"
+<!--    <ViewFlipper-->
+<!--        android:id="@+id/v_flipper"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="48dp"-->
+<!--        android:background="@color/white"-->
+<!--        app:layout_constraintHorizontal_bias="0.5"-->
+<!--        app:layout_constraintHorizontal_weight="3"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toStartOf="@+id/bottom_navigation"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent" />-->
+<!--    -->
+<!--    &lt;!&ndash; 하단 Tab Navigation &ndash;&gt;-->
+<!--    <com.google.android.material.tabs.TabLayout-->
+<!--        android:id="@+id/bottom_navigation"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="@color/white"-->
+<!--        app:layout_constraintHorizontal_bias="0.5"-->
+<!--        app:layout_constraintHorizontal_weight="1"-->
+<!--        app:layout_constraintStart_toEndOf="@+id/v_flipper"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:tabContentStart="56dp">-->
+<!--        &lt;!&ndash;        <com.google.android.material.tabs.TabItem-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/tab_1"-->
+<!--            />-->
+
+<!--        <com.google.android.material.tabs.TabItem-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/tab_2"-->
+<!--            />&ndash;&gt;-->
+
+<!--        <com.google.android.material.tabs.TabItem-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="@string/tab_3" />-->
+<!--    </com.google.android.material.tabs.TabLayout>-->
+
+<!--    &lt;!&ndash;내 위치 아이콘 - 네이버 제공 아이콘으로 유지&ndash;&gt;-->
+<!--    &lt;!&ndash;<com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/floating_action_button_location"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="bottom|end"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:backgroundTint="@color/white"-->
+<!--        android:contentDescription="@string/float_icon_1"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:srcCompat="@drawable/location" />&ndash;&gt;-->
+
+<!--    &lt;!&ndash; 병원 전화 &ndash;&gt;-->
+<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+<!--        android:id="@+id/floating_action_button_medical"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:backgroundTint="@color/white"-->
+<!--        android:contentDescription="@string/float_icon_2"-->
+<!--        android:maxLines="2"-->
+<!--        android:text="@string/phone_and_request"-->
+<!--        android:textAlignment="textStart"-->
+<!--        android:textColor="@color/maximum_blue_green"-->
+<!--        app:hideMotionSpec="@drawable/medical"-->
+<!--        app:icon="@drawable/medical"-->
+<!--        app:iconGravity="end"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_man"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:srcCompat="@drawable/medical" />-->
+
+<!--    &lt;!&ndash; 아버지 전화 &ndash;&gt;-->
+<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+<!--        android:id="@+id/floating_action_button_man"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:backgroundTint="@color/white"-->
+<!--        android:contentDescription="@string/float_icon_3"-->
+<!--        android:maxLines="2"-->
+<!--        android:text="@string/phone_and_request"-->
+<!--        android:textAlignment="textStart"-->
+<!--        android:textColor="@color/maximum_blue_green"-->
+<!--        app:icon="@drawable/man"-->
+<!--        app:iconGravity="end"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_woman"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:srcCompat="@drawable/man" />-->
+
+<!--    &lt;!&ndash; 어머니 전화 &ndash;&gt;-->
+<!--    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton-->
+<!--        android:id="@+id/floating_action_button_woman"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:backgroundTint="@color/white"-->
+<!--        android:contentDescription="@string/float_icon_4"-->
+<!--        android:maxLines="2"-->
+<!--        android:text="@string/phone_and_request"-->
+<!--        android:textAlignment="textStart"-->
+<!--        android:textColor="@color/maximum_blue_green"-->
+<!--        app:icon="@drawable/woman"-->
+<!--        app:iconGravity="end"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_add"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:srcCompat="@drawable/woman" />-->
+
+<!--    &lt;!&ndash; 추가 &ndash;&gt;-->
+<!--    <com.google.android.material.floatingactionbutton.FloatingActionButton-->
+<!--        android:id="@+id/floating_action_button_add"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:layout_margin="16dp"-->
+<!--        android:backgroundTint="@color/white"-->
+<!--        android:contentDescription="@string/float_icon_5"-->
+<!--        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:srcCompat="@drawable/add" />-->
+
+
+
+    <androidx.constraintlayout.motion.widget.MotionLayout
+        android:id="@+id/specific_route_motionlayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/white"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintStart_toEndOf="@+id/v_flipper"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:tabContentStart="56dp">
-        <!--        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_1"
-            />
+        app:layoutDescription="@xml/activity_main_xml_specific_route_motionlayout_scene"
+        app:layout_constraintBottom_toBottomOf="@+id/main"
+        app:layout_constraintLeft_toLeftOf="@+id/main"
+        app:layout_constraintRight_toRightOf="@+id/main">
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_2"
-            />-->
+        <FrameLayout
+            android:id="@+id/specific_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:background="@drawable/round_corner_layout"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent">
+            <!-- 향후 이부분을 visibility를 visible로 변경 -->
 
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tab_3" />
-    </com.google.android.material.tabs.TabLayout>
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <!--내 위치 아이콘 - 네이버 제공 아이콘으로 유지-->
-    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floating_action_button_location"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_1"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/location" />-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
 
-    <!-- 병원 전화 -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/floating_action_button_medical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_2"
-        android:maxLines="2"
-        android:text="@string/phone_and_request"
-        android:textAlignment="textStart"
-        android:textColor="@color/maximum_blue_green"
-        app:hideMotionSpec="@drawable/medical"
-        app:icon="@drawable/medical"
-        app:iconGravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_man"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/medical" />
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="8dp">
 
-    <!-- 아버지 전화 -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/floating_action_button_man"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_3"
-        android:maxLines="2"
-        android:text="@string/phone_and_request"
-        android:textAlignment="textStart"
-        android:textColor="@color/maximum_blue_green"
-        app:icon="@drawable/man"
-        app:iconGravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_woman"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/man" />
+                        <LinearLayout
+                            android:id="@+id/linearLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            app:layout_constraintTop_toTopOf="parent">
 
-    <!-- 어머니 전화 -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/floating_action_button_woman"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_4"
-        android:maxLines="2"
-        android:text="@string/phone_and_request"
-        android:textAlignment="textStart"
-        android:textColor="@color/maximum_blue_green"
-        app:icon="@drawable/woman"
-        app:iconGravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_add"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/woman" />
+                            <TextView
+                                android:id="@+id/full_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="8dp"
+                                android:text="tmp분"
+                                android:textSize="18sp"
+                                android:textStyle="bold" />
 
-    <!-- 추가 -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floating_action_button_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_5"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/add" />
+                            <TextView
+                                android:id="@+id/arrival_time"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="8dp"
+                                android:text="tmp분 도착"
+                                android:textSize="13sp" />
+
+                        </LinearLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progressBar"
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="4dp"
+                            app:layout_constraintStart_toStartOf="@+id/linearLayout"
+                            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <View
+                        android:id="@+id/line"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/black" />
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/specific_route"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_margin="8dp"
+                        app:layout_constraintBottom_toBottomOf="@+id/specific_wrapper"
+                        app:layout_constraintLeft_toLeftOf="@+id/specific_wrapper"
+                        app:layout_constraintRight_toRightOf="@+id/specific_wrapper"
+                        app:layout_constraintTop_toBottomOf="@+id/line">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.motion.widget.MotionLayout>
+
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

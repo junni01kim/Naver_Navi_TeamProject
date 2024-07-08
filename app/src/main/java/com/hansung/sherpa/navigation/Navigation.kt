@@ -9,6 +9,8 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.Section
+import com.hansung.sherpa.transit.PedestrianResponse
+import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
@@ -28,7 +30,7 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    private val tempStartLatLng = LatLng(37.642743, 126.835375)
+    var tempStartLatLng = LatLng(37.642743, 126.835375)
     val tempEndLatLng = LatLng(37.627444, 126.829600)
     // 반드시 지울 것!!
     
@@ -75,30 +77,78 @@ class Navigation {
         pathOverlayList = mutableListOf()
     }
 
-    var count = 0;
+    private fun clearRoute(to:LatLng){
+        var pathOverlayIndex = 0
+        var coordsIndex = 0
+
+        outer@ for(i in pathOverlayList){
+            coordsIndex=0
+            for(j in i.coords){
+                if(j.equals(to)){
+                    Log.d("index", ""+pathOverlayIndex + ", " + coordsIndex)
+                    Log.d("index", ""+to.toString() + "    " + j.toString())
+                    break@outer
+                }
+                coordsIndex+=1
+            }
+            pathOverlayIndex+=1
+        }
+
+        if(pathOverlayIndex==0){
+            Log.d("apple","구역1")
+            pathOverlayList[pathOverlayIndex].map=null
+            for(i in 0..coordsIndex){
+                pathOverlayList[pathOverlayIndex].coords.removeAt(0)
+            }
+            pathOverlayList[pathOverlayIndex].map = naverMap
+        }
+        else{
+            Log.d("apple","구역2")
+            for(i in 0 until  pathOverlayIndex){
+                pathOverlayList[i].map=null
+                pathOverlayList.removeAt(0)
+            }
+
+            pathOverlayList[0].map = naverMap
+
+            for(i in 0..coordsIndex){
+                pathOverlayList[pathOverlayIndex].coords.removeAt(0)
+            }
+            pathOverlayList[0].map = naverMap
+        }
+    }
+
     // 재탐색 후 경로를 그리는 함수
     fun redrawRoute(location:LatLng, endLatLng: LatLng) {
-        // 경로 초기화
-        clearRoute()
+        // 기존 경로 지도에서 지우기
+        clearRoute(endLatLng)
 
-        // 좌표 기반 경로 검색
-        routeRequest = setRouteRequest(location, endLatLng)
-
-        // 요청 좌표 기반 경로 검색
-        val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
-
-        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
-
-        val transitRoute = transitRoutes[0]
+        val pedestrianRouteRequest = PedestrianRouteRequest(
+            startX = location.longitude.toFloat(),
+            startY = location.latitude.toFloat(),
+            endX = endLatLng.longitude.toFloat(),
+            endY = endLatLng.latitude.toFloat(),
+            passList = ""+location.longitude+","+location.latitude+"_"+endLatLng.longitude + ","+ endLatLng.latitude
+        )
+        val pedestrianRouteResponse = TransitManager(mainActivity).getPedestrianRoute(pedestrianRouteRequest)
+        val pedestrianRoute = Convert().convertPedestrianRouteToLatLng(pedestrianRouteResponse,location,endLatLng)
 
         // 경로 그리기
-        drawRoute(transitRoute)
+        drawPedestrianRoute(pedestrianRoute)
 
-        // 기타
-        routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
-        routeControl.initializeRoute()
+        routeControl.addPedestrianRoute(pedestrianRoute)
     }
-    
+
+    private fun drawPedestrianRoute(pedestrianRoute:MutableList<LatLng>){
+        val pathOverlay = PathOverlay()
+        pathOverlay.coords = pedestrianRoute.toList()
+        pathOverlay.color = convertIntToStr(R.color.WALK)
+        pathOverlay.width = 10
+        pathOverlay.map = naverMap
+
+        pathOverlayList.add(0, pathOverlay)
+    }
+
     // 경로를 그리는 함수
     private fun drawRoute(transitRoute: MutableList<LegRoute>) {
         for (i in transitRoute){

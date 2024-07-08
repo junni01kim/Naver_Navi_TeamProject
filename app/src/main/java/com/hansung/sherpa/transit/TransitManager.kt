@@ -112,6 +112,7 @@ class TransitManager(context: Context) {
         runBlocking<Job> {
             launch(Dispatchers.IO) {
                 try {
+                    Log.d("reqlocation","" + routeRequest.startY +", "+ routeRequest.startX+"    "+routeRequest.endY+", "+routeRequest.endX)
                     val response = Retrofit.Builder()
                         .baseUrl(context.getString(R.string.route_base_url))
                         .addConverterFactory(GsonConverterFactory.create())

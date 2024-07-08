@@ -82,20 +82,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         destinationTextView = findViewById(R.id.destination_editText)
         searchButton = findViewById(R.id.search_button)
 
-//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         locationSource = GpsLocationSource.createInstance(this)
 
         // Float Icons Events
-        val fIEvent = FloatIconEvent()
-        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
-        manIconEvent = findViewById(R.id.floating_action_button_man)
-        womanIconEvent = findViewById(R.id.floating_action_button_woman)
-        fIEvent.setOnClick(medicalIconEvent)
-        fIEvent.setOnClick(manIconEvent)
-        fIEvent.setOnClick(womanIconEvent)
+//        val fIEvent = FloatIconEvent()
+//        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
+//        manIconEvent = findViewById(R.id.floating_action_button_man)
+//        womanIconEvent = findViewById(R.id.floating_action_button_woman)
+//        fIEvent.setOnClick(medicalIconEvent)
+//        fIEvent.setOnClick(manIconEvent)
+//        fIEvent.setOnClick(womanIconEvent)
 
         // 목적지, 내 위치 Flipper Event
-        FlipperEvent().onFlip(this)
+//        FlipperEvent().onFlip(this)
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -136,9 +135,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
+                navigation.tempStartLatLng = nowLocation
+                Log.d("nowsection",""+routeControl.nowSection)
+                if (routeControl.route.isNotEmpty() && routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
+                    var toLatLng = routeControl.route[shortestRouteIndex]
+                    routeControl.delRouteToIndex(shortestRouteIndex)
+                    navigation.redrawRoute(nowLocation, toLatLng)
 
-                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
-                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
                     //navigation.redrawRoute(LatLng(126.8328164,37.6409022), navigation.tempEndLatLng)
                 }
             }
