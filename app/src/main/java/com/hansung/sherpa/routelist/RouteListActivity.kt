@@ -74,7 +74,7 @@ class RouteListActivity : AppCompatActivity() {
             }
 
             val navigation = StaticValue.navigation
-            val routeList = navigation.getTransitRoutesMJ(departureTextView.text.toString(), destinationTextView.text.toString())
+            val routeList = navigation.getTransitRoutes(departureTextView.text.toString(), destinationTextView.text.toString())
 
             routeListAdapter.routeList = routeList
             routeListAdapter.notifyDataSetChanged()
