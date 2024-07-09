@@ -1,16 +1,22 @@
 package com.hansung.sherpa.routelist
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextClock
 import android.widget.TextView
+import android.widget.ViewFlipper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.itemsetting.RouteDetailAdapter
+import com.hansung.sherpa.itemsetting.RouteDetailItem
 
 /**
  * 경로 검색창(Activity) 내비게이션을 조회 할 출발지와 목적지를 입력한다.
@@ -43,8 +49,24 @@ class RouteListActivity : AppCompatActivity() {
 
         // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
         routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
+
+            private var showRouteDetails:MutableList<RouteDetailItem> = mutableListOf(
+                RouteDetailItem("한성대공학관", "한성대학교 정문", "도보150m", "2분"),
+                RouteDetailItem("한성대학교정문", "한성대입구역, 성북02", "6개정류장", "8분"),
+                RouteDetailItem("한성대입구역, 성북02", "한성대입구역2번출구", "도보84m", "2분")
+            )//임시 변수 이후 삭제 -> 선택된 값을 위와 같이 작성하여 전달
+
             override fun onClick(v: View, position: Int) {
-                //TODO("클릭 시 이벤트 작성(김재호 팀원 파트로 이동)")
+                var adapter = RouteDetailAdapter(showRouteDetails, StaticValue.mainActivity)
+                val specificRoute = StaticValue.mainActivity.findViewById<RecyclerView>(R.id.specific_route)
+                specificRoute.adapter = adapter
+                specificRoute.layoutManager = LinearLayoutManager(StaticValue.mainActivity)
+
+                StaticValue.mainActivity.findViewById<ConstraintLayout>(R.id.mainwrapper).visibility = View.GONE
+
+                val specificCoordinatorLayout = StaticValue.mainActivity.findViewById<CoordinatorLayout>(R.id.specific_route_coordinatorlayout)
+                specificCoordinatorLayout.visibility = View.VISIBLE
+                finish()
             }
         })
 

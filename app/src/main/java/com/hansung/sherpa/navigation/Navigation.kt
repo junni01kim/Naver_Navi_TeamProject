@@ -1,5 +1,6 @@
 package com.hansung.sherpa.navigation
 
+import android.util.Log
 import androidx.core.content.ContextCompat
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
