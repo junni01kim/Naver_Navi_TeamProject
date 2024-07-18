@@ -14,11 +14,6 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 
 /**
- * 'expand_item.xml'에 작성할 내용 sample parameter
- */
-data class Transport(var type:Int, var name: String, var remainingTime: String)
-
-/**
  * searchLocation에서 받아올 데이터 sample parameter
  * 대중교통 단위로 나눠진 경로 리스트이다.
  * 

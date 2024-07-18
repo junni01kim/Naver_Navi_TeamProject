@@ -36,7 +36,7 @@ class RouteListActivity : AppCompatActivity() {
 
         // RecyclerView 동작 코드
         val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
-        val routeListAdapter = RouteListAdapter( mutableListOf(), this)
+        var routeListAdapter = RouteListAdapter( mutableListOf(), this)
         routeListAdapter.notifyDataSetChanged()
         recyclerView.adapter = routeListAdapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
@@ -71,7 +71,9 @@ class RouteListActivity : AppCompatActivity() {
             val navigation = StaticValue.navigation
             val routeList = navigation.getTransitRoutes(departureTextView.text.toString(), destinationTextView.text.toString())
 
-            routeListAdapter.routeList = routeList
+            routeListAdapter = RouteListAdapter(routeList, this)
+            recyclerView.adapter = routeListAdapter
+            //routeListAdapter.routeList = routeList
             routeListAdapter.notifyDataSetChanged()
         }
 
