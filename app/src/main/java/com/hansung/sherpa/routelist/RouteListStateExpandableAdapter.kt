@@ -2,6 +2,7 @@ package com.hansung.sherpa.routelist
 
 import android.content.Context
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +13,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
-import com.hansung.sherpa.routelist.RouteListAdapter.ViewHolder
+import com.hansung.sherpa.convert.PathType
 
 class RouteListStateExpandableAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -36,37 +37,42 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
         when(row.type){
             ExpandableRouteListModel.PARENT -> {
                 (holder as RouteListParentViewHolder).remainingtime.text = row.parent.remainingtime
-                (holder as RouteListParentViewHolder).arrivalTime.text = row.parent.arrivalTime
+                holder.arrivalTime.text = row.parent.arrivalTime
 
-                holder.expandButton.setOnClickListener{
+                holder.closeImage.setOnClickListener{
+                    Log.d("explain", "확장 버튼 클릭")
                     if (row.isExpanded) {
                         row.isExpanded = false
                         collapseRow(position)
-                        holder.layout.setBackgroundColor(Color.WHITE)
-
-
+                        holder.upArrowImg.visibility = View.GONE
+                        holder.closeImage.visibility = View.VISIBLE
                     }else{
-                        holder.layout.setBackgroundColor(Color.GRAY)
                         row.isExpanded = true
-                        //holder.upArrowImg.visibility = View.VISIBLE
-                        //holder.closeImage.visibility = View.GONE
+                        holder.upArrowImg.visibility = View.VISIBLE
+                        holder.closeImage.visibility = View.GONE
                         expandRow(position)
                     }
                 }
-                holder.expandButton.setOnClickListener{
+                holder.upArrowImg.setOnClickListener{
                     if(row.isExpanded){
                         row.isExpanded = false
                         collapseRow(position)
-                        //holder.layout.setBackgroundColor(Color.WHITE)
-                        //holder.upArrowImg.visibility = View.GONE
-                        //holder.closeImage.visibility = View.VISIBLE
+                        holder.upArrowImg.visibility = View.GONE
+                        holder.closeImage.visibility = View.VISIBLE
                     }
                 }
             }
 
             ExpandableRouteListModel.CHILD -> {
-                (holder as RouteListChildViewHolder).transport_number.text = row.child.taransportNumber
-                (holder as RouteListChildViewHolder).wating_time.text = row.child.watingTime
+                (holder as RouteListChildViewHolder).transportNumber.text = row.child.transportNumber
+                holder.watingTime.text = row.child.watingTime
+                when(row.child.iconType){
+                    PathType.BUS -> holder.transportIcon.setImageResource(R.drawable.directions_bus)
+                    PathType.SUBWAY -> holder.transportIcon.setImageResource(R.drawable.train)
+                    PathType.EXPRESSBUS -> holder.transportIcon.setImageResource(R.drawable.directions_bus)
+                    PathType.TRAIN -> holder.transportIcon.setImageResource(R.drawable.train)
+                    else -> holder.transportIcon.setImageResource(R.drawable.walk)
+                }
             }
         }
     }
@@ -95,16 +101,11 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
         when (row.type) {
             ExpandableRouteListModel.PARENT -> {
                 outerloop@ while (true) {
-                    //  println("Next Position during Collapse $nextPosition size is ${shelfModelList.size} and parent is ${shelfModelList[nextPosition].type}")
-
                     if (nextPosition == routeListModelList.size || routeListModelList[nextPosition].type == ExpandableRouteListModel.PARENT) {
-
                         break@outerloop
                     }
-
                     routeListModelList.removeAt(nextPosition)
                 }
-
                 notifyDataSetChanged()
             }
         }
@@ -115,13 +116,14 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
         internal var remainingtime = itemView.findViewById<TextView>(R.id.remaining_time)
         internal var arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
         internal var remainingBar = itemView.findViewById<ProgressBar>(R.id.remaining_bar)
-        internal var expandButton = itemView.findViewById<ImageButton>(R.id.expand_button)
+        internal var closeImage = itemView.findViewById<ImageView>(R.id.close_arrow)
+        internal var upArrowImg = itemView.findViewById<ImageView>(R.id.up_arrow)
     }
 
     class RouteListChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
-        internal var transport_icon = itemView.findViewById<ImageView>(R.id.transport_icon)
-        internal var transport_number = itemView.findViewById<TextView>(R.id.transport_number)
-        internal var wating_time = itemView.findViewById<TextView>(R.id.wating_time)
+        internal var transportIcon = itemView.findViewById<ImageView>(R.id.transport_icon)
+        internal var transportNumber = itemView.findViewById<TextView>(R.id.transport_number)
+        internal var watingTime = itemView.findViewById<TextView>(R.id.wating_time)
     }
 }

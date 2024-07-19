@@ -1,8 +1,10 @@
 package com.hansung.sherpa.routelist
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextClock
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -74,8 +76,11 @@ class RouteListActivity : AppCompatActivity() {
             val tempRouteList:MutableList<ExpandableRouteListModel> = mutableListOf()
 
             for (i in routeList){
-                tempRouteList.add(ExpandableRouteListModel(ExpandableRouteListModel.PARENT, ResponseRoutes.Route("소요시간","도착시간", i, mutableListOf(ResponseRoutes.Route.DetailRoute("대중교통 번호", "대기 시간")))))
-            }
+                val detailRouteList:MutableList<ResponseRoutes.Route.DetailRoute> = mutableListOf()
+                for (j in i){
+                    detailRouteList.add(ResponseRoutes.Route.DetailRoute(j.pathType, "대중교통 번호", "대기시간"))
+                }
+                tempRouteList.add(ExpandableRouteListModel(ExpandableRouteListModel.PARENT, ResponseRoutes.Route("소요시간","도착시간", i, detailRouteList)))            }
 
             routeListAdapter = RouteListStateExpandableAdapter(tempRouteList, this)
             recyclerView.adapter = routeListAdapter
