@@ -1,4 +1,4 @@
-package com.hansung.sherpa.testroutelist
+package com.hansung.sherpa.routelist
 
 class ExpandableRouteListModel {
     companion object{
@@ -12,12 +12,11 @@ class ExpandableRouteListModel {
     var isExpanded : Boolean
     private var isCloseShown : Boolean
 
-    constructor( type : Int, parent: ResponseRoutes.Route, isExpanded : Boolean = false,isCloseShown : Boolean = false ){
+    constructor( type : Int, parent: ResponseRoutes.Route, isExpanded : Boolean = false,isCloseShown : Boolean = false){
         this.type = type
         this.parent = parent
         this.isExpanded = isExpanded
         this.isCloseShown = isCloseShown
-
     }
 
     constructor(type : Int, child : ResponseRoutes.Route.DetailRoute, isExpanded : Boolean = false,isCloseShown : Boolean = false){

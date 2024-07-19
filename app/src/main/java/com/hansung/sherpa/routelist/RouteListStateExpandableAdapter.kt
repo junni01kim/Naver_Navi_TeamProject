@@ -1,26 +1,31 @@
-package com.hansung.sherpa.testroutelist
+package com.hansung.sherpa.routelist
 
 import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
+import com.hansung.sherpa.routelist.RouteListAdapter.ViewHolder
 
-class RouteListStateExpandableAdapter (var context: Context, var routeListModelList:MutableList<ExpandableRouteListModel>) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class RouteListStateExpandableAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType) {
             ExpandableRouteListModel.PARENT -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
-                R.layout.expandable_parent_item, parent, false))}
+                R.layout.route_list_parent_item, parent, false))}
 
             ExpandableRouteListModel.CHILD -> { RouteListChildViewHolder(LayoutInflater.from(parent.context).inflate(
-                R.layout.expandable_child_item, parent, false))  }
+                R.layout.route_list_child_item, parent, false))  }
 
             else -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
-                R.layout.expandable_parent_item, parent, false))}
+                R.layout.route_list_parent_item, parent, false))}
         }
     }
 
@@ -30,8 +35,10 @@ class RouteListStateExpandableAdapter (var context: Context, var routeListModelL
         val row = routeListModelList[position]
         when(row.type){
             ExpandableRouteListModel.PARENT -> {
-                (holder as RouteListParentViewHolder).countryName.text = row.parent.country
-                holder.closeImage.setOnClickListener {
+                (holder as RouteListParentViewHolder).remainingtime.text = row.parent.remainingtime
+                (holder as RouteListParentViewHolder).arrivalTime.text = row.parent.arrivalTime
+
+                holder.expandButton.setOnClickListener{
                     if (row.isExpanded) {
                         row.isExpanded = false
                         collapseRow(position)
@@ -41,27 +48,25 @@ class RouteListStateExpandableAdapter (var context: Context, var routeListModelL
                     }else{
                         holder.layout.setBackgroundColor(Color.GRAY)
                         row.isExpanded = true
-                        holder.upArrowImg.visibility = View.VISIBLE
-                        holder.closeImage.visibility = View.GONE
+                        //holder.upArrowImg.visibility = View.VISIBLE
+                        //holder.closeImage.visibility = View.GONE
                         expandRow(position)
                     }
                 }
-                holder.upArrowImg.setOnClickListener{
+                holder.expandButton.setOnClickListener{
                     if(row.isExpanded){
                         row.isExpanded = false
                         collapseRow(position)
-                        holder.layout.setBackgroundColor(Color.WHITE)
-                        holder.upArrowImg.visibility = View.GONE
-                        holder.closeImage.visibility = View.VISIBLE
-
+                        //holder.layout.setBackgroundColor(Color.WHITE)
+                        //holder.upArrowImg.visibility = View.GONE
+                        //holder.closeImage.visibility = View.VISIBLE
                     }
                 }
             }
 
-
             ExpandableRouteListModel.CHILD -> {
-                (holder as RouteListChildViewHolder).stateName.text = row.chile.name
-                holder.capitalImage.text = row.child.capital
+                (holder as RouteListChildViewHolder).transport_number.text = row.child.taransportNumber
+                (holder as RouteListChildViewHolder).wating_time.text = row.child.watingTime
             }
         }
     }
@@ -73,7 +78,7 @@ class RouteListStateExpandableAdapter (var context: Context, var routeListModelL
         var nextPosition = position
         when (row.type) {
             ExpandableRouteListModel.PARENT -> {
-                for(child in row.parent.states){
+                for(child in row.parent.detailRoute){
                     routeListModelList.add(++nextPosition, ExpandableRouteListModel(ExpandableRouteListModel.CHILD, child))
                 }
                 notifyDataSetChanged()
@@ -106,17 +111,17 @@ class RouteListStateExpandableAdapter (var context: Context, var routeListModelL
     }
 
     class RouteListParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        internal var layout = itemView.country_item_parent_container
-        internal var countryName : TextView = itemView.country_name
-        internal var closeImage = itemView.close_arrow
-        internal var upArrowImg = itemView.up_arrow
-
+        internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
+        internal var remainingtime = itemView.findViewById<TextView>(R.id.remaining_time)
+        internal var arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
+        internal var remainingBar = itemView.findViewById<ProgressBar>(R.id.remaining_bar)
+        internal var expandButton = itemView.findViewById<ImageButton>(R.id.expand_button)
     }
 
     class RouteListChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        internal var layout = itemView.country_item_child_container
-        internal var stateName : TextView = itemView.state_name
-        internal var capitalImage = itemView.capital_name
-
+        internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
+        internal var transport_icon = itemView.findViewById<ImageView>(R.id.transport_icon)
+        internal var transport_number = itemView.findViewById<TextView>(R.id.transport_number)
+        internal var wating_time = itemView.findViewById<TextView>(R.id.wating_time)
     }
 }

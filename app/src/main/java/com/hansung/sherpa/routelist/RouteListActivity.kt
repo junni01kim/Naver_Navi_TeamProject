@@ -1,7 +1,6 @@
 package com.hansung.sherpa.routelist
 
 import android.os.Bundle
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextClock
@@ -36,17 +35,18 @@ class RouteListActivity : AppCompatActivity() {
 
         // RecyclerView 동작 코드
         val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
-        var routeListAdapter = RouteListAdapter( mutableListOf(), this)
+        var routeListAdapter = RouteListStateExpandableAdapter(mutableListOf(),this)
+        // var routeListAdapter = RouteListAdapter( mutableListOf(), this)
         routeListAdapter.notifyDataSetChanged()
         recyclerView.adapter = routeListAdapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
-        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
+/*        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
             override fun onClick(v: View, position: Int) {
                 //TODO("클릭 시 이벤트 작성(김재호 팀원 파트로 이동)")
             }
-        })
+        })*/
 
         // HomeActivity의 destinationEditText 값 전달
         destinationTextView.setText(intent.getStringExtra("destination"))
@@ -71,7 +71,13 @@ class RouteListActivity : AppCompatActivity() {
             val navigation = StaticValue.navigation
             val routeList = navigation.getTransitRoutes(departureTextView.text.toString(), destinationTextView.text.toString())
 
-            routeListAdapter = RouteListAdapter(routeList, this)
+            val tempRouteList:MutableList<ExpandableRouteListModel> = mutableListOf()
+
+            for (i in routeList){
+                tempRouteList.add(ExpandableRouteListModel(ExpandableRouteListModel.PARENT, ResponseRoutes.Route("소요시간","도착시간", i, mutableListOf(ResponseRoutes.Route.DetailRoute("대중교통 번호", "대기 시간")))))
+            }
+
+            routeListAdapter = RouteListStateExpandableAdapter(tempRouteList, this)
             recyclerView.adapter = routeListAdapter
             //routeListAdapter.routeList = routeList
             routeListAdapter.notifyDataSetChanged()
