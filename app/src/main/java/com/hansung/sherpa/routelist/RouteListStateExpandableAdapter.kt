@@ -16,53 +16,39 @@ import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.PathType
 
 class RouteListStateExpandableAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when(viewType) {
-            ExpandableRouteListModel.PARENT -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
-                R.layout.route_list_parent_item, parent, false))}
-
-            ExpandableRouteListModel.CHILD -> { RouteListChildViewHolder(LayoutInflater.from(parent.context).inflate(
-                R.layout.route_list_child_item, parent, false))  }
-
-            else -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
-                R.layout.route_list_parent_item, parent, false))}
-        }
-    }
-
-    override fun getItemCount(): Int = routeListModelList.size
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val row = routeListModelList[position]
         when(row.type){
+            // 요약 정보 영역
             ExpandableRouteListModel.PARENT -> {
-                (holder as RouteListParentViewHolder).remainingtime.text = row.parent.remainingtime
+                (holder as RouteListParentViewHolder).remainingtime.text = row.parent.remainingTime
                 holder.arrivalTime.text = row.parent.arrivalTime
 
+                // TODO: 아이콘 회전이 작동하지 않는다.
+                // 확장 버튼 기능
                 holder.closeImage.setOnClickListener{
-                    Log.d("explain", "확장 버튼 클릭")
                     if (row.isExpanded) {
                         row.isExpanded = false
                         collapseRow(position)
-                        holder.upArrowImg.visibility = View.GONE
+                        holder.upArrowImage.visibility = View.GONE
                         holder.closeImage.visibility = View.VISIBLE
                     }else{
                         row.isExpanded = true
-                        holder.upArrowImg.visibility = View.VISIBLE
+                        holder.upArrowImage.visibility = View.VISIBLE
                         holder.closeImage.visibility = View.GONE
                         expandRow(position)
                     }
                 }
-                holder.upArrowImg.setOnClickListener{
+                holder.upArrowImage.setOnClickListener{
                     if(row.isExpanded){
                         row.isExpanded = false
                         collapseRow(position)
-                        holder.upArrowImg.visibility = View.GONE
+                        holder.upArrowImage.visibility = View.GONE
                         holder.closeImage.visibility = View.VISIBLE
                     }
                 }
             }
-
+            // 세부 정보 영역
             ExpandableRouteListModel.CHILD -> {
                 (holder as RouteListChildViewHolder).transportNumber.text = row.child.transportNumber
                 holder.watingTime.text = row.child.watingTime
@@ -77,8 +63,7 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
         }
     }
 
-    override fun getItemViewType(position: Int): Int = routeListModelList[position].type
-
+    // item 확장을 위한 함수
     private fun expandRow(position: Int){
         val row = routeListModelList[position]
         var nextPosition = position
@@ -95,6 +80,7 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
         }
     }
 
+    // item 축소를 위한 함수
     private fun collapseRow(position: Int){
         val row = routeListModelList[position]
         var nextPosition = position + 1
@@ -111,13 +97,30 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
         }
     }
 
+    // RecyclerView 뷰 홀더 항목은 parent 항목과 child 항목으로 구분된다.
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when(viewType) {
+            ExpandableRouteListModel.PARENT -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
+                R.layout.route_list_parent_item, parent, false))}
+
+            ExpandableRouteListModel.CHILD -> { RouteListChildViewHolder(LayoutInflater.from(parent.context).inflate(
+                R.layout.route_list_child_item, parent, false))  }
+
+            else -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
+                R.layout.route_list_parent_item, parent, false))}
+        }
+    }
+
+    override fun getItemViewType(position: Int): Int = routeListModelList[position].type
+    override fun getItemCount(): Int = routeListModelList.size
+
     class RouteListParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
         internal var remainingtime = itemView.findViewById<TextView>(R.id.remaining_time)
         internal var arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
         internal var remainingBar = itemView.findViewById<ProgressBar>(R.id.remaining_bar)
         internal var closeImage = itemView.findViewById<ImageView>(R.id.close_arrow)
-        internal var upArrowImg = itemView.findViewById<ImageView>(R.id.up_arrow)
+        internal var upArrowImage = itemView.findViewById<ImageView>(R.id.up_arrow)
     }
 
     class RouteListChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

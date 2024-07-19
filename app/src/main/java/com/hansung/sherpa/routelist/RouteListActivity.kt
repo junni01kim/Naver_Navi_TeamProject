@@ -44,11 +44,7 @@ class RouteListActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
 
         // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
-/*        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
-            override fun onClick(v: View, position: Int) {
-                //TODO("클릭 시 이벤트 작성(김재호 팀원 파트로 이동)")
-            }
-        })*/
+        // TODO: 재호 파트로 넘어갈 클릭 리스너 구현
 
         // HomeActivity의 destinationEditText 값 전달
         destinationTextView.setText(intent.getStringExtra("destination"))
@@ -76,15 +72,15 @@ class RouteListActivity : AppCompatActivity() {
             val tempRouteList:MutableList<ExpandableRouteListModel> = mutableListOf()
 
             for (i in routeList){
-                val detailRouteList:MutableList<ResponseRoutes.Route.DetailRoute> = mutableListOf()
+                val detailRouteList:MutableList<Route.DetailRoute> = mutableListOf()
                 for (j in i){
-                    detailRouteList.add(ResponseRoutes.Route.DetailRoute(j.pathType, "대중교통 번호", "대기시간"))
+                    detailRouteList.add(Route.DetailRoute(j.pathType, "대중교통 번호", "대기시간"))
                 }
-                tempRouteList.add(ExpandableRouteListModel(ExpandableRouteListModel.PARENT, ResponseRoutes.Route("소요시간","도착시간", i, detailRouteList)))            }
+                tempRouteList.add(ExpandableRouteListModel(ExpandableRouteListModel.PARENT, Route("소요시간","도착시간", i, detailRouteList)))            }
 
             routeListAdapter = RouteListStateExpandableAdapter(tempRouteList, this)
             recyclerView.adapter = routeListAdapter
-            //routeListAdapter.routeList = routeList
+
             routeListAdapter.notifyDataSetChanged()
         }
 
