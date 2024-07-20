@@ -1,130 +1,141 @@
 package com.hansung.sherpa.routelist
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
-import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 
 /**
- * 'expand_item.xml'에 작성할 내용 sample parameter
+ * RouteListRecyclerView의 Adapter를 정의한 클래스
+ * ExpandableRecyclerView이다.
+ * @param routeListModelList 'ExpandableRouteListModel' 참고 할 것
  */
-data class Transport(var type:Int, var name: String, var remainingTime: String)
+class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val row = routeListModelList[position]
+        when(row.type){
+            // 요약 정보 영역
+            ExpandableRouteListModel.PARENT -> {
+                (holder as RouteListParentViewHolder).remainingtime.text = row.parent.remainingTime
+                holder.arrivalTime.text = row.parent.arrivalTime
 
-/**
- * searchLocation에서 받아올 데이터 sample parameter
- * 대중교통 단위로 나눠진 경로 리스트이다.
- * 
- * @param remainingTime 소요시간
- * @param arrivalTime 도착시간
- * @param isExpanded 세부사항 확장 여부
- * @param transportList 대중교통 이용 정보(변경 가능)
- */
-data class TempClass(val legRouteList: MutableList<LegRoute>, var isExpanded: Boolean)
-
-/**
- * RouteListRecyclerView를 이용하기 위한 Adapter이다.
- * @param itemList 출발지에서 목적지까지 이동할 수 잇는 경우의 수 리스트
- * @param context
- */
-class RouteListAdapter(var routeList: MutableList<MutableList<LegRoute>>, val context: Context) :
-    RecyclerView.Adapter<RouteListAdapter.ViewHolder>() {
-
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        fun bind(legRouteList: MutableList<LegRoute>){
-            val remainingTime = itemView.findViewById<TextView>(R.id.remaining_time)
-            val arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
-            val expandButton = itemView.findViewById<ImageButton>(R.id.expand_button)
-            val layoutExpand = itemView.findViewById<LinearLayout>(R.id.expand_layout)
-
-            val tempClass = TempClass(legRouteList, false)
-
-            for (i in tempClass.legRouteList) layoutExpand.addView(createLayout(i.pathType))
-
-            remainingTime.text = "전체 소요시간"
-            arrivalTime.text = "전체 도착 시간"
-
-            expandButton.setOnClickListener{
-                val show = toggleLayout(!tempClass.isExpanded, it, layoutExpand)
-                tempClass.isExpanded = show
+                // TODO: 아이콘 회전이 작동하지 않는다.
+                // 확장 버튼 기능
+                holder.closeImage.setOnClickListener{
+                    if (row.isExpanded) {
+                        row.isExpanded = false
+                        collapseRow(position)
+                        holder.upArrowImage.visibility = View.GONE
+                        holder.closeImage.visibility = View.VISIBLE
+                    }else{
+                        row.isExpanded = true
+                        holder.upArrowImage.visibility = View.VISIBLE
+                        holder.closeImage.visibility = View.GONE
+                        expandRow(position)
+                    }
+                }
+                holder.upArrowImage.setOnClickListener{
+                    if(row.isExpanded){
+                        row.isExpanded = false
+                        collapseRow(position)
+                        holder.upArrowImage.visibility = View.GONE
+                        holder.closeImage.visibility = View.VISIBLE
+                    }
+                }
+                holder.layout.setOnClickListener{
+                    Log.d("explain", "요약 정보 클릭")
+                }
+            }
+            // 세부 정보 영역
+            ExpandableRouteListModel.CHILD -> {
+                (holder as RouteListChildViewHolder).transportNumber.text = row.child.transportNumber
+                holder.watingTime.text = row.child.watingTime
+                when(row.child.iconType){
+                    PathType.BUS -> holder.transportIcon.setImageResource(R.drawable.express_bus)
+                    PathType.SUBWAY -> holder.transportIcon.setImageResource(R.drawable.subway)
+                    PathType.EXPRESSBUS -> holder.transportIcon.setImageResource(R.drawable.express_bus)
+                    PathType.TRAIN -> holder.transportIcon.setImageResource(R.drawable.subway)
+                    else -> holder.transportIcon.setImageResource(R.drawable.walk)
+                }
+                holder.layout.setOnClickListener{
+                    Log.d("explain", "세부 정보 클릭")
+                }
             }
         }
     }
 
-    /**
-     * 각각의 세부경로를 표현하기 위함
-     * @param transport 단일 대중교통 정보
-     */
-    fun createLayout(transport: PathType) : View{
-        // 리스트가 늘어나는 오류 발생
-        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val layout = inflater.inflate(R.layout.expand_route_item, null) as LinearLayout
-
-        val expandIcon = layout.findViewById<ImageView>(R.id.expand_icon)
-        val expandName = layout.findViewById<TextView>(R.id.expand_name)
-        val expandRemainingTime = layout.findViewById<TextView>(R.id.expand_remaining_time)
-
-        // 타입 단위로 이미지를 설정한다.
-        val icon = when(transport){
-            PathType.BUS -> R.drawable.directions_bus
-            PathType.SUBWAY -> R.drawable.train
-            PathType.WALK -> R.drawable.walk
-            else -> {R.drawable.cancel_widget} // 예외처리: 없는 타입
-        }
-        expandIcon.setImageResource(icon)
-        expandName.text = "대중교통 번호"
-        expandRemainingTime.text = "소요 시간"
-
-        return layout
-    }
-
-    /**
-     * 세부 사항 확장 및 애니메이션 기능
-     * @param isExpanded 현재 세부 경로창이 확장되어 있는지 여부
-     * @param view
-     * @param layoutExpand 확장시킬 레이아웃 주체
-     */
-    private fun toggleLayout(isExpanded: Boolean, view: View, layoutExpand:LinearLayout):Boolean{
-        ToggleAnimation.toggleArrow(view, isExpanded)
-        if(isExpanded){
-            ToggleAnimation.expand(layoutExpand)
-        } else{
-            ToggleAnimation.collapse(layoutExpand)
-        }
-        return isExpanded
-    }
-
-    // ---------- 이후는 일반적인 코드 로직이다. ----------
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.route_item,parent,false))
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(routeList[position])
-
-        holder.itemView.setOnClickListener {
-            itemClickListener.onClick(it, position)
+    // item 확장을 위한 함수
+    private fun expandRow(position: Int){
+        val row = routeListModelList[position]
+        var nextPosition = position
+        when (row.type) {
+            ExpandableRouteListModel.PARENT -> {
+                for(child in row.parent.detailRoute){
+                    routeListModelList.add(++nextPosition, ExpandableRouteListModel(ExpandableRouteListModel.CHILD, child))
+                }
+                notifyDataSetChanged()
+            }
+            ExpandableRouteListModel.CHILD -> {
+                notifyDataSetChanged()
+            }
         }
     }
 
-    override fun getItemCount(): Int {
-        return routeList.count()
+    // item 축소를 위한 함수
+    private fun collapseRow(position: Int){
+        val row = routeListModelList[position]
+        var nextPosition = position + 1
+        when (row.type) {
+            ExpandableRouteListModel.PARENT -> {
+                outerloop@ while (true) {
+                    if (nextPosition == routeListModelList.size || routeListModelList[nextPosition].type == ExpandableRouteListModel.PARENT) {
+                        break@outerloop
+                    }
+                    routeListModelList.removeAt(nextPosition)
+                }
+                notifyDataSetChanged()
+            }
+        }
     }
 
-    interface OnItemClickListener {
-        fun onClick(v: View, position: Int)
+    // RecyclerView 뷰 홀더 항목은 parent 항목과 child 항목으로 구분된다.
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when(viewType) {
+            ExpandableRouteListModel.PARENT -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
+                R.layout.route_list_parent_item, parent, false))}
+
+            ExpandableRouteListModel.CHILD -> { RouteListChildViewHolder(LayoutInflater.from(parent.context).inflate(
+                R.layout.route_list_child_item, parent, false))  }
+
+            else -> {RouteListParentViewHolder(LayoutInflater.from(parent.context).inflate(
+                R.layout.route_list_parent_item, parent, false))}
+        }
     }
 
-    fun setItemClickListener(onItemClickListener: OnItemClickListener) {
-        this.itemClickListener = onItemClickListener
+    override fun getItemViewType(position: Int): Int = routeListModelList[position].type
+    override fun getItemCount(): Int = routeListModelList.size
+
+    inner class RouteListParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
+        internal var remainingtime = itemView.findViewById<TextView>(R.id.remaining_time)
+        internal var arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
+        internal var remainingBar = itemView.findViewById<ProgressBar>(R.id.remaining_bar)
+        internal var closeImage = itemView.findViewById<ImageView>(R.id.close_arrow)
+        internal var upArrowImage = itemView.findViewById<ImageView>(R.id.up_arrow)
     }
 
-    private lateinit var itemClickListener : OnItemClickListener
+    inner class RouteListChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
+        internal var transportIcon = itemView.findViewById<ImageView>(R.id.transport_icon)
+        internal var transportNumber = itemView.findViewById<TextView>(R.id.transport_number)
+        internal var watingTime = itemView.findViewById<TextView>(R.id.wating_time)
+    }
 }
