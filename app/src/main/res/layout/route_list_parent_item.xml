@@ -34,10 +34,9 @@
                 app:layout_constraintBottom_toBottomOf="@+id/remaining_time"
                 app:layout_constraintStart_toEndOf="@+id/remaining_time" />
 
-            <ProgressBar
-                android:id="@+id/remaining_bar"
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/chart"
                 android:layout_width="match_parent" android:layout_height="wrap_content"
-                style="?android:attr/progressBarStyleHorizontal"
 
                 android:layout_marginBottom="5dp"
                 android:layout_marginStart="20dp" android:layout_marginEnd="40dp"
