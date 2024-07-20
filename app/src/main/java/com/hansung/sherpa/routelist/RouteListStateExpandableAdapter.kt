@@ -53,10 +53,10 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
                 (holder as RouteListChildViewHolder).transportNumber.text = row.child.transportNumber
                 holder.watingTime.text = row.child.watingTime
                 when(row.child.iconType){
-                    PathType.BUS -> holder.transportIcon.setImageResource(R.drawable.directions_bus)
-                    PathType.SUBWAY -> holder.transportIcon.setImageResource(R.drawable.train)
-                    PathType.EXPRESSBUS -> holder.transportIcon.setImageResource(R.drawable.directions_bus)
-                    PathType.TRAIN -> holder.transportIcon.setImageResource(R.drawable.train)
+                    PathType.BUS -> holder.transportIcon.setImageResource(R.drawable.express_bus)
+                    PathType.SUBWAY -> holder.transportIcon.setImageResource(R.drawable.subway)
+                    PathType.EXPRESSBUS -> holder.transportIcon.setImageResource(R.drawable.express_bus)
+                    PathType.TRAIN -> holder.transportIcon.setImageResource(R.drawable.subway)
                     else -> holder.transportIcon.setImageResource(R.drawable.walk)
                 }
             }
