@@ -24,16 +24,34 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    //private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
-    //val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
+    private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
+    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
 
     // 재호 경로
-    private val tempStartLatLng = LatLng(37.6417, 126.8364)
-    val tempEndLatLng = LatLng(37.6274, 126.829613)
+    //private val tempStartLatLng = LatLng(37.6417, 126.8364)
+    //val tempEndLatLng = LatLng(37.6274, 126.829613)
     // 반드시 지울 것!!
-    
-    // 경로 탐색
-    fun getTransitRoutes(start: String, end: String){
+
+    // 경로 탐색(경로만 탐색)
+    fun getTransitRoutes(start: String, end: String): MutableList<MutableList<LegRoute>> {
+        // 검색어 기반 좌표 검색
+        /**
+         * 미완성이라 주석처리
+         * val SL = SearchLocation()
+         * startLatLng = SL.searchLatLng(start)
+         * endLatLng = SL.searchLatLng(end)
+         **/
+
+        // 좌표 기반 경로 검색
+        routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
+        val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
+        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+
+        return transitRoutes
+    }
+
+    // 이전 경로 탐색 코드
+    fun getTransitRoutesBefore(start: String, end: String){
         // 검색어 기반 좌표 검색
         /**
          * 미완성이라 주석처리
@@ -65,7 +83,7 @@ class Navigation {
             endY = endLatLng.latitude.toString(),
             lang = 0,
             format = "json",
-            count = 1
+            count = 10
         )
     }
 

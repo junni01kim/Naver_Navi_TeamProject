@@ -33,3 +33,12 @@ interface TransitRouteService {
     @GET("searchPubTransPathT")
     fun getOdsayTransitRoutes(@QueryMap options: Map<String, String>): Call<ResponseBody>
 }
+
+interface PedestrianRouteService {
+    @Headers(
+        "accept: application/json",
+        "content-type: application/json",
+    )
+    @POST("tmap/routes/pedestrian")
+    fun postPedestrianRoutes(@Header("appkey") appkey:String, @Body body: TransitRouteRequest):Call<ResponseBody>
+}

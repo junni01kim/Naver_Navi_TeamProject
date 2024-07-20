@@ -3,13 +3,13 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
+    id("com.google.devtools.ksp")
 }
 
-val clientId = getLocalPropertyKey("CLIENT_ID")
-val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
-val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
-val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
-val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
+val clientId = getClientId("CLIENT_ID")
+val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
+val searchAPIClientID = getSearchAPIClientID("SEARCH_API_CLIENT_ID")
+val searchAPIClientSecret = getSearchAPIClientSecret("SEARCH_API_CLIENT_SECRET")
 android {
 
     namespace = "com.hansung.sherpa"
@@ -64,11 +64,14 @@ dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
+    implementation(libs.filament.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    // for naver map SDK
     implementation("com.naver.maps:map-sdk:3.18.0")
+
     // for api request
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -77,8 +80,19 @@ dependencies {
     //for User Location
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    // Material Design 3
+    // for Material Design 3
     implementation("com.google.android.material:material:1.2.1")
     implementation("androidx.core:core-ktx:1.0.2")
 
+    // for preference category
+    implementation ("androidx.preference:preference-ktx:1.2.1")
+
+    // for Room Datanbase
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    implementation ("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
 }

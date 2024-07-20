@@ -20,6 +20,10 @@
     <!-- 전화번호 -->
     <string name="phone_and_request">전화하기: 010–0000–0000 \n안내시작(요청): 현위치</string>
 
+    <!-- 경로 리스트 xml text -->
+    <string name="departure_edit_text_hint">출발지를 입력하세요</string>
+    <string name="destination_edit_text_hint">도착지를 입력하세요</string>
+    <string name="route_sorting_text_view">00 경로 순</string>
 
 
 </resources>
