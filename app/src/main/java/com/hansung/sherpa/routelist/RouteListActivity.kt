@@ -37,14 +37,11 @@ class RouteListActivity : AppCompatActivity() {
 
         // RecyclerView 동작 코드
         val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
-        var routeListAdapter = RouteListStateExpandableAdapter(mutableListOf(),this)
-        // var routeListAdapter = RouteListAdapter( mutableListOf(), this)
+        var routeListAdapter = RouteListAdapter(mutableListOf(),this)
+
         routeListAdapter.notifyDataSetChanged()
         recyclerView.adapter = routeListAdapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-        // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
-        // TODO: 재호 파트로 넘어갈 클릭 리스너 구현
 
         // HomeActivity의 destinationEditText 값 전달
         destinationTextView.setText(intent.getStringExtra("destination"))
@@ -78,7 +75,7 @@ class RouteListActivity : AppCompatActivity() {
                 }
                 tempRouteList.add(ExpandableRouteListModel(ExpandableRouteListModel.PARENT, Route("소요시간","도착시간", i, detailRouteList)))            }
 
-            routeListAdapter = RouteListStateExpandableAdapter(tempRouteList, this)
+            routeListAdapter = RouteListAdapter(tempRouteList, this)
             recyclerView.adapter = routeListAdapter
 
             routeListAdapter.notifyDataSetChanged()

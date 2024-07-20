@@ -12,7 +12,6 @@ class ExpandableRouteListModel {
     companion object{
         const val PARENT = 1
         const val CHILD = 2
-
     }
 
     var type : Int

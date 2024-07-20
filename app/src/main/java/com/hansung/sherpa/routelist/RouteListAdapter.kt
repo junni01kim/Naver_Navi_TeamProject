@@ -1,12 +1,10 @@
 package com.hansung.sherpa.routelist
 
 import android.content.Context
-import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -15,7 +13,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.PathType
 
-class RouteListStateExpandableAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+/**
+ * RouteListRecyclerView의 Adapter를 정의한 클래스
+ * ExpandableRecyclerView이다.
+ * @param routeListModelList 'ExpandableRouteListModel' 참고 할 것
+ */
+class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val row = routeListModelList[position]
         when(row.type){
@@ -47,6 +50,9 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
                         holder.closeImage.visibility = View.VISIBLE
                     }
                 }
+                holder.layout.setOnClickListener{
+                    Log.d("explain", "요약 정보 클릭")
+                }
             }
             // 세부 정보 영역
             ExpandableRouteListModel.CHILD -> {
@@ -58,6 +64,9 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
                     PathType.EXPRESSBUS -> holder.transportIcon.setImageResource(R.drawable.express_bus)
                     PathType.TRAIN -> holder.transportIcon.setImageResource(R.drawable.subway)
                     else -> holder.transportIcon.setImageResource(R.drawable.walk)
+                }
+                holder.layout.setOnClickListener{
+                    Log.d("explain", "세부 정보 클릭")
                 }
             }
         }
@@ -114,7 +123,7 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
     override fun getItemViewType(position: Int): Int = routeListModelList[position].type
     override fun getItemCount(): Int = routeListModelList.size
 
-    class RouteListParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class RouteListParentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
         internal var remainingtime = itemView.findViewById<TextView>(R.id.remaining_time)
         internal var arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
@@ -123,7 +132,7 @@ class RouteListStateExpandableAdapter (var routeListModelList:MutableList<Expand
         internal var upArrowImage = itemView.findViewById<ImageView>(R.id.up_arrow)
     }
 
-    class RouteListChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class RouteListChildViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
         internal var transportIcon = itemView.findViewById<ImageView>(R.id.transport_icon)
         internal var transportNumber = itemView.findViewById<TextView>(R.id.transport_number)
