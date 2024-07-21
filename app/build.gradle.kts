@@ -55,6 +55,7 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
 }
 
 fun getLocalPropertyKey(propertyKey : String) : String{
@@ -97,4 +98,6 @@ dependencies {
 
     implementation ("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.fragment:fragment-ktx:1.8.1")
+
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }
