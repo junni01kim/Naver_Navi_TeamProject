@@ -4,9 +4,9 @@ package com.hansung.sherpa.routelist
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.TextClock
 import android.widget.TextView
 import android.widget.ViewFlipper
@@ -49,71 +49,11 @@ class RouteListActivity : AppCompatActivity() {
 
         // RecyclerView 동작 코드
         val recyclerView = findViewById<RecyclerView>(R.id.route_list_recycler_View)
-        val routeListAdapter = RouteListAdapter( mutableListOf(), this)
+        var routeListAdapter = RouteListAdapter(mutableListOf(),this)
+
         routeListAdapter.notifyDataSetChanged()
         recyclerView.adapter = routeListAdapter
         recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-
-        // 경로 세부 리스트로 진입하는 리스너(RecyclerView Item)
-        routeListAdapter.setItemClickListener(object : RouteListAdapter.OnItemClickListener {
-
-            private var showRouteDetails:MutableList<RouteDetailItem> = mutableListOf(
-                RouteDetailItem("한성대공학관", "한성대학교 정문", "도보150m", "2분"),
-                RouteDetailItem("한성대학교정문", "한성대입구역, 성북02", "6개정류장", "8분"),
-                RouteDetailItem("한성대입구역, 성북02", "한성대입구역2번출구", "도보84m", "2분")
-            )//임시 변수 이후 삭제 -> 선택된 값을 위와 같이 작성하여 전달
-
-            override fun onClick(v: View, position: Int) {
-                var adapter = RouteDetailAdapter(showRouteDetails, StaticValue.mainActivity)
-                val specificRoute = StaticValue.mainActivity.findViewById<RecyclerView>(R.id.specific_route)
-                specificRoute.adapter = adapter
-                specificRoute.layoutManager = LinearLayoutManager(StaticValue.mainActivity)
-
-                StaticValue.mainActivity.findViewById<ConstraintLayout>(R.id.mainwrapper).visibility = View.GONE
-
-
-                val sbc = StaticValue.mainActivity.findViewById<HorizontalBarChart>(R.id.specificrouteprogress) //Stacked Bar Chart
-                val entries = ArrayList<BarEntry>()
-                entries.add(BarEntry(0f, floatArrayOf(10f, 80f, 10f)))
-
-                val set = BarDataSet(entries, "")
-                set.colors = mutableListOf(
-                    Color.GRAY,
-                    Color.GREEN,
-                    Color.GRAY
-                )
-                val data = BarData(set)
-                data.setDrawValues(false)
-                data.isHighlightEnabled = false
-                sbc.data = data
-
-                sbc.axisLeft.axisMinimum = 0f //좌우 최소
-                sbc.axisLeft.axisMaximum = 100f //좌우 최대 
-
-                sbc.xAxis.axisMaximum = 1.5f // 두께 작을수록 두꺼워짐
-
-                sbc.axisLeft.setDrawGridLines(false)
-                sbc.axisLeft.setDrawAxisLine(false)
-                sbc.axisLeft.setDrawLabels(false)
-
-                sbc.xAxis.setDrawGridLines(false)
-                sbc.xAxis.setDrawAxisLine(false)
-                sbc.xAxis.setDrawLabels(false)
-
-                sbc.axisRight.setDrawAxisLine(false)
-                sbc.axisRight.setDrawGridLines(false)
-                sbc.axisRight.setDrawLabels(false)
-
-                sbc.description.isEnabled = false
-                sbc.legend.isEnabled = false
-                sbc.invalidate()
-
-
-                val specificCoordinatorLayout = StaticValue.mainActivity.findViewById<CoordinatorLayout>(R.id.specific_route_coordinatorlayout)
-                specificCoordinatorLayout.visibility = View.VISIBLE
-                finish()
-            }
-        })
 
         // HomeActivity의 destinationEditText 값 전달
         destinationTextView.setText(intent.getStringExtra("destination"))
@@ -138,7 +78,18 @@ class RouteListActivity : AppCompatActivity() {
             val navigation = StaticValue.navigation
             val routeList = navigation.getTransitRoutes(departureTextView.text.toString(), destinationTextView.text.toString())
 
-            routeListAdapter.routeList = routeList
+            val tempRouteList:MutableList<ExpandableRouteListModel> = mutableListOf()
+
+            for (i in routeList){
+                val detailRouteList:MutableList<Route.DetailRoute> = mutableListOf()
+                for (j in i){
+                    detailRouteList.add(Route.DetailRoute(j.pathType, "대중교통 번호", "대기시간"))
+                }
+                tempRouteList.add(ExpandableRouteListModel(ExpandableRouteListModel.PARENT, Route("소요시간","도착시간", i, detailRouteList)))            }
+
+            routeListAdapter = RouteListAdapter(tempRouteList, this)
+            recyclerView.adapter = routeListAdapter
+
             routeListAdapter.notifyDataSetChanged()
         }
 
