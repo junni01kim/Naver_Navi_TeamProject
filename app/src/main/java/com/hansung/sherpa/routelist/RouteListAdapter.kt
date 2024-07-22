@@ -1,6 +1,8 @@
 package com.hansung.sherpa.routelist
 
+import android.app.Activity
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.PathType
+import com.hansung.sherpa.itemsetting.ShowSpecificRoute
 
 /**
  * RouteListRecyclerView의 Adapter를 정의한 클래스
@@ -66,7 +69,9 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                     else -> holder.transportIcon.setImageResource(R.drawable.walk)
                 }
                 holder.layout.setOnClickListener{
-                    Log.d("explain", "세부 정보 클릭")
+                    val sr = ShowSpecificRoute()
+                    sr.showSpecificRoute()
+                    (context as Activity).finish()
                 }
             }
         }
