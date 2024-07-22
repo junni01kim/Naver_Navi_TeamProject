@@ -100,4 +100,11 @@ dependencies {
 
     // for MP Android Chart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // for tikxml
+    implementation("com.tickaroo.tikxml:annotation:0.8.15")
+    implementation("com.tickaroo.tikxml:core:0.8.15")
+    implementation("com.tickaroo.tikxml:retrofit-converter:0.8.15")
+    annotationProcessor("com.tickaroo.tikxml:processor:0.8.15")
+    annotationProcessor("com.tickaroo.tikxml:auto-value-tikxml:0.8.15")
 }
