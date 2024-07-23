@@ -20,7 +20,5 @@ class BusArrivalInfoRequest(
     @SerializedName("nodeId") val nodeId:String,
     @SerializedName("routeId") val routeId:String
 ) {
-    fun getMap():Map<String,String> {
-        return mapOf("serviceKey" to serviceKey,"_type" to _type,"cityCode" to cityCode.toString(),"nodeId" to nodeId,"routeId" to routeId)
-    }
+    fun getMap():Map<String,String> = mapOf("serviceKey" to serviceKey,"_type" to _type,"cityCode" to cityCode.toString(),"nodeId" to nodeId,"routeId" to routeId)
 }

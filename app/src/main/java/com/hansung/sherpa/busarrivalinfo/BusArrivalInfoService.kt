@@ -7,7 +7,6 @@ import retrofit2.http.QueryMap
 
 
 interface BusArrivalInfoService {
-
     @GET("getSttnAcctoSpcifyRouteBusArvlPrearngeInfoList")
     fun getService(
         @QueryMap options: Map<String, String>

@@ -10,26 +10,21 @@ data class BusArrivalInfoResponse(
     @Element val body: Body? = null
 )
 
-@Xml(name="header")
+@Xml
 data class Header(
-    @PropertyElement val resultCode:Int? = null,
-    @PropertyElement val resultMsg:String? = null
-)
-
-@Xml(name="body")
-data class Body(
-    @Element val items: Items? = null,
-    @PropertyElement val numOfRows:Int? = null,
-    @PropertyElement val pageNo:Int? = null,
-    @PropertyElement val totalCount:Int? = null
+    @PropertyElement(name="resultCode") val resultCode:Int? = null,
+    @PropertyElement(name="resultMsg") val resultMsg:String? = null
 )
 
 @Xml
-data class Items(
-    @Element(name = "item") val item: List<Item>? = null
+data class Body(
+    @Element(name = "item") val items: List<Item>? = null,
+    @PropertyElement(name="numOfRows") val numOfRows:Int? = null,
+    @PropertyElement(name="pageNo") val pageNo:Int? = null,
+    @PropertyElement(name="totalCount") val totalCount:Int? = null
 )
 
-@Xml(name="item")
+@Xml
 data class Item(
     @PropertyElement(name="nodeId") val nodeId:String? = null,
     @PropertyElement(name="nodenm") val nodenm:String? = null,

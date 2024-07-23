@@ -29,6 +29,9 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.itemsetting.ShowSpecificRoute
 
+// 임시 샘플 데이터
+val tempBusArrivalInfoRequest = setBusArrivalInfo(25,"DJB8001793","DJB30300002")
+
 /**
  * RouteListRecyclerView의 Adapter를 정의한 클래스
  * ExpandableRecyclerView이다.
@@ -70,9 +73,7 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                 }
                 holder.layout.setOnClickListener{
                     Log.d("explain", "요약 정보 클릭")
-                    val busArrivalInfoRequest = setBusArrivalInfo(25,"DJB8001793","DJB30300002")
-                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivaInfoList2(busArrivalInfoRequest)
-                    Log.d("explain", transitRouteResponse.header?.resultMsg.toString())
+                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivaInfoList(tempBusArrivalInfoRequest)
                 }
             }
             // 세부 정보 영역
