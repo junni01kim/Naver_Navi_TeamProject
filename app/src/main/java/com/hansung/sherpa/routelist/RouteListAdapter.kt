@@ -21,6 +21,9 @@ import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 import com.hansung.sherpa.R
+import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoManager
+import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoRequest
+import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoResponse
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 
@@ -65,6 +68,8 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                 }
                 holder.layout.setOnClickListener{
                     Log.d("explain", "요약 정보 클릭")
+                    val busArrivalInfo = setBusArrivalInfo(25,"DJB8001793","DJB30300002")
+                    BusArrivalInfoManager(this.context).getBusArrivaInfoList(busArrivalInfo)
                 }
             }
             // 세부 정보 영역
@@ -221,3 +226,6 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
         barChart.invalidate()
     }
 }
+
+// 임시
+private fun setBusArrivalInfo(cityCode: Int, nodeId: String, routeId:String) = BusArrivalInfoRequest( cityCode = cityCode, nodeId = nodeId, routeId = routeId)
