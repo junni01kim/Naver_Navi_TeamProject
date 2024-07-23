@@ -44,7 +44,8 @@ class Navigation {
 
         // 좌표 기반 경로 검색
         routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
-        val transitRouteResponse = TransitManager(mainActivity).getTransitRoutes2(routeRequest)
+        val transitRouteResponse = TransitManager(mainActivity).getTmapTransitRoutes(routeRequest)
+        TransitManager(mainActivity).getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
 
         return transitRoutes

@@ -1,37 +1,69 @@
 package com.hansung.sherpa
 
-import android.app.Activity
-import android.content.Intent
 import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.routelist.RouteListActivity
-import com.hansung.sherpa.ui.main.FlipperEvent
-import com.hansung.sherpa.ui.main.FloatIconEvent
+import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.LocationTrackingMode
-import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.compose.CameraPositionState
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapUiSettings
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerState
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
+import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import com.naver.maps.map.util.MarkerIcons
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
     private lateinit var naverMap: NaverMap
 
@@ -41,47 +73,27 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var searchButton: ImageButton // 검색 버튼
     private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
-    // Float Icons
-    private lateinit var medicalIconEvent: ExtendedFloatingActionButton
-    private lateinit var manIconEvent: ExtendedFloatingActionButton
-    private lateinit var womanIconEvent: ExtendedFloatingActionButton
-
     // 내비게이션 안내 값을 전송하기 위함
     lateinit var navigation:Navigation
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
 
-        val fm = supportFragmentManager
-        val mapFragment = fm.findFragmentById(R.id.map) as MapFragment?
-            ?: MapFragment.newInstance().also {
-                fm.beginTransaction().add(R.id.map, it).commit()
-            }
-
-        mapFragment.getMapAsync(this)
-
-        destinationTextView = findViewById(R.id.destination_editText)
-        searchButton = findViewById(R.id.search_button)
-
-//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         locationSource = GpsLocationSource.createInstance(this)
 
-        // Float Icons Events
-        val fIEvent = FloatIconEvent()
-        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
-        manIconEvent = findViewById(R.id.floating_action_button_man)
-        womanIconEvent = findViewById(R.id.floating_action_button_woman)
-        fIEvent.setOnClick(medicalIconEvent)
-        fIEvent.setOnClick(manIconEvent)
-        fIEvent.setOnClick(womanIconEvent)
-
-        // 목적지, 내 위치 Flipper Event
-        FlipperEvent().onFlip(this)
+        setContent {
+            SherpaTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    Greeting(
+                        name = "Android",
+                        modifier = Modifier.padding(innerPadding)
+                    )
+                }
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -115,13 +127,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
             //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
-
-            val intent = Intent(
-                applicationContext,
-                RouteListActivity::class.java
-            )
-            intent.putExtra("destination", destinationTextView.text.toString())
-            startActivityForResult(intent, 1) // activityResultLauncher로 수정 예정
+            navigation.getTransitRoutes("", "")
         }
 
         // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
@@ -175,21 +181,64 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+}
 
-    // ---------- 수정예정 ----------
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
+@OptIn(ExperimentalNaverMapApi::class)
+@Composable
+fun Greeting(name: String, modifier: Modifier = Modifier) {
+    val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+    // Jetpack Compose
+    var mapProperties by remember {
+        mutableStateOf(
+            MapProperties(maxZoom = 10.0, minZoom = 1.0)
+        )
+    }
+    var mapUiSettings by remember {
+        mutableStateOf(
+            MapUiSettings(isLocationButtonEnabled = false)
+        )
+    }
+    val seoul = LatLng(37.532600, 127.024612)
+    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
+        // 카메라 초기 위치를 설정합니다.
+        position = CameraPosition(seoul, 11.0)
+    }
+    var loc = remember {
+        mutableStateOf(LatLng(37.532600, 127.024612))
+    }
+    Box(Modifier.fillMaxSize()) {
+        NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true,),
+            properties = MapProperties(
+                locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
+            ),
+            uiSettings = MapUiSettings(
+                isLocationButtonEnabled = true,
+            ),
+            onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }) {
+            MarkerComponent(loc.value, markerIcon)
+        }
+        Column {
+            Button(onClick = {
+                mapProperties = mapProperties.copy(
+                    isBuildingLayerGroupEnabled = !mapProperties.isBuildingLayerGroupEnabled
+                )
+            }) {
 
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                1 -> { // RouteList Activity 문제점 좀 있음
-                    val startKeyword = data?.getStringExtra("startKeyword")!!
-                    val endKeyword = data.getStringExtra("endKeyword")!!
-                    Log.d("explain", "$startKeyword is $endKeyword")
-                    navigation.getTransitRoutes(startKeyword, endKeyword)
-                }
+                Text(text = "Toggle A")
+            }
+            Button(onClick = {
+                mapUiSettings = mapUiSettings.copy(
+                    isLocationButtonEnabled = !mapUiSettings.isLocationButtonEnabled
+                )
+            }) {
+                Text(text = "Toggle B")
             }
         }
     }
 }
 
+@OptIn(ExperimentalNaverMapApi::class)
+@Composable
+fun MarkerComponent(loc: LatLng, markerIcon: OverlayImage) {
+    Marker(state = MarkerState(position = loc), markerIcon)
+}

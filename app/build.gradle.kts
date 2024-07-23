@@ -2,14 +2,16 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
 }
 
-val clientId = getClientId("CLIENT_ID")
-val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
-val searchAPIClientID = getSearchAPIClientID("SEARCH_API_CLIENT_ID")
-val searchAPIClientSecret = getSearchAPIClientSecret("SEARCH_API_CLIENT_SECRET")
+val clientId = getLocalPropertyKey("CLIENT_ID")
+val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
+val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
+val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
+val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
+
 android {
 
     namespace = "com.hansung.sherpa"
@@ -29,6 +31,10 @@ android {
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
+
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildFeatures {
@@ -47,11 +53,22 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
+    }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -68,6 +85,20 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
     // for naver map SDK
     implementation("com.naver.maps:map-sdk:3.18.0")
@@ -95,4 +126,8 @@ dependencies {
 
     implementation ("androidx.activity:activity-ktx:1.9.0")
     implementation("androidx.fragment:fragment-ktx:1.8.1")
+
+    implementation("io.github.fornewid:naver-map-compose:1.7.2")
+    implementation("io.github.fornewid:naver-map-location:21.0.2")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }
