@@ -7,6 +7,7 @@ import com.google.gson.annotations.SerializedName
  *  클래스 명은 공공 데이터 포털의 내용 그래도 가져온 것. 내가 쓴 거 아님
  *  https://www.data.go.kr/iim/api/selectAPIAcountView.do
  *
+ *  @param serviceKey 공공데이터 포털 서비스 키
  *  @param _type 응답 데이터 타입(xml, json) - Default: xml
  *  @param cityCode 도시코드
  *  @param nodeId 정류소 ID - [국토교통부(TAGO)_버스정류소정보]에서 조회가능

@@ -68,8 +68,9 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                 }
                 holder.layout.setOnClickListener{
                     Log.d("explain", "요약 정보 클릭")
-                    val busArrivalInfo = setBusArrivalInfo(25,"DJB8001793","DJB30300002")
-                    BusArrivalInfoManager(this.context).getBusArrivaInfoList(busArrivalInfo)
+                    val busArrivalInfoRequest = setBusArrivalInfo(25,"DJB8001793","DJB30300002")
+                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivaInfoList2(busArrivalInfoRequest)
+                    Log.d("explain", transitRouteResponse.header?.resultMsg.toString())
                 }
             }
             // 세부 정보 영역
