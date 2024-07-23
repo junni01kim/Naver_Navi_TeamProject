@@ -109,4 +109,7 @@ dependencies {
     implementation("com.tickaroo.tikxml:retrofit-converter:0.8.13")
     ksp("com.tickaroo.tikxml:auto-value-tikxml:0.8.13")
 
+
+    // for Barchart in Routes UI
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 }

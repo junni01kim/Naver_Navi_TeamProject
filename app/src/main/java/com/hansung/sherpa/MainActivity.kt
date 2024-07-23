@@ -9,13 +9,23 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.hansung.sherpa.databinding.ActivityMainBinding
+import com.hansung.sherpa.databinding.SpecificRouteItemBinding
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.itemsetting.RouteDetailAdapter
+import com.hansung.sherpa.itemsetting.RouteDetailItem
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.routelist.RouteListActivity
@@ -32,7 +42,6 @@ import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
-
     private lateinit var naverMap: NaverMap
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -68,7 +77,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         destinationTextView = findViewById(R.id.destination_editText)
         searchButton = findViewById(R.id.search_button)
 
-//        locationSource = FusedLocationSource(this, LOCATION_PERMISSION_REQUEST_CODE)
         locationSource = GpsLocationSource.createInstance(this)
 
         // Float Icons Events
@@ -82,6 +90,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // 목적지, 내 위치 Flipper Event
         FlipperEvent().onFlip(this)
+
+        StaticValue.mainActivity = this
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
@@ -128,9 +138,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
-
-                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
-                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
+                navigation.tempStartLatLng = nowLocation
+                Log.d("nowsection",""+routeControl.nowSection)
+                if (routeControl.route.isNotEmpty() && routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
+                    var toLatLng = routeControl.route[shortestRouteIndex]
+                    routeControl.delRouteToIndex(shortestRouteIndex)
+                    navigation.redrawRoute(nowLocation, toLatLng)
                 }
             }
         }

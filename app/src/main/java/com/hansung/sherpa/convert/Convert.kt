@@ -2,6 +2,7 @@ package com.hansung.sherpa.convert
 
 import android.util.Log
 import com.hansung.sherpa.transit.Leg
+import com.hansung.sherpa.transit.PedestrianResponse
 import com.hansung.sherpa.transit.TransitRouteResponse
 import com.naver.maps.geometry.LatLng
 
@@ -167,6 +168,26 @@ class Convert {
         }
         Log.d("testPrint","temporateClass로 변경 성공!")
         return searchRouteMutableList
+    }
+
+    fun convertPedestrianRouteToLatLng(response:PedestrianResponse, from:LatLng, to:LatLng):MutableList<LatLng>{
+        var rres = mutableListOf<LatLng>()
+
+        response.features?.forEach {feature->
+            if(feature.geometry.type=="LineString"){
+                feature.geometry.coordinates.forEach {coordinates->
+                    var tmp = coordinates.toString().split(", ")
+                    rres.add(LatLng(tmp[1].replace("]","").toDouble(), tmp[0].replace("[","").toDouble()))
+                }
+            }
+        }
+
+        rres = rres.distinct().toMutableList()
+
+        rres.add(0,from)
+        rres.add(to)
+
+        return rres
     }
 
     /**
