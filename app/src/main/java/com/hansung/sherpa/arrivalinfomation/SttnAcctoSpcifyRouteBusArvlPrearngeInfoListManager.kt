@@ -26,15 +26,15 @@ class SttnAcctoSpcifyRouteBusArvlPrearngeInfoListManager(val context: Context) {
                 try {
                     val parser = TikXml.Builder().exceptionOnUnreadXml(false).build()
                     var retrofit = Retrofit.Builder()
-                        .baseUrl("http://apis.data.go.kr/1613000/ArvlInfoInqireService/getSttnAcctoSpcifyRouteBusArvlPrearngeInfoList")
+                        .baseUrl("http://apis.data.go.kr/1613000/ArvlInfoInqireService/")
                         .addConverterFactory(TikXmlConverterFactory.create(parser))
                         .build()
-                    //TODO: 해결할 부분
-                    val service = retrofit.create(SttnAcctoSpcifyRouteBusArvlPrearngeInfoListService::class.java)
+                    val service = retrofit.create(SttnAcctoSpcifyRouteBusArvlPrearngeInfoListService::class.java).getService(request.getMap())
+                    //TODO: 해결할 부분 응답 받기
 
                 } catch (e: IOException) {
                     Log.i("Error", "Transit API Exception")
-                    result = SttnAcctoSpcifyRouteBusArvlPrearngeInfoListResponse()
+                    // result = SttnAcctoSpcifyRouteBusArvlPrearngeInfoListResponse()
                 }
             }
         }

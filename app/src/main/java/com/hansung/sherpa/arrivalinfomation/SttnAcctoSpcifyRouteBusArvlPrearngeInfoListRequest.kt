@@ -12,9 +12,14 @@ import com.google.gson.annotations.SerializedName
  *  @param nodeId 정류소 ID - [국토교통부(TAGO)_버스정류소정보]에서 조회가능
  *  @param routeId 노선 ID - 버스 ID
  */
-data class SttnAcctoSpcifyRouteBusArvlPrearngeInfoListRequest(
+class SttnAcctoSpcifyRouteBusArvlPrearngeInfoListRequest(
+    @SerializedName("serviceKey") val serviceKey:String = "getSttnAcctoArvlPrearngeInfoList",
     @SerializedName("_type") val _type:String = "xml",
     @SerializedName("cityCode") val cityCode:Int,
     @SerializedName("nodeId") val nodeId:String,
     @SerializedName("routeId") val routeId:String
-)
+) {
+    fun getMap():Map<String,String> {
+        return mapOf("serviceKey" to serviceKey,"_type" to _type,"cityCode" to cityCode.toString(),"nodeId" to nodeId,"routeId" to routeId)
+    }
+}
