@@ -58,6 +58,7 @@ class BusRouteDetailItem(
     var stations:MutableList<String>
 ):RouteDetailItem(fromName, toName, summary, time)
 
+
 /**
  * 선택된 세부 경로의 버스 정보
  * @param fromName 출발지의 이름
