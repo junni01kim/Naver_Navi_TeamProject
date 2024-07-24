@@ -25,7 +25,7 @@ import java.io.IOException
 import java.lang.Thread.sleep
 
 class BusArrivalInfoManager(val context: Context) {
-    fun getBusArrivaInfoList(request:BusArrivalInfoRequest):BusArrivalInfoResponse {
+    fun getBusArrivalInfoList(request:BusArrivalInfoRequest):BusArrivalInfoResponse {
         lateinit var result: BusArrivalInfoResponse
         runBlocking {
             launch(Dispatchers.IO) {
@@ -52,7 +52,7 @@ class BusArrivalInfoManager(val context: Context) {
         return result
     }
 
-    fun getBusArrivaInfoList2(request:BusArrivalInfoRequest): LiveData<BusArrivalInfoResponse> {
+    fun getBusArrivalInfoList2(request:BusArrivalInfoRequest): LiveData<BusArrivalInfoResponse> {
         val resultLiveData = MutableLiveData<BusArrivalInfoResponse>()
         val retrofit = Retrofit.Builder()
             .baseUrl("https://apis.data.go.kr/1613000/ArvlInfoInqireService/")

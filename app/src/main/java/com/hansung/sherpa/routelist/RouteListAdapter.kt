@@ -73,7 +73,7 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                 }
                 holder.layout.setOnClickListener{
                     Log.d("explain", "요약 정보 클릭")
-                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivaInfoList(tempBusArrivalInfoRequest)
+                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivalInfoList(tempBusArrivalInfoRequest)
                     Log.d("explain", "transitRouteResponse:${transitRouteResponse.response?.body}")
                 }
             }
