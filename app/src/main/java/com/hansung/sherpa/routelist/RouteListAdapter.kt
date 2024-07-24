@@ -28,9 +28,17 @@ import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoResponse
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.itemsetting.ShowSpecificRoute
+import com.hansung.sherpa.routegraphic.MapObject
+import com.hansung.sherpa.routegraphic.RouteGraphicManager
+import com.hansung.sherpa.routegraphic.RouteGraphicRequest
 
 // 임시 샘플 데이터
 val tempBusArrivalInfoRequest = setBusArrivalInfo(25,"DJB8001793","DJB30300002")
+val tempRouteGraphicRequest = setRouteGraphic(126,37,3,2,310,329)
+
+// 임시
+private fun setBusArrivalInfo(cityCode: Int, nodeId: String, routeId:String) = BusArrivalInfoRequest( cityCode = cityCode, nodeId = nodeId, routeId = routeId)
+private fun setRouteGraphic(baseX:Int, baseY:Int, typeId:Int, typeClass:Int, startIdx:Int, endIdx:Int) = RouteGraphicRequest(mapObject = MapObject(baseX, baseY, typeId, typeClass, startIdx, endIdx))
 
 /**
  * RouteListRecyclerView의 Adapter를 정의한 클래스
@@ -73,8 +81,13 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                 }
                 holder.layout.setOnClickListener{
                     Log.d("explain", "요약 정보 클릭")
-                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivalInfoList(tempBusArrivalInfoRequest)
-                    Log.d("explain", "transitRouteResponse:${transitRouteResponse.response?.body}")
+                    //TODO("밑으로 정류장 버스 도착 정보")
+                    //val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivalInfoList2(tempBusArrivalInfoRequest)
+                    //Log.d("explain", "transitRouteResponse:${transitRouteResponse.response?.body}")
+
+                    //TODO("밑으로 대중교통 세부 정보")
+                    val routeGraphicResponse = RouteGraphicManager(this.context).getRouteGraphic(tempRouteGraphicRequest)
+                    //Log.d("explain", "transitRouteResponse:${routeGraphicResponse.value?.result}")
                 }
             }
             // 세부 정보 영역
@@ -233,6 +246,3 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
         barChart.invalidate()
     }
 }
-
-// 임시
-private fun setBusArrivalInfo(cityCode: Int, nodeId: String, routeId:String) = BusArrivalInfoRequest( cityCode = cityCode, nodeId = nodeId, routeId = routeId)

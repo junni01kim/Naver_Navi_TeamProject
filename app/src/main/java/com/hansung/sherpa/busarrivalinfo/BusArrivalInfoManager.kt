@@ -62,10 +62,7 @@ class BusArrivalInfoManager(val context: Context) {
         val service = retrofit.create(BusArrivalInfoService::class.java)
 
         service.getService(request.getMap()).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(
-                call: Call<ResponseBody>,
-                response: Response<ResponseBody>
-            ) {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 val responseBody = response.body()
                 Log.d("explain", "responseBody: ${responseBody?.string()}")
                 if (responseBody != null) {
