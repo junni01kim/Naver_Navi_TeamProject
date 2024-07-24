@@ -14,8 +14,8 @@ import com.google.gson.annotations.SerializedName
  *  @param routeId 노선 ID - 버스 ID
  */
 class BusArrivalInfoRequest(
-    @SerializedName("serviceKey") val serviceKey:String = "VCzeRv5K5pqKSztweNXA4lJt8uyxti3zL4LJr7h%2BKEULei9hs7ZRTRU0b5jSlTZQ5i3lycuEN7NS6uACbg4ZwA%3D%3D",
-    @SerializedName("_type") val _type:String = "xml",
+    @SerializedName("serviceKey") val serviceKey:String = "VCzeRv5K5pqKSztweNXA4lJt8uyxti3zL4LJr7h+KEULei9hs7ZRTRU0b5jSlTZQ5i3lycuEN7NS6uACbg4ZwA==",
+    @SerializedName("_type") val _type:String = "json",
     @SerializedName("cityCode") val cityCode:Int,
     @SerializedName("nodeId") val nodeId:String,
     @SerializedName("routeId") val routeId:String
