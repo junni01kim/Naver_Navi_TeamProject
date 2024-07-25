@@ -64,7 +64,7 @@ class BusArrivalInfoManager(val context: Context) {
      * @return BusArrivalInfoResponse
      */
     fun getBusArrivalInfoList2(request: BusArrivalInfoRequest): BusArrivalInfoResponse? {
-        var rr: BusArrivalInfoResponse? = null
+        var result: BusArrivalInfoResponse? = null
         runBlocking {
             launch(Dispatchers.IO) {
                 try {
@@ -74,14 +74,14 @@ class BusArrivalInfoManager(val context: Context) {
                         .build()
                         .create(BusArrivalInfoService::class.java)
                         .getService(request.getMap()).execute()
-                    rr = Gson().fromJson(response.body()!!.string(), BusArrivalInfoResponse::class.java)
+                    result = Gson().fromJson(response.body()!!.string(), BusArrivalInfoResponse::class.java)
                 } catch (e: IOException) {
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
                 }
             }
         }
-        return rr
+        return result
     }
 }
 
