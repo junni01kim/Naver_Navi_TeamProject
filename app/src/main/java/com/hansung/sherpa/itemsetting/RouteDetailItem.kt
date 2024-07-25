@@ -17,12 +17,12 @@ class RouteDetailTotalSummary(
  * @param summary 세부 정보의 요약 정보 (도보 150m or 버스정류장 n개)
  * @param time 소요시간
  */
-abstract class RouteDetailItem(
-    var fromName:String,
-    var toName:String,
-    var summary:String,
-    var time:String
-)
+interface RouteDetailItem {
+    var fromName: String
+    var toName: String
+    var summary: String
+    var time: String
+}
 
 /**
  * 선택된 세부 경로의 보행자 정보
@@ -32,13 +32,13 @@ abstract class RouteDetailItem(
  * @param time 소요시간
  * @param contents 이동 보행 경로의 세부 내용
  */
-class PedestrianRouteDetailItem(
-    fromName:String,
-    toName:String,
-    summary:String,
-    time:String,
-    var contents:MutableList<String>
-):RouteDetailItem(fromName, toName, summary, time)
+data class PedestrianRouteDetailItem(
+    override var fromName: String,
+    override var toName: String,
+    override var summary: String,
+    override var time: String,
+    var contents:MutableList<String>,
+):RouteDetailItem
 
 /**
  * 선택된 세부 경로의 버스 정보
@@ -49,14 +49,14 @@ class PedestrianRouteDetailItem(
  * @param busNo 버스 번호
  * @param stations Bus 정류장들
  */
-class BusRouteDetailItem(
-    fromName:String,
-    toName:String,
-    summary:String,
-    time:String,
+data class BusRouteDetailItem(
+    override var fromName: String,
+    override var toName: String,
+    override var summary: String,
+    override var time: String,
     var busNo:String,
     var stations:MutableList<String>
-):RouteDetailItem(fromName, toName, summary, time)
+):RouteDetailItem
 
 
 /**
@@ -68,12 +68,12 @@ class BusRouteDetailItem(
  * @param subLine 호선 번호
  * @param stations Subway 정류장들
  */
-class SubwayRouteDetailItem(
-    fromName:String,
-    toName:String,
-    summary:String,
-    time:String,
+data class SubwayRouteDetailItem(
+    override var fromName: String,
+    override var toName: String,
+    override var summary: String,
+    override var time: String,
     var subLine:String,
     var stations:MutableList<String>
-):RouteDetailItem(fromName, toName, summary, time)
+):RouteDetailItem
 
