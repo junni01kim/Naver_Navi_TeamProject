@@ -11,6 +11,7 @@ val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
 val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
 val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
 val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
+val openDataPotalKey = getLocalPropertyKey("OPEN_DATA_POTAL_KEY")
 
 android {
 
@@ -30,6 +31,7 @@ android {
         buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
+        buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
     }
 

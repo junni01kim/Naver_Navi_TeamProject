@@ -30,7 +30,7 @@ class BusArrivalInfoManager(val context: Context) {
     fun getBusArrivalInfoList(request:BusArrivalInfoRequest): LiveData<BusArrivalInfoResponse> {
         val resultLiveData = MutableLiveData<BusArrivalInfoResponse>()
         val retrofit = Retrofit.Builder()
-            .baseUrl(context.getString(R.string.bus_arrival_info_url))
+            .baseUrl(context.getString(R.string.bus_arrival_info_base_url))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -69,7 +69,7 @@ class BusArrivalInfoManager(val context: Context) {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl(context.getString(R.string.bus_arrival_info_url))
+                        .baseUrl(context.getString(R.string.bus_arrival_info_base_url))
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(BusArrivalInfoService::class.java)

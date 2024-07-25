@@ -23,20 +23,28 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
+/**
+ * @param context Activity의 context
+ */
 class RouteGraphicManager(val context: Context) {
-    fun getRouteGraphic(routeRequest:RouteGraphicRequest) : LiveData<RouteGraphicResponse> {
+    /**
+     * ODsay '노선 그래픽 데이터 검색' API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
+     *
+     * @param request 요청할 정보 객체
+     * @return LiveData<RouteGraphicResponse>
+     */
+    fun getRouteGraphic(request:RouteGraphicRequest) : LiveData<RouteGraphicResponse> {
         val resultLiveData = MutableLiveData<RouteGraphicResponse>()
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.odsay.com/v1/api/")
+            .baseUrl(context.getString(R.string.odsay_route_base_url))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         val service = retrofit.create(RouteGraphicService::class.java)
 
-        service.getService(routeRequest.getMap()).enqueue(object : Callback<ResponseBody>{
+        service.getService(request.getMap()).enqueue(object : Callback<ResponseBody>{
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 val responseBody = response.body()
-                Log.d("explain", "responseBody: ${responseBody?.string()}")
                 if (responseBody != null) {
                     val routeGraphicResponse = Gson().fromJson(
                         responseBody.string(),
@@ -53,25 +61,30 @@ class RouteGraphicManager(val context: Context) {
         })
         return resultLiveData
     }
-
-    fun getRouteGraphic2(routeRequest: RouteGraphicRequest): RouteGraphicResponse? {
-        var rr: RouteGraphicResponse? = null
+    /**
+     * ODsay '노선 그래픽 데이터 검색' API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
+     *
+     * @param request 요청할 정보 객체
+     * @return RouteGraphicResponse
+     */
+    fun getRouteGraphic2(request: RouteGraphicRequest): RouteGraphicResponse? {
+        var result: RouteGraphicResponse? = null
         runBlocking {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(context.getString(R.string.odsay_route_base_url))
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(RouteGraphicService::class.java)
-                        .getService(routeRequest.getMap()).execute()
-                    rr = Gson().fromJson(response.body()!!.string(), RouteGraphicResponse::class.java)
+                        .getService(request.getMap()).execute()
+                    result = Gson().fromJson(response.body()!!.string(), RouteGraphicResponse::class.java)
                 } catch (e: IOException) {
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
                 }
             }
         }
-        return rr
+        return result
     }
 }

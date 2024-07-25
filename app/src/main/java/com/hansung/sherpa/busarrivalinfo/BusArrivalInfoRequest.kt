@@ -1,6 +1,7 @@
 package com.hansung.sherpa.busarrivalinfo
 
 import com.google.gson.annotations.SerializedName
+import com.hansung.sherpa.BuildConfig
 
 /**
  * '정류소별특정노선버스 도착예정정보 목록조회' 요청 파라미터 클래스
@@ -13,7 +14,7 @@ import com.google.gson.annotations.SerializedName
  *  @param routeId 노선 ID - 버스고유 ID
  */
 class BusArrivalInfoRequest(
-    @SerializedName("serviceKey") val serviceKey:String = "VCzeRv5K5pqKSztweNXA4lJt8uyxti3zL4LJr7h+KEULei9hs7ZRTRU0b5jSlTZQ5i3lycuEN7NS6uACbg4ZwA==",
+    @SerializedName("serviceKey") val serviceKey:String = BuildConfig.OPEN_DATA_POTAL_KEY,
     @SerializedName("_type") val _type:String = "json",
     @SerializedName("cityCode") val cityCode:Int,
     @SerializedName("nodeId") val nodeId:String,
