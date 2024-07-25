@@ -61,6 +61,7 @@ interface SectionInfo { // OdsaySubPath에 해당
     var endY:Double
 }
 
+
 /**
  * 한 이동수단의 정보 #김재호: RouteDetailItem 클래스와 유사
  * @param distance 이동 거리 #김명준: 차트 비율 만들기 위함
