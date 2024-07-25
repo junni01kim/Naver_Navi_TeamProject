@@ -101,4 +101,7 @@ dependencies {
 
     // for Barchart in Routes UI
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // for Extendable View
+    implementation("com.github.skydoves:expandablelayout:1.0.7")
 }

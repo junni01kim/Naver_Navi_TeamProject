@@ -33,29 +33,30 @@ abstract class RouteDetailItem(
  * @param contents 이동 보행 경로의 세부 내용
  */
 class PedestrianRouteDetailItem(
-    fromName:String,
-    toName:String,
-    summary:String,
-    time:String,
-    var contents:MutableList<String>
+    fromName:String, //완 startName
+    toName:String, //완 endName
+    summary:String, //완 distance
+    time:String, //완 sectionTime
+    var contents:MutableList<String>  //완 동일
 ):RouteDetailItem(fromName, toName, summary, time)
 
 /**
  * 선택된 세부 경로의 버스 정보
  * @param fromName 출발지의 이름
  * @param toName 도착지의 이름
- * @param summary 세부 정보의 요약 정보 (도보 150m)
+ * @param summary 세부 정보의 요약 정보 (총 버스 이동거리 700m)
  * @param time 소요시간
  * @param busNo 버스 번호
  * @param stations Bus 정류장들
  */
 class BusRouteDetailItem(
-    fromName:String,
-    toName:String,
-    summary:String,
-    time:String,
-    var busNo:String,
-    var stations:MutableList<String>
+    fromName:String, //완 startNAme
+    toName:String, //완 endName
+    summary:String, //완 distance
+    time:String, //완 sectionTime
+    var busNo:String, //불완 : lane[0]이라 추정
+    var stations:MutableList<String>, //완 stationNames
+    var stationCount:Int //완 stationCount
 ):RouteDetailItem(fromName, toName, summary, time)
 
 
@@ -69,11 +70,11 @@ class BusRouteDetailItem(
  * @param stations Subway 정류장들
  */
 class SubwayRouteDetailItem(
-    fromName:String,
-    toName:String,
-    summary:String,
-    time:String,
-    var subLine:String,
-    var stations:MutableList<String>
+    fromName:String, //완 startName
+    toName:String, //완 endName
+    summary:String, //완 stationCount
+    time:String, // 완 sectionTime
+    var subLine:String, //완 Lane의 Type으로 구별가능
+    var stations:MutableList<String> // 완 stationNames
 ):RouteDetailItem(fromName, toName, summary, time)
 

@@ -1,96 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/specific_route_item"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp">
-        
-        <ImageView
-            android:id="@+id/specific_item_image"
-            android:layout_width="25dp"
-            android:layout_height="50dp"
-            app:layout_constraintLeft_toLeftOf="@id/specific_route_item"
-            app:layout_constraintTop_toTopOf="@id/specific_route_item"
-            app:layout_constraintBottom_toBottomOf="@id/specific_route_item"
-            android:src="@drawable/pedestrianrouteimage"/>
+        app:cardCornerRadius="1dp"
+        app:strokeWidth="0dp"
+        android:elevation="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="150dp"
+            android:id="@+id/specific_route_item"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintLeft_toRightOf="@+id/specific_item_image"
-            app:layout_constraintBottom_toBottomOf="@+id/specific_route_item"
-            app:layout_constraintTop_toTopOf="@id/specific_route_item">
+            android:layout_margin="8dp">
+
+            <ImageView
+                android:id="@+id/specific_item_image"
+                android:layout_width="25dp"
+                android:layout_height="50dp"
+                app:layout_constraintLeft_toLeftOf="@id/specific_route_item"
+                app:layout_constraintTop_toTopOf="@id/specific_route_item"
+                app:layout_constraintBottom_toBottomOf="@id/specific_route_item"
+                android:src="@drawable/pedestrianrouteimage"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintLeft_toRightOf="@+id/specific_item_image"
+                app:layout_constraintBottom_toBottomOf="@+id/specific_route_item"
+                app:layout_constraintTop_toTopOf="@id/specific_route_item">
+
+                <TextView
+                    android:id="@+id/specific_item_from_text"
+                    android:layout_width="120dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:layout_margin="4dp"
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="한성대학교 공학관"/>
+
+                <TextView
+                    android:id="@+id/specific_item_summary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/specific_item_from_text"
+                    android:layout_margin="4dp"
+                    android:textColor="#8c8c8c"
+                    android:textSize="12sp"
+                    android:text="도보 150m"/>
+
+                <TextView
+                    android:id="@+id/specific_item_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintRight_toRightOf="@id/specific_item_from_text"
+                    app:layout_constraintTop_toBottomOf="@id/specific_item_from_text"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="2dp"
+                    android:text="12분"/>
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
-                android:id="@+id/specific_item_from_text"
-                android:layout_width="120dp"
+                android:id="@+id/specific_item_to_text"
+                android:layout_width="160dp"
                 android:layout_height="wrap_content"
+                app:layout_constraintRight_toRightOf="@+id/specific_route_item"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_margin="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                android:layout_marginRight="36dp"
                 android:textStyle="bold"
+                android:textSize="20sp"
                 android:maxLines="1"
+                android:maxLength="10"
                 android:ellipsize="end"
                 android:text="한성대학교 공학관"/>
 
-            <TextView
-                android:id="@+id/specific_item_summary"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/specific_item_from_text"
-                android:layout_margin="4dp"
-                android:textColor="#8c8c8c"
-                android:textSize="12sp"
-                android:text="도보 150m"/>
-
-            <TextView
-                android:id="@+id/specific_item_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintRight_toRightOf="@id/specific_item_from_text"
-                app:layout_constraintTop_toBottomOf="@id/specific_item_from_text"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                android:layout_marginTop="2dp"
-                android:text="12분"/>
-
+            <ImageButton
+                android:id="@+id/expand_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:clickable="false"
+                android:background="@color/transparent"
+                android:src="@drawable/expand_arrow_icon_specific_ver"
+                app:layout_constraintRight_toRightOf="@+id/specific_route_item"
+                app:layout_constraintTop_toTopOf="@+id/specific_route_item"
+                app:layout_constraintBottom_toBottomOf="@+id/specific_route_item"
+                app:layout_constraintLeft_toRightOf="@id/specific_item_to_text"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
-        <TextView
-            android:id="@+id/specific_item_to_text"
-            android:layout_width="160dp"
+
+
+    <!-- Expand Layout -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/specific_route_expand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="1dp"
+        app:strokeWidth="0dp"
+        android:elevation="0dp"
+        android:visibility="gone">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/expand_specific_contents"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintRight_toLeftOf="@+id/show_details_button"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_margin="4dp"
-            android:textStyle="bold"
-            android:textSize="20sp"
-            android:maxLines="1"
-            android:maxLength="10"
-            android:ellipsize="end"
-            android:text="한성대학교 공학관"/>
+            android:padding="4dp"
+            android:layout_margin="16dp"
+            xmlns:app="http://schemas.android.com/apk/res-auto">
 
-        <ImageButton
-            android:id="@+id/show_details_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintRight_toRightOf="@id/specific_route_item"
-            app:layout_constraintTop_toTopOf="@id/specific_route_item"
-            app:layout_constraintBottom_toBottomOf="@id/specific_route_item"
-            android:background="@android:color/transparent"
-            android:src="@drawable/baseline_arrow_forward_ios_24"
-            android:onClick="tmp"/>
-        <!-- 아직 보이기 함수 정의X -->
+            <LinearLayout
+                android:id="@+id/group_of_specific_route_context"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="@id/expand_specific_contents"
+                app:layout_constraintLeft_toLeftOf="@id/expand_specific_contents"
+                app:layout_constraintRight_toRightOf="@id/expand_specific_contents"
+                app:layout_constraintTop_toTopOf="@+id/expand_specific_contents">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+                <ImageView
+                    android:id="@+id/expand_route_color_image"
+                    app:layout_constraintLeft_toLeftOf="@id/expand_specific_contents"
+                    app:layout_constraintTop_toTopOf="@id/expand_specific_contents"
+                    app:layout_constraintBottom_toBottomOf="@id/expand_specific_contents"
+                    android:layout_width="15dp"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/greenbusrouteimage"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView
+                        android:id="@+id/number_of_transit"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:text="버스 번호"
+                        android:textStyle="bold"
+                        android:textSize="26sp"/>
+
+                    <TextView
+                        android:id="@+id/layover"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="23dp"
+                        android:text="정류장1\n정류장2\n정류장3\n...\n정류장4" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>
