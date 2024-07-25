@@ -6,9 +6,11 @@ import com.google.gson.annotations.SerializedName
 import com.hansung.sherpa.BuildConfig
 
 class RouteGraphicRequest(
-    @SerializedName("apiKey") val apiKey: String,
+    @SerializedName("apiKey") val apiKey: String = BuildConfig.ODSAY_APP_KEY,
     @SerializedName("mapObject") val mapObject:MapObject
-)
+){
+    fun getMap() = mapOf("apiKey" to apiKey, "mapObject" to mapObject.toString())
+}
 
 class MapObject(
     val baseX:Int,

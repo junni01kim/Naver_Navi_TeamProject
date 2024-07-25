@@ -17,15 +17,14 @@ import retrofit2.converter.gson.GsonConverterFactory
 class RouteGraphicManager(val context: Context) {
     fun getRouteGraphic(request:RouteGraphicRequest) : LiveData<RouteGraphicResponse> {
         val resultLiveData = MutableLiveData<RouteGraphicResponse>()
-        val apiKey = BuildConfig.ODSAY_APP_KEY
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.odsay.com/v1/api/loadLane")
+            .baseUrl("https://api.odsay.com/v1/api/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
         val service = retrofit.create(RouteGraphicService::class.java)
 
-        service.getService(apiKey,request.getMap()).enqueue(object : Callback<ResponseBody>{
+        service.getService(request.getMap()).enqueue(object : Callback<ResponseBody>{
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 val responseBody = response.body()
                 Log.d("explain", "responseBody: ${responseBody?.string()}")

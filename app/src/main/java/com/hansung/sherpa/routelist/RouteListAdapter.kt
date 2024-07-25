@@ -21,6 +21,7 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
 import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoManager
 import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoRequest
