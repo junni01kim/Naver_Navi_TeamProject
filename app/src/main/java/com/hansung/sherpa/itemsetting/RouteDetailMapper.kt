@@ -36,8 +36,11 @@ interface RouteDetailMapper {
      * convertToPedestrian 실제 함수 사용 방식
      * @param transitRouteResponse API response data를 받아오면 넣어주기
      */
-    fun samplePedestrian(transitRouteResponse: TmapTransitRouteResponse) {
-        val routeDetailItem = RouteDetailMapper.INSTANCE.convertToPedestrian(transitRouteResponse.metaData?.plan?.itineraries?.get(0)?.legs?.get(0)!!)
+    /* fun samplePedestrian(transitRouteResponse: TmapTransitRouteResponse) {
+        val routeDetailItem = RouteDetailMapper.INSTANCE.convertToPedestrian(
+            transitRouteResponse.metaData?.plan?.itineraries?.get(0)?.legs?.get(0)!!
+        )
         Log.i("item", routeDetailItem.toString())
-    }
+    } */
 }
+
