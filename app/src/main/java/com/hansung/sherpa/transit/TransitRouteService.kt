@@ -7,6 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.QueryMap
 
 /**
@@ -32,4 +33,11 @@ interface TransitRouteService {
 
     @GET("searchPubTransPathT")
     fun getOdsayTransitRoutes(@QueryMap options: Map<String, String>): Call<ResponseBody>
+
+    @GET("routed-foot/route/v1/driving/{SX},{SY};{EX},{EY}")
+    fun getOSRMWalk(@Path("SX") SX: String
+                    , @Path("SY") SY: String
+                    , @Path("EX") EX: String
+                    , @Path("EY") EY: String
+                    , @QueryMap options: Map<String, String>): Call<ResponseBody>
 }

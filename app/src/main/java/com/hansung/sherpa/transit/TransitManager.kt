@@ -10,6 +10,7 @@ import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
+import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -99,6 +100,22 @@ class TransitManager(context: Context) {
                     rr = TmapTransitRouteResponse()
                 }
             }
+            launch(Dispatchers.IO) {
+                val rQ = routeRequest
+                try {
+                    val options = osrmRequestToMap()
+                    val response = Retrofit.Builder()
+                        .baseUrl(context.getString(R.string.osrm_route_base_url))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<TransitRouteService?>(TransitRouteService::class.java)
+                        .getOSRMWalk(rQ.startX, rQ.startY, rQ.endX, rQ.endY, options).execute() // API 호출
+                    val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
+                    // Log.i("item", sW.toString())
+                } catch (e: IOException) {
+                    Log.e("Error", "Transit API Exception")
+                }
+            }
         }
         return rr
     }
@@ -160,6 +177,8 @@ class TransitManager(context: Context) {
         return rr
     }
 
+
+
     /**
      * getTransitRoutes 함수 사용 예시
      *
@@ -194,6 +213,19 @@ class TransitManager(context: Context) {
             "OPT" to request.OPT,
             "SearchType" to request.SearchType,
             "SearchPathType" to request.SearchPathType
+        )
+    }
+
+    /**
+     * TODO OSRM 요청 매핑
+     * 
+     * @return
+     */
+    fun osrmRequestToMap(): Map<String, String> {
+        return mapOf(
+            "overview" to "false",
+            "alternatives" to "true",
+            "steps" to "true",
         )
     }
 }
