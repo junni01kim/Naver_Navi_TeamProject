@@ -5,14 +5,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.hansung.sherpa.transit.TransitRouteRequest
-import com.hansung.sherpa.transit.TransitRouteResponse
-import com.naver.maps.geometry.LatLng
-import com.tickaroo.tikxml.TikXml
-import com.tickaroo.tikxml.retrofit.TikXmlConverterFactory
+import com.hansung.sherpa.R
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
@@ -22,40 +16,21 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-import java.lang.Thread.sleep
 
+/**
+ * @param context Activity의 context
+ */
 class BusArrivalInfoManager(val context: Context) {
-    fun getBusArrivalInfoList(request:BusArrivalInfoRequest):BusArrivalInfoResponse {
-        lateinit var result: BusArrivalInfoResponse
-        runBlocking {
-            launch(Dispatchers.IO) {
-                try {
-                    val response = Retrofit.Builder()
-                        .baseUrl("https://apis.data.go.kr/1613000/ArvlInfoInqireService/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build().create(BusArrivalInfoService::class.java)
-                        .getService(request.getMap()).execute()
-                    // TODO: 파싱이 진행되어야 함
-                    result = Gson().fromJson(
-                        response.body()!!.string(),
-                        BusArrivalInfoResponse::class.java
-                    )
-                } catch (e: IOException) {
-                    Log.d("explain", "getBusArrivaInfoList API Exception")
-                    Log.d("explain", "cause: ${e.cause}")
-                    Log.d("explain", "message: ${e.message}")
-                    Log.d("explain", "localizedMessage: ${e.localizedMessage}")
-                    result = BusArrivalInfoResponse()
-                }
-            }
-        }
-        return result
-    }
-
-    fun getBusArrivalInfoList2(request:BusArrivalInfoRequest): LiveData<BusArrivalInfoResponse> {
+    /**
+     * 정류소별특정노선버스 도착예정정보 목록조회 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
+     *
+     * @param request 요청할 정보 객체
+     * @return LiveData<BusArrivalInfoResponse>
+     */
+    fun getBusArrivalInfoList(request:BusArrivalInfoRequest): LiveData<BusArrivalInfoResponse> {
         val resultLiveData = MutableLiveData<BusArrivalInfoResponse>()
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://apis.data.go.kr/1613000/ArvlInfoInqireService/")
+            .baseUrl(context.getString(R.string.bus_arrival_info_url))
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -80,6 +55,33 @@ class BusArrivalInfoManager(val context: Context) {
             }
         })
         return resultLiveData
+    }
+
+    /**
+     * 정류소별특정노선버스 도착예정정보 목록조회 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
+     *
+     * @param request 요청할 정보 객체
+     * @return BusArrivalInfoResponse
+     */
+    fun getBusArrivalInfoList2(request: BusArrivalInfoRequest): BusArrivalInfoResponse? {
+        var rr: BusArrivalInfoResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try {
+                    val response = Retrofit.Builder()
+                        .baseUrl(context.getString(R.string.bus_arrival_info_url))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(BusArrivalInfoService::class.java)
+                        .getService(request.getMap()).execute()
+                    rr = Gson().fromJson(response.body()!!.string(), BusArrivalInfoResponse::class.java)
+                } catch (e: IOException) {
+                    Log.d("explain", "onFailure: 실패")
+                    Log.d("explain", "message: ${e.message}")
+                }
+            }
+        }
+        return rr
     }
 }
 

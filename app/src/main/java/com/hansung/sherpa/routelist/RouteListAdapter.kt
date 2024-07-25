@@ -44,6 +44,7 @@ private fun setRouteGraphic(baseX:Int, baseY:Int, typeId:Int, typeClass:Int, sta
 /**
  * RouteListRecyclerView의 Adapter를 정의한 클래스
  * ExpandableRecyclerView이다.
+ *
  * @param routeListModelList 'ExpandableRouteListModel' 참고 할 것
  */
 class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -82,13 +83,13 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                 }
                 holder.layout.setOnClickListener{
                     Log.d("explain", "요약 정보 클릭")
-                    //TODO("밑으로 정류장 버스 도착 정보")
-                    //val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivalInfoList2(tempBusArrivalInfoRequest)
-                    //Log.d("explain", "transitRouteResponse:${transitRouteResponse.response?.body}")
-
-                    //TODO("밑으로 대중교통 세부 정보")
-                    val routeGraphicResponse = RouteGraphicManager(this.context).getRouteGraphic(tempRouteGraphicRequest)
-                    //Log.d("explain", "transitRouteResponse:${routeGraphicResponse.value?.result}")
+                    //TODO("테스트용: 밑으로 정류장 버스 도착 정보")
+                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivalInfoList2(tempBusArrivalInfoRequest)
+                    Log.d("explain", "transitRouteResponse:${transitRouteResponse?.response?.body}")
+                    //Log.d("explain", "transitRouteResponse:${transitRouteResponse.value?.response?.body?.items?.item?.get(0)?.arrtime}")
+                    //TODO("테스트용: 밑으로 대중교통 세부 정보")
+                    //val routeGraphicResponse = RouteGraphicManager(this.context).getRouteGraphic2(tempRouteGraphicRequest)
+                    //Log.d("explain", "transitRouteResponse:${routeGraphicResponse?.result?.lane?.get(0)?.section?.get(0)?.graphPos}")
                 }
             }
             // 세부 정보 영역
