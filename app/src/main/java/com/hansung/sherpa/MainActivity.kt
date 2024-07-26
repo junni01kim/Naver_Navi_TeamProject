@@ -9,33 +9,13 @@ import android.widget.ImageButton
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
@@ -44,24 +24,13 @@ import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.compose.CameraPositionState
-import com.naver.maps.map.compose.ExperimentalNaverMapApi
-import com.naver.maps.map.compose.MapProperties
-import com.naver.maps.map.compose.MapUiSettings
-import com.naver.maps.map.compose.Marker
-import com.naver.maps.map.compose.MarkerState
-import com.naver.maps.map.compose.NaverMap
-import com.naver.maps.map.compose.rememberCameraPositionState
-import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
-import com.naver.maps.map.util.MarkerIcons
 
 class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
@@ -87,10 +56,20 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         setContent {
             SherpaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    // 화면 간 이동에 대한 함수
+                    // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = SherpaScreen.Home.name
+                    ){
+                        composable(route = SherpaScreen.Home.name){
+                            HomeScreen(navController, Modifier.padding(innerPadding))
+                        }
+                        composable(route = SherpaScreen.Search.name){
+                            SearchScreen(navController, Modifier.padding(innerPadding))
+                        }
+                    }
                 }
             }
         }
@@ -181,64 +160,4 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-}
-
-@OptIn(ExperimentalNaverMapApi::class)
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
-    // Jetpack Compose
-    var mapProperties by remember {
-        mutableStateOf(
-            MapProperties(maxZoom = 10.0, minZoom = 1.0)
-        )
-    }
-    var mapUiSettings by remember {
-        mutableStateOf(
-            MapUiSettings(isLocationButtonEnabled = false)
-        )
-    }
-    val seoul = LatLng(37.532600, 127.024612)
-    val cameraPositionState: CameraPositionState = rememberCameraPositionState {
-        // 카메라 초기 위치를 설정합니다.
-        position = CameraPosition(seoul, 11.0)
-    }
-    var loc = remember {
-        mutableStateOf(LatLng(37.532600, 127.024612))
-    }
-    Box(Modifier.fillMaxSize()) {
-        NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true,),
-            properties = MapProperties(
-                locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
-            ),
-            uiSettings = MapUiSettings(
-                isLocationButtonEnabled = true,
-            ),
-            onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }) {
-            MarkerComponent(loc.value, markerIcon)
-        }
-        Column {
-            Button(onClick = {
-                mapProperties = mapProperties.copy(
-                    isBuildingLayerGroupEnabled = !mapProperties.isBuildingLayerGroupEnabled
-                )
-            }) {
-
-                Text(text = "Toggle A")
-            }
-            Button(onClick = {
-                mapUiSettings = mapUiSettings.copy(
-                    isLocationButtonEnabled = !mapUiSettings.isLocationButtonEnabled
-                )
-            }) {
-                Text(text = "Toggle B")
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalNaverMapApi::class)
-@Composable
-fun MarkerComponent(loc: LatLng, markerIcon: OverlayImage) {
-    Marker(state = MarkerState(position = loc), markerIcon)
 }
