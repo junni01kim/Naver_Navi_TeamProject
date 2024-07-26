@@ -11,6 +11,5 @@ class StaticValue {
         lateinit var naverMap:NaverMap
         lateinit var mainActivity: MainActivity
         lateinit var routeControl: RouteControl
-        lateinit var navController: NavController
     }
 }

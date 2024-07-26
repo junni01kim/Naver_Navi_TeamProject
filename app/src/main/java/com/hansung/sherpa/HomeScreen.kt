@@ -44,6 +44,7 @@ import com.naver.maps.map.overlay.OverlayImage
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun HomeScreen(
+    navController: NavController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
     modifier: Modifier = Modifier
 ) {
     val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
@@ -81,16 +82,14 @@ fun HomeScreen(
             onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }) {
             MarkerComponent(loc.value, markerIcon)
         }
-        val navController = rememberNavController()
 
         var destinationValue by remember { mutableStateOf("") }
 
         Column {
             // 검색 텍스트필드 및 검색 버튼을 위한 행
             Row(horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)) {
+                modifier = Modifier.fillMaxWidth().padding(10.dp)
+            ) {
 
                 /**
                  * DestinationTextField
@@ -100,10 +99,7 @@ fun HomeScreen(
                  */
                 TextField(
                     value = destinationValue,
-                    onValueChange = {
-                        destinationValue = it
-                        navController.navigate(SherpaScreen.Search.name)
-                    },
+                    onValueChange = {destinationValue = it},
                     modifier = Modifier
                         .fillMaxWidth(0.8f)
                         .height(55.dp),

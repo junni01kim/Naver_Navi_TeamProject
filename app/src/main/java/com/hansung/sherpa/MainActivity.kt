@@ -59,17 +59,19 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     HomeScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
-                    // 화면 이동에 대한 함수
+
+                    // 화면 간 이동에 대한 함수
+                    // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
+                    val navController = rememberNavController()
                     NavHost(
-                        navController = rememberNavController(),
-                        startDestination = SherpaScreen.Home.name,
-                        modifier = Modifier.padding(innerPadding)
+                        navController = navController,
+                        startDestination = SherpaScreen.Home.name
                     ){
                         composable(route = SherpaScreen.Home.name){
-                            HomeScreen()
+                            HomeScreen(navController)
                         }
                         composable(route = SherpaScreen.Search.name){
-                            SearchScreen()
+                            SearchScreen(navController = navController)
                         }
                     }
                 }
