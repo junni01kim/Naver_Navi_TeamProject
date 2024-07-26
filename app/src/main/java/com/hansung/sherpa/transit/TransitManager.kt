@@ -49,7 +49,6 @@ class TransitManager(context: Context) {
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(TransitRouteService::class.java).postTransitRoutes(appKey, routeRequest) // API 호출
             .enqueue(object : Callback<ResponseBody> {
-
                 // 성공시 콜백
                 override fun onResponse(
                     call: Call<ResponseBody>,

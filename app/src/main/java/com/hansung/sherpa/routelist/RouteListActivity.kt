@@ -3,10 +3,8 @@ package com.hansung.sherpa.routelist
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextClock
 import android.widget.TextView
 import android.widget.ViewFlipper
