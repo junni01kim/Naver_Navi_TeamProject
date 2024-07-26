@@ -56,10 +56,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         setContent {
             SherpaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    HomeScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-
                     // 화면 간 이동에 대한 함수
                     // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
                     val navController = rememberNavController()
@@ -68,10 +64,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         startDestination = SherpaScreen.Home.name
                     ){
                         composable(route = SherpaScreen.Home.name){
-                            HomeScreen(navController)
+                            HomeScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.Search.name){
-                            SearchScreen(navController = navController)
+                            SearchScreen(navController, Modifier.padding(innerPadding))
                         }
                     }
                 }

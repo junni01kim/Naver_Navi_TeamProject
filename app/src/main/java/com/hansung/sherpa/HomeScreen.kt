@@ -88,7 +88,9 @@ fun HomeScreen(
         Column {
             // 검색 텍스트필드 및 검색 버튼을 위한 행
             Row(horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier.fillMaxWidth().padding(10.dp)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp)
             ) {
 
                 /**
