@@ -130,4 +130,12 @@ dependencies {
     implementation("io.github.fornewid:naver-map-compose:1.7.2")
     implementation("io.github.fornewid:naver-map-location:21.0.2")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // for Compose tooling
+    // https://developer.android.com/develop/ui/compose/tooling?hl=ko
+    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    implementation(composeBom)
+
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.ui:ui-tooling-preview")
 }
