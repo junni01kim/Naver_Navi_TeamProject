@@ -82,6 +82,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.constraintlayout)
     implementation(libs.filament.android)
+    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -135,7 +136,6 @@ dependencies {
     // https://developer.android.com/develop/ui/compose/tooling?hl=ko
     val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
     implementation(composeBom)
-
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
 }
