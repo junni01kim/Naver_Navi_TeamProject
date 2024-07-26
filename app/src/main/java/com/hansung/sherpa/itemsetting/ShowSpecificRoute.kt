@@ -24,13 +24,13 @@ class ShowSpecificRoute {
 //    )//임시 변수 이후 삭제 -> 선택된 값을 위와 같이 작성하여 전달
 
     private var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
-        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",mutableListOf("200m 직진", "500m우회전")),
-        BusSectionInfo(3500.0, 30, "한성대학교정문", "한성대입구역", listOf(BusLane("","성북02",0,0,"0",0)), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
-        PedestrianSectionInfo(84.0, 5, "한성대입구역", "한성대입구역2번출구",mutableListOf("200m 직진", "500m우회전","200m 유턴", "500m 로롤","200m 직진", "500m우회전"))
+        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장")),
+        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(BusLane("","성북02",0,0,"0",0)), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
+        PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
     )
 
     fun showSpecificRoute(){
-        var adapter = RouteDetailAdapter(showRouteDetails, StaticValue.mainActivity)
+        var adapter = RouteDetailAdapter(showRouteDetails)
         val specificRoute = StaticValue.mainActivity.findViewById<RecyclerView>(R.id.specific_route)
         specificRoute.adapter = adapter
         specificRoute.layoutManager = LinearLayoutManager(StaticValue.mainActivity)
@@ -40,9 +40,10 @@ class ShowSpecificRoute {
         val sbc = StaticValue.mainActivity.findViewById<HorizontalBarChart>(R.id.specificrouteprogress) //Stacked Bar Chart
 
         val entries = ArrayList<BarEntry>()
-        entries.add(BarEntry(0f, floatArrayOf(10f, 80f, 10f))) //TODO 비율 계산 알고리즘 필요
+        entries.add(BarEntry(0f, calcPercentage(showRouteDetails)))
 
         val set = BarDataSet(entries, "")
+        //TODO 색상 맞추는 작업 필요
         set.colors = mutableListOf(
             Color.GRAY,
             Color.GREEN,
@@ -76,6 +77,23 @@ class ShowSpecificRoute {
 
         val specificCoordinatorLayout = StaticValue.mainActivity.findViewById<CoordinatorLayout>(R.id.specific_route_coordinatorlayout)
         specificCoordinatorLayout.visibility = View.VISIBLE
+    }
+
+    private fun calcPercentage(showRouteDetails:MutableList<SectionInfo>):FloatArray{
+        val resArray = mutableListOf<Float>()
+
+        var sum = 0.0
+
+        for(i in showRouteDetails){
+            sum += i.distance
+            resArray.add(i.distance.toFloat())
+        }
+
+        for(i in 0 until resArray.size){
+            resArray[i] = (resArray[i] / sum * 100).toFloat()
+        }
+
+        return resArray.toFloatArray()
     }
 
 }

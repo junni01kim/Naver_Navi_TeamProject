@@ -117,7 +117,7 @@
         android:visibility="gone">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/expand_specific_contents"
+            android:id="@+id/expand_contents"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="4dp"
@@ -128,39 +128,68 @@
                 android:id="@+id/group_of_specific_route_context"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layout_constraintBottom_toBottomOf="@id/expand_specific_contents"
-                app:layout_constraintLeft_toLeftOf="@id/expand_specific_contents"
-                app:layout_constraintRight_toRightOf="@id/expand_specific_contents"
-                app:layout_constraintTop_toTopOf="@+id/expand_specific_contents">
+                app:layout_constraintBottom_toBottomOf="@id/expand_contents"
+                app:layout_constraintLeft_toLeftOf="@id/expand_contents"
+                app:layout_constraintRight_toRightOf="@id/expand_contents"
+                app:layout_constraintTop_toTopOf="@+id/expand_contents">
 
                 <ImageView
                     android:id="@+id/expand_route_color_image"
-                    app:layout_constraintLeft_toLeftOf="@id/expand_specific_contents"
-                    app:layout_constraintTop_toTopOf="@id/expand_specific_contents"
-                    app:layout_constraintBottom_toBottomOf="@id/expand_specific_contents"
+                    app:layout_constraintLeft_toLeftOf="@id/expand_contents"
+                    app:layout_constraintTop_toTopOf="@id/expand_contents"
+                    app:layout_constraintBottom_toBottomOf="@id/expand_contents"
                     android:layout_width="15dp"
                     android:layout_height="match_parent"
                     android:src="@drawable/greenbusrouteimage"/>
 
+                <!-- Pedestrian에서 해당 부분의 view를 모두 지우고 pedestrian 추가 -->
                 <LinearLayout
+                    android:id="@+id/expand_specific_contents"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
-                    <TextView
-                        android:id="@+id/number_of_transit"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:text="버스 번호"
-                        android:textStyle="bold"
-                        android:textSize="26sp"/>
 
-                    <TextView
-                        android:id="@+id/layover"
+                    <!-- Pedestrian에서 해당 부분을 gone으로 설정 -->
+                    <LinearLayout
+                        android:id="@+id/number_of_transit_wrapper"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="23dp"
-                        android:text="정류장1\n정류장2\n정류장3\n...\n정류장4" />
+                        android:layout_margin="4dp">
+
+                        <TextView
+                            android:id="@+id/number_of_transit"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:text="버스 번호"
+                            android:textStyle="bold"
+                            android:textSize="26sp"/>
+                        <TextView
+                            android:id="@+id/transit_waiting_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:text="몇분 뒤 도착"
+                            android:textStyle="bold"
+                            android:textSize="16sp"/>
+                        <TextView
+                            android:id="@+id/next_transit_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:text="다음 예정 몇분 뒤"
+                            android:textStyle="bold"
+                            android:textSize="10sp"/>
+
+                    </LinearLayout>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/stations"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp">
+
+                    </androidx.recyclerview.widget.RecyclerView>
 
                 </LinearLayout>
 
