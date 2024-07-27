@@ -8,12 +8,29 @@ import com.google.gson.annotations.SerializedName
  * @property code if the request was successful Ok otherwise see the service dependent and general status codes.
  * @property routes An array of Route objects, ordered by descending recommendation rank.
  * @property waypoints Array of Waypoint objects representing all waypoints in order
+ * @property message optional human-readable error message. All other status types are service dependent.
+ * @property dataVersion Every response object has a dataVersion property containing timestamp from the original OpenStreetMap file. This field is optional. It can be ommited if data_version parameter was not set on osrm-extract stage or OSM file has not osmosis_replication_timestamp section.
  */
 data class ShortWalkResponse (
 
+    /**
+     * (필수 값)
+     * code 상태 코드 :
+     * - "Ok" : Request could be processed as expected.
+     * - "InvalidUrl" : URL string is invalid.
+     * - "InvalidService" : Service name is invalid.
+     * - "InvalidVersion" : Version is not found.
+     * - "InvalidOptions" : Options are invalid.
+     * - "InvalidQuery" : The query string is synctactically malformed.
+     * - "InvalidValue" : The successfully parsed query parameters are invalid.
+     * - "NoSegment" : One of the supplied input coordinates could not snap to street segment.
+     * - "TooBig" : The request size violates one of the service specific request size restrictions.
+     */
     @SerializedName("code"      ) var code      : String?              = null,
     @SerializedName("routes"    ) var routes    : ArrayList<Routes>    = arrayListOf(),
-    @SerializedName("waypoints" ) var waypoints : ArrayList<Waypoints> = arrayListOf()
+    @SerializedName("waypoints" ) var waypoints : ArrayList<Waypoints> = arrayListOf(),
+    @SerializedName("message" ) var message : String? = null,
+    @SerializedName("data_version" ) var dataVersion : String? = null,
 
 )
 

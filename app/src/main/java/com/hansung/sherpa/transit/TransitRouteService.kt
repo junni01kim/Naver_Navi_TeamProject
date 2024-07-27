@@ -34,6 +34,16 @@ interface TransitRouteService {
     @GET("searchPubTransPathT")
     fun getOdsayTransitRoutes(@QueryMap options: Map<String, String>): Call<ResponseBody>
 
+    /**
+     *
+     * @param SX 출발지 경도
+     * @param SY 출발지 위도
+     * @param EX 도착지 경도
+     * @param EY 도착지 위도
+     * @param options 쿼리스트링 옵션들
+     *
+     * 옵션 더보기 [OSRM route options](https://project-osrm.org/docs/v5.24.0/api/#route-service)
+     */
     @GET("routed-foot/route/v1/driving/{SX},{SY};{EX},{EY}")
     fun getOSRMWalk(@Path("SX") SX: String
                     , @Path("SY") SY: String

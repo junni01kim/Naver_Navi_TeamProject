@@ -217,15 +217,71 @@ class TransitManager(context: Context) {
     }
 
     /**
-     * TODO OSRM 요청 매핑
-     * 
-     * @return
+     * OSRM 쿼리스트링 매핑 함수:
+     * - 각 매개변수에 대한 상세 설명을 포함합니다.
+     *
+     * 설정 옵션:
+     * - `alternatives`: 대체 경로의 수 (false, true, number)
+     * - `steps`: 경로의 세부 단계 포함 여부 (false, true)
+     * - `annotations`: 경로의 각 구간에 대한 세부 정보 (false, true, nodes, distance, duration, datasource, weight, speed)
+     * - `geometries`: 경로선을 그리는 데이터 유형 (polyline, polyline6, geojson)
+     * - `overview`: 경로 전체 경로선의 세부 수준 (simplified, full, false)
+     *
+     * [OSRM 공식문서](https://project-osrm.org/docs/v5.24.0/api/#route-service)
+     * @return OSRM API에 전달될 설정이 포함된 Map<String, String>
      */
-    fun osrmRequestToMap(): Map<String, String> {
+    private fun osrmRequestToMap(): Map<String, String> {
+        /**
+         * 대체 경로의 수
+         * - false (기본) : 기본 경로 1개
+         * - true : 대체 경로를 모두 요청
+         * - number : number개의 대체 경로 수를 요청 ex) "2"이면 최대 3개 까지의 경로를 요청 받게 된다.
+         */
+        val alternatives = "true"
+
+        /**
+         *  각 경로 구간에 대한 이동 단계 :
+         *  - false (기본) : 요청하지 않음
+         *  - true : 요청
+         */
+        val steps = "true"
+
+        /**
+         *  각 geometry 마다의 세부 정보 :
+         *  - false (기본) : 요청하지 않음
+         *  - true : 세부 내용 전부 요청
+         *  - nodes : 노드 정보만 요청
+         *  - distance : 거리 정보만 요청
+         *  - duration : 이동 시간만 요청
+         *  - datasource : TODO 데이터 분석 필요
+         *  - weight : TODO 데이터 분석 필요
+         *  - speed : TODO 데이터 분석 필요
+         */
+        val annotations = "false"
+
+        /**
+         * 경로선을 그리는 데이터 유형 (경로 전체, 각 구간별 포함) :
+         * - polyline (기본) : 정밀도 5의 폴리라인 데이터 제공
+         * - polyline6 : 정밀도 6의 폴리라인 데이터 제공
+         * - geojson : json 값으로 좌표 리스트를 제공
+         *
+         * 폴리라인 라이브러리 : [mapbox/polyline](https://www.npmjs.com/package/polyline)
+         */
+        val geometries = "geojson"
+
+        /**
+         * 경로 전체 경로선을 보여주는 정도 :
+         * - simplified (기본) : 가장 높은 줌 레벨에서 보여주는 경로
+         * - full : 전체 상세 경로
+         * - false : 요청하지 않음
+         */
+        val overview = "full"
         return mapOf(
-            "overview" to "false",
-            "alternatives" to "true",
-            "steps" to "true",
+            "alternatives" to alternatives,
+            "steps" to steps,
+            "annotations" to annotations,
+            "geometries" to geometries,
+            "overview" to overview,
         )
     }
 }
