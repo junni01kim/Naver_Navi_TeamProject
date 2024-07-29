@@ -35,6 +35,8 @@ interface TransitRouteService {
     fun getOdsayTransitRoutes(@QueryMap options: Map<String, String>): Call<ResponseBody>
 
     /**
+     * OSRM API 요청
+     * 한 번 연결되면 512개의 요청을 보낼 수 있고, 그 이상은 5초를 기다려야 됨.
      *
      * @param SX 출발지 경도
      * @param SY 출발지 위도

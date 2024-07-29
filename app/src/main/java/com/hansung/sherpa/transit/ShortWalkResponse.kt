@@ -26,10 +26,10 @@ data class ShortWalkResponse (
      * - "NoSegment" : One of the supplied input coordinates could not snap to street segment.
      * - "TooBig" : The request size violates one of the service specific request size restrictions.
      */
-    @SerializedName("code"      ) var code      : String?              = null,
-    @SerializedName("routes"    ) var routes    : ArrayList<Routes>    = arrayListOf(),
-    @SerializedName("waypoints" ) var waypoints : ArrayList<Waypoints> = arrayListOf(),
-    @SerializedName("message" ) var message : String? = null,
+    @SerializedName("code"         ) var code      : String?              = null,
+    @SerializedName("routes"       ) var routes    : ArrayList<Routes>    = arrayListOf(),
+    @SerializedName("waypoints"    ) var waypoints : ArrayList<Waypoints> = arrayListOf(),
+    @SerializedName("message"      ) var message : String? = null,
     @SerializedName("data_version" ) var dataVersion : String? = null,
 
 )
@@ -45,6 +45,7 @@ data class ShortWalkResponse (
  */
 data class Routes (
 
+    @SerializedName("geometry"    ) var geometry       : Geometry? = Geometry(),
     @SerializedName("legs"        ) var legs       : ArrayList<Legs> = arrayListOf(),
     @SerializedName("weight_name" ) var weightName : String?         = null,
     @SerializedName("weight"      ) var weight     : Double?         = null,
@@ -52,6 +53,22 @@ data class Routes (
     @SerializedName("distance"    ) var distance   : Double?         = null
 
 )
+
+/**
+ * TODO
+ * The unsimplified geometry of the route segment, depending on the geometries parameter.
+ *
+ * @property coordinates [[127.000888,37.54282],[127.001008,37.542631],[127.001083,37.542544]]
+ * @property type "LineString"
+ */
+data class Geometry(
+
+    @SerializedName("coordinates" ) var coordinates       : ArrayList<ArrayList<Double>>? = arrayListOf(),
+    @SerializedName("type"        ) var type       : String? = null,
+
+)
+
+
 
 /**
  * TODO
@@ -87,7 +104,7 @@ data class Legs (
  */
 data class Steps (
 
-    @SerializedName("geometry"      ) var geometry      : String?                  = null,
+    @SerializedName("geometry"      ) var geometry      : Geometry?                  = Geometry(),
     @SerializedName("maneuver"      ) var maneuver      : Maneuver?                = Maneuver(),
     @SerializedName("mode"          ) var mode          : String?                  = null,
     @SerializedName("driving_side"  ) var drivingSide   : String?                  = null,
