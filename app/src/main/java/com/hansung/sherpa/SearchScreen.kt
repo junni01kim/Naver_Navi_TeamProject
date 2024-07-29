@@ -15,12 +15,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -39,10 +42,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -80,6 +85,15 @@ class DefaultButton{
         val colors = Color.Transparent
     }
 }
+
+// Search, Back, Change Button에 사용할 공통 속성
+class DefaultIcon{
+    companion object {
+        val modifier = Modifier.size(30.dp)
+        val tint = Color.Gray
+    }
+}
+
 
 @Composable
 fun SearchScreen(
@@ -148,6 +162,8 @@ fun SearchArea() {
                 // 버튼에 들어갈 이미지
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.swap),
+                    modifier = DefaultIcon.modifier,
+                    tint = DefaultIcon.tint,
                     contentDescription = "텍스트 전환 버튼 아이콘"
                 )
             }
@@ -176,7 +192,9 @@ fun SearchArea() {
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.close),
+                        imageVector = Icons.Default.Close,
+                        modifier = DefaultIcon.modifier,
+                        tint = DefaultIcon.tint,
                         contentDescription = "뒤로가기 버튼 아이콘"
                     )
                 }
@@ -206,7 +224,9 @@ fun SearchArea() {
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.search),
+                        imageVector = Icons.Default.Search,
+                        modifier = DefaultIcon.modifier,
+                        tint = DefaultIcon.tint,
                         contentDescription = "검색 버튼 아이콘"
                     )
                 }
@@ -218,14 +238,9 @@ fun SearchArea() {
 @Composable
 fun ExpandableCard(
     title: String,
-    titleFontSize: TextUnit = MaterialTheme.typography.titleLarge.fontSize,
-    titleFontWeight: FontWeight = FontWeight.Bold,
     description: String,
-    descriptionFontSize: TextUnit = MaterialTheme.typography.titleSmall.fontSize,
-    descriptionFontWeight: FontWeight = FontWeight.Normal,
-    descriptionMaxLines: Int = 4,
-    padding: Dp = 12.dp
 ) {
+    val padding: Dp = 10.dp
     var expandedState by remember { mutableStateOf(false) }
 
     val rotationState by animateFloatAsState(
@@ -247,41 +262,34 @@ fun ExpandableCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth().wrapContentHeight()
                 .padding(padding)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    modifier = Modifier
-                        .weight(6f),
-                    text = title,
-                    fontSize = titleFontSize,
-                    fontWeight = titleFontWeight,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            Row(verticalAlignment = Alignment.Top){
+                Row(verticalAlignment = Alignment.Bottom){
+                    Text(text = "12분", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(30.dp))
+                    Text(text ="9시 53분 도착")
+                }
+                Spacer(modifier = Modifier.weight(1f))
                 IconButton(
                     modifier = Modifier
-                        .weight(1f)
-                        .alpha(0.2f)
+                        .size(20.dp)
                         .rotate(rotationState),
                     onClick = {
                         expandedState = !expandedState
                     }) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
+                        tint = DefaultIcon.tint,
                         contentDescription = "Drop-Down Arrow"
                     )
                 }
             }
+
             if (expandedState) {
                 Text(
                     text = description,
-                    fontSize = descriptionFontSize,
-                    fontWeight = descriptionFontWeight,
-                    maxLines = descriptionMaxLines,
                     overflow = TextOverflow.Ellipsis
                 )
             }
