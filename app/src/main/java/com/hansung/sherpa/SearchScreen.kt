@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -120,18 +121,7 @@ fun SearchScreen(
         SortingArea()
 
         // 경로 검색 결과 리스트가 나오는 Composable
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-            item { ExpandableCard() }
-        }
+        RouteListArea()
     }
 }
 
@@ -270,6 +260,23 @@ fun SortingArea() {
     ){
         Text("출발시간")
         Text("최적경로 순")
+    }
+}
+
+/**
+ * 이동할 경로들의 리스트가 나오는 영역
+ *
+ * LazyColumn
+ * 전체 대중교통 리스트가 나온다.
+ */
+@Composable
+fun RouteListArea(){
+    // 샘플 코드
+    val items = listOf(0,1,2,3,4,5,6,7,8,9)
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        items(items){
+            ExpandableCard()
+        }
     }
 }
 
