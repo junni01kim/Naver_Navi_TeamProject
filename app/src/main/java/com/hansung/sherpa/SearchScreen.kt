@@ -28,6 +28,8 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -65,45 +67,43 @@ import androidx.navigation.compose.rememberNavController
 
 /**
  * 컴포넌트의 속성(modifier)을 관리
+ * 값들을 통일하기 위해서 사용하였다.
+ * 현재는 싱글톤을 이용하여 제작해두었지만 나중에 별개 클래스로 분리할 예정
  */
-// Departure TextField, Destination TextField에 사용할 공통 속성
-class DefaultTextField {
-    companion object {
+object Property {
+    // Departure TextField, Destination TextField에 사용할 공통 속성
+    object TextField {
         val height = 50.dp
         val modifier = Modifier
             .fillMaxWidth(0.8f)
             .height(height)
         val textStyle = TextStyle.Default.copy(fontSize = 12.sp)
         val shape = RoundedCornerShape(12.dp)
-        val colors = Color.LightGray
+        val containerColor = Color.LightGray
+        val textColor = Color.DarkGray
         val singleLine = true
     }
-}
 
-// Search, Back, Change Button에 사용할 공통 속성
-class DefaultButton{
-    companion object {
+    // Search, Back, Change Button에 사용할 공통 속성
+    object Button{
         val modifier = Modifier
             .width(60.dp)
             .height(50.dp)
         val shape = RoundedCornerShape(0.dp)
         val colors = Color.Transparent
     }
-}
 
-// Search, Back, Change Button에 사용할 공통 속성
-class DefaultIcon{
-    companion object {
+    // Search, Back, Change Button에 사용할 공통 속성
+    object Icon{
         val modifier = Modifier.size(30.dp)
         val tint = Color.Gray
     }
 }
 
-data class StackedData(
-    val inputs: List<Float>,
-    val colors: List<Color>
-)
-
+/**
+ * 경로 안내를 진행할 경로를 검색하고 결정하는 화면
+ * @param navController 홈화면에서 navController 원형, ※ 매개변수 지정 필수
+ */
 @Composable
 fun SearchScreen(
     navController: NavController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
@@ -113,24 +113,24 @@ fun SearchScreen(
         .fillMaxSize()
         .background(Color.LightGray),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        // 검색 항목을 구현한 Composable
         SearchArea()
 
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .background(Color.White)
-            .padding(horizontal = 10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ){
-            Text("출발시간")
-            Text("최적경로 순")
-        }
+        // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
+        SortingArea()
 
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            item { ExpandableCard(title = "Card Title", description = "info") }
-            item { ExpandableCard(title = "Test Title", description = "test") }
-            item { ExpandableCard(title = "Second Title", description = "second") }
+        // 경로 검색 결과 리스트가 나오는 Composable
+        LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
+            item { ExpandableCard() }
         }
     }
 }
@@ -143,13 +143,12 @@ fun SearchScreen(
  */
 @Composable
 fun SearchArea() {
-    /**
-     * 저장되는 데이터 목록
-     */
+    // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
     var destinationValue by remember { mutableStateOf("") }
 
+    // 아이템 간격 모듈화
     val space = 10.dp
     Row(horizontalArrangement = Arrangement.SpaceAround,
         verticalAlignment = Alignment.CenterVertically,
@@ -164,15 +163,15 @@ fun SearchArea() {
          * Departure TextField/ Destination TextField 텍스트 변경 버튼
          */
         Column(verticalArrangement = Arrangement.Center){
-            IconButton(modifier = DefaultButton.modifier,
+            IconButton(modifier = Property.Button.modifier,
                 onClick = {
                     // TODO: 장소 검색 결과
                 }) {
                 // 버튼에 들어갈 이미지
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.swap),
-                    modifier = DefaultIcon.modifier,
-                    tint = DefaultIcon.tint,
+                    modifier = Property.Icon.modifier,
+                    tint = Property.Icon.tint,
                     contentDescription = "텍스트 전환 버튼 아이콘"
                 )
             }
@@ -180,30 +179,33 @@ fun SearchArea() {
 
         Column {
             /**
-             * Departure TextField/ Back Button
-             * 출발지 입력창과 뒤로가기(홈화면) 이동 창 배치
+             * Departure TextField
+             * 출발지 입력창
+             *
+             * Back Button
+             * 뒤로가기(홈화면) 이동 창
              */
             Row(verticalAlignment = Alignment.CenterVertically){
                 TextField(
                     value = departureValue,
                     onValueChange = {departureValue = it},
-                    modifier = DefaultTextField.modifier,
-                    textStyle = DefaultTextField.textStyle,
-                    shape = DefaultTextField.shape,
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = DefaultTextField.colors),
-                    singleLine = DefaultTextField.singleLine,
+                    modifier = Property.TextField.modifier,
+                    textStyle = Property.TextField.textStyle,
+                    shape = Property.TextField.shape,
+                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor),
+                    singleLine = Property.TextField.singleLine,
                     placeholder = { Text("출발지를 입력하세요", fontSize = 12.sp) }
                 )
                 Spacer(modifier = Modifier.width(5.dp))
-                IconButton(modifier = DefaultButton.modifier,
+                IconButton(modifier = Property.Button.modifier,
                     onClick = {
                         // TODO: 장소 검색 결과
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
                         imageVector = Icons.Default.Close,
-                        modifier = DefaultIcon.modifier,
-                        tint = DefaultIcon.tint,
+                        modifier = Property.Icon.modifier,
+                        tint = Property.Icon.tint,
                         contentDescription = "뒤로가기 버튼 아이콘"
                     )
                 }
@@ -212,30 +214,33 @@ fun SearchArea() {
             Spacer(modifier = Modifier.height(space))
 
             /**
-             * Destination TextField/ Search Button
-             * 도착지 입력창과 경로 검색하기 창 배치
+             * Destination TextField
+             * 도착지 입력창
+             *
+             * Search Button
+             * 경로 검색하기 버튼
              */
             Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically){
                 TextField(
                     value = destinationValue,
                     onValueChange = {destinationValue = it},
-                    modifier = DefaultTextField.modifier,
-                    textStyle = DefaultTextField.textStyle,
-                    shape = DefaultTextField.shape,
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = DefaultTextField.colors),
-                    singleLine = DefaultTextField.singleLine,
+                    modifier = Property.TextField.modifier,
+                    textStyle = Property.TextField.textStyle,
+                    shape = Property.TextField.shape,
+                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor),
+                    singleLine = Property.TextField.singleLine,
                     placeholder = { Text("목적지를 입력하세요", fontSize = 12.sp) }
                 )
                 Spacer(modifier = Modifier.width(5.dp))
-                IconButton(modifier = DefaultButton.modifier,
+                IconButton(modifier = Property.Button.modifier,
                     onClick = {
                         // TODO: 장소 검색 결과
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
                         imageVector = Icons.Default.Search,
-                        modifier = DefaultIcon.modifier,
-                        tint = DefaultIcon.tint,
+                        modifier = Property.Icon.modifier,
+                        tint = Property.Icon.tint,
                         contentDescription = "검색 버튼 아이콘"
                     )
                 }
@@ -244,11 +249,38 @@ fun SearchArea() {
     }
 }
 
+/**
+ * LazyColumn에 나열 될 경로를 우선순위 별로 정렬하는데 사용할 버튼들
+ *
+ * SearchingTime
+ * 대중교통 경로가 안내된 시간
+ *
+ * SortingAlgorithm
+ * 대중교통 리스트가 정렬되는 기준
+ */
 @Composable
-fun ExpandableCard(
-    title: String,
-    description: String,
-) {
+fun SortingArea() {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()
+        .background(Color.White)
+        .padding(horizontal = 10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Text("출발시간")
+        Text("최적경로 순")
+    }
+}
+
+/**
+ * 확장 되는 리스트를 구현하기 위한 공간
+ *
+ * 탐색된 경로의 전체(요약) 정보가 담기는 영역이다.
+ * ※ (2024-07-30) 리스트 확장 후 화면을 밑으로 내렸다가 올리면 리스트가 자동으로 닫히는 오류가 존재한다.
+ */
+@Composable
+fun ExpandableCard() {
     val padding: Dp = 10.dp
     var expandedState by remember { mutableStateOf(false) }
 
@@ -258,13 +290,9 @@ fun ExpandableCard(
 
     Card(
         modifier = Modifier
-            .fillMaxWidth()
-            .animateContentSize(
-                animationSpec = tween(
-                    durationMillis = 300,
-                    easing = LinearOutSlowInEasing
-                )
-            ),
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(0.dp),
+        colors = CardColors(Color.White,Color.DarkGray,Color.White,Color.DarkGray),
         onClick = {
             expandedState = !expandedState
         }
@@ -291,12 +319,13 @@ fun ExpandableCard(
                     }) {
                     Icon(
                         imageVector = Icons.Default.ArrowDropDown,
-                        tint = DefaultIcon.tint,
+                        tint = Property.Icon.tint,
                         contentDescription = "Drop-Down Arrow"
                     )
                 }
             }
 
+            // 차트 샘플 코드
             val routeList = listOf(TempRoute(5), TempRoute(25), TempRoute(70) ,TempRoute(50), TempRoute(50))
             Chart(routeList,200)
 
@@ -309,6 +338,10 @@ fun ExpandableCard(
     }
 }
 
+/**
+ * 확장 시 세부 정보를 표시하는 영역
+ * 이동수단 단위의 정보를 다룬다.
+ */
 @Composable
 fun ExpandItem() {
     Row(modifier = Modifier.padding(5.dp)){
@@ -327,24 +360,34 @@ fun ExpandItem() {
     }
 }
 
+// 임시 샘플 코드이다.
 data class TempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:Int = 0, val number:String = "이름", val time2:String = "도착시간")
-class TempColor{
-    companion object{
-        val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta)
-    }
+object TempColor{
+    val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta)
 }
+
+/**
+ * 대중교통의 정보를 요약해서 표현하기 위한 차트이다.
+ * ※ (2024-07-30) 차트의 말단이 원형이 아니어서 현재 다르게 보이지만, 실제의 경우 양끝단이 도보일 거라는 점에서 이후에 고려
+ */
 @Composable
 fun Chart(routeList:List<TempRoute>, fullTime:Int) {
     val width = 400.dp
     Row(modifier = Modifier
         .fillMaxWidth()
-        .height(12.dp).background(Color.LightGray)) {
+        .height(12.dp)
+        .background(Color.LightGray)) {
         routeList.forEachIndexed { index, it ->
             Text(text = it.time,
                 fontSize = 7.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.width(width*it.partTime/fullTime).fillMaxHeight().background(TempColor.color[index],
-                    CircleShape), textAlign = TextAlign.Center)
+                modifier = Modifier
+                    .width(width * it.partTime / fullTime)
+                    .fillMaxHeight()
+                    .background(
+                        TempColor.color[index],
+                        CircleShape
+                    ), textAlign = TextAlign.Center)
         }
     }
 }
