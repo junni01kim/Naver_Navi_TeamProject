@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -35,6 +36,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,10 +48,12 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -58,14 +62,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
-import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
-import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
-import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
-import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
-import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 
 /**
  * 컴포넌트의 속성(modifier)을 관리
@@ -103,6 +99,10 @@ class DefaultIcon{
     }
 }
 
+data class StackedData(
+    val inputs: List<Float>,
+    val colors: List<Color>
+)
 
 @Composable
 fun SearchScreen(
@@ -296,15 +296,9 @@ fun ExpandableCard(
                     )
                 }
             }
-            // TODO: 차트 추가
-            val modelProducer = remember { CartesianChartModelProducer() }
-            LaunchedEffect(Unit) { modelProducer.runTransaction { columnSeries { series(4, 12, 8, 16) } } }
-            CartesianChartHost(
-                rememberCartesianChart(
-                    rememberColumnCartesianLayer()
-                ),
-                modelProducer,
-            )
+
+            val routeList = listOf(TempRoute(5), TempRoute(25), TempRoute(70) ,TempRoute(50), TempRoute(50))
+            Chart(routeList,200)
 
             if (expandedState) {
                 ExpandItem()
@@ -330,6 +324,28 @@ fun ExpandItem() {
         Text("이름")
         Spacer(modifier = Modifier.width(10.dp))
         Text("도착 시간")
+    }
+}
+
+data class TempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:Int = 0, val number:String = "이름", val time2:String = "도착시간")
+class TempColor{
+    companion object{
+        val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta)
+    }
+}
+@Composable
+fun Chart(routeList:List<TempRoute>, fullTime:Int) {
+    val width = 400.dp
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .height(12.dp).background(Color.LightGray)) {
+        routeList.forEachIndexed { index, it ->
+            Text(text = it.time,
+                fontSize = 7.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.width(width*it.partTime/fullTime).fillMaxHeight().background(TempColor.color[index],
+                    CircleShape), textAlign = TextAlign.Center)
+        }
     }
 }
 
