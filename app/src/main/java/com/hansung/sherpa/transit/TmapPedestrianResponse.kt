@@ -1,6 +1,6 @@
 package com.hansung.sherpa.transit
 
-data class PedestrianResponse(
+data class TmapPedestrianResponse(
     val features: List<Feature>?=null,
     val type: String? = null
 ) {

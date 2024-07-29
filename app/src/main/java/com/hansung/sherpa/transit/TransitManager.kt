@@ -133,9 +133,9 @@ class TransitManager(context: Context) {
      * @param routeRequest:PedestrianRouteRequest 요청할 정보 객체
      * @return PedestrianResponse
      */
-    fun getPedestrianRoute(routeRequest: PedestrianRouteRequest): PedestrianResponse {
+    fun getPedestrianRoute(routeRequest: TmapPedestrianRouteRequest): TmapPedestrianResponse {
         val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
-        lateinit var rr: PedestrianResponse
+        lateinit var rr: TmapPedestrianResponse
         runBlocking<Job> {
             launch(Dispatchers.IO) {
                 try {
@@ -148,11 +148,11 @@ class TransitManager(context: Context) {
                         .postPedestrianRoutes(appKey, routeRequest).execute() // API 호출
                     rr = Gson().fromJson(
                         response.body()!!.string(),
-                        PedestrianResponse::class.java
+                        TmapPedestrianResponse::class.java
                     )
                 } catch (e: IOException) {
                     Log.i("Error", "Transit API Exception")
-                    rr = PedestrianResponse()
+                    rr = TmapPedestrianResponse()
                 }
             }
         }

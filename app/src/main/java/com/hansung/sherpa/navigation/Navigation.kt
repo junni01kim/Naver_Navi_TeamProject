@@ -7,8 +7,8 @@ import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
+import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.transit.TransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
@@ -16,7 +16,7 @@ import com.naver.maps.map.overlay.PathOverlay
 class Navigation {
     private var startLatLng: LatLng = LatLng(0.0, 0.0)
     var endLatLng: LatLng = LatLng(0.0, 0.0)
-    private var routeRequest: TransitRouteRequest = setRouteRequest(startLatLng, endLatLng)
+    private var routeRequest: TmapTransitRouteRequest = setRouteRequest(startLatLng, endLatLng)
     private var pathOverlayList:MutableList<PathOverlay> = mutableListOf()
     lateinit var naverMap: NaverMap
     lateinit var mainActivity: MainActivity
@@ -41,7 +41,7 @@ class Navigation {
         // 좌표 기반 경로 검색
         routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
         val transitRouteResponse = TransitManager(mainActivity).getTmapTransitRoutes(routeRequest)
-        TransitManager(mainActivity).getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
+//        TransitManager(mainActivity).getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
 
         return transitRoutes
