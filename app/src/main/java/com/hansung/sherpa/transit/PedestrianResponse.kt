@@ -1,8 +1,8 @@
 package com.hansung.sherpa.transit
 
 data class PedestrianResponse(
-    val features: List<Feature>,
-    val type: String
+    val features: List<Feature>?=null,
+    val type: String? = null
 ) {
     data class Feature(
         val geometry: Geometry,

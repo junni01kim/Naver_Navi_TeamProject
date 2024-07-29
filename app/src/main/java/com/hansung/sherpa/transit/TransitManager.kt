@@ -49,7 +49,6 @@ class TransitManager(context: Context) {
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(TransitRouteService::class.java).postTransitRoutes(appKey, routeRequest) // API 호출
             .enqueue(object : Callback<ResponseBody> {
-
                 // 성공시 콜백
                 override fun onResponse(
                     call: Call<ResponseBody>,
@@ -122,6 +121,38 @@ class TransitManager(context: Context) {
                     }*/
                 } catch (e: IOException) {
                     Log.e("Error", "Transit API Exception ${rr}")
+                }
+            }
+        }
+        return rr
+    }
+
+    /**
+     * 보행자 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
+     *
+     * @param routeRequest:PedestrianRouteRequest 요청할 정보 객체
+     * @return PedestrianResponse
+     */
+    fun getPedestrianRoute(routeRequest: PedestrianRouteRequest): PedestrianResponse {
+        val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
+        lateinit var rr: PedestrianResponse
+        runBlocking<Job> {
+            launch(Dispatchers.IO) {
+                try {
+                    Log.d("reqlocation","" + routeRequest.startY +", "+ routeRequest.startX+"    "+routeRequest.endY+", "+routeRequest.endX)
+                    val response = Retrofit.Builder()
+                        .baseUrl(context.getString(R.string.route_base_url))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
+                        .postPedestrianRoutes(appKey, routeRequest).execute() // API 호출
+                    rr = Gson().fromJson(
+                        response.body()!!.string(),
+                        PedestrianResponse::class.java
+                    )
+                } catch (e: IOException) {
+                    Log.i("Error", "Transit API Exception")
+                    rr = PedestrianResponse()
                 }
             }
         }

@@ -165,4 +165,21 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
+    // ---------- 수정예정 ----------
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                1 -> { // RouteList Activity 문제점 좀 있음
+                    val startKeyword = data?.getStringExtra("startKeyword")!!
+                    val endKeyword = data.getStringExtra("endKeyword")!!
+                    Log.d("explain", "$startKeyword is $endKeyword")
+                    navigation.getTransitRoutes(startKeyword, endKeyword)
+                }
+            }
+        }
+    }
 }
+
