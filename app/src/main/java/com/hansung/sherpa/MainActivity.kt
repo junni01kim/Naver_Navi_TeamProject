@@ -24,7 +24,6 @@ import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
-import com.hansung.sherpa.itemsetting.RouteDetailAdapter
 import com.hansung.sherpa.itemsetting.RouteDetailItem
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
