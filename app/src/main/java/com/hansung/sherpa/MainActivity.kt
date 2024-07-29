@@ -22,6 +22,7 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.ui.SpecificRouteScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -68,6 +69,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         }
                         composable(route = SherpaScreen.Search.name){
                             SearchScreen(navController, Modifier.padding(innerPadding))
+                        }
+                        composable(route = SherpaScreen.SpecificRoute.name){
+                            // KJH 세부 경로 화면
+                            SpecificRouteScreen(navController)
                         }
                     }
                 }

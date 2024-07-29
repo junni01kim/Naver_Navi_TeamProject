@@ -122,6 +122,7 @@ fun HomeScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(Color.Black),
                     onClick = {
+                        //navController.navigate(SherpaScreen.Search.name)
                         navController.navigate(SherpaScreen.Search.name)
                     }
                 ) {
