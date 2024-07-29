@@ -34,6 +34,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +58,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottomAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStartAxis
+import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
 
 /**
  * 컴포넌트의 속성(modifier)을 관리
@@ -262,7 +271,8 @@ fun ExpandableCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxWidth().wrapContentHeight()
+                .fillMaxWidth()
+                .wrapContentHeight()
                 .padding(padding)
         ) {
             Row(verticalAlignment = Alignment.Top){
@@ -286,14 +296,40 @@ fun ExpandableCard(
                     )
                 }
             }
+            // TODO: 차트 추가
+            val modelProducer = remember { CartesianChartModelProducer() }
+            LaunchedEffect(Unit) { modelProducer.runTransaction { columnSeries { series(4, 12, 8, 16) } } }
+            CartesianChartHost(
+                rememberCartesianChart(
+                    rememberColumnCartesianLayer()
+                ),
+                modelProducer,
+            )
 
             if (expandedState) {
-                Text(
-                    text = description,
-                    overflow = TextOverflow.Ellipsis
-                )
+                ExpandItem()
+                ExpandItem()
+                ExpandItem()
             }
         }
+    }
+}
+
+@Composable
+fun ExpandItem() {
+    Row(modifier = Modifier.padding(5.dp)){
+        Text("출발지 이름")
+        Spacer(modifier = Modifier.width(10.dp))
+        Text("소요시간")
+        Spacer(modifier = Modifier.weight(1f))
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.walk),
+            contentDescription = "디폴트: 도보"
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text("이름")
+        Spacer(modifier = Modifier.width(10.dp))
+        Text("도착 시간")
     }
 }
 
