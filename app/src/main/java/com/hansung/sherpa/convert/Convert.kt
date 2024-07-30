@@ -1,10 +1,8 @@
 package com.hansung.sherpa.convert
 
 import android.util.Log
-import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.OdsayTransitRouteRequest
-import com.hansung.sherpa.transit.TmapTransitRouteRequest
+import com.hansung.sherpa.transit.TmapPedestrianResponse
 import com.hansung.sherpa.transit.TmapTransitRouteResponse
 import com.naver.maps.geometry.LatLng
 
@@ -172,6 +170,26 @@ class Convert {
         return searchRouteMutableList
     }
 
+    fun convertPedestrianRouteToLatLng(response: TmapPedestrianResponse, from:LatLng, to:LatLng):MutableList<LatLng>{
+        var rres = mutableListOf<LatLng>()
+
+        response.features?.forEach {feature->
+            if(feature.geometry.type=="LineString"){
+                feature.geometry.coordinates.forEach {coordinates->
+                    var tmp = coordinates.toString().split(", ")
+                    rres.add(LatLng(tmp[1].replace("]","").toDouble(), tmp[0].replace("[","").toDouble()))
+                }
+            }
+        }
+
+        rres = rres.distinct().toMutableList()
+
+        rres.add(0,from)
+        rres.add(to)
+
+        return rres
+    }
+
     /**
      *  Coordinate 리스트를 LatLng 리스트로 변환하는 함수
      *
@@ -182,7 +200,6 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
-    fun convertTmapToOdsayRequest(t: TmapTransitRouteRequest): OdsayTransitRouteRequest{
-        return OdsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
-    }
+
+
 }

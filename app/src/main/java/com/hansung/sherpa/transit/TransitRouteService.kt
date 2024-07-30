@@ -40,5 +40,5 @@ interface PedestrianRouteService {
         "content-type: application/json",
     )
     @POST("tmap/routes/pedestrian")
-    fun postPedestrianRoutes(@Header("appkey") appkey:String, @Body body: TmapTransitRouteResponse):Call<ResponseBody>
+    fun postPedestrianRoutes(@Header("appkey") appkey:String, @Body body: TmapPedestrianRouteRequest):Call<ResponseBody>
 }

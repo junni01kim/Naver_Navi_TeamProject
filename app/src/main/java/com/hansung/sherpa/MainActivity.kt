@@ -22,6 +22,7 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.ui.SpecificRouteJC.SpecificRouteScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -68,6 +69,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         }
                         composable(route = SherpaScreen.Search.name){
                             SearchScreen(navController, Modifier.padding(innerPadding))
+                        }
+                        composable(route = SherpaScreen.SpecificRoute.name){
+                            // KJH 세부 경로 화면
+                            //SpecificRouteScreen(navController)
                         }
                     }
                 }
@@ -160,4 +165,21 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
+    // ---------- 수정예정 ----------
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//
+//        if (resultCode == Activity.RESULT_OK) {
+//            when (requestCode) {
+//                1 -> { // RouteList Activity 문제점 좀 있음
+//                    val startKeyword = data?.getStringExtra("startKeyword")!!
+//                    val endKeyword = data.getStringExtra("endKeyword")!!
+//                    Log.d("explain", "$startKeyword is $endKeyword")
+//                    navigation.getTransitRoutes(startKeyword, endKeyword)
+//                }
+//            }
+//        }
+//    }
 }
+

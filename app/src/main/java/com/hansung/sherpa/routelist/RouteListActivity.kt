@@ -1,17 +1,27 @@
 package com.hansung.sherpa.routelist
 
+
+import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextClock
 import android.widget.TextView
+import android.widget.ViewFlipper
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.HorizontalBarChart
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.itemsetting.RouteDetailAdapter
+import com.hansung.sherpa.itemsetting.RouteDetailItem
 
 /**
  * 경로 검색창(Activity) 내비게이션을 조회 할 출발지와 목적지를 입력한다.
