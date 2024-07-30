@@ -191,5 +191,6 @@ fun ExtendedFABContainer() {
             icon = IconType.Resource(R.drawable.woman),
             expanded = remember { mutableStateOf(false) }
         )
+        AddEmergencyContactFAB()
     }
 }
