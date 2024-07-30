@@ -10,7 +10,6 @@ import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
-import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

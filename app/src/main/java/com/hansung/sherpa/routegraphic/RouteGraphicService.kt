@@ -1,7 +1,6 @@
 package com.hansung.sherpa.routegraphic
 
 import com.google.android.gms.common.api.internal.ApiKey
-import com.hansung.sherpa.transit.TransitRouteRequest
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
