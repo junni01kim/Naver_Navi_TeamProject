@@ -21,6 +21,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
@@ -68,9 +69,7 @@ fun HomeScreen(
         position = CameraPosition(seoul, 11.0)
     }
 
-    var loc = remember {
-        mutableStateOf(LatLng(37.532600, 127.024612))
-    }
+    val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
     Box(Modifier.fillMaxSize()) {
         NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true),
@@ -142,8 +141,8 @@ fun HomeScreen(
 
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun MarkerComponent(loc: LatLng, markerIcon: OverlayImage) {
-    Marker(state = MarkerState(position = loc), markerIcon)
+    fun MarkerComponent(loc: LatLng, markerIcon: OverlayImage) {
+    Marker(state = MarkerState(position = loc), markerIcon, anchor = Offset(0.5F, 0.5F))
 }
 
 @Preview
