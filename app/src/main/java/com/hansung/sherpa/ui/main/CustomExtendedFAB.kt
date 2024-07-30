@@ -79,7 +79,7 @@ private val ExtendedFabExpandAnimation = fadeIn(
 )
 
 /**
- * 기존 FAB에서 반전시킨 UI : 
+ * 기존 FAB에서 반전시킨 UI :
  * before : 아이콘 -> 텍스트
  * after : 텍스트 -> 아이콘
  *
@@ -90,7 +90,7 @@ private val ExtendedFabExpandAnimation = fadeIn(
  * @param modifier
  */
 @Composable
-fun CustomExtendedFloatingActionButton(
+fun CustomExtendedFAB(
     modifier: Modifier = Modifier,
     text: String,
     icon: IconType,
@@ -148,8 +148,8 @@ fun CustomIcon(icon: IconType, contentDescription: String?) {
 
 @Preview
 @Composable
-fun ExtendFabImageVector() {
-    CustomExtendedFloatingActionButton(
+fun ExtendFABImageVector() {
+    CustomExtendedFAB(
         text = "Reverse Extended FAB",
         icon = IconType.Vector(Icons.Filled.Edit),
         contentDescription = "Favorite",
@@ -161,7 +161,7 @@ fun ExtendFabImageVector() {
 @Preview
 @Composable
 fun FabExtendedResource() {
-    CustomExtendedFloatingActionButton(
+    CustomExtendedFAB(
         text = "아버지\n전화하기: 010-0000-0000",
         icon = IconType.Resource(R.drawable.medical),
         expanded = remember { mutableStateOf(false) }
@@ -176,17 +176,17 @@ fun ExtendedFABContainer() {
         horizontalAlignment = Alignment.End,
         modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)
     ) {
-        CustomExtendedFloatingActionButton(
+        CustomExtendedFAB(
             text = "병원\n전화하기: 010-0000-0000",
             icon = IconType.Resource(R.drawable.medical),
             expanded = remember { mutableStateOf(false) }
         )
-        CustomExtendedFloatingActionButton(
+        CustomExtendedFAB(
             text = "아버지\n전화하기: 010-0000-0000",
             icon = IconType.Resource(R.drawable.man),
             expanded = remember { mutableStateOf(false) }
         )
-        CustomExtendedFloatingActionButton(
+        CustomExtendedFAB(
             text = "어머니\n전화하기: 010-0000-0000",
             icon = IconType.Resource(R.drawable.woman),
             expanded = remember { mutableStateOf(false) }
