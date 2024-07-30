@@ -132,61 +132,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/location" />-->
 
-    <!-- 병원 전화 -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/floating_action_button_medical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_2"
-        android:maxLines="2"
-        android:text="@string/phone_and_request"
-        android:textAlignment="textStart"
-        android:textColor="@color/maximum_blue_green"
-        app:hideMotionSpec="@drawable/medical"
-        app:icon="@drawable/medical"
-        app:iconGravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_man"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/medical" />
-
-    <!-- 아버지 전화 -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/floating_action_button_man"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_3"
-        android:maxLines="2"
-        android:text="@string/phone_and_request"
-        android:textAlignment="textStart"
-        android:textColor="@color/maximum_blue_green"
-        app:icon="@drawable/man"
-        app:iconGravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_woman"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/man" />
-
-    <!-- 어머니 전화 -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/floating_action_button_woman"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/white"
-        android:contentDescription="@string/float_icon_4"
-        android:maxLines="2"
-        android:text="@string/phone_and_request"
-        android:textAlignment="textStart"
-        android:textColor="@color/maximum_blue_green"
-        app:icon="@drawable/woman"
-        app:iconGravity="end"
-        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_add"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/woman" />
-
     <!-- 추가 -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floating_action_button_add"
