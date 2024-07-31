@@ -1,7 +1,7 @@
-package com.hansung.sherpa.ui.SpecificRouteJC
+package com.hansung.sherpa.ui.specificroute
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -41,7 +41,11 @@ import com.hansung.sherpa.itemsetting.SectionInfo
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.runtime.remember
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
@@ -49,6 +53,7 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
+            .border(0.5.dp, color = Color.Black)
     ) {
         items(items = showRouteDetails){item->
             when(item){
@@ -75,16 +80,19 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
 fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Double, totalTime:Int, origin:SectionInfo){
     var expanded by rememberSaveable { mutableStateOf(false) }
 
-    Surface(
+    Box(
         modifier = Modifier
+            .background(Color.White)
             .fillMaxWidth()
-            .wrapContentHeight().border(0.dp, color = Color.Black)
+            .wrapContentHeight()
+            .bottomBorder(1.dp, color = Color.Black)
     ) {
         Row(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Surface(// 좌측 부분
+            Box(// 좌측 부분
                 modifier = Modifier.wrapContentSize()
             ){
                 Row(
@@ -144,6 +152,25 @@ fun cuttingString(target:String):String{
 
     return target.substring(0 until (to-1)) + "..."
 }
+
+fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
+    factory = {
+        val density = LocalDensity.current
+        val strokeWidthPx = density.run { strokeWidth.toPx() }
+
+        Modifier.drawBehind {
+            val width = size.width
+            val height = size.height - strokeWidthPx/2
+
+            drawLine(
+                color = color,
+                start = Offset(x = 0f, y = height),
+                end = Offset(x = width , y = height),
+                strokeWidth = strokeWidthPx
+            )
+        }
+    }
+)
 
 @Preview(showBackground = true)
 @Composable

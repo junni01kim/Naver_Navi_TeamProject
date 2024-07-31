@@ -1,15 +1,10 @@
-package com.hansung.sherpa.ui.SpecificRouteJC
+package com.hansung.sherpa.ui.specificroute
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +21,6 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun SpecificPreview(progressPercentage:Float){
-
         Column(
             modifier = Modifier
                 .fillMaxWidth()
