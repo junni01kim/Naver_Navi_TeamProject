@@ -177,7 +177,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
                     modifier = Property.TextField.modifier,
                     textStyle = Property.TextField.textStyle,
                     shape = Property.TextField.shape,
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor),
+                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor, focusedContainerColor = Property.TextField.containerColor),
                     singleLine = Property.TextField.singleLine,
                     placeholder = { Text("출발지를 입력하세요", fontSize = 12.sp) }
                 )
@@ -212,7 +212,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
                     modifier = Property.TextField.modifier,
                     textStyle = Property.TextField.textStyle,
                     shape = Property.TextField.shape,
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor),
+                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor, focusedContainerColor = Property.TextField.containerColor),
                     singleLine = Property.TextField.singleLine,
                     placeholder = { Text("목적지를 입력하세요", fontSize = 12.sp) }
                 )
