@@ -1,13 +1,6 @@
 package com.hansung.sherpa.itemsetting
 
-import android.util.Log
-import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.OdsayPath
-import com.hansung.sherpa.transit.OdsayTransitRouteResponse
-import com.hansung.sherpa.transit.TmapTransitRouteResponse
 import org.mapstruct.Mapper
-import org.mapstruct.Mapping
-import org.mapstruct.Mappings
 import org.mapstruct.factory.Mappers
 
 @Mapper(componentModel="spring")

@@ -7,6 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
+import com.hansung.sherpa.routegraphic.RouteGraphicResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -127,11 +128,6 @@ class TransitManager(context: Context) {
                         .create<TransitRouteService?>(TransitRouteService::class.java)
                         .getODsayTransitRoutes(setODsayRequestToMap(routeRequest)).execute()
                     rr = Gson().fromJson(response.body()!!.string(), ODsayTransitRouteResponse::class.java)
-                    // Error Log
-                    /*if (rr!!.result == null) {
-                        val errorCode = Gson().fromJson(response.body()!!.string(), OdsayTransitRouteErrorCode::class.java)
-                        Log.e("Error", "Error Code: ${errorCode.error.code}, ${errorCode.error.msg}")
-                    }*/
                 } catch (e: IOException) {
                     Log.e("Error", "Transit API Exception ${rr}")
                 }
@@ -170,6 +166,61 @@ class TransitManager(context: Context) {
             }
         }
         return rr
+    }
+
+    /**
+     * 노선 그래픽 데이터를 리턴하는 함수
+     *
+     * @param routeRequest : ODsayGraphicRequest mapObject를 요청한다.
+     * @return ODsayGraphicRequest
+     */
+    fun getODsayGraphicRoute(request: ODsayGraphicRequest): RouteGraphicResponse? {
+        var result: RouteGraphicResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try {
+                    val response = Retrofit.Builder()
+                        .baseUrl(context.getString(R.string.odsay_route_base_url))
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(TransitRouteService::class.java)
+                        .getGraphicRoute(request.getQuery()).execute()
+                    result = Gson().fromJson(response.body()!!.string(), RouteGraphicResponse::class.java)
+                } catch (e: IOException) {
+                    Log.d("explain", "onFailure: 실패")
+                    Log.d("explain", "message: ${e.message}")
+                }
+            }
+        }
+        return result
+    }
+
+
+    /**
+     * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
+     *
+     * @param response
+     * @return
+     */
+    fun requestCoordinateForMapObject(response: ODsayTransitRouteResponse): List<RouteGraphicResponse> {
+        if (response.result?.path == null) return emptyList()
+        val mapObjectList: List<String> = response.result.path.map { it.info.mapObj }
+        val coordinateList = MutableList<RouteGraphicResponse?>(mapObjectList.size) { null }
+        runBlocking {
+            val jobs = mapObjectList.mapIndexed { index, mapObject -> // 순서대로 다시 정렬하기 위함
+                launch(Dispatchers.IO) {
+                    val routeGraphicResponse = getODsayGraphicRoute(
+                        ODsayGraphicRequest(mapObject = ODsayMapObject(responseMapObject = mapObject))
+                    )
+                    if (routeGraphicResponse != null) {
+                        coordinateList[index] = routeGraphicResponse
+                    }
+                }
+            }
+            jobs.forEach { it.join() } // 비동기 요청 완료 대기
+        }
+
+        return coordinateList.filterNotNull()
     }
 
     private fun setODsayRequestToMap(request: ODsayTransitRouteRequest): Map<String, String> {

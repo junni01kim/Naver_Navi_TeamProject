@@ -52,4 +52,12 @@ interface TransitRouteService {
                     , @Path("EX") EX: String
                     , @Path("EY") EY: String
                     , @QueryMap options: Map<String, String>): Call<ResponseBody>
+
+    /**
+     * ODsay 노선 그래픽 API
+     */
+    @GET("loadLane")
+    fun getGraphicRoute(
+        @QueryMap options: Map<String,String>
+    ): Call<ResponseBody>
 }

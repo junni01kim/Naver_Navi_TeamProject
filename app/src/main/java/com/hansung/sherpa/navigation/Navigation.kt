@@ -2,6 +2,7 @@ package com.hansung.sherpa.navigation
 
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
@@ -9,6 +10,7 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.deviation.Section
+import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.PedestrianResponse
 import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.hansung.sherpa.transit.TransitManager
@@ -50,6 +52,19 @@ class Navigation {
         return transitRoutes
     }
 
+    /**
+     * TODO
+     *
+     * @param start
+     * @param end
+     */
+    fun getDetailTransitRoutes(start: String, end: String) {
+        val TM = TransitManager(mainActivity)
+        val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
+        val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest) // 대중교통+도보 길찾기
+        val routeGraphicList = TM.requestCoordinateForMapObject(ODsayTransitRouteResponse!!) // 노선 그래픽
+    }
+
     // 이전 경로 탐색 코드
     fun getTransitRoutesBefore(start: String, end: String){
         // 검색어 기반 좌표 검색
@@ -84,6 +99,16 @@ class Navigation {
             lang = 0,
             format = "json",
             count = 10
+        )
+    }
+
+    private fun setODsayRouteRequest(startLatLng: LatLng, endLatLng: LatLng): ODsayTransitRouteRequest {
+        return ODsayTransitRouteRequest(
+            apiKey = BuildConfig.TMAP_APP_KEY,
+            SX = startLatLng.latitude.toString(),
+            SY = startLatLng.longitude.toString(),
+            EX = endLatLng.latitude.toString(),
+            EY = endLatLng.longitude.toString()
         )
     }
 
