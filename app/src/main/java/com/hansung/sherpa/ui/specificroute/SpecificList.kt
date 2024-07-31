@@ -85,7 +85,7 @@ fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Dou
             .background(Color.White)
             .fillMaxWidth()
             .wrapContentHeight()
-            .bottomBorder(1.dp, color = Color.Black)
+            .bottomBorder(strokeWidth = 1.dp, color = if(expanded){ Color.Transparent }else{ Color.Black })
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

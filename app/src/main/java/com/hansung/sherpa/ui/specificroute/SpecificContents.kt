@@ -50,6 +50,7 @@ fun SpecificContents(sectionInfo:SectionInfo, expand:Boolean){
         enter = slideInVertically(),
         exit = shrinkVertically(),
         modifier = Modifier.background(Color.White)
+            .border(2.dp, Color.Transparent)
             .bottomBorder(2.dp, Color.Black)
     ) {
         Box(
