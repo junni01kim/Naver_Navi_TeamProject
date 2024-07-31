@@ -5,7 +5,7 @@ import com.hansung.sherpa.BuildConfig
 
 /**
  * '정류소별특정노선버스 도착예정정보 목록조회' 요청 파라미터 클래스
- *  https://www.data.go.kr/iim/api/selectAPIAcountView.do
+ *  https://www.data.go.kr/data/15098530/openapi.do
  *
  *  @param serviceKey 공공데이터포털에서 발급받은 인증키
  *  @param _type 데이터 타입(xml, json) - Default: xml
