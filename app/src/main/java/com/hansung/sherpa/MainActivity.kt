@@ -13,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
@@ -68,11 +70,14 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         navController = navController,
                         startDestination = SherpaScreen.SpecificRoute.name
                     ){
-                        composable(route = SherpaScreen.Home.name){
+                        composable(route = "${SherpaScreen.Home.name}"){
                             HomeScreen(navController, Modifier.padding(innerPadding))
                         }
-                        composable(route = SherpaScreen.Search.name){
-                            SearchScreen(navController, Modifier.padding(innerPadding))
+                        composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
+                            arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
+                        ){
+                            val destinationValue = it.arguments?.getString("destinationValue")!!
+                            SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
                             // KJH 세부 경로 화면

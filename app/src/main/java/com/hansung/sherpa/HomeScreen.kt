@@ -21,12 +21,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
@@ -45,7 +47,7 @@ import com.naver.maps.map.overlay.OverlayImage
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun HomeScreen(
-    navController: NavController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
+    navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
     modifier: Modifier = Modifier
 ) {
     val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
@@ -68,9 +70,7 @@ fun HomeScreen(
         position = CameraPosition(seoul, 11.0)
     }
 
-    var loc = remember {
-        mutableStateOf(LatLng(37.532600, 127.024612))
-    }
+    val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
     Box(Modifier.fillMaxSize()) {
         NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true),
@@ -87,7 +87,9 @@ fun HomeScreen(
         var destinationValue by remember { mutableStateOf("") }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             // 검색 텍스트필드 및 검색 버튼을 위한 행
@@ -125,8 +127,7 @@ fun HomeScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(Color.Black),
                     onClick = {
-                        //navController.navigate(SherpaScreen.Search.name)
-                        navController.navigate(SherpaScreen.Search.name)
+                        navController.navigate("${SherpaScreen.Search.name}/${if(destinationValue=="") "아무것도 전달되지 않았음" else destinationValue}")
                     }
                 ) {
                     // 버튼에 들어갈 이미지
@@ -143,8 +144,8 @@ fun HomeScreen(
 
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun MarkerComponent(loc: LatLng, markerIcon: OverlayImage) {
-    Marker(state = MarkerState(position = loc), markerIcon)
+    fun MarkerComponent(loc: LatLng, markerIcon: OverlayImage) {
+    Marker(state = MarkerState(position = loc), markerIcon, anchor = Offset(0.5F, 0.5F))
 }
 
 @Preview
@@ -159,7 +160,9 @@ fun HomePreview(){
         var destinationValue by remember { mutableStateOf("") }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             // 검색 텍스트필드 및 검색 버튼을 위한 행
