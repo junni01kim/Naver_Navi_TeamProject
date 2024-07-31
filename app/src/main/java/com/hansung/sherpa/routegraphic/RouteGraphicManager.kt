@@ -5,14 +5,8 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
-import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoResponse
-import com.hansung.sherpa.transit.TransitRouteRequest
-import com.hansung.sherpa.transit.TransitRouteResponse
-import com.hansung.sherpa.transit.TransitRouteService
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody

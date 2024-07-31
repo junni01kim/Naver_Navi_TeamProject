@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 val clientId = getLocalPropertyKey("CLIENT_ID")
@@ -51,11 +52,19 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "17"
+    }
+
+    packaging {
+        resources {
+            merges += "META-INF/spring.*"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/notice.txt"
+        }
     }
 }
 
@@ -111,4 +120,15 @@ dependencies {
 
     // for Barchart in Routes UI
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // MapStruct dependencies
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor)
+
+    // spring-context
+    implementation(libs.spring.context)
+
+
+    // for Extendable View
+    implementation("com.github.skydoves:expandablelayout:1.0.7")
 }

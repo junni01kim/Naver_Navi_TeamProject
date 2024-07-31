@@ -2,6 +2,7 @@
     <string name="app_name">sherpa</string>
     <string name="route_base_url">https://apis.openapi.sk.com/</string>
     <string name="odsay_route_base_url">https://api.odsay.com/v1/api/</string>
+    <string name="osrm_route_base_url">https://routing.openstreetmap.de/</string>
     <string name="bus_arrival_info_base_url">https://apis.data.go.kr/1613000/ArvlInfoInqireService/</string>
     <string name="departure_textView_hint">출발지를 입력하세요.</string>
     <string name="search_button_contentDescription">피그마에서 제작한 버튼 이미지를 사용한다.</string>

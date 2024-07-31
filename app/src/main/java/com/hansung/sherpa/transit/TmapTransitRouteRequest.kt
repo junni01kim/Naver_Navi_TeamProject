@@ -13,7 +13,7 @@ import com.google.gson.annotations.SerializedName
  * @param format 출력포맷 (json, xml)
  * @param count 최대 응답 결과 개수 (1~10)
  */
-data class TransitRouteRequest(
+data class TmapTransitRouteRequest(
     @SerializedName("startX") val startX: String,
     @SerializedName("startY") val startY: String,
     @SerializedName("endX") val endX: String,
