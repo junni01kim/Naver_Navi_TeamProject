@@ -1,15 +1,11 @@
 package com.hansung.sherpa
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,44 +22,33 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 
 /**
@@ -107,15 +92,16 @@ object Property {
  */
 @Composable
 fun SearchScreen(
-    navController: NavController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
-    modifier: Modifier = Modifier
+    navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
+    destinationValue:String = "", // ""는 Preview를 생성하기 위함
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.LightGray),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
-        SearchArea()
+        SearchArea(navController, destinationValue)
 
         // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
         SortingArea()
@@ -132,11 +118,11 @@ fun SearchScreen(
  * 입력창: 출발지, 목적지
  */
 @Composable
-fun SearchArea() {
+fun SearchArea(navController: NavController, _destinationValue: String) {
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
-    var destinationValue by remember { mutableStateOf("") }
+    var destinationValue by remember { mutableStateOf(_destinationValue) }
 
     // 아이템 간격 모듈화
     val space = 10.dp
@@ -155,7 +141,9 @@ fun SearchArea() {
         Column(verticalArrangement = Arrangement.Center){
             IconButton(modifier = Property.Button.modifier,
                 onClick = {
-                    // TODO: 장소 검색 결과
+                    val tempString = departureValue
+                    departureValue = destinationValue
+                    destinationValue = tempString
                 }) {
                 // 버튼에 들어갈 이미지
                 Icon(
@@ -189,7 +177,7 @@ fun SearchArea() {
                 Spacer(modifier = Modifier.width(5.dp))
                 IconButton(modifier = Property.Button.modifier,
                     onClick = {
-                        // TODO: 장소 검색 결과
+                        navController.popBackStack()
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
