@@ -125,7 +125,7 @@ class TransitManager(context: Context) {
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
-                        .getOdsayTransitRoutes(setODsayRequestToMap(routeRequest)).execute()
+                        .getODsayTransitRoutes(setODsayRequestToMap(routeRequest)).execute()
                     rr = Gson().fromJson(response.body()!!.string(), ODsayTransitRouteResponse::class.java)
                     // Error Log
                     /*if (rr!!.result == null) {

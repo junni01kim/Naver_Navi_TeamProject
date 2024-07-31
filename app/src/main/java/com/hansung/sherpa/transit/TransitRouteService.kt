@@ -32,7 +32,7 @@ interface TransitRouteService {
     fun postTransitRoutes(@Header("appKey") appKey: String, @Body body: TmapTransitRouteRequest): Call<ResponseBody>
 
     @GET("searchPubTransPathT")
-    fun getOdsayTransitRoutes(@QueryMap options: Map<String, String>): Call<ResponseBody>
+    fun getODsayTransitRoutes(@QueryMap options: Map<String, String>): Call<ResponseBody>
 
     /**
      * OSRM API 요청
