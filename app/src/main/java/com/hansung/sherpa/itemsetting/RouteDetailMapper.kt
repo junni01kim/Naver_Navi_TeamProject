@@ -19,14 +19,14 @@ interface RouteDetailMapper {
      * TODO 1) target-source 맞추기
      * TODO 2) parameter-return 맞추기
      */
-    @Mappings(
+/*    @Mappings(
         Mapping(target = "fromName", source = "start"),
         Mapping(target = "toName", source = "end"),
         Mapping(target = "summary", source = "distance"),
         Mapping(target = "time", source = "sectionTime"),
         Mapping(target = "contents", source = "steps"),
     )
-    fun convertToPedestrian(path: Leg): PedestrianRouteDetailItem
+    fun convertToPedestrian(path: Leg): PedestrianRouteDetailItem*/
 
     companion object {
         val INSTANCE: RouteDetailMapper = Mappers.getMapper(RouteDetailMapper::class.java)
