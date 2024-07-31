@@ -127,7 +127,7 @@ fun HomeScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(Color.Black),
                     onClick = {
-                        navController.navigate("${SherpaScreen.Search.name}/${destinationValue}")
+                        navController.navigate("${SherpaScreen.Search.name}/${if(destinationValue=="") "아무것도 전달되지 않았음" else destinationValue}")
                     }
                 ) {
                     // 버튼에 들어갈 이미지

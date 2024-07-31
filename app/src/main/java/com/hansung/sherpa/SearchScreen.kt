@@ -122,7 +122,7 @@ fun SearchArea(navController: NavController, _destinationValue: String) {
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
-    var destinationValue by remember { mutableStateOf(_destinationValue) }
+    var destinationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) }
 
     // 아이템 간격 모듈화
     val space = 10.dp
