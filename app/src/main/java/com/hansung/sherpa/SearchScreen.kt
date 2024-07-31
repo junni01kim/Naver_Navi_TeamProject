@@ -1,15 +1,12 @@
 package com.hansung.sherpa
 
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,45 +23,37 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hansung.sherpa.convert.LegRoute
+import com.hansung.sherpa.convert.PathType
+import com.hansung.sherpa.navigation.Navigation
 
 /**
  * 컴포넌트의 속성(modifier)을 관리
@@ -107,21 +96,25 @@ object Property {
  */
 @Composable
 fun SearchScreen(
-    navController: NavController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
-    modifier: Modifier = Modifier
+    navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
+    destinationValue:String = "", // ""는 Preview를 생성하기 위함
+    modifier: Modifier = Modifier,
 ) {
+    var routeList by remember { mutableStateOf(mutableListOf<TempRoute>())}
+
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.LightGray),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
-        SearchArea()
+        SearchArea(navController, destinationValue, routeList){ routeList = it
+        Log.d("explain", "${routeList[0].arrivalTime}")}
 
         // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
         SortingArea()
 
         // 경로 검색 결과 리스트가 나오는 Composable
-        RouteListArea()
+        RouteListArea(routeList)
     }
 }
 
@@ -132,11 +125,11 @@ fun SearchScreen(
  * 입력창: 출발지, 목적지
  */
 @Composable
-fun SearchArea() {
+fun SearchArea(navController: NavController, _destinationValue: String, routeList: MutableList<TempRoute>, listUpdate: (MutableList<TempRoute>) -> Unit) {
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
-    var destinationValue by remember { mutableStateOf("") }
+    var destinationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) }
 
     // 아이템 간격 모듈화
     val space = 10.dp
@@ -155,7 +148,9 @@ fun SearchArea() {
         Column(verticalArrangement = Arrangement.Center){
             IconButton(modifier = Property.Button.modifier,
                 onClick = {
-                    // TODO: 장소 검색 결과
+                    val tempString = departureValue
+                    departureValue = destinationValue
+                    destinationValue = tempString
                 }) {
                 // 버튼에 들어갈 이미지
                 Icon(
@@ -182,14 +177,14 @@ fun SearchArea() {
                     modifier = Property.TextField.modifier,
                     textStyle = Property.TextField.textStyle,
                     shape = Property.TextField.shape,
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor),
+                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor, focusedContainerColor = Property.TextField.containerColor),
                     singleLine = Property.TextField.singleLine,
                     placeholder = { Text("출발지를 입력하세요", fontSize = 12.sp) }
                 )
                 Spacer(modifier = Modifier.width(5.dp))
                 IconButton(modifier = Property.Button.modifier,
                     onClick = {
-                        // TODO: 장소 검색 결과
+                        navController.popBackStack()
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
@@ -217,14 +212,27 @@ fun SearchArea() {
                     modifier = Property.TextField.modifier,
                     textStyle = Property.TextField.textStyle,
                     shape = Property.TextField.shape,
-                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor),
+                    colors = TextFieldDefaults.colors(unfocusedContainerColor = Property.TextField.containerColor, unfocusedTextColor = Property.TextField.textColor, focusedContainerColor = Property.TextField.containerColor),
                     singleLine = Property.TextField.singleLine,
                     placeholder = { Text("목적지를 입력하세요", fontSize = 12.sp) }
                 )
                 Spacer(modifier = Modifier.width(5.dp))
+                /**
+                 * 경로 값을 대입해주는 영역
+                 * TextField에 있던 값들을 지우고
+                 * 해당 내용을 기반으로 경로를 검색한다.
+                 */
                 IconButton(modifier = Property.Button.modifier,
                     onClick = {
-                        // TODO: 장소 검색 결과
+                        departureValue = ""
+                        destinationValue = ""
+
+                        val navigation = Navigation()
+                        //val routeList = navigation.getTransitRoutes(departureValue, destinationValue)
+                        //mappingToTempRoute(routeList)
+
+                        val routeList = mutableListOf(TempRoute("소요 시간", "도착시간",mutableListOf(ExpandTempRoute(5), ExpandTempRoute(25), ExpandTempRoute(70) ,ExpandTempRoute(50), ExpandTempRoute(50))))
+                        listUpdate(routeList)
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
@@ -237,6 +245,19 @@ fun SearchArea() {
             }
         }
     }
+}
+
+fun mappingToTempRoute(originalRouteList:MutableList<MutableList<LegRoute>>):List<TempRoute>{
+    val routeList = mutableListOf<TempRoute>()
+    originalRouteList.forEach {
+        routeList.add(
+            TempRoute("소요시간", "도착시간", mutableListOf())
+        )
+        it.forEach{
+            routeList.get(routeList.size-1).expandTempRouteList.add(ExpandTempRoute(it.coordinates.size,"출발지 이름","소요시간",it.pathType,"이름","도착시간"))
+        }
+    }
+    return routeList
 }
 
 /**
@@ -270,12 +291,11 @@ fun SortingArea() {
  * 전체 대중교통 리스트가 나온다.
  */
 @Composable
-fun RouteListArea(){
+fun RouteListArea(routeList:List<TempRoute>){
     // 샘플 코드
-    val items = listOf(0,1,2,3,4,5,6,7,8,9)
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        items(items){
-            ExpandableCard()
+        items(routeList){
+            ExpandableCard(it)
         }
     }
 }
@@ -287,7 +307,7 @@ fun RouteListArea(){
  * ※ (2024-07-30) 리스트 확장 후 화면을 밑으로 내렸다가 올리면 리스트가 자동으로 닫히는 오류가 존재한다.
  */
 @Composable
-fun ExpandableCard() {
+fun ExpandableCard(route:TempRoute) {
     val padding: Dp = 10.dp
     var expandedState by remember { mutableStateOf(false) }
 
@@ -312,9 +332,9 @@ fun ExpandableCard() {
         ) {
             Row(verticalAlignment = Alignment.Top){
                 Row(verticalAlignment = Alignment.Bottom){
-                    Text(text = "12분", fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                    Text(text = route.totalTime, fontSize = 25.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(30.dp))
-                    Text(text ="9시 53분 도착")
+                    Text(text =route.arrivalTime)
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
@@ -332,9 +352,7 @@ fun ExpandableCard() {
                 }
             }
 
-            // 차트 샘플 코드
-            val routeList = listOf(TempRoute(5), TempRoute(25), TempRoute(70) ,TempRoute(50), TempRoute(50))
-            Chart(routeList,200)
+            Chart(route.expandTempRouteList,200)
 
             if (expandedState) {
                 ExpandItem()
@@ -368,7 +386,8 @@ fun ExpandItem() {
 }
 
 // 임시 샘플 코드이다.
-data class TempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:Int = 0, val number:String = "이름", val time2:String = "도착시간")
+data class TempRoute(val totalTime:String, val arrivalTime:String, val expandTempRouteList:MutableList<ExpandTempRoute>)
+data class ExpandTempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:PathType = PathType.WALK, val number:String = "이름", val time2:String = "도착시간")
 object TempColor{
     val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta)
 }
@@ -378,7 +397,7 @@ object TempColor{
  * ※ (2024-07-30) 차트의 말단이 원형이 아니어서 현재 다르게 보이지만, 실제의 경우 양끝단이 도보일 거라는 점에서 이후에 고려
  */
 @Composable
-fun Chart(routeList:List<TempRoute>, fullTime:Int) {
+fun Chart(routeList:List<ExpandTempRoute>, fullTime:Int) {
     val width = 400.dp
     Row(modifier = Modifier
         .fillMaxWidth()

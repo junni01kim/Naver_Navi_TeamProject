@@ -28,6 +28,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
@@ -46,7 +47,7 @@ import com.naver.maps.map.overlay.OverlayImage
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun HomeScreen(
-    navController: NavController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
+    navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
     modifier: Modifier = Modifier
 ) {
     val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
@@ -86,7 +87,9 @@ fun HomeScreen(
         var destinationValue by remember { mutableStateOf("") }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             // 검색 텍스트필드 및 검색 버튼을 위한 행
@@ -124,7 +127,7 @@ fun HomeScreen(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(Color.Black),
                     onClick = {
-                        navController.navigate(SherpaScreen.Search.name)
+                        navController.navigate("${SherpaScreen.Search.name}/${if(destinationValue=="") "아무것도 전달되지 않았음" else destinationValue}")
                     }
                 ) {
                     // 버튼에 들어갈 이미지
@@ -157,7 +160,9 @@ fun HomePreview(){
         var destinationValue by remember { mutableStateOf("") }
 
         Column(
-            modifier = Modifier.fillMaxSize().padding(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(10.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             // 검색 텍스트필드 및 검색 버튼을 위한 행
