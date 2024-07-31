@@ -10,7 +10,6 @@ import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
-import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -102,7 +101,7 @@ class TransitManager(context: Context) {
             launch(Dispatchers.IO) {
                 val rQ = routeRequest
                 try {
-                    val options = osrmRequestToMap()
+                    val options = setOSRMRequestToMap()
                     val response = Retrofit.Builder()
                         .baseUrl(context.getString(R.string.osrm_route_base_url))
                         .addConverterFactory(GsonConverterFactory.create())
@@ -119,8 +118,8 @@ class TransitManager(context: Context) {
         return rr
     }
 
-    fun getOdsayTransitRoute(routeRequest: OdsayTransitRouteRequest): OdsayTransitRouteResponse? {
-        var rr: OdsayTransitRouteResponse? = null
+    fun getODsayTransitRoute(routeRequest: ODsayTransitRouteRequest): ODsayTransitRouteResponse? {
+        var rr: ODsayTransitRouteResponse? = null
         runBlocking<Job> {
             launch(Dispatchers.IO) {
                 try {
@@ -129,8 +128,8 @@ class TransitManager(context: Context) {
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
-                        .getOdsayTransitRoutes(odsayRequestToMap(routeRequest)).execute()
-                    rr = Gson().fromJson(response.body()!!.string(), OdsayTransitRouteResponse::class.java)
+                        .getOdsayTransitRoutes(setODsayRequestToMap(routeRequest)).execute()
+                    rr = Gson().fromJson(response.body()!!.string(), ODsayTransitRouteResponse::class.java)
                     // Error Log
                     /*if (rr!!.result == null) {
                         val errorCode = Gson().fromJson(response.body()!!.string(), OdsayTransitRouteErrorCode::class.java)
@@ -202,7 +201,7 @@ class TransitManager(context: Context) {
         }
     }
 
-    fun odsayRequestToMap(request: OdsayTransitRouteRequest): Map<String, String> {
+    private fun setODsayRequestToMap(request: ODsayTransitRouteRequest): Map<String, String> {
         return mapOf(
             "apiKey" to request.apiKey,
             "SX" to request.SX,
@@ -229,7 +228,7 @@ class TransitManager(context: Context) {
      * [OSRM 공식문서](https://project-osrm.org/docs/v5.24.0/api/#route-service)
      * @return OSRM API에 전달될 설정이 포함된 Map<String, String>
      */
-    private fun osrmRequestToMap(): Map<String, String> {
+    private fun setOSRMRequestToMap(): Map<String, String> {
         /**
          * 대체 경로의 수
          * - false (기본) : 기본 경로 1개

@@ -3,7 +3,7 @@ package com.hansung.sherpa.convert
 import android.util.Log
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.OdsayTransitRouteRequest
+import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteResponse
 import com.hansung.sherpa.transit.PedestrianResponse
@@ -203,7 +203,7 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
-    fun convertTmapToOdsayRequest(t: TmapTransitRouteRequest): OdsayTransitRouteRequest{
-        return OdsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
+    fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest{
+        return ODsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
     }
 }
