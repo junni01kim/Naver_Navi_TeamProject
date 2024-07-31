@@ -170,27 +170,29 @@ fun FabExtendedResource() {
 
 @Preview
 @Composable
-fun ExtendedFABContainer() {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        horizontalAlignment = Alignment.End,
-        modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)
-    ) {
-        CustomExtendedFAB(
-            text = "병원\n전화하기: 010-0000-0000",
-            icon = IconType.Resource(R.drawable.medical),
-            expanded = remember { mutableStateOf(false) }
-        )
-        CustomExtendedFAB(
-            text = "아버지\n전화하기: 010-0000-0000",
-            icon = IconType.Resource(R.drawable.man),
-            expanded = remember { mutableStateOf(false) }
-        )
-        CustomExtendedFAB(
-            text = "어머니\n전화하기: 010-0000-0000",
-            icon = IconType.Resource(R.drawable.woman),
-            expanded = remember { mutableStateOf(false) }
-        )
-        AddEmergencyContactFAB()
+fun ExtendedFABContainer(isVisible: Boolean = true) {
+    if(isVisible) {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)
+        ) {
+            CustomExtendedFAB(
+                text = "병원\n전화하기: 010-0000-0000",
+                icon = IconType.Resource(R.drawable.medical),
+                expanded = remember { mutableStateOf(false) }
+            )
+            CustomExtendedFAB(
+                text = "아버지\n전화하기: 010-0000-0000",
+                icon = IconType.Resource(R.drawable.man),
+                expanded = remember { mutableStateOf(false) }
+            )
+            CustomExtendedFAB(
+                text = "어머니\n전화하기: 010-0000-0000",
+                icon = IconType.Resource(R.drawable.woman),
+                expanded = remember { mutableStateOf(false) }
+            )
+            AddEmergencyContactFAB()
+        }
     }
 }
