@@ -2,14 +2,11 @@ package com.hansung.sherpa.transit
 
 import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
-import com.hansung.sherpa.convert.Convert
-import com.hansung.sherpa.convert.LegRoute
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -173,32 +170,6 @@ class TransitManager(context: Context) {
             }
         }
         return rr
-    }
-
-
-
-    /**
-     * getTransitRoutes 함수 사용 예시
-     *
-     * @param context Activity Context
-     * @param owner Activity
-     */
-    fun sampleGetTransitRoutes(context: Context, owner: LifecycleOwner) {
-        // 요청 param setting
-        val routeRequest = TmapTransitRouteRequest(
-            startX = "126.926493082645",
-            startY = "37.6134436427887",
-            endX = "127.126936754911",
-            endY = "37.5004198786564",
-            lang = 0,
-            format = "json",
-            count = 10
-        )
-        var transitRoutes: MutableList<MutableList<LegRoute>>
-        // 관찰 변수 변경 시 콜백
-        TransitManager(context).getTransitRoutes(routeRequest).observe(owner) { transitRouteResponse ->
-            transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
-        }
     }
 
     private fun setODsayRequestToMap(request: ODsayTransitRouteRequest): Map<String, String> {
