@@ -20,6 +20,10 @@ import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.itemsetting.BusLane
+import com.hansung.sherpa.itemsetting.BusSectionInfo
+import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
+import com.hansung.sherpa.itemsetting.SectionInfo
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.SpecificRouteJC.SpecificRouteScreen
@@ -62,7 +66,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Home.name
+                        startDestination = SherpaScreen.SpecificRoute.name
                     ){
                         composable(route = SherpaScreen.Home.name){
                             HomeScreen(navController, Modifier.padding(innerPadding))
@@ -72,7 +76,14 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
                             // KJH 세부 경로 화면
-                            //SpecificRouteScreen(navController)
+                            var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
+                                PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장", "200m 직진")),
+                                BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(
+                                    BusLane("","성북02",0,0,"0",0)
+                                ), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
+                                PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
+                            )
+                            SpecificRouteScreen()
                         }
                     }
                 }

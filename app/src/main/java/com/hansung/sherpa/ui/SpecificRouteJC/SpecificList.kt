@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.SpecificRouteJC
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import com.hansung.sherpa.itemsetting.SectionInfo
 import kotlin.math.roundToInt
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.runtime.remember
 
 @Composable
 fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
@@ -51,7 +53,10 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
         items(items = showRouteDetails){item->
             when(item){
                 is PedestrianSectionInfo ->{
-                    SpecificListItem(R.drawable.pedestrianrouteimage, item.startName, item.endName, item.distance, item.sectionTime)
+                    SpecificListItem(R.drawable.pedestrianrouteimage, item.startName, item.endName, item.distance, item.sectionTime, item)
+                }
+                is BusSectionInfo ->{
+                    SpecificListItem(R.drawable.greenbusrouteimage, item.startName, item.endName, item.distance, item.sectionTime, item)
                 }
             }
         }
@@ -67,17 +72,17 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
  * @param totalTime 총걸리는 시간
  */
 @Composable
-fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Double, totalTime:Int){
+fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Double, totalTime:Int, origin:SectionInfo){
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .wrapContentHeight(),
-        border = BorderStroke(0.1.dp, Color.Black)
+            .wrapContentHeight().border(0.dp, color = Color.Black)
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Surface(// 좌측 부분
                 modifier = Modifier.wrapContentSize()
@@ -122,12 +127,13 @@ fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Dou
                             imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
                             contentDescription = "세부 경로 보이기 화살표"
                         )
-
                     }
                 }
             }
         }
     }
+    // expand 버튼을 눌렀을 때 보여질 이미지
+    SpecificContents(origin, expanded)
 }
 
 fun cuttingString(target:String):String{
@@ -143,8 +149,10 @@ fun cuttingString(target:String):String{
 @Composable
 fun previewSpecificList(){
     var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
-        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장")),
-        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(BusLane("","성북02",0,0,"0",0)), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
+        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장", "200m 직진")),
+        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(
+            BusLane("","성북02",0,0,"0",0)
+        ), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
         PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
     )
     SpecificList(showRouteDetails)
