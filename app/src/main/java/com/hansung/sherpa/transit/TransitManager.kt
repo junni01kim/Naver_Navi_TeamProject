@@ -357,7 +357,7 @@ class TransitManager(context: Context) {
          *  - duration : 이동 시간만 요청
          *  - datasource : TODO 데이터 분석 필요
          *  - weight : TODO 데이터 분석 필요
-         *  - speed : TODO 데이터 분석 필요
+         *  - speed : 보행자 이동 속도
          */
         val annotations = "false"
 
