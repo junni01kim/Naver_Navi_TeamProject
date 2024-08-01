@@ -141,11 +141,12 @@ class TransitManager(context: Context) {
                         .build()
                         .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
                         .postPedestrianRoutes(appKey, routeRequest).execute() // API 호출
+                    Log.i("API", response.toString())
                     rr = Gson().fromJson(
                         response.body()!!.string(),
                         PedestrianResponse::class.java
                     )
-                } catch (e: IOException) {
+                } catch (e: Exception) {
                     Log.i("Error", "postPedestrianRoutes API Exception")
                     launch(Dispatchers.IO) {
                         val rQ = routeRequest // 축약
@@ -159,6 +160,7 @@ class TransitManager(context: Context) {
                                 .getOSRMWalk(rQ.startX.toString(),
                                     rQ.startY.toString(), rQ.endX.toString(),
                                     rQ.endY.toString(), options).execute() // API 호출
+                            Log.i("API", response.toString())
                             val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
                             Log.i("item", sW.toString())
                             rr = Convert().convertToPedestrianResponse(sW)
@@ -234,12 +236,31 @@ class TransitManager(context: Context) {
      * @param response
      * @return
      */
-    fun requestCoordinateForRoute(start: LatLng, end: LatLng,response: ODsayPath): List<PedestrianResponse> {
+    fun requestCoordinateForRoute(start: LatLng, end: LatLng,response: ODsayPath?): List<PedestrianResponse> {
+        var pedestrianResponse: PedestrianResponse = PedestrianResponse()
+        if(response == null){
+            runBlocking {
+                val pedestrianRouteRequest = PedestrianRouteRequest(
+                    startX = start.longitude.toFloat(),
+                    startY = start.latitude.toFloat(),
+                    endX = end.longitude.toFloat(),
+                    endY = end.latitude.toFloat(),
+                )
+                val job =
+                        launch(Dispatchers.IO) {
+                            pedestrianResponse = getPedestrianRoute(pedestrianRouteRequest)
+                        }
+                job.join() // 비동기 요청 완료 대기
+            }
+
+            return listOfNotNull(pedestrianResponse)
+        }
         val PEDESTRINAN_CODE = 3 // trafficType이 3일때
         val FIRST_INDEX = 0 // 경로에서 첫 번째 구간이 도보일 때
         val LAST_INDEX = response.subPath.size - 1 // 경로에서 마지막 구간이 도보일 떄
 
         val routeCoordinateList: MutableList<PedestrianRouteRequest> = mutableListOf()
+
         response.subPath.forEachIndexed { index, it ->
             if (it.trafficType == PEDESTRINAN_CODE) {
                 routeCoordinateList.add(
@@ -247,22 +268,22 @@ class TransitManager(context: Context) {
                         FIRST_INDEX -> PedestrianRouteRequest(
                             startX = start.longitude.toFloat(),
                             startY = start.latitude.toFloat(),
-                            endX = response.subPath[FIRST_INDEX + 1].endX.toFloat(),
-                            endY = response.subPath[FIRST_INDEX + 1].endX.toFloat()
+                            endX = response.subPath[FIRST_INDEX + 1].startX.toFloat(),
+                            endY = response.subPath[FIRST_INDEX + 1].startY.toFloat()
                         )
 
                         LAST_INDEX -> PedestrianRouteRequest(
                             startX = response.subPath[LAST_INDEX - 1].endX.toFloat(),
-                            startY = response.subPath[LAST_INDEX - 1].endX.toFloat(),
+                            startY = response.subPath[LAST_INDEX - 1].endY.toFloat(),
                             endX = end.longitude.toFloat(),
                             endY = end.latitude.toFloat()
                         )
 
                         else -> PedestrianRouteRequest(
                             startX = response.subPath[index - 1].endX.toFloat(),
-                            startY = response.subPath[index - 1].endX.toFloat(),
-                            endX = response.subPath[index + 1].endX.toFloat(),
-                            endY = response.subPath[index + 1].endX.toFloat()
+                            startY = response.subPath[index - 1].endY.toFloat(),
+                            endX = response.subPath[index + 1].startX.toFloat(),
+                            endY = response.subPath[index + 1].startY.toFloat()
                         )
                     }
                 )
