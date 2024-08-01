@@ -1,11 +1,18 @@
 package com.hansung.sherpa.ui.specificroute
 
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
@@ -17,12 +24,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.material.FractionalThreshold
+import androidx.wear.compose.material.rememberSwipeableState
+import androidx.wear.compose.material.swipeable
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SectionInfo
+import kotlin.math.roundToInt
 
-
+@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun SpecificRouteScreen(){
     var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
@@ -33,22 +47,43 @@ fun SpecificRouteScreen(){
 
     val progress by remember { mutableStateOf(0.5f) }
 
-    Card(
+    val swipeableState = rememberSwipeableState(0)
+
+    val movedSize = 500.dp // 얼마 만큼 움직일 것인가 (거리 정의)
+    val movingPx = with(LocalDensity.current) { movedSize.toPx() }
+    val anchors = mapOf(0f to 0, movingPx to 1)
+
+
+    Spacer(modifier = Modifier.fillMaxWidth().height(250.dp))
+
+
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .background(Color.White),
-        colors = cardColors(
-            containerColor = Color.LightGray  // 카드의 배경 색상 설정
-        ),
-        shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
-        border = BorderStroke(2.dp, Color.Black)
+            .swipeable(
+                state = swipeableState,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.8f) },
+                orientation = Orientation.Vertical
+            )
     ){
-        Column(
-            verticalArrangement = Arrangement.Top,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            SpecificPreview(progress)
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .background(Color.Green)
+                .wrapContentSize()
+                .offset { IntOffset(0, swipeableState.offset.value.roundToInt()) },
+            colors = cardColors(
+                containerColor = Color.LightGray  // 카드의 배경 색상 설정
+            ),
+            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
+            border = BorderStroke(2.dp, Color.Black)
+        ){
+            Column(
+                verticalArrangement = Arrangement.Top,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                SpecificPreview(progress)
 //            Canvas(// 선
 //                modifier = Modifier.fillMaxWidth()
 //            ) {
@@ -59,9 +94,11 @@ fun SpecificRouteScreen(){
 //                    strokeWidth = 7f
 //                )
 //            }
-            SpecificList(showRouteDetails)
+                SpecificList(showRouteDetails)
+            }
         }
     }
+
 
 }
 

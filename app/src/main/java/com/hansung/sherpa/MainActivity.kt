@@ -81,13 +81,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
                             // KJH 세부 경로 화면
-                            var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
-                                PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장", "200m 직진")),
-                                BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(
-                                    BusLane("","성북02",0,0,"0",0)
-                                ), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
-                                PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
-                            )
                             SpecificRouteScreen()
                         }
                     }
@@ -181,21 +174,5 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
-
-    // ---------- 수정예정 ----------
-//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-//        super.onActivityResult(requestCode, resultCode, data)
-//
-//        if (resultCode == Activity.RESULT_OK) {
-//            when (requestCode) {
-//                1 -> { // RouteList Activity 문제점 좀 있음
-//                    val startKeyword = data?.getStringExtra("startKeyword")!!
-//                    val endKeyword = data.getStringExtra("endKeyword")!!
-//                    Log.d("explain", "$startKeyword is $endKeyword")
-//                    navigation.getTransitRoutes(startKeyword, endKeyword)
-//                }
-//            }
-//        }
-//    }
 }
 

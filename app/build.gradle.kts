@@ -20,7 +20,7 @@ android {
 
     defaultConfig {
         applicationId = "com.hansung.sherpa"
-        minSdk = 21
+        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.filament.android)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.compose.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
