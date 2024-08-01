@@ -191,8 +191,8 @@ class TransitManager(context: Context) {
                         .getGraphicRoute(request.getQuery()).execute()
                     result = Gson().fromJson(response.body()!!.string(), RouteGraphicResponse::class.java)
                 } catch (e: IOException) {
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    Log.e("error:RouteGraphic", "RouteGraphic 요청 실패")
+                    Log.e("error:RouteGraphic", "error code: ${e.cause} message: ${e.message}")
                 }
             }
         }
