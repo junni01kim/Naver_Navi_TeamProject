@@ -57,21 +57,18 @@ fun SpecificRouteScreen(){
     Spacer(modifier = Modifier.fillMaxWidth().height(250.dp))
 
 
-    Box(
-        modifier = Modifier
-            .swipeable(
-                state = swipeableState,
-                anchors = anchors,
-                thresholds = { _, _ -> FractionalThreshold(0.8f) },
-                orientation = Orientation.Vertical
-            )
-    ){
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .background(Color.Green)
                 .wrapContentSize()
+                .swipeable(
+                    state = swipeableState,
+                    anchors = anchors,
+                    thresholds = { _, _ -> FractionalThreshold(0.8f) },
+                    orientation = Orientation.Vertical
+                )
                 .offset { IntOffset(0, swipeableState.offset.value.roundToInt()) },
             colors = cardColors(
                 containerColor = Color.LightGray  // 카드의 배경 색상 설정
@@ -100,7 +97,7 @@ fun SpecificRouteScreen(){
     }
 
 
-}
+
 
 
 @Preview(showBackground = true)
