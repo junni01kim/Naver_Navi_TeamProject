@@ -241,7 +241,7 @@ class Convert {
                             time = step.duration?.toInt() ?: 0,
                             totalDistance = route.distance?.toInt() ?: 0,
                             totalTime = route.duration?.toInt() ?: 0,
-                            turnType = step.maneuver?.type?.toInt() ?: 0
+                            turnType = 0
                         ),
                         type = "Feature"
                     )

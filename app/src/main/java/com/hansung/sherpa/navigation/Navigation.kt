@@ -30,6 +30,8 @@ class Navigation {
     // [개발]: 시작, 도착 좌표
     var tempStartLatLng = LatLng(37.642743, 126.835375)
     val tempEndLatLng = LatLng(37.627444, 126.829600)
+    /*var tempStartLatLng = LatLng(37.642621, 126.833654)
+    val tempEndLatLng = LatLng(37.642400, 126.833627)*/
     // 반드시 지울 것!!
 
     // 경로 탐색(경로만 탐색)
@@ -56,12 +58,16 @@ class Navigation {
     fun getDetailTransitRoutes(start: String, end: String) {
         val TM = TransitManager(mainActivity)
         val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
+        Log.i("API", routeRequest.toString())
         val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest) // 대중교통+도보 길찾기
+        Log.i("API", ODsayTransitRouteResponse.toString())
         val routeGraphicList = TM.requestCoordinateForMapObject(ODsayTransitRouteResponse!!) // 노선 그래픽
+        Log.i("API", routeGraphicList.toString())
         val routeIndex = 0// 사용자가 1개의 경로를 고름
         val pedestrianRouteList = TM.requestCoordinateForRoute(
-            tempStartLatLng, tempEndLatLng, ODsayTransitRouteResponse.result!!.path[routeIndex]
+            tempStartLatLng, tempEndLatLng, ODsayTransitRouteResponse.result?.path?.get(routeIndex)
         ) // 고른 경로에 대한 보행자 경로 리턴
+        Log.i("API", pedestrianRouteList.toString())
     }
 
     // 이전 경로 탐색 코드
@@ -103,11 +109,11 @@ class Navigation {
 
     private fun setODsayRouteRequest(startLatLng: LatLng, endLatLng: LatLng): ODsayTransitRouteRequest {
         return ODsayTransitRouteRequest(
-            apiKey = BuildConfig.TMAP_APP_KEY,
-            SX = startLatLng.latitude.toString(),
-            SY = startLatLng.longitude.toString(),
-            EX = endLatLng.latitude.toString(),
-            EY = endLatLng.longitude.toString()
+            apiKey = BuildConfig.ODSAY_APP_KEY,
+            SX = startLatLng.longitude.toString(),
+            SY = startLatLng.latitude.toString(),
+            EX = endLatLng.longitude.toString(),
+            EY = endLatLng.latitude.toString()
         )
     }
 
