@@ -7,7 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
+import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.routegraphic.RouteGraphicResponse
+import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -96,22 +98,6 @@ class TransitManager(context: Context) {
                     rr = TmapTransitRouteResponse()
                 }
             }
-            launch(Dispatchers.IO) {
-                val rQ = routeRequest
-                try {
-                    val options = setOSRMRequestToMap()
-                    val response = Retrofit.Builder()
-                        .baseUrl(context.getString(R.string.osrm_route_base_url))
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                        .create<TransitRouteService?>(TransitRouteService::class.java)
-                        .getOSRMWalk(rQ.startX, rQ.startY, rQ.endX, rQ.endY, options).execute() // API 호출
-                    val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
-                    // Log.i("item", sW.toString())
-                } catch (e: IOException) {
-                    Log.e("Error", "Transit API Exception")
-                }
-            }
         }
         return rr
     }
@@ -160,8 +146,26 @@ class TransitManager(context: Context) {
                         PedestrianResponse::class.java
                     )
                 } catch (e: IOException) {
-                    Log.i("Error", "Transit API Exception")
-                    rr = PedestrianResponse()
+                    Log.i("Error", "postPedestrianRoutes API Exception")
+                    launch(Dispatchers.IO) {
+                        val rQ = routeRequest // 축약
+                        try {
+                            val options = setOSRMRequestToMap()
+                            val response = Retrofit.Builder()
+                                .baseUrl(context.getString(R.string.osrm_route_base_url))
+                                .addConverterFactory(GsonConverterFactory.create())
+                                .build()
+                                .create<TransitRouteService?>(TransitRouteService::class.java)
+                                .getOSRMWalk(rQ.startX.toString(),
+                                    rQ.startY.toString(), rQ.endX.toString(),
+                                    rQ.endY.toString(), options).execute() // API 호출
+                            val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
+                            Log.i("item", sW.toString())
+                            rr = Convert().convertToPedestrianResponse(sW)
+                        } catch (e: IOException) {
+                            Log.e("Error", "OSRM API Exception")
+                        }
+                    }
                 }
             }
         }
@@ -222,6 +226,63 @@ class TransitManager(context: Context) {
 
         return coordinateList.filterNotNull()
     }
+
+    enum class Coordinates(val SX: Int, val y: Int)
+    /**
+     * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
+     *
+     * @param response
+     * @return
+     */
+    fun requestCoordinateForRoute(start: LatLng, end: LatLng,response: ODsayPath): List<PedestrianResponse> {
+        val PEDESTRINAN_CODE = 3 // trafficType이 3일때
+        val FIRST_INDEX = 0 // 경로에서 첫 번째 구간이 도보일 때
+        val LAST_INDEX = response.subPath.size - 1 // 경로에서 마지막 구간이 도보일 떄
+
+        val routeCoordinateList: MutableList<PedestrianRouteRequest> = mutableListOf()
+        response.subPath.forEachIndexed { index, it ->
+            if (it.trafficType == PEDESTRINAN_CODE) {
+                routeCoordinateList.add(
+                    when (index) {
+                        FIRST_INDEX -> PedestrianRouteRequest(
+                            startX = start.longitude.toFloat(),
+                            startY = start.latitude.toFloat(),
+                            endX = response.subPath[FIRST_INDEX + 1].endX.toFloat(),
+                            endY = response.subPath[FIRST_INDEX + 1].endX.toFloat()
+                        )
+
+                        LAST_INDEX -> PedestrianRouteRequest(
+                            startX = response.subPath[LAST_INDEX - 1].endX.toFloat(),
+                            startY = response.subPath[LAST_INDEX - 1].endX.toFloat(),
+                            endX = end.longitude.toFloat(),
+                            endY = end.latitude.toFloat()
+                        )
+
+                        else -> PedestrianRouteRequest(
+                            startX = response.subPath[index - 1].endX.toFloat(),
+                            startY = response.subPath[index - 1].endX.toFloat(),
+                            endX = response.subPath[index + 1].endX.toFloat(),
+                            endY = response.subPath[index + 1].endX.toFloat()
+                        )
+                    }
+                )
+            }
+        }
+        val coordinateList = MutableList<PedestrianResponse?>(routeCoordinateList.size) { null } // 결과 저장하는 리스트
+        runBlocking {
+            val jobs = routeCoordinateList.mapIndexed { index, pedestrianRouteRequest -> // 순서대로 다시 정렬하기 위함
+                launch(Dispatchers.IO) {
+                    val pedestrianResponse = getPedestrianRoute(pedestrianRouteRequest)
+                    coordinateList[index] = pedestrianResponse
+                }
+            }
+            jobs.forEach { it.join() } // 비동기 요청 완료 대기
+        }
+
+        return coordinateList.filterNotNull()
+    }
+
+
 
     private fun setODsayRequestToMap(request: ODsayTransitRouteRequest): Map<String, String> {
         return mapOf(

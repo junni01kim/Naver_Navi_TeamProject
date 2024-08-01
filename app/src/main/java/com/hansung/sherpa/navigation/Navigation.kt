@@ -9,12 +9,10 @@ import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.deviation.Section
 import com.hansung.sherpa.transit.ODsayTransitRouteRequest
-import com.hansung.sherpa.transit.PedestrianResponse
 import com.hansung.sherpa.transit.PedestrianRouteRequest
-import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
+import com.hansung.sherpa.transit.TransitManager
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
@@ -53,16 +51,17 @@ class Navigation {
     }
 
     /**
-     * TODO
-     *
-     * @param start
-     * @param end
+     * API 전체 연결
      */
     fun getDetailTransitRoutes(start: String, end: String) {
         val TM = TransitManager(mainActivity)
         val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
         val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest) // 대중교통+도보 길찾기
         val routeGraphicList = TM.requestCoordinateForMapObject(ODsayTransitRouteResponse!!) // 노선 그래픽
+        val routeIndex = 0// 사용자가 1개의 경로를 고름
+        val pedestrianRouteList = TM.requestCoordinateForRoute(
+            tempStartLatLng, tempEndLatLng, ODsayTransitRouteResponse.result!!.path[routeIndex]
+        ) // 고른 경로에 대한 보행자 경로 리턴
     }
 
     // 이전 경로 탐색 코드
