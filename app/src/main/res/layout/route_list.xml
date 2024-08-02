@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/departure_edit_text"
+        android:contentDescription="출발지를 입력하기 위한 EditText이다."
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:hint="@string/departure_edit_text_hint" android:maxLines="1" android:inputType="text"
+        android:imeOptions="actionNext"
+
+        android:layout_marginTop="5dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/change_image_button" app:layout_constraintEnd_toStartOf="@+id/back_activity_image_button"/>
+
+    <EditText
+        android:id="@+id/destination_edit_text"
+        android:contentDescription="도착지를 입력하기 위한 EditText이다."
+        android:layout_width="0dp" android:layout_height="wrap_content"
+        android:hint="@string/destination_edit_text_hint" android:maxLines="1" android:inputType="text"
+        android:imeOptions="actionDone"
+
+        app:layout_constraintTop_toBottomOf="@+id/departure_edit_text"
+        app:layout_constraintStart_toStartOf="@+id/departure_edit_text" app:layout_constraintEnd_toStartOf="@+id/search_image_button" />
+
+    <ImageButton
+        android:id="@+id/change_image_button"
+        android:contentDescription="출발지 목적지 텍스트 위치 변경 버튼"
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:background="@color/transparent" app:tint="@color/black"
+        app:srcCompat="@drawable/swap"
+
+        android:layout_marginStart="5dp" android:layout_marginEnd="5dp"
+        app:layout_constraintTop_toTopOf="@+id/departure_edit_text" app:layout_constraintBottom_toBottomOf="@+id/destination_edit_text"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toStartOf="@+id/departure_edit_text" />
+
+    <ImageButton
+        android:id="@+id/search_image_button"
+        android:contentDescription="경로 리스트를 받을 수 있도록 하는 버튼이다."
+        android:layout_width="50dp" android:layout_height="50dp"
+        android:background="@color/transparent" app:tint="@color/black"
+        app:srcCompat="@drawable/search"
+
+        android:layout_marginStart="5dp" android:layout_marginEnd="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/departure_edit_text" app:layout_constraintBottom_toBottomOf="@+id/destination_edit_text"
+        app:layout_constraintStart_toEndOf="@+id/destination_edit_text" app:layout_constraintEnd_toEndOf="parent" />
+
+    <ImageButton
+        android:id="@+id/back_activity_image_button"
+        android:contentDescription="홈 화면으로 이동하기 위한 뒤로가기 버튼이다."
+        android:layout_width="50dp" android:layout_height="50dp"
+        android:background="@color/transparent" app:tint="@color/black"
+        app:srcCompat="@drawable/close"
+
+        android:layout_marginStart="5dp" android:layout_marginEnd="5dp"
+        app:layout_constraintTop_toTopOf="@+id/departure_edit_text" app:layout_constraintBottom_toBottomOf="@+id/departure_edit_text"
+        app:layout_constraintStart_toEndOf="@+id/departure_edit_text" app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <TextClock
+        android:id="@+id/departure_time_text_clock"
+        android:contentDescription="대중교통 출발 시간을 나타내는 TextClock이다."
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:format12Hour="출발시간 hh:mm"
+        android:format24Hour="출발시간 hh:mm" android:textSize="11sp"
+
+        android:layout_marginStart="10dp" android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/destination_edit_text" app:layout_constraintBottom_toTopOf="@+id/route_list_recycler_View"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <TextView
+        android:id="@+id/route_sorting_text_view"
+        android:contentDescription="경로 정렬 기능을 지정하는 TextView(레이아웃 수정 예정)이다."
+        android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:text="@string/route_sorting_text_view" android:textSize="11sp"
+
+        android:layout_marginTop="5dp" android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintTop_toBottomOf="@+id/destination_edit_text" app:layout_constraintBottom_toTopOf="@+id/route_list_recycler_View"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/route_list_recycler_View"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/bright_gray"
+        android:contentDescription="이동 가능한 경로 리스트가 나오는 공간이다."
+
+        app:layout_constraintTop_toBottomOf="@+id/route_sorting_text_view" app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>

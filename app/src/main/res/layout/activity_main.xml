@@ -7,11 +7,196 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
+    <!--
+    수정 1. 키 엔터하면 줄바꿈이 된다. 버튼 클릭과 동일한 옵션을 주어야 한다.
+    수정 2. 버튼 옵션 설정
+    -->
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map_fragment"
+        android:name="com.naver.maps.map.MapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.naver.maps.map.MapFragment" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:layout_editor_absoluteX="-16dp">
 
+    </androidx.fragment.app.FragmentContainerView>
 
+    <FrameLayout
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--
+        레이아웃 너비 높이 295dp, 55dp (임의로 설정 수정 가능성 있음)
+        EditText의 상단과의 간격 30으로 설정 (임의로 설정 수정 가능성 있음)
+        Edit Text의 색상 하얀색(#FFFFFF)
+        입력 전에는 "출발지를 입력하세요 문구가 나온다."
+        글자 크기는 25sp
+        글자 수 길어지면 '...'로 문구 생략
+        -->
+    <EditText
+        android:id="@+id/destination_editText"
+        android:layout_width="295dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="30dp"
+
+        android:background="@color/white"
+        android:ellipsize="end"
+
+        android:gravity="center_vertical"
+        android:hint="@string/departure_textView_hint"
+
+        android:inputType="text"
+        android:paddingStart="10dp"
+
+        android:textSize="25sp"
+        app:layout_constraintEnd_toStartOf="@+id/search_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map_fragment" />
+
+    <!--
+     버튼 이미지는 피그마 이미지 사용
+     contentDescription은 코드 주의 표시 수를 줄이기 위해 첨부(버튼에 대한 정보를 적는 구역)
+     이미지 크기와 버튼 크기는 완정 동일(틀어지면 패딩 공간이 회색으로 나온다.)
+     -->
+
+    <ImageButton
+        android:id="@+id/search_button"
+        android:layout_width="65dp"
+        android:layout_height="55dp"
+
+        android:layout_marginTop="30dp"
+
+        android:layout_marginEnd="15dp"
+        android:contentDescription="@string/search_button_contentDescription"
+        android:cursorVisible="false"
+
+        android:gravity="center_vertical"
+        android:scaleType="center"
+
+        android:src="@drawable/route_list_submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/map" />
+
+    <ViewFlipper
+        android:id="@+id/v_flipper"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:background="@color/white"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/bottom_navigation"
+        app:layout_constraintBottom_toBottomOf="parent" />
+    <!-- 하단 Tab Navigation -->
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintStart_toEndOf="@+id/v_flipper"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:tabContentStart="56dp">
+        <!--        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_1"
+            />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_2"
+            />-->
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tab_3" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <!--내 위치 아이콘 - 네이버 제공 아이콘으로 유지-->
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_action_button_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/float_icon_1"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@drawable/location" />-->
+
+    <!-- 병원 전화 -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/floating_action_button_medical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/float_icon_2"
+        android:maxLines="2"
+        android:text="@string/phone_and_request"
+        android:textAlignment="textStart"
+        android:textColor="@color/maximum_blue_green"
+        app:hideMotionSpec="@drawable/medical"
+        app:icon="@drawable/medical"
+        app:iconGravity="end"
+        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_man"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/medical" />
+
+    <!-- 아버지 전화 -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/floating_action_button_man"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/float_icon_3"
+        android:maxLines="2"
+        android:text="@string/phone_and_request"
+        android:textAlignment="textStart"
+        android:textColor="@color/maximum_blue_green"
+        app:icon="@drawable/man"
+        app:iconGravity="end"
+        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_woman"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/man" />
+
+    <!-- 어머니 전화 -->
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/floating_action_button_woman"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/float_icon_4"
+        android:maxLines="2"
+        android:text="@string/phone_and_request"
+        android:textAlignment="textStart"
+        android:textColor="@color/maximum_blue_green"
+        app:icon="@drawable/woman"
+        app:iconGravity="end"
+        app:layout_constraintBottom_toTopOf="@+id/floating_action_button_add"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/woman" />
+
+    <!-- 추가 -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floating_action_button_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="16dp"
+        android:backgroundTint="@color/white"
+        android:contentDescription="@string/float_icon_5"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@drawable/add" />
 </androidx.constraintlayout.widget.ConstraintLayout>
