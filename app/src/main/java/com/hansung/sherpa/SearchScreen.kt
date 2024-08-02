@@ -440,10 +440,9 @@ fun Chart(routeList:List<ExpandTempRoute>, fullTime:Int) {
                     modifier = Modifier
                         .width(width * it.partTime / fullTime)
                         .fillMaxHeight()
-                        .background(
-                            TempColor.color[index],
-                            CircleShape
-                        ), textAlign = TextAlign.Center
+                        .clip(CircleShape)
+                        .background(TempColor.color[index]),
+                    textAlign = TextAlign.Center
                 )
             }
         }
