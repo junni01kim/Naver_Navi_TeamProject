@@ -214,6 +214,7 @@ class Navigation {
      * - MAPPER
      */
     fun getDetailTransitRoutes(start: String, end: String) {
+        val isMapStruct: Boolean = false // MapStruct 라이브러리 사용여부
         val TM = TransitManager(mainActivity)
 
         // [API] 대중교통+도보 길찾기
@@ -226,22 +227,26 @@ class Navigation {
         Log.i("API", routeGraphicList.toString())
 
         // [MAPPING] MapStruct 라이브러리 TODO 사용금지!
-        try {
-            val oDsayPath = ODsayTransitRouteResponse.result!!.path[0]
-            val graphPosList = routeGraphicList[0].result!!.lane!![0]!!.section?.get(0)!!.graphPos!!
-            val transportRoute = RouteDetailMapper.INSTANCE.convertToTransit(oDsayPath, graphPosList)
-            Log.i("MAPPER", transportRoute.toString())
-        } catch (e: Exception) {
-            Log.e("MAPPER", e.toString())
+        if (isMapStruct) {
+            try {
+                val oDsayPath = ODsayTransitRouteResponse.result!!.path[0]
+                val graphPosList = routeGraphicList[0].result!!.lane!![0]!!.section?.get(0)!!.graphPos!!
+                val transportRoute = RouteDetailMapper.INSTANCE.convertToTransit(oDsayPath, graphPosList)
+                Log.i("MAPPER", transportRoute.toString())
+            } catch (e: Exception) {
+                Log.e("MAPPER", e.toString())
+            }
         }
 
         // [MAPPING] 하드코딩 매핑 TransportRouteList
         var transportRouteList: List<TransportRoute>? = emptyList()
-        try {
-            transportRouteList = RouteFilterMapper().mappingODsayResponseToTransportRouteList(ODsayTransitRouteResponse, routeGraphicList)
-            Log.i("MAPPER", transportRouteList.toString())
-        } catch (e: Exception) {
-            Log.e("MAPPER", e.toString())
+        if (isMapStruct) {
+            try {
+                transportRouteList = RouteFilterMapper().mappingODsayResponseToTransportRouteList(ODsayTransitRouteResponse, routeGraphicList)
+                Log.i("MAPPER", transportRouteList.toString())
+            } catch (e: Exception) {
+                Log.e("MAPPER", e.toString())
+            }
         }
 
         // [API] 고른 경로에 대한 보행자 경로 리턴
@@ -252,11 +257,13 @@ class Navigation {
         Log.i("API", pedestrianRouteList.toString())
 
         // [MAPPING] 선택한 경로에 대한 데이터를 사용할 클래스 객체에 넣어준다.
-        try {
-            val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList)
-            Log.i("MAPPER", transportRoute.toString())
-        } catch (e : Exception) {
-            Log.e("MAPPER", e.toString())
+        if (isMapStruct) {
+            try {
+                val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList)
+                Log.i("MAPPER", transportRoute.toString())
+            } catch (e : Exception) {
+                Log.e("MAPPER", e.toString())
+            }
         }
     }
 
