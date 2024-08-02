@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,8 +55,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.gson.Gson
 import com.hansung.sherpa.convert.Convert
+import com.hansung.sherpa.convert.Coordinate
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
+import com.hansung.sherpa.convert.coordinate
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteResponse
@@ -266,7 +270,7 @@ fun mappingToTempRoute(originalRouteList:MutableList<MutableList<LegRoute>>):Mut
             TempRoute("소요시간", "도착시간", mutableListOf())
         )
         it.forEach{
-            routeList.get(routeList.size-1).expandTempRouteList.add(ExpandTempRoute(it.coordinates.size,"출발지 이름","소요시간",it.pathType,"이름","도착시간"))
+            routeList.get(routeList.size-1).expandTempRouteList.add(ExpandTempRoute(it.coordinates.size,"출발지 이름","소요시간",it.pathType,"이름","도착시간", it.coordinates))
         }
     }
     return routeList
@@ -364,7 +368,7 @@ fun ExpandableCard(route:TempRoute) {
                 }
             }
 
-            Chart(route.expandTempRouteList,200)
+            Chart(route.expandTempRouteList,route.getCount())
 
             if (expandedState) {
                 ExpandItem()
@@ -398,8 +402,16 @@ fun ExpandItem() {
 }
 
 // 임시 샘플 코드이다.
-data class TempRoute(val totalTime:String, val arrivalTime:String, val expandTempRouteList:MutableList<ExpandTempRoute>)
-data class ExpandTempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:PathType = PathType.WALK, val number:String = "이름", val time2:String = "도착시간")
+class TempRoute(val totalTime:String, val arrivalTime:String, val expandTempRouteList:MutableList<ExpandTempRoute>){
+    fun getCount():Int {
+        var count = 0
+        expandTempRouteList.forEach{
+            count+= it.coordinate.size
+        }
+        return count
+    }
+}
+data class ExpandTempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:PathType = PathType.WALK, val number:String = "이름", val time2:String = "도착시간", val coordinate: MutableList<Coordinate>)
 object TempColor{
     val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray,Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray,Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray)
 }
@@ -411,21 +423,29 @@ object TempColor{
 @Composable
 fun Chart(routeList:List<ExpandTempRoute>, fullTime:Int) {
     val width = 400.dp
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(12.dp)
-        .background(Color.LightGray)) {
-        routeList.forEachIndexed { index, it ->
-            Text(text = it.time,
-                fontSize = 7.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .width(width * it.partTime / fullTime)
-                    .fillMaxHeight()
-                    .background(
-                        TempColor.color[index],
-                        CircleShape
-                    ), textAlign = TextAlign.Center)
+    Box {
+        Box(
+            modifier = Modifier.fillMaxWidth().height(12.dp).clip(CircleShape).background(Color.LightGray)
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(12.dp)
+        ) {
+            routeList.forEachIndexed { index, it ->
+                Text(
+                    text = it.time,
+                    fontSize = 7.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .width(width * it.partTime / fullTime)
+                        .fillMaxHeight()
+                        .background(
+                            TempColor.color[index],
+                            CircleShape
+                        ), textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }
