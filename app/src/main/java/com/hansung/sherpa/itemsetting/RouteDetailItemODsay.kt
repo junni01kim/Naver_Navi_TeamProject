@@ -127,7 +127,7 @@ data class BusSectionInfo(
     val endStationCityCode: Int,
     val endStationProviderCode: Int,
     val endLocalStationID: String,
-    var stationNames:MutableList<String>
+    var stationNames:List<String>
 ):SectionInfo
 
 /**
