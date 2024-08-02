@@ -9,6 +9,7 @@ import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
+import com.hansung.sherpa.itemsetting.RouteDetailMapper
 import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
@@ -59,10 +60,23 @@ class Navigation {
         val TM = TransitManager(mainActivity)
         val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
         Log.i("API", routeRequest.toString())
+
         val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest) // 대중교통+도보 길찾기
         Log.i("API", ODsayTransitRouteResponse.toString())
+
         val routeGraphicList = TM.requestCoordinateForMapObject(ODsayTransitRouteResponse!!) // 노선 그래픽
         Log.i("API", routeGraphicList.toString())
+
+        try {
+            val otrrp = ODsayTransitRouteResponse.result!!.path[0]
+            // val rgl = routeGraphicList[0]
+            val rgl = routeGraphicList[0].result!!.lane!![0]!!.section?.get(0)!!.graphPos!!
+            val mappingResult = RouteDetailMapper.INSTANCE.convertToTransit(otrrp, rgl)
+            Log.i("MAPPER", mappingResult.toString())
+       } catch (e: Exception) {
+            Log.e("MAPPER", e.toString())
+        }
+
         val routeIndex = 0// 사용자가 1개의 경로를 고름
         val pedestrianRouteList = TM.requestCoordinateForRoute(
             tempStartLatLng, tempEndLatLng, ODsayTransitRouteResponse.result?.path?.get(routeIndex)
