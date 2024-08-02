@@ -51,9 +51,23 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
+import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.navigation.Navigation
+import com.hansung.sherpa.transit.TmapTransitRouteRequest
+import com.hansung.sherpa.transit.TmapTransitRouteResponse
+import com.hansung.sherpa.transit.TransitManager
+import com.hansung.sherpa.transit.TransitRouteService
+import com.naver.maps.geometry.LatLng
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.IOException
 
 /**
  * 컴포넌트의 속성(modifier)을 관리
@@ -227,12 +241,10 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
                         departureValue = ""
                         destinationValue = ""
 
-                        val navigation = Navigation()
-                        //val routeList = navigation.getTransitRoutes(departureValue, destinationValue)
-                        //mappingToTempRoute(routeList)
+                        // 테스트용 코드 (하단에 코드 샘플 기재) << 부끄러우니까 보지 마세요
+                        val mappingRouteList = mappingToTempRoute(getTransitRoutes())
+                        listUpdate(mappingRouteList)
 
-                        val routeList = mutableListOf(TempRoute("소요 시간", "도착시간",mutableListOf(ExpandTempRoute(5), ExpandTempRoute(25), ExpandTempRoute(70) ,ExpandTempRoute(50), ExpandTempRoute(50))))
-                        listUpdate(routeList)
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
@@ -247,7 +259,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
     }
 }
 
-fun mappingToTempRoute(originalRouteList:MutableList<MutableList<LegRoute>>):List<TempRoute>{
+fun mappingToTempRoute(originalRouteList:MutableList<MutableList<LegRoute>>):MutableList<TempRoute>{
     val routeList = mutableListOf<TempRoute>()
     originalRouteList.forEach {
         routeList.add(
@@ -389,7 +401,7 @@ fun ExpandItem() {
 data class TempRoute(val totalTime:String, val arrivalTime:String, val expandTempRouteList:MutableList<ExpandTempRoute>)
 data class ExpandTempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:PathType = PathType.WALK, val number:String = "이름", val time2:String = "도착시간")
 object TempColor{
-    val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta)
+    val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray,Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray,Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray)
 }
 
 /**
@@ -422,4 +434,66 @@ fun Chart(routeList:List<ExpandTempRoute>, fullTime:Int) {
 @Composable
 fun SearchPreview(){
     SearchScreen()
+}
+
+// TODO: 임시 코드
+// 경로 요청 값 만들기
+private fun setRouteRequest(startLatLng: LatLng, endLatLng: LatLng):TmapTransitRouteRequest {
+    return TmapTransitRouteRequest(
+        startX = startLatLng.longitude.toString(),
+        startY = startLatLng.latitude.toString(),
+        endX = endLatLng.longitude.toString(),
+        endY = endLatLng.latitude.toString(),
+        lang = 0,
+        format = "json",
+        count = 10
+    )
+}
+
+fun getTransitRoutes(): MutableList<MutableList<LegRoute>> {
+    // 검색어 기반 좌표 검색
+    /**
+     * 미완성이라 주석처리
+     * val SL = SearchLocation()
+     * startLatLng = SL.searchLatLng(start)
+     * endLatLng = SL.searchLatLng(end)
+     **/
+
+    val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
+    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
+
+    // 좌표 기반 경로 검색
+    val routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
+    val transitRouteResponse = test(routeRequest)
+    val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+
+    return transitRoutes
+}
+
+fun test(routeRequest: TmapTransitRouteRequest): TmapTransitRouteResponse {
+    val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
+    lateinit var rr: TmapTransitRouteResponse
+    runBlocking<Job> {
+        launch(Dispatchers.IO) {
+            try {
+                val response = Retrofit.Builder()
+                    .baseUrl("https://apis.openapi.sk.com/")
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create<TransitRouteService?>(TransitRouteService::class.java)
+                    .postTransitRoutes(appKey, routeRequest).execute() // API 호출
+                rr = Gson().fromJson(response.body()!!.string(), TmapTransitRouteResponse::class.java)
+                // Error Log
+                /*if (rr.metaData == null) {
+                    val errorCode = Gson().fromJson(response.body()!!.string(), TmapTransitErrorCode::class.java)
+                    Log.e("Error", "Error Code: ${errorCode.result?.status}, ${errorCode.result?.message}")
+                    // getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
+                }*/
+            } catch (e: IOException) {
+                Log.e("Error", "Transit API Exception")
+                rr = TmapTransitRouteResponse()
+            }
+        }
+    }
+    return rr
 }
