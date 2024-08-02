@@ -2,17 +2,20 @@ package com.hansung.sherpa.navigation
 
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.deviation.Section
-import com.hansung.sherpa.transit.PedestrianResponse
+import com.hansung.sherpa.itemsetting.RouteDetailMapper
+import com.hansung.sherpa.itemsetting.RouteFilterMapper
+import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.PedestrianRouteRequest
-import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
+import com.hansung.sherpa.transit.TransitManager
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
@@ -30,6 +33,8 @@ class Navigation {
     // [개발]: 시작, 도착 좌표
     var tempStartLatLng = LatLng(37.642743, 126.835375)
     val tempEndLatLng = LatLng(37.627444, 126.829600)
+    /*var tempStartLatLng = LatLng(37.642621, 126.833654)
+    val tempEndLatLng = LatLng(37.642400, 126.833627)*/
     // 반드시 지울 것!!
 
     // 경로 탐색(경로만 탐색)
@@ -84,6 +89,16 @@ class Navigation {
             lang = 0,
             format = "json",
             count = 10
+        )
+    }
+
+    private fun setODsayRouteRequest(startLatLng: LatLng, endLatLng: LatLng): ODsayTransitRouteRequest {
+        return ODsayTransitRouteRequest(
+            apiKey = BuildConfig.ODSAY_APP_KEY,
+            SX = startLatLng.longitude.toString(),
+            SY = startLatLng.latitude.toString(),
+            EX = endLatLng.longitude.toString(),
+            EY = endLatLng.latitude.toString()
         )
     }
 
@@ -188,5 +203,69 @@ class Navigation {
     private fun convertIntToStr(color:Int) : Int {
         return ContextCompat.getColor(mainActivity, color)
     }
+
+
+    /**
+     * API 사용법 참고용
+     * API 요청과 매핑 방법에 대해서 전체 흐름을 보여준다.
+     *
+     * LogCat Tag
+     * - API
+     * - MAPPER
+     */
+    fun getDetailTransitRoutes(start: String, end: String) {
+        val isMapStruct: Boolean = false // MapStruct 라이브러리 사용여부
+        val TM = TransitManager(mainActivity)
+
+        // [API] 대중교통+도보 길찾기
+        val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
+        val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest)
+        Log.i("API", ODsayTransitRouteResponse.toString())
+
+        // [API] 노선 그래픽 : 대중교통 경로 좌표 찾기
+        val routeGraphicList = TM.requestCoordinateForMapObject(ODsayTransitRouteResponse!!)
+        Log.i("API", routeGraphicList.toString())
+
+        // [MAPPING] MapStruct 라이브러리 TODO 사용금지!
+        if (isMapStruct) {
+            try {
+                val oDsayPath = ODsayTransitRouteResponse.result!!.path[0]
+                val graphPosList = routeGraphicList[0].result!!.lane!![0]!!.section?.get(0)!!.graphPos!!
+                val transportRoute = RouteDetailMapper.INSTANCE.convertToTransit(oDsayPath, graphPosList)
+                Log.i("MAPPER", transportRoute.toString())
+            } catch (e: Exception) {
+                Log.e("MAPPER", e.toString())
+            }
+        }
+
+        // [MAPPING] 하드코딩 매핑 TransportRouteList
+        var transportRouteList: List<TransportRoute>? = emptyList()
+        if (!isMapStruct) {
+            try {
+                transportRouteList = RouteFilterMapper().mappingODsayResponseToTransportRouteList(ODsayTransitRouteResponse, routeGraphicList)
+                Log.i("MAPPER", transportRouteList.toString())
+            } catch (e: Exception) {
+                Log.e("MAPPER", e.toString())
+            }
+        }
+
+        // [API] 고른 경로에 대한 보행자 경로 리턴
+        val selectedIndex = 0 // 사용자가 1개의 경로를 고름
+        val pedestrianRouteList = TM.requestCoordinateForRoute(
+            tempStartLatLng, tempEndLatLng, ODsayTransitRouteResponse.result?.path?.get(selectedIndex)
+        )
+        Log.i("API", pedestrianRouteList.toString())
+
+        // [MAPPING] 선택한 경로에 대한 데이터를 사용할 클래스 객체에 넣어준다.
+        if (!isMapStruct) {
+            try {
+                val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList)
+                Log.i("MAPPER", transportRoute.toString())
+            } catch (e : Exception) {
+                Log.e("MAPPER", e.toString())
+            }
+        }
+    }
+
 }
 

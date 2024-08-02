@@ -85,8 +85,8 @@ class ShowSpecificRoute {
         var sum = 0.0
 
         for(i in showRouteDetails){
-            sum += i.distance
-            resArray.add(i.distance.toFloat())
+            sum += i.distance!!
+            resArray.add(i.distance!!.toFloat())
         }
 
         for(i in 0 until resArray.size){

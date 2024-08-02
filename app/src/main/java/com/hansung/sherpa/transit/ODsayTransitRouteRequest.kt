@@ -14,7 +14,7 @@ import com.google.gson.annotations.SerializedName
  * @param format 출력포맷 (json, xml)
  * @param count 최대 응답 결과 개수 (1~10)
  */
-data class OdsayTransitRouteRequest(
+data class ODsayTransitRouteRequest(
     @SerializedName("apiKey") val apiKey: String,
     @SerializedName("SX") val SX: String,
     @SerializedName("SY") val SY: String,

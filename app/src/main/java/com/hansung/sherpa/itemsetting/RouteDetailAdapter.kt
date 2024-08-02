@@ -78,7 +78,7 @@ class RouteHolder(val view: View):RecyclerView.ViewHolder(view){
                     image = view.findViewById<ImageView>(R.id.specific_item_image)
                     image.setImageResource(R.drawable.pedestrianrouteimage)
 
-                    specificItemSummary.text = "도보 " + item.distance.toInt().toString() + "m 이동"
+                    specificItemSummary.text = "도보 " + item.distance!!.toInt().toString() + "m 이동"
 
                     expandImage.setImageResource(R.drawable.pedestrianrouteimage)
                     numberOfTransitRapper.visibility = View.GONE

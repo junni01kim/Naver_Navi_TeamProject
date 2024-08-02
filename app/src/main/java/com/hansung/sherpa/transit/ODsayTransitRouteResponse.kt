@@ -5,8 +5,8 @@ package com.hansung.sherpa.transit
  *
  * @param result 데이터를 포함하는 최상위 노드
  */
-data class OdsayTransitRouteResponse (
-    val result: OdsayResult? = null
+data class ODsayTransitRouteResponse (
+    val result: ODsayResult? = null
 )
 
 /**
@@ -22,7 +22,7 @@ data class OdsayTransitRouteResponse (
  * @param endRadius 도착지 반경
  * @param path 결과 리스트 확장 노드
  */
-data class OdsayResult(
+data class ODsayResult(
     val searchType: Int,
     val outTrafficCheck: Int,
     val busCount: Int,
@@ -31,7 +31,7 @@ data class OdsayResult(
     val pointDistance: Int,
     val startRadius: Int,
     val endRadius: Int,
-    val path: List<OdsayPath>,
+    val path: List<ODsayPath>,
 )
 
 /**
@@ -41,10 +41,10 @@ data class OdsayResult(
  * @param info 요약 정보 확장 노드
  * @param subPath 도보를 제외한 총 이동 거리
  */
-data class OdsayPath(
+data class ODsayPath(
     val pathType: Int,
-    val info: OdsayInfo,
-    val subPath: List<OdsaySubPath>,
+    val info: ODsayInfo,
+    val subPath: List<ODsaySubPath>,
 )
 
 /**
@@ -71,7 +71,7 @@ data class OdsayPath(
  * @param checkIntervalTimeOverYn 배차간격 체크 기준시간을 초과하는 노선이 존재하는지 여부(Y/N)
  * @param totalIntervalTime 전체 배차간격 시간(분)
  */
-data class OdsayInfo(
+data class ODsayInfo(
     val trafficDistance: Double,
     val totalWalk: Int,
     val totalTime: Int,
@@ -134,12 +134,12 @@ data class OdsayInfo(
  * @param endExitY 지하철 나가는 출구 Y좌표(지하철인 경우에만 사용되지만 해당 태그가 없을 수도 있다.)
  * @param passStopList 경로 상세구간 정보 확장 노드
  */
-data class OdsaySubPath(
+data class ODsaySubPath(
     val trafficType: Int,
     val distance: Double,
     val sectionTime: Int,
     val stationCount: Int? = null,
-    val lane: List<OdsayLane>? = null,
+    val lane: List<ODsayLane>? = null,
     val intervalTime: Int,
     val startName: String,
     val startNameKor: String,
@@ -170,7 +170,7 @@ data class OdsaySubPath(
     val endExitNo: String? = null,
     val endExitX: Double? = null,
     val endExitY: Double? = null,
-    val passStopList: OdsayPassStopList,
+    val passStopList: ODsayPassStopList,
 )
 
 /**
@@ -190,7 +190,7 @@ data class OdsaySubPath(
  * @param subwayCode 지하철 노선 번호 (지하철인 경우에만 필수)
  * @param subwayCityCode 지하철 도시코드 (지하철인 경우에만 필수)
  */
-data class OdsayLane(
+data class ODsayLane(
     val name: String? = null,
     val nameKor: String? = null,
     val nameJpnKata: String? = null,
@@ -211,8 +211,8 @@ data class OdsayLane(
  *
  * @param stations 정류장 정보 그룹노드
  */
-data class OdsayPassStopList(
-    val stations: List<OdsayStations>,
+data class ODsayPassStopList(
+    val stations: List<ODsayStations>,
 )
 
 /**
@@ -231,7 +231,7 @@ data class OdsayPassStopList(
  * @param y 정류장 Y좌표
  * @param isNonStop 미정차 정류장 여부 Y/N(버스인 경우에만 필수)
  */
-data class OdsayStations(
+data class ODsayStations(
     val index: Int,
     val stationID: Int,
     val stationName: String,
