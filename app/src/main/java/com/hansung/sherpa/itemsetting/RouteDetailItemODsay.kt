@@ -83,7 +83,7 @@ data class PedestrianSectionInfo(
     override var startY: Double? = null,
     override var endX: Double? = null,
     override var endY: Double? = null,
-    var contents:List<String>
+    var contents:MutableList<String>
 ):SectionInfo
 
 /**
