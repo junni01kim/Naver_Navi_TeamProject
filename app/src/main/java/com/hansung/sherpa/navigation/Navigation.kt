@@ -10,6 +10,8 @@ import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.itemsetting.RouteDetailMapper
+import com.hansung.sherpa.itemsetting.RouteFilterMapper
+import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
@@ -51,37 +53,6 @@ class Navigation {
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
 
         return transitRoutes
-    }
-
-    /**
-     * API 전체 연결
-     */
-    fun getDetailTransitRoutes(start: String, end: String) {
-        val TM = TransitManager(mainActivity)
-        val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
-        Log.i("API", routeRequest.toString())
-
-        val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest) // 대중교통+도보 길찾기
-        Log.i("API", ODsayTransitRouteResponse.toString())
-
-        val routeGraphicList = TM.requestCoordinateForMapObject(ODsayTransitRouteResponse!!) // 노선 그래픽
-        Log.i("API", routeGraphicList.toString())
-
-        try {
-            val otrrp = ODsayTransitRouteResponse.result!!.path[0]
-            // val rgl = routeGraphicList[0]
-            val rgl = routeGraphicList[0].result!!.lane!![0]!!.section?.get(0)!!.graphPos!!
-            val mappingResult = RouteDetailMapper.INSTANCE.convertToTransit(otrrp, rgl)
-            Log.i("MAPPER", mappingResult.toString())
-       } catch (e: Exception) {
-            Log.e("MAPPER", e.toString())
-        }
-
-        val routeIndex = 0// 사용자가 1개의 경로를 고름
-        val pedestrianRouteList = TM.requestCoordinateForRoute(
-            tempStartLatLng, tempEndLatLng, ODsayTransitRouteResponse.result?.path?.get(routeIndex)
-        ) // 고른 경로에 대한 보행자 경로 리턴
-        Log.i("API", pedestrianRouteList.toString())
     }
 
     // 이전 경로 탐색 코드
@@ -232,5 +203,62 @@ class Navigation {
     private fun convertIntToStr(color:Int) : Int {
         return ContextCompat.getColor(mainActivity, color)
     }
+
+
+    /**
+     * API 사용법 참고용
+     * API 요청과 매핑 방법에 대해서 전체 흐름을 보여준다.
+     *
+     * LogCat Tag
+     * - API
+     * - MAPPER
+     */
+    fun getDetailTransitRoutes(start: String, end: String) {
+        val TM = TransitManager(mainActivity)
+
+        // [API] 대중교통+도보 길찾기
+        val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
+        val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest)
+        Log.i("API", ODsayTransitRouteResponse.toString())
+
+        // [API] 노선 그래픽 : 대중교통 경로 좌표 찾기
+        val routeGraphicList = TM.requestCoordinateForMapObject(ODsayTransitRouteResponse!!)
+        Log.i("API", routeGraphicList.toString())
+
+        // [MAPPING] MapStruct 라이브러리 TODO 사용금지!
+        try {
+            val oDsayPath = ODsayTransitRouteResponse.result!!.path[0]
+            val graphPosList = routeGraphicList[0].result!!.lane!![0]!!.section?.get(0)!!.graphPos!!
+            val transportRoute = RouteDetailMapper.INSTANCE.convertToTransit(oDsayPath, graphPosList)
+            Log.i("MAPPER", transportRoute.toString())
+        } catch (e: Exception) {
+            Log.e("MAPPER", e.toString())
+        }
+
+        // [MAPPING] 하드코딩 매핑 TransportRouteList
+        var transportRouteList: List<TransportRoute>? = emptyList()
+        try {
+            transportRouteList = RouteFilterMapper().mappingODsayResponseToTransportRouteList(ODsayTransitRouteResponse, routeGraphicList)
+            Log.i("MAPPER", transportRouteList.toString())
+        } catch (e: Exception) {
+            Log.e("MAPPER", e.toString())
+        }
+
+        // [API] 고른 경로에 대한 보행자 경로 리턴
+        val selectedIndex = 0 // 사용자가 1개의 경로를 고름
+        val pedestrianRouteList = TM.requestCoordinateForRoute(
+            tempStartLatLng, tempEndLatLng, ODsayTransitRouteResponse.result?.path?.get(selectedIndex)
+        )
+        Log.i("API", pedestrianRouteList.toString())
+
+        // [MAPPING] 선택한 경로에 대한 데이터를 사용할 클래스 객체에 넣어준다.
+        try {
+            val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList)
+            Log.i("MAPPER", transportRoute.toString())
+        } catch (e : Exception) {
+            Log.e("MAPPER", e.toString())
+        }
+    }
+
 }
 
