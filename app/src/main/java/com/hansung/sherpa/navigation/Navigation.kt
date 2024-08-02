@@ -240,7 +240,7 @@ class Navigation {
 
         // [MAPPING] 하드코딩 매핑 TransportRouteList
         var transportRouteList: List<TransportRoute>? = emptyList()
-        if (isMapStruct) {
+        if (!isMapStruct) {
             try {
                 transportRouteList = RouteFilterMapper().mappingODsayResponseToTransportRouteList(ODsayTransitRouteResponse, routeGraphicList)
                 Log.i("MAPPER", transportRouteList.toString())
@@ -257,7 +257,7 @@ class Navigation {
         Log.i("API", pedestrianRouteList.toString())
 
         // [MAPPING] 선택한 경로에 대한 데이터를 사용할 클래스 객체에 넣어준다.
-        if (isMapStruct) {
+        if (!isMapStruct) {
             try {
                 val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList)
                 Log.i("MAPPER", transportRoute.toString())
