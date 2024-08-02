@@ -1,18 +1,23 @@
 package com.hansung.sherpa.ui.specificroute
 
 
+import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
@@ -24,19 +29,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.FractionalThreshold
-import androidx.wear.compose.material.rememberSwipeableState
-import androidx.wear.compose.material.swipeable
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SectionInfo
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalWearMaterialApi::class)
+enum class DragValue { Start, Center, End }
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SpecificRouteScreen(){
     var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
@@ -47,29 +51,43 @@ fun SpecificRouteScreen(){
 
     val progress by remember { mutableStateOf(0.5f) }
 
-    val swipeableState = rememberSwipeableState(0)
 
-    val movedSize = 500.dp // 얼마 만큼 움직일 것인가 (거리 정의)
-    val movingPx = with(LocalDensity.current) { movedSize.toPx() }
-    val anchors = mapOf(0f to 0, movingPx to 1)
+    val density = LocalDensity.current // 화면 밀도
+    val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
+    val screenSizePx = with(density) {screenHeightSizeDp.toPx()} // 화면 밀도에 따른 화면 크기 PxSize
+    val anchors = remember {
+        DraggableAnchors{
+            DragValue.Start at 0f
+            DragValue.End at 300f
+        }
+    }
 
+    val state = remember {
+        AnchoredDraggableState(
+            initialValue = DragValue.Start,
+            anchors = anchors,  // 생성자에 anchors 전달
+            positionalThreshold = { distance: Float -> distance * 0.1f },
+            velocityThreshold = { with(density) { 10.dp.toPx() } },
+            snapAnimationSpec = tween(),  // snapAnimationSpec로 지정
+            decayAnimationSpec = exponentialDecay(),  // decayAnimationSpec 추가
+            confirmValueChange = { true }
+        )
+    }
 
-    Spacer(modifier = Modifier.fillMaxWidth().height(250.dp))
-
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        Spacer(modifier = Modifier
+            .heightIn(min = screenHeightSizeDp-305.dp, max= screenHeightSizeDp-305.dp + 227.dp)
+            .height(screenHeightSizeDp-305.dp + state.requireOffset().dp))
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
+                .height(305.dp)
                 .background(Color.Green)
-                .wrapContentSize()
-                .swipeable(
-                    state = swipeableState,
-                    anchors = anchors,
-                    thresholds = { _, _ -> FractionalThreshold(0.8f) },
-                    orientation = Orientation.Vertical
-                )
-                .offset { IntOffset(0, swipeableState.offset.value.roundToInt()) },
+                .anchoredDraggable(state, Orientation.Vertical),
             colors = cardColors(
                 containerColor = Color.LightGray  // 카드의 배경 색상 설정
             ),
@@ -95,6 +113,9 @@ fun SpecificRouteScreen(){
             }
         }
     }
+
+
+}
 
 
 
