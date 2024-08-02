@@ -221,5 +221,5 @@ data class SubwayLane(
  * @param routeList 경로 위치 리스트
  */
 data class SectionRoute(
-    val routeList:List<LatLng>
+    val routeList:MutableList<LatLng>
 )
