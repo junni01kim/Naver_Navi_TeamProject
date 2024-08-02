@@ -51,14 +51,14 @@ data class SubPath( // OdsaySubPath에 해당
  * @param endY
  */
 interface SectionInfo { // OdsaySubPath에 해당
-    var distance: Double
-    var sectionTime: Int
-    var startName: String
-    val endName: String
-    var startX:Double
-    var startY:Double
-    var endX:Double
-    var endY:Double
+    var distance: Double?
+    var sectionTime: Int?
+    var startName: String?
+    var endName: String?
+    var startX:Double?
+    var startY:Double?
+    var endX:Double?
+    var endY:Double?
 }
 
 
@@ -75,15 +75,15 @@ interface SectionInfo { // OdsaySubPath에 해당
  * @param contents 보행자 세부 경로 (100m 앞 우회전, 200m 좌회전, 파리바게트 우회전...) -> TMap API 이용
  */
 data class PedestrianSectionInfo(
-    override var distance: Double,
-    override var sectionTime: Int,
-    override var startName: String, // PedestrianResponse.Feature[0].Properties.facilityName 김명준 추정
-    override val endName: String, // PedestrianResponse.Feature[PedestrianResponse.Feature.size-1].Properties.facilityName 김명준 추정
-    override var startX: Double,
-    override var startY: Double,
-    override var endX: Double,
-    override var endY: Double,
-    var contents:MutableList<String>
+    override var distance: Double? = null,
+    override var sectionTime: Int? = null,
+    override var startName: String? = null, // PedestrianResponse.Feature[0].Properties.facilityName 김명준 추정
+    override var endName: String? = null, // PedestrianResponse.Feature[PedestrianResponse.Feature.size-1].Properties.facilityName 김명준 추정
+    override var startX: Double? = null,
+    override var startY: Double? = null,
+    override var endX: Double? = null,
+    override var endY: Double? = null,
+    var contents:List<String>
 ):SectionInfo
 
 /**
@@ -109,14 +109,14 @@ data class PedestrianSectionInfo(
  * @param stationNames Bus 정류장 이름들
  */
 data class BusSectionInfo(
-    override var distance: Double,
-    override var sectionTime: Int,
-    override var startName: String,
-    override val endName: String,
-    override var startX: Double,
-    override var startY: Double,
-    override var endX: Double,
-    override var endY: Double,
+    override var distance: Double? = null,
+    override var sectionTime: Int? = null,
+    override var startName: String? = null,
+    override var endName: String? = null,
+    override var startX: Double? = null,
+    override var startY: Double? = null,
+    override var endX: Double? = null,
+    override var endY: Double? = null,
     var lane: List<Lane>,
     val stationCount: Int,
     val startID: Int,
@@ -154,14 +154,14 @@ data class BusSectionInfo(
  * @param stationNames Subway 정류장들 이름
  */
 data class SubwaySectionInfo(
-    override var distance: Double,
-    override var sectionTime: Int,
-    override var startName: String,
-    override val endName: String,
-    override var startX: Double,
-    override var startY: Double,
-    override var endX: Double,
-    override var endY: Double,
+    override var distance: Double? = null,
+    override var sectionTime: Int? = null,
+    override var startName: String? = null,
+    override var endName: String? = null,
+    override var startX: Double? = null,
+    override var startY: Double? = null,
+    override var endX: Double? = null,
+    override var endY: Double? = null,
     var lane: List<Lane>,
     val way:String,
     val wayCode:Int,
@@ -173,7 +173,7 @@ data class SubwaySectionInfo(
     val endID: Int,
     val endStationProviderCode: Int,
     val endLocalStationID: String,
-    var stationNames:MutableList<String>
+    var stationNames:List<String>
 ):SectionInfo
 
 /**
