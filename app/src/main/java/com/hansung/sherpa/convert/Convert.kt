@@ -223,7 +223,7 @@ class Convert {
                         ),
                         properties = PedestrianResponse.Feature.Properties(
                             categoryRoadType = 0, // Example value, adjust as needed
-                            description = step.name ?: "",
+                            description = step.drivingSide ?: "",
                             direction = step.maneuver?.type ?: "",
                             distance = leg.distance?.toInt() ?: 0,
                             facilityName = "", // Example value, adjust as needed
