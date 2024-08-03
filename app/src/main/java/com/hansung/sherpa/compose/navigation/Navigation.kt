@@ -1,10 +1,10 @@
-package com.hansung.sherpa.kmjcompose.navigation
+package com.hansung.sherpa.compose.navigation
 
 import android.util.Log
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.kmjcompose.transit.TransitManager
+import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.naver.maps.geometry.LatLng
 

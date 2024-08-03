@@ -1,9 +1,8 @@
-package com.hansung.sherpa.kmjcompose.transit
+package com.hansung.sherpa.compose.transit
 
 import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
-import com.hansung.sherpa.R
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.ODsayGraphicRequest
