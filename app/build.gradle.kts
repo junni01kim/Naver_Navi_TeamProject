@@ -68,6 +68,7 @@ android {
         resources {
             merges += "META-INF/spring.*"
             excludes += "META-INF/license.txt"
+            excludes += "META-INF/notice.txt"
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }

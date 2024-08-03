@@ -1,10 +1,10 @@
 package com.hansung.sherpa.transit
 
-data class OdsayTransitRouteErrorCode(
-    val error: OdsayError
+data class ODsayTransitRouteErrorCode(
+    val error: ODsayError
 )
 
-data class OdsayError(
+data class ODsayError(
     val msg: String,
     val code: Int
 )

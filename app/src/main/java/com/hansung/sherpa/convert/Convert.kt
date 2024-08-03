@@ -3,10 +3,9 @@ package com.hansung.sherpa.convert
 import android.util.Log
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.OdsayTransitRouteRequest
+import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteResponse
-import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.PedestrianResponse
 import com.hansung.sherpa.transit.ShortWalkResponse
 import com.naver.maps.geometry.LatLng

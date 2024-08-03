@@ -16,7 +16,6 @@ import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.overlay.PathOverlay
@@ -51,7 +50,7 @@ class Navigation {
         // 좌표 기반 경로 검색
         routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
         val transitRouteResponse = TransitManager(mainActivity).getTmapTransitRoutes(routeRequest)
-        TransitManager(mainActivity).getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
+        TransitManager(mainActivity).getODsayTransitRoute(Convert().convertTmapToODsayRequest(routeRequest))
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
 
         return transitRoutes
