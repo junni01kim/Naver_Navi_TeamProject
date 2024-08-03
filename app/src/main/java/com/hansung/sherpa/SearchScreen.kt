@@ -1,6 +1,5 @@
 package com.hansung.sherpa
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -53,25 +53,16 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.google.gson.Gson
-import com.hansung.sherpa.convert.Convert
-import com.hansung.sherpa.convert.Coordinate
-import com.hansung.sherpa.convert.LegRoute
-import com.hansung.sherpa.convert.PathType
-import com.hansung.sherpa.convert.coordinate
-import com.hansung.sherpa.navigation.Navigation
-import com.hansung.sherpa.transit.TmapTransitRouteRequest
-import com.hansung.sherpa.transit.TmapTransitRouteResponse
-import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.transit.TransitRouteService
-import com.naver.maps.geometry.LatLng
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
+import com.google.android.gms.common.moduleinstall.ModuleInstall
+import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate
+import com.hansung.sherpa.itemsetting.BusLane
+import com.hansung.sherpa.itemsetting.BusSectionInfo
+import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.SubwayLane
+import com.hansung.sherpa.itemsetting.SubwaySectionInfo
+import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.kmjcompose.navigation.Navigation
+import java.text.SimpleDateFormat
 
 /**
  * 컴포넌트의 속성(modifier)을 관리
@@ -118,15 +109,14 @@ fun SearchScreen(
     destinationValue:String = "", // ""는 Preview를 생성하기 위함
     modifier: Modifier = Modifier,
 ) {
-    var routeList by remember { mutableStateOf(mutableListOf<TempRoute>())}
+    var routeList by remember { mutableStateOf(listOf<TransportRoute>())}
 
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.LightGray),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
-        SearchArea(navController, destinationValue, routeList){ routeList = it
-        Log.d("explain", "${routeList[0].arrivalTime}")}
+        SearchArea(navController, destinationValue, routeList){ routeList = it }
 
         // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
         SortingArea()
@@ -143,7 +133,7 @@ fun SearchScreen(
  * 입력창: 출발지, 목적지
  */
 @Composable
-fun SearchArea(navController: NavController, _destinationValue: String, routeList: MutableList<TempRoute>, listUpdate: (MutableList<TempRoute>) -> Unit) {
+fun SearchArea(navController: NavController, _destinationValue: String, routeList: List<TransportRoute>, listUpdate: (List<TransportRoute>) -> Unit) {
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
@@ -246,8 +236,8 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
                         destinationValue = ""
 
                         // 테스트용 코드 (하단에 코드 샘플 기재) << 부끄러우니까 보지 마세요
-                        val mappingRouteList = mappingToTempRoute(getTransitRoutes())
-                        listUpdate(mappingRouteList)
+                        val transportRoutes = Navigation().getDetailTransitRoutes("tempString","tempString")
+                        listUpdate(transportRoutes)
 
                     }) {
                     // 버튼에 들어갈 이미지
@@ -261,19 +251,6 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
             }
         }
     }
-}
-
-fun mappingToTempRoute(originalRouteList:MutableList<MutableList<LegRoute>>):MutableList<TempRoute>{
-    val routeList = mutableListOf<TempRoute>()
-    originalRouteList.forEach {
-        routeList.add(
-            TempRoute("소요시간", "도착시간", mutableListOf())
-        )
-        it.forEach{
-            routeList.get(routeList.size-1).expandTempRouteList.add(ExpandTempRoute(it.coordinates.size,"출발지 이름","소요시간",it.pathType,"이름","도착시간", it.coordinates))
-        }
-    }
-    return routeList
 }
 
 /**
@@ -307,7 +284,7 @@ fun SortingArea() {
  * 전체 대중교통 리스트가 나온다.
  */
 @Composable
-fun RouteListArea(routeList:List<TempRoute>){
+fun RouteListArea(routeList:List<TransportRoute>){
     // 샘플 코드
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(routeList){
@@ -323,7 +300,7 @@ fun RouteListArea(routeList:List<TempRoute>){
  * ※ (2024-07-30) 리스트 확장 후 화면을 밑으로 내렸다가 올리면 리스트가 자동으로 닫히는 오류가 존재한다.
  */
 @Composable
-fun ExpandableCard(route:TempRoute) {
+fun ExpandableCard(route:TransportRoute) {
     val padding: Dp = 10.dp
     var expandedState by remember { mutableStateOf(false) }
 
@@ -348,9 +325,13 @@ fun ExpandableCard(route:TempRoute) {
         ) {
             Row(verticalAlignment = Alignment.Top){
                 Row(verticalAlignment = Alignment.Bottom){
-                    Text(text = route.totalTime, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                    // totalTime 연산 필요
+                    Text(text = hourOfMinute(route.info.totalTime), fontSize = 25.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(30.dp))
-                    Text(text =route.arrivalTime)
+                    // arrivalTime 연산 필요
+                    //Text(text =route.info.totalTime.toString())
+                    val arrivalTime = System.currentTimeMillis() + route.info.totalTime*1000 // ms로 반환
+                    Text(text = "${SimpleDateFormat("hh:mm").format(arrivalTime)} 도착" )
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
@@ -367,8 +348,8 @@ fun ExpandableCard(route:TempRoute) {
                     )
                 }
             }
-
-            Chart(route.expandTempRouteList,route.getCount())
+            Spacer(modifier = Modifier.height(5.dp))
+            Chart(route.subPath,route.info.totalTime)
 
             if (expandedState) {
                 ExpandItem()
@@ -401,118 +382,130 @@ fun ExpandItem() {
     }
 }
 
-// 임시 샘플 코드이다.
-class TempRoute(val totalTime:String, val arrivalTime:String, val expandTempRouteList:MutableList<ExpandTempRoute>){
-    fun getCount():Int {
-        var count = 0
-        expandTempRouteList.forEach{
-            count+= it.coordinate.size
-        }
-        return count
-    }
-}
-data class ExpandTempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:PathType = PathType.WALK, val number:String = "이름", val time2:String = "도착시간", val coordinate: MutableList<Coordinate>)
-object TempColor{
-    val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray,Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray,Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta, Color.Black, Color.Gray)
-}
-
 /**
  * 대중교통의 정보를 요약해서 표현하기 위한 차트이다.
  * ※ (2024-07-30) 차트의 말단이 원형이 아니어서 현재 다르게 보이지만, 실제의 경우 양끝단이 도보일 거라는 점에서 이후에 고려
+ * @param routeList
+ * @param fullTime 시간 기반으로 비율 측정
  */
 @Composable
-fun Chart(routeList:List<ExpandTempRoute>, fullTime:Int) {
+fun Chart(routeList:List<SubPath>, fullTime:Int) {
     val width = 400.dp
     Box {
         Box(
-            modifier = Modifier.fillMaxWidth().height(12.dp).clip(CircleShape).background(Color.LightGray)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(15.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray)
         )
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(12.dp)
+                .height(15.dp)
         ) {
             routeList.forEachIndexed { index, it ->
-                Text(
-                    text = it.time,
-                    fontSize = 7.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                        .width(width * it.partTime / fullTime)
-                        .fillMaxHeight()
-                        .clip(CircleShape)
-                        .background(TempColor.color[index]),
-                    textAlign = TextAlign.Center
-                )
+                Box(modifier = Modifier
+                    .width((width.value * it.sectionInfo.sectionTime!! / fullTime).dp)
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .background(typeOfColor(it)),
+                    contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "${it.sectionInfo.sectionTime}분",
+                        modifier = Modifier.align(Alignment.Center),
+                        fontSize = 10.sp,
+                        lineHeight = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
+}
+
+fun hourOfMinute(minute:Int) =
+    if(minute > 60) "${minute/60}시간 ${minute%60}분"
+    else if(minute % 60 == 0) "${minute/60}시간"
+    else "${minute%60}분"
+
+fun typeOfColor(subPath: SubPath):Color {
+    var color:Color? = null
+    when(subPath.trafficType){
+        // 지하철
+        1 -> {
+            val subway = subPath.sectionInfo as SubwaySectionInfo
+            val subwayLane = subway.lane[0] as SubwayLane
+            color = when(subwayLane.subwayCode){
+                // 1호선
+                1 -> Color(0xFF0052A4)
+                // 2호선
+                2 -> Color(0xFF00A84D)
+                // 3호선
+                3 -> Color(0xFFEF7C1C)
+                // 4호선
+                4 -> Color(0xFF00A5DE)
+                // 5호선
+                5 -> Color(0xFF996CAC)
+                // 6호선
+                6 -> Color(0xFFCD7C2F)
+                // 7호선
+                7 -> Color(0xFF747F00)
+                // 8호선
+                8 -> Color(0xFFE6186C)
+                else -> Color(0x00000000)
+            }
+        }
+
+        // 버스 <- 지역마다 색상이 달라서, 경기 서울 기준으로 색 부여
+        // https://librewiki.net/wiki/%ED%8B%80:%EB%B2%84%EC%8A%A4_%EB%85%B8%EC%84%A0%EC%83%89
+        2 -> {
+            val bus = subPath.sectionInfo as BusSectionInfo
+            val busLane = bus.lane[0] as BusLane
+            color = when(busLane.type){
+                // 일반 (경기 시내일반: 일반)
+                1 -> Color(0xFF33CC99)
+                // 좌석 (경기 일반좌석: 좌석)
+                2 -> Color(0xFF0068b7)
+                // 마을
+                3 -> Color(0xFF53b332)
+                // 직행 좌석
+                4 -> Color(0xFFe60012)
+                // 공항 버스 (시외버스 공항)
+                5 -> Color(0x00a0e9)
+                // 간선 급행 (경기 간선급행)
+                6 -> Color(0xFFe60012)
+                // 외곽 (대전 외곽)
+                10 -> Color(0xFF53b332)
+                // 간선
+                11 -> Color(0xFF0068b7)
+                // 지선
+                12 -> Color(0xFF53b332)
+                // 순환
+                13 -> Color(0xFFf2b70a)
+                // 광역
+                14 -> Color(0xFFe60012)
+                // 급행 (부산 급행 ※ 급행은 모두 색상이 다양해서 부산으로 함)
+                15 -> Color(0xFFff3300)
+                // 관광 버스 (색상 존재 X)
+                16 -> Color.Black
+                // 농어촌 버스 (색상 존재 X)
+                20 -> Color.Black
+                // 경기도 시외형버스
+                22 -> Color(0xFF)
+                // 급행 간선 (인천 급행 간선)
+                26 -> Color(0xFF5112ab)
+                else -> Color.Black
+            }
+        }
+        // 도보
+        3 -> color = Color.LightGray
+    }
+    return color!!
 }
 
 @Preview
 @Composable
 fun SearchPreview(){
     SearchScreen()
-}
-
-// TODO: 임시 코드
-// 경로 요청 값 만들기
-private fun setRouteRequest(startLatLng: LatLng, endLatLng: LatLng):TmapTransitRouteRequest {
-    return TmapTransitRouteRequest(
-        startX = startLatLng.longitude.toString(),
-        startY = startLatLng.latitude.toString(),
-        endX = endLatLng.longitude.toString(),
-        endY = endLatLng.latitude.toString(),
-        lang = 0,
-        format = "json",
-        count = 10
-    )
-}
-
-fun getTransitRoutes(): MutableList<MutableList<LegRoute>> {
-    // 검색어 기반 좌표 검색
-    /**
-     * 미완성이라 주석처리
-     * val SL = SearchLocation()
-     * startLatLng = SL.searchLatLng(start)
-     * endLatLng = SL.searchLatLng(end)
-     **/
-
-    val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
-    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
-
-    // 좌표 기반 경로 검색
-    val routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
-    val transitRouteResponse = test(routeRequest)
-    val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
-
-    return transitRoutes
-}
-
-fun test(routeRequest: TmapTransitRouteRequest): TmapTransitRouteResponse {
-    val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
-    lateinit var rr: TmapTransitRouteResponse
-    runBlocking<Job> {
-        launch(Dispatchers.IO) {
-            try {
-                val response = Retrofit.Builder()
-                    .baseUrl("https://apis.openapi.sk.com/")
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create<TransitRouteService?>(TransitRouteService::class.java)
-                    .postTransitRoutes(appKey, routeRequest).execute() // API 호출
-                rr = Gson().fromJson(response.body()!!.string(), TmapTransitRouteResponse::class.java)
-                // Error Log
-                /*if (rr.metaData == null) {
-                    val errorCode = Gson().fromJson(response.body()!!.string(), TmapTransitErrorCode::class.java)
-                    Log.e("Error", "Error Code: ${errorCode.result?.status}, ${errorCode.result?.message}")
-                    // getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
-                }*/
-            } catch (e: IOException) {
-                Log.e("Error", "Transit API Exception")
-                rr = TmapTransitRouteResponse()
-            }
-        }
-    }
-    return rr
 }
