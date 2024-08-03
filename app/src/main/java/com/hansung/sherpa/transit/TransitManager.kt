@@ -45,7 +45,7 @@ class TransitManager(context: Context) {
         val resultLiveData = MutableLiveData<TmapTransitRouteResponse>()
         val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
         Retrofit.Builder()
-            .baseUrl(context.getString(R.string.route_base_url))
+            .baseUrl("https://apis.openapi.sk.com/")
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(TransitRouteService::class.java).postTransitRoutes(appKey, routeRequest) // API 호출
             .enqueue(object : Callback<ResponseBody> {
@@ -81,7 +81,7 @@ class TransitManager(context: Context) {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl(context.getString(R.string.route_base_url))
+                        .baseUrl("https://apis.openapi.sk.com/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -108,7 +108,7 @@ class TransitManager(context: Context) {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl(context.getString(R.string.odsay_route_base_url))
+                        .baseUrl("https://api.odsay.com/v1/api/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -136,7 +136,7 @@ class TransitManager(context: Context) {
                 try {
                     Log.d("reqlocation","" + routeRequest.startY +", "+ routeRequest.startX+"    "+routeRequest.endY+", "+routeRequest.endX)
                     val response = Retrofit.Builder()
-                        .baseUrl(context.getString(R.string.route_base_url))
+                        .baseUrl("https://apis.openapi.sk.com/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
@@ -153,7 +153,7 @@ class TransitManager(context: Context) {
                         try {
                             val options = setOSRMRequestToMap()
                             val response = Retrofit.Builder()
-                                .baseUrl(context.getString(R.string.osrm_route_base_url))
+                                .baseUrl("https://routing.openstreetmap.de/")
                                 .addConverterFactory(GsonConverterFactory.create())
                                 .build()
                                 .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -186,7 +186,7 @@ class TransitManager(context: Context) {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl(context.getString(R.string.odsay_route_base_url))
+                        .baseUrl("https://api.odsay.com/v1/api/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(TransitRouteService::class.java)
