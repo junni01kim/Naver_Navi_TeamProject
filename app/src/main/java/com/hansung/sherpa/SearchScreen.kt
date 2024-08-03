@@ -352,9 +352,9 @@ fun ExpandableCard(route:TransportRoute) {
             Chart(route.subPath,route.info.totalTime)
 
             if (expandedState) {
-                ExpandItem()
-                ExpandItem()
-                ExpandItem()
+                route.subPath.forEach{
+                    ExpandItem(it)
+                }
             }
         }
     }
@@ -365,21 +365,44 @@ fun ExpandableCard(route:TransportRoute) {
  * 이동수단 단위의 정보를 다룬다.
  */
 @Composable
-fun ExpandItem() {
+fun ExpandItem(subPath: SubPath) {
     Row(modifier = Modifier.padding(5.dp)){
-        Text("출발지 이름")
+        Text("${subPath.sectionInfo.startName?:"도보"}")
         Spacer(modifier = Modifier.width(10.dp))
-        Text("소요시간")
+        Text(hourOfMinute(subPath.sectionInfo.sectionTime!!))
         Spacer(modifier = Modifier.weight(1f))
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.walk),
             contentDescription = "디폴트: 도보"
         )
         Spacer(modifier = Modifier.width(10.dp))
-        Text("이름")
+        Text(getLaneName(subPath))
         Spacer(modifier = Modifier.width(10.dp))
         Text("도착 시간")
     }
+}
+
+fun getLaneName(subPath: SubPath): String{
+    var name: String? = null
+    when(subPath.trafficType){
+        // 지하철
+        1 -> {
+            val subway = subPath.sectionInfo as SubwaySectionInfo
+            val subwayLane = subway.lane[0] as SubwayLane
+            name = "${subwayLane.name}호선"
+        }
+
+        // 버스 <- 지역마다 색상이 달라서, 경기 서울 기준으로 색 부여
+        // https://librewiki.net/wiki/%ED%8B%80:%EB%B2%84%EC%8A%A4_%EB%85%B8%EC%84%A0%EC%83%89
+        2 -> {
+            val bus = subPath.sectionInfo as BusSectionInfo
+            val busLane = bus.lane[0] as BusLane
+            name = "${busLane.busNo}번"
+        }
+        // 도보
+        3 -> name = "도보"
+    }
+    return name!!
 }
 
 /**
