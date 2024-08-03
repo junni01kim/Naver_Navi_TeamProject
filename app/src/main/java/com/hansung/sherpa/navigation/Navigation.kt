@@ -31,8 +31,8 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    private val tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
-    val tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
+    var tempStartLatLng = LatLng(37.5004198786564, 127.126936754911) // 인천공항 버스 정류소(오금동)
+    var tempEndLatLng = LatLng(37.6134436427887, 126.926493082645) // 은평청여울수영장
 
     // 재호 경로
     //private val tempStartLatLng = LatLng(37.6417, 126.8364)

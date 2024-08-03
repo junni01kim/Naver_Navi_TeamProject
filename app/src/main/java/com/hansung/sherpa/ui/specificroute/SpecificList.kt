@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -59,10 +58,10 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
         items(items = showRouteDetails){item->
             when(item){
                 is PedestrianSectionInfo ->{
-                    SpecificListItem(R.drawable.pedestrianrouteimage, item.startName, item.endName, item.distance, item.sectionTime, item)
+                    SpecificListItem(R.drawable.pedestrianrouteimage, item.startName!!, item.endName!!, item.distance!!, item.sectionTime!!, item)
                 }
                 is BusSectionInfo ->{
-                    SpecificListItem(R.drawable.greenbusrouteimage, item.startName, item.endName, item.distance, item.sectionTime, item)
+                    SpecificListItem(R.drawable.greenbusrouteimage, item.startName!!, item.endName!!, item.distance!!, item.sectionTime!!, item)
                 }
             }
         }

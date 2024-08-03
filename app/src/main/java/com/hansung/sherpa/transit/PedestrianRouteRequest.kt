@@ -2,7 +2,7 @@ package com.hansung.sherpa.transit
 
 import com.google.gson.annotations.SerializedName
 
-data class TmapPedestrianRouteRequest(
+data class PedestrianRouteRequest(
     @SerializedName("startX") val startX: Float,
     @SerializedName("startY") val startY: Float,
     @SerializedName("endX") val endX: Float,

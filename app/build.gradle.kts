@@ -140,6 +140,7 @@ dependencies {
     implementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
 
     // for MP Android Chart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")

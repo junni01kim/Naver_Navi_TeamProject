@@ -7,11 +7,11 @@ import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.POST
 
-interface TmapPedestrianRouteService {
+interface PedestrianRouteService {
     @Headers(
         "accept: application/json",
         "content-type: application/json",
     )
     @POST("tmap/routes/pedestrian")
-    fun postPedestrianRoutes(@Header("appkey") appkey:String, @Body body: TmapPedestrianRouteRequest): Call<ResponseBody>
+    fun postPedestrianRoutes(@Header("appkey") appkey:String, @Body body: PedestrianRouteRequest): Call<ResponseBody>
 }

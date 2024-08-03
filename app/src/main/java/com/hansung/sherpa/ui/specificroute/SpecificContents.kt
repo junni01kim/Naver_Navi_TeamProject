@@ -71,7 +71,7 @@ fun SpecificContents(sectionInfo:SectionInfo, expand:Boolean){
 }
 
 @Composable
-fun SpecificRouteContentsUI(imagesrc:Int, contents:MutableList<String>){
+fun SpecificRouteContentsUI(imagesrc:Int, contents:List<String>){
     var composableSize by remember { mutableStateOf(Size.Zero) }
 
     Row {
