@@ -9,30 +9,28 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.hansung.sherpa.databinding.ActivityMainBinding
-import com.hansung.sherpa.databinding.SpecificRouteItemBinding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
-import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
-import com.hansung.sherpa.itemsetting.RouteDetailItem
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
+import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.routelist.RouteListActivity
-import com.hansung.sherpa.ui.main.FlipperEvent
-import com.hansung.sherpa.ui.main.FloatIconEvent
+import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
-import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
@@ -40,7 +38,8 @@ import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : ComponentActivity(), OnMapReadyCallback {
+
     private lateinit var naverMap: NaverMap
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1000
@@ -49,48 +48,40 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var searchButton: ImageButton // 검색 버튼
     private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
-    // Float Icons
-    private lateinit var medicalIconEvent: ExtendedFloatingActionButton
-    private lateinit var manIconEvent: ExtendedFloatingActionButton
-    private lateinit var womanIconEvent: ExtendedFloatingActionButton
-
     // 내비게이션 안내 값을 전송하기 위함
     lateinit var navigation:Navigation
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
 
-        val fm = supportFragmentManager
-        val mapFragment = fm.findFragmentById(R.id.map) as MapFragment?
-            ?: MapFragment.newInstance().also {
-                fm.beginTransaction().add(R.id.map, it).commit()
-            }
-
-        mapFragment.getMapAsync(this)
-
-        destinationTextView = findViewById(R.id.destination_editText)
-        searchButton = findViewById(R.id.search_button)
-
         locationSource = GpsLocationSource.createInstance(this)
 
-        // Float Icons Events
-        val fIEvent = FloatIconEvent()
-        medicalIconEvent = findViewById(R.id.floating_action_button_medical)
-        manIconEvent = findViewById(R.id.floating_action_button_man)
-        womanIconEvent = findViewById(R.id.floating_action_button_woman)
-        fIEvent.setOnClick(medicalIconEvent)
-        fIEvent.setOnClick(manIconEvent)
-        fIEvent.setOnClick(womanIconEvent)
-
-        // 목적지, 내 위치 Flipper Event
-        FlipperEvent().onFlip(this)
-
-        StaticValue.mainActivity = this
+        setContent {
+            SherpaTheme {
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // 화면 간 이동에 대한 함수
+                    // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = SherpaScreen.Home.name
+                    ){
+                        composable(route = "${SherpaScreen.Home.name}"){
+                            HomeScreen(navController, Modifier.padding(innerPadding))
+                        }
+                        composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
+                            arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
+                        ){
+                            val destinationValue = it.arguments?.getString("destinationValue")!!
+                            SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.R)

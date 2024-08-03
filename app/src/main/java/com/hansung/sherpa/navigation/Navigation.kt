@@ -50,6 +50,7 @@ class Navigation {
         // 좌표 기반 경로 검색
         routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
         val transitRouteResponse = TransitManager(mainActivity).getTmapTransitRoutes(routeRequest)
+        TransitManager(mainActivity).getODsayTransitRoute(Convert().convertTmapToODsayRequest(routeRequest))
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
 
         return transitRoutes
@@ -154,6 +155,12 @@ class Navigation {
         // 기존 경로 지도에서 지우기
         clearRoute(endLatLng)
 
+        // 요청 좌표 기반 경로 검색
+        val transitRouteResponse = TransitManager(mainActivity).getTmapTransitRoutes(routeRequest)
+
+        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
+
+        val transitRoute = transitRoutes[0]
         val pedestrianRouteRequest = PedestrianRouteRequest(
             startX = location.longitude.toFloat(),
             startY = location.latitude.toFloat(),
