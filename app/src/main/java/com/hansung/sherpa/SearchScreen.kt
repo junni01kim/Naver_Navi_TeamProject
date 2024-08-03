@@ -57,6 +57,7 @@ import com.google.android.gms.common.moduleinstall.ModuleInstall
 import com.google.android.gms.common.moduleinstall.ModuleInstallStatusUpdate
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
+import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.SubPath
 import com.hansung.sherpa.itemsetting.SubwayLane
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
@@ -372,7 +373,7 @@ fun ExpandItem(subPath: SubPath) {
         Text(hourOfMinute(subPath.sectionInfo.sectionTime!!))
         Spacer(modifier = Modifier.weight(1f))
         Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.walk),
+            imageVector = typeOfIcon(subPath.trafficType),
             contentDescription = "디폴트: 도보"
         )
         Spacer(modifier = Modifier.width(10.dp))
@@ -451,6 +452,18 @@ fun hourOfMinute(minute:Int) =
     if(minute > 60) "${minute/60}시간 ${minute%60}분"
     else if(minute % 60 == 0) "${minute/60}시간"
     else "${minute%60}분"
+
+@Composable
+fun typeOfIcon(trafficType: Int) =
+    when(trafficType) {
+        // 지하철
+        1 -> ImageVector.vectorResource(R.drawable.subway)
+        // 버스
+        2 -> ImageVector.vectorResource(R.drawable.express_bus)
+        // 도보
+        3 -> ImageVector.vectorResource(R.drawable.walk)
+        else -> ImageVector.vectorResource(R.drawable.close)
+    }
 
 fun typeOfColor(subPath: SubPath):Color {
     var color:Color? = null
