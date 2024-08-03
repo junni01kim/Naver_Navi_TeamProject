@@ -1,6 +1,8 @@
 package com.hansung.sherpa.routelist
 
+import android.app.Activity
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +12,39 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.charts.HorizontalBarChart
+import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.R
+import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoManager
+import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoRequest
+import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoResponse
+import com.hansung.sherpa.convert.LegRoute
 import com.hansung.sherpa.convert.PathType
+import com.hansung.sherpa.itemsetting.ShowSpecificRoute
+import com.hansung.sherpa.routegraphic.MapObject
+import com.hansung.sherpa.routegraphic.RouteGraphicManager
+import com.hansung.sherpa.routegraphic.RouteGraphicRequest
+
+// 임시 샘플 데이터
+val tempBusArrivalInfoRequest = setBusArrivalInfo(25,"DJB8001793","DJB30300002")
+val tempRouteGraphicRequest = setRouteGraphic(126,37,3,2,310,329)
+
+// 임시
+private fun setBusArrivalInfo(cityCode: Int, nodeId: String, routeId:String) = BusArrivalInfoRequest( cityCode = cityCode, nodeId = nodeId, routeId = routeId)
+private fun setRouteGraphic(baseX:Int, baseY:Int, typeId:Int, typeClass:Int, startIdx:Int, endIdx:Int) = RouteGraphicRequest(mapObject = MapObject(baseX, baseY, typeId, typeClass, startIdx, endIdx))
 
 /**
  * RouteListRecyclerView의 Adapter를 정의한 클래스
  * ExpandableRecyclerView이다.
+ *
  * @param routeListModelList 'ExpandableRouteListModel' 참고 할 것
  */
 class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListModel>, var context: Context) :  RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -26,6 +55,8 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
             ExpandableRouteListModel.PARENT -> {
                 (holder as RouteListParentViewHolder).remainingtime.text = row.parent.remainingTime
                 holder.arrivalTime.text = row.parent.arrivalTime
+                initStackBarChart(holder.remainingBar)
+                setData(holder.remainingBar, row.parent.legRouteList)
 
                 // TODO: 아이콘 회전이 작동하지 않는다.
                 // 확장 버튼 기능
@@ -52,6 +83,13 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                 }
                 holder.layout.setOnClickListener{
                     Log.d("explain", "요약 정보 클릭")
+                    //TODO("테스트용: 밑으로 정류장 버스 도착 정보")
+                    val transitRouteResponse = BusArrivalInfoManager(this.context).getBusArrivalInfoList2(tempBusArrivalInfoRequest)
+                    Log.d("explain", "transitRouteResponse:${transitRouteResponse?.response?.body}")
+                    //Log.d("explain", "transitRouteResponse:${transitRouteResponse.value?.response?.body?.items?.item?.get(0)?.arrtime}")
+                    //TODO("테스트용: 밑으로 대중교통 세부 정보")
+                    //val routeGraphicResponse = RouteGraphicManager(this.context).getRouteGraphic2(tempRouteGraphicRequest)
+                    //Log.d("explain", "transitRouteResponse:${routeGraphicResponse?.result?.lane?.get(0)?.section?.get(0)?.graphPos}")
                 }
             }
             // 세부 정보 영역
@@ -66,7 +104,9 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
                     else -> holder.transportIcon.setImageResource(R.drawable.walk)
                 }
                 holder.layout.setOnClickListener{
-                    Log.d("explain", "세부 정보 클릭")
+                    val sr = ShowSpecificRoute()
+                    sr.showSpecificRoute()
+                    (context as Activity).finish()
                 }
             }
         }
@@ -127,7 +167,7 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
         internal var layout = itemView.findViewById<ConstraintLayout>(R.id.route_list_parent_container)
         internal var remainingtime = itemView.findViewById<TextView>(R.id.remaining_time)
         internal var arrivalTime = itemView.findViewById<TextView>(R.id.arrival_time)
-        internal var remainingBar = itemView.findViewById<ProgressBar>(R.id.remaining_bar)
+        internal var remainingBar = itemView.findViewById<HorizontalBarChart>(R.id.chart)
         internal var closeImage = itemView.findViewById<ImageView>(R.id.close_arrow)
         internal var upArrowImage = itemView.findViewById<ImageView>(R.id.up_arrow)
     }
@@ -137,5 +177,74 @@ class RouteListAdapter (var routeListModelList:MutableList<ExpandableRouteListMo
         internal var transportIcon = itemView.findViewById<ImageView>(R.id.transport_icon)
         internal var transportNumber = itemView.findViewById<TextView>(R.id.transport_number)
         internal var watingTime = itemView.findViewById<TextView>(R.id.wating_time)
+    }
+
+    // setDrawLabels 필요
+    fun initStackBarChart(barChart: HorizontalBarChart) {
+        // 변수 설정
+        val xAxis: XAxis = barChart.xAxis
+        val axisLeft: YAxis = barChart.axisLeft
+        val axisRight: YAxis = barChart.axisRight
+
+        // 두께 및 길이 설정
+        axisLeft.axisMinimum = 0f // 좌우 최소 길이
+        axisLeft.axisMaximum = 100f // 좌우 최대 길이
+        xAxis.axisMaximum = 1.5f // bar 두께
+
+        // 축 선 설정 (default = true)
+        xAxis.setDrawAxisLine(false)
+        axisLeft.setDrawAxisLine(false)
+        axisRight.setDrawAxisLine(false)
+
+        // 격자선 설정 (default = true)
+        xAxis.setDrawGridLines(false)
+        axisLeft.setDrawGridLines(false)
+        axisRight.setDrawGridLines(false)
+
+        // 라벨 설정 (default = true)
+        xAxis.setDrawLabels(false)
+        axisLeft.setDrawLabels(false)
+        axisRight.setDrawLabels(false)
+    }
+
+    // 차트 데이터 설정
+    private fun setData(barChart: HorizontalBarChart, legRouteList: MutableList<LegRoute>) {
+        // 막대(범례?)가 하나이므로 리스트에는 하나만 추가
+        val valueList = ArrayList<BarEntry>()
+
+        // TODO: 경로 개수만큼 경로 분할
+        val transportList:MutableList<Float> = mutableListOf()
+        for (i in legRouteList) {
+            transportList.add(100f/legRouteList.size)
+        }
+        valueList.add(BarEntry(0f, transportList.toFloatArray()))
+
+
+        // 바 색상 설정 (ColorTemplate.LIBERTY_COLORS) 리스트 별로 1대1 매칭
+        val barDataSet = BarDataSet(valueList, "") // 값 리스트와 타이틀 이름("")을 인자로 함
+
+        // TODO: 타입 별로 색 지정
+        val colorList:MutableList<Int> = mutableListOf()
+
+        for(i in legRouteList){
+            val color = when(i.pathType){
+                PathType.BUS -> Color.GREEN
+                PathType.SUBWAY -> Color.BLUE
+                PathType.EXPRESSBUS -> Color.RED
+                PathType.TRAIN -> Color.DKGRAY
+                else -> Color.GRAY
+            }
+            colorList.add(color)
+        }
+        barDataSet.colors = colorList
+
+        val data = BarData(barDataSet)
+        data.setDrawValues(false)
+
+        barChart.data = data
+        barChart.description.isEnabled = false
+        barChart.legend.isEnabled = false
+        barChart.setScaleEnabled(false)
+        barChart.invalidate()
     }
 }

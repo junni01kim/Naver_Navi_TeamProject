@@ -1,11 +1,15 @@
 package com.hansung.sherpa
 
+import android.app.Activity
+import android.content.Intent
 import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -18,15 +22,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.hansung.sherpa.databinding.ActivityMainBinding
+import com.hansung.sherpa.databinding.SpecificRouteItemBinding
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.itemsetting.RouteDetailItem
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
+import com.naver.maps.map.MapFragment
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
@@ -111,16 +126,26 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
         searchButton.setOnClickListener {
             //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
-            navigation.getTransitRoutes("", "")
+
+            val intent = Intent(
+                applicationContext,
+                RouteListActivity::class.java
+            )
+            intent.putExtra("destination", destinationTextView.text.toString())
+            startActivityForResult(intent, 1) // activityResultLauncher로 수정 예정
         }
 
         // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
-
-                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
-                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
+                navigation.tempStartLatLng = nowLocation
+                Log.d("nowsection",""+routeControl.nowSection)
+                if (routeControl.route.isNotEmpty() && routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
+                    var toLatLng = routeControl.route[shortestRouteIndex]
+                    routeControl.delRouteToIndex(shortestRouteIndex)
+                    navigation.redrawRoute(nowLocation, toLatLng)
                 }
             }
         }
@@ -165,4 +190,21 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
+
+    // ---------- 수정예정 ----------
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                1 -> { // RouteList Activity 문제점 좀 있음
+                    val startKeyword = data?.getStringExtra("startKeyword")!!
+                    val endKeyword = data.getStringExtra("endKeyword")!!
+                    Log.d("explain", "$startKeyword is $endKeyword")
+                    navigation.getTransitRoutes(startKeyword, endKeyword)
+                }
+            }
+        }
+    }
 }
+

@@ -6,6 +6,9 @@ import com.hansung.sherpa.transit.Leg
 import com.hansung.sherpa.transit.OdsayTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.TmapTransitRouteResponse
+import com.hansung.sherpa.transit.ODsayTransitRouteRequest
+import com.hansung.sherpa.transit.PedestrianResponse
+import com.hansung.sherpa.transit.ShortWalkResponse
 import com.naver.maps.geometry.LatLng
 
 /**
@@ -172,6 +175,26 @@ class Convert {
         return searchRouteMutableList
     }
 
+    fun convertPedestrianRouteToLatLng(response:PedestrianResponse, from:LatLng, to:LatLng):MutableList<LatLng>{
+        var rres = mutableListOf<LatLng>()
+
+        response.features?.forEach {feature->
+            if(feature.geometry.type=="LineString"){
+                feature.geometry.coordinates.forEach {coordinates->
+                    var tmp = coordinates.toString().split(", ")
+                    rres.add(LatLng(tmp[1].replace("]","").toDouble(), tmp[0].replace("[","").toDouble()))
+                }
+            }
+        }
+
+        rres = rres.distinct().toMutableList()
+
+        rres.add(0,from)
+        rres.add(to)
+
+        return rres
+    }
+
     /**
      *  Coordinate 리스트를 LatLng 리스트로 변환하는 함수
      *
@@ -182,7 +205,54 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
-    fun convertTmapToOdsayRequest(t: TmapTransitRouteRequest): OdsayTransitRouteRequest{
-        return OdsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
+    fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest{
+        return ODsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
+    }
+
+    // ShortWalkResponse 데이터 클래스를 PedestrianResponse로 변환하는 함수 TODO 임시로 바꿔줌
+    fun convertToPedestrianResponse(shortWalkResponse: ShortWalkResponse): PedestrianResponse {
+        // Convert Routes to Feature
+        val features = shortWalkResponse.routes.flatMap { route ->
+            route.legs.flatMap { leg ->
+                leg.steps.mapIndexed { index, step ->
+                    PedestrianResponse.Feature(
+                        geometry = PedestrianResponse.Feature.Geometry(
+                            coordinates = step.geometry?.coordinates?.map { coordinatePair ->
+                                coordinatePair // Ensure this matches the expected type (List<Any>)
+                            } ?: emptyList(),
+                            type = step.geometry?.type ?: ""
+                        ),
+                        properties = PedestrianResponse.Feature.Properties(
+                            categoryRoadType = 0, // Example value, adjust as needed
+                            description = step.drivingSide ?: "",
+                            direction = step.maneuver?.type ?: "",
+                            distance = leg.distance?.toInt() ?: 0,
+                            facilityName = "", // Example value, adjust as needed
+                            facilityType = "", // Example value, adjust as needed
+                            index = index,
+                            intersectionName = "", // Example value, adjust as needed
+                            lineIndex = 0, // Example value, adjust as needed
+                            name = step.name ?: "",
+                            nearPoiName = "", // Example value, adjust as needed
+                            nearPoiX = "", // Example value, adjust as needed
+                            nearPoiY = "", // Example value, adjust as needed
+                            pointIndex = index,
+                            pointType = "", // Example value, adjust as needed
+                            roadType = 0, // Example value, adjust as needed
+                            time = step.duration?.toInt() ?: 0,
+                            totalDistance = route.distance?.toInt() ?: 0,
+                            totalTime = route.duration?.toInt() ?: 0,
+                            turnType = 0
+                        ),
+                        type = "Feature"
+                    )
+                }
+            }
+        }
+        // Create PedestrianResponse
+        return PedestrianResponse(
+            features = features,
+            type = "FeatureCollection" // Adjust the type as needed
+        )
     }
 }
