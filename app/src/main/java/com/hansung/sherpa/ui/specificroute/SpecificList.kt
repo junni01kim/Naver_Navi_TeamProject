@@ -3,6 +3,7 @@ package com.hansung.sherpa.ui.specificroute
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -86,6 +87,7 @@ fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Dou
             .fillMaxWidth()
             .wrapContentHeight()
             .bottomBorder(strokeWidth = 1.dp, color = if(expanded){ Color.Transparent }else{ Color.Black })
+            .clickable { expanded = !expanded }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

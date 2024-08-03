@@ -72,7 +72,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     ){
                         composable(route = "${SherpaScreen.Home.name}"){
                             HomeScreen(navController, Modifier.padding(innerPadding))
-                            SpecificRouteScreen() //
+                            SpecificRouteScreen() // 지우기
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
                             arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})

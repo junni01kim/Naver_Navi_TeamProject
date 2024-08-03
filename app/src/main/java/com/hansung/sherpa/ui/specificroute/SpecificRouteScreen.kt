@@ -99,24 +99,15 @@ fun SpecificRouteScreen(){
                 modifier = Modifier.fillMaxWidth()
             ) {
                 SpecificPreview(progress)
-//            Canvas(// 선
-//                modifier = Modifier.fillMaxWidth()
-//            ) {
-//                drawLine(
-//                    start = Offset(0f, size.height / 2),
-//                    end = Offset(size.width, size.height / 2),
-//                    color = Color.Red,
-//                    strokeWidth = 7f
-//                )
-//            }
                 SpecificList(showRouteDetails)
             }
         }
     }
-
-
 }
 
+fun calcTotalTime(){
+
+}
 
 
 
