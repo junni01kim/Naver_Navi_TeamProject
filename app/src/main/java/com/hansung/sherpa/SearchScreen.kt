@@ -106,19 +106,23 @@ fun SearchScreen(
     modifier: Modifier = Modifier,
 ) {
     var routeList by remember { mutableStateOf(listOf<TransportRoute>())}
+    var searchingTime by remember { mutableStateOf( 0L )}
 
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.LightGray),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
-        SearchArea(navController, destinationValue, routeList){ routeList = it }
+        SearchArea(navController, destinationValue, routeList){ childRouteList, childSearchingTime ->
+            routeList = childRouteList
+            searchingTime = childSearchingTime
+        }
 
         // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
-        SortingArea()
+        SortingArea(searchingTime)
 
         // 경로 검색 결과 리스트가 나오는 Composable
-        RouteListArea(routeList)
+        RouteListArea(routeList, searchingTime)
     }
 }
 
@@ -129,7 +133,7 @@ fun SearchScreen(
  * 입력창: 출발지, 목적지
  */
 @Composable
-fun SearchArea(navController: NavController, _destinationValue: String, routeList: List<TransportRoute>, listUpdate: (List<TransportRoute>) -> Unit) {
+fun SearchArea(navController: NavController, _destinationValue: String, routeList: List<TransportRoute>, update: (List<TransportRoute>, Long) -> Unit) {
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
@@ -233,7 +237,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
 
                         // 테스트용 코드 (하단에 코드 샘플 기재) << 부끄러우니까 보지 마세요
                         val transportRoutes = Navigation().getDetailTransitRoutes("tempString","tempString")
-                        listUpdate(transportRoutes)
+                        update(transportRoutes, System.currentTimeMillis())
 
                     }) {
                     // 버튼에 들어갈 이미지
@@ -259,7 +263,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
  * 대중교통 리스트가 정렬되는 기준
  */
 @Composable
-fun SortingArea() {
+fun SortingArea(searchingTime:Long) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -268,7 +272,7 @@ fun SortingArea() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Text("출발시간")
+        Text("${SimpleDateFormat("hh:mm").format(searchingTime)}" )
         Text("최적경로 순")
     }
 }
@@ -280,11 +284,11 @@ fun SortingArea() {
  * 전체 대중교통 리스트가 나온다.
  */
 @Composable
-fun RouteListArea(routeList:List<TransportRoute>){
+fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
     // 샘플 코드
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(routeList){
-            ExpandableCard(it)
+            ExpandableCard(it, searchingTime)
         }
     }
 }
@@ -296,7 +300,7 @@ fun RouteListArea(routeList:List<TransportRoute>){
  * ※ (2024-07-30) 리스트 확장 후 화면을 밑으로 내렸다가 올리면 리스트가 자동으로 닫히는 오류가 존재한다.
  */
 @Composable
-fun ExpandableCard(route:TransportRoute) {
+fun ExpandableCard(route:TransportRoute, searchingTime:Long) {
     val padding: Dp = 10.dp
     var expandedState by remember { mutableStateOf(false) }
 
@@ -325,8 +329,7 @@ fun ExpandableCard(route:TransportRoute) {
                     Text(text = hourOfMinute(route.info.totalTime), fontSize = 25.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(30.dp))
                     // arrivalTime 연산 필요
-                    //Text(text =route.info.totalTime.toString())
-                    val arrivalTime = System.currentTimeMillis() + route.info.totalTime*1000 // ms로 반환
+                    val arrivalTime = searchingTime + route.info.totalTime*60*1000 // 단위 ms
                     Text(text = "${SimpleDateFormat("hh:mm").format(arrivalTime)} 도착" )
                 }
                 Spacer(modifier = Modifier.weight(1f))
