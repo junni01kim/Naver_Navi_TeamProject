@@ -64,6 +64,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
         locationSource = GpsLocationSource.createInstance(this)
 
+        StaticValue.navigation = Navigation()
+        StaticValue.navigation.mainActivity = this@MainActivity
+        StaticValue.mainActivity = this@MainActivity
+
         setContent {
             SherpaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

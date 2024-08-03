@@ -222,7 +222,7 @@ class Navigation {
      * - API
      * - MAPPER
      */
-    fun getDetailTransitRoutes(start: String, end: String) {
+    fun getDetailTransitRoutes(start: String, end: String): TransportRoute? {
         val isMapStruct: Boolean = false // MapStruct 라이브러리 사용여부
         val TM = TransitManager(mainActivity)
 
@@ -270,10 +270,12 @@ class Navigation {
             try {
                 val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList)
                 Log.i("MAPPER", transportRoute.toString())
+                return transportRoute
             } catch (e : Exception) {
                 Log.e("MAPPER", e.toString())
             }
         }
+        return null
     }
 
 }

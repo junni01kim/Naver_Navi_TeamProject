@@ -58,10 +58,12 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
         items(items = showRouteDetails){item->
             when(item){
                 is PedestrianSectionInfo ->{
-                    SpecificListItem(R.drawable.pedestrianrouteimage, item.startName!!, item.endName!!, item.distance!!, item.sectionTime!!, item)
+                    SpecificListItem(R.drawable.pedestrianrouteimage,
+                        item.startName, item.endName, item.distance, item.sectionTime, item)
                 }
                 is BusSectionInfo ->{
-                    SpecificListItem(R.drawable.greenbusrouteimage, item.startName!!, item.endName!!, item.distance!!, item.sectionTime!!, item)
+                    SpecificListItem(R.drawable.greenbusrouteimage,
+                        item.startName, item.endName, item.distance, item.sectionTime, item)
                 }
             }
         }
@@ -77,7 +79,14 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
  * @param totalTime 총걸리는 시간
  */
 @Composable
-fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Double, totalTime:Int, origin:SectionInfo){
+fun SpecificListItem(
+    imageSource: Int,
+    fromName:String?,
+    toName: String?,
+    total:Double? = 0.0,
+    totalTime:Int? = 0,
+    origin:SectionInfo
+){
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     Box(
@@ -113,13 +122,15 @@ fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Dou
                             .width(150.dp)
                             .padding(start = 6.dp)
                     ){
-                        Text(text = "${cuttingString(fromName)}", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(text = cuttingString(fromName ?: "정보를 불러올 수 없음"), fontSize = 20.sp, fontWeight = FontWeight.Bold)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "${total.roundToInt()}m", fontSize = 20.sp, fontWeight = FontWeight.W300)
+                            if (total != null) {
+                                Text(text = "${total.roundToInt()}m", fontSize = 20.sp, fontWeight = FontWeight.W300)
+                            }
                             Text(text = "${totalTime}분", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                         }
                     }
@@ -130,7 +141,7 @@ fun SpecificListItem(imageSource: Int, fromName:String,toName: String ,total:Dou
                     modifier = Modifier.wrapContentSize(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "${cuttingString(toName)}", fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(text = cuttingString(toName ?: "정보를 불러올 수 없음"), fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     IconButton(onClick = { expanded = !expanded }) {
                         Icon(
                             imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
