@@ -1,9 +1,9 @@
 package com.hansung.sherpa
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,13 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -51,9 +51,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.hansung.sherpa.convert.LegRoute
-import com.hansung.sherpa.convert.PathType
-import com.hansung.sherpa.navigation.Navigation
+import com.hansung.sherpa.itemsetting.BusLane
+import com.hansung.sherpa.itemsetting.BusSectionInfo
+import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.SubwayLane
+import com.hansung.sherpa.itemsetting.SubwaySectionInfo
+import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.compose.navigation.Navigation
+import java.text.SimpleDateFormat
 
 /**
  * 컴포넌트의 속성(modifier)을 관리
@@ -100,21 +105,24 @@ fun SearchScreen(
     destinationValue:String = "", // ""는 Preview를 생성하기 위함
     modifier: Modifier = Modifier,
 ) {
-    var routeList by remember { mutableStateOf(mutableListOf<TempRoute>())}
+    var routeList by remember { mutableStateOf(listOf<TransportRoute>())}
+    var searchingTime by remember { mutableStateOf( 0L )}
 
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.LightGray),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
-        SearchArea(navController, destinationValue, routeList){ routeList = it
-        Log.d("explain", "${routeList[0].arrivalTime}")}
+        SearchArea(navController, destinationValue, routeList){ childRouteList, childSearchingTime ->
+            routeList = childRouteList
+            searchingTime = childSearchingTime
+        }
 
         // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
-        SortingArea()
+        SortingArea(searchingTime)
 
         // 경로 검색 결과 리스트가 나오는 Composable
-        RouteListArea(routeList)
+        RouteListArea(routeList, searchingTime)
     }
 }
 
@@ -125,7 +133,7 @@ fun SearchScreen(
  * 입력창: 출발지, 목적지
  */
 @Composable
-fun SearchArea(navController: NavController, _destinationValue: String, routeList: MutableList<TempRoute>, listUpdate: (MutableList<TempRoute>) -> Unit) {
+fun SearchArea(navController: NavController, _destinationValue: String, routeList: List<TransportRoute>, update: (List<TransportRoute>, Long) -> Unit) {
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
@@ -227,12 +235,10 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
                         departureValue = ""
                         destinationValue = ""
 
-                        val navigation = Navigation()
-                        //val routeList = navigation.getTransitRoutes(departureValue, destinationValue)
-                        //mappingToTempRoute(routeList)
+                        // 테스트용 코드 (하단에 코드 샘플 기재) << 부끄러우니까 보지 마세요
+                        val transportRoutes = Navigation().getDetailTransitRoutes("tempString","tempString")
+                        update(transportRoutes, System.currentTimeMillis())
 
-                        val routeList = mutableListOf(TempRoute("소요 시간", "도착시간",mutableListOf(ExpandTempRoute(5), ExpandTempRoute(25), ExpandTempRoute(70) ,ExpandTempRoute(50), ExpandTempRoute(50))))
-                        listUpdate(routeList)
                     }) {
                     // 버튼에 들어갈 이미지
                     Icon(
@@ -247,19 +253,6 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
     }
 }
 
-fun mappingToTempRoute(originalRouteList:MutableList<MutableList<LegRoute>>):List<TempRoute>{
-    val routeList = mutableListOf<TempRoute>()
-    originalRouteList.forEach {
-        routeList.add(
-            TempRoute("소요시간", "도착시간", mutableListOf())
-        )
-        it.forEach{
-            routeList.get(routeList.size-1).expandTempRouteList.add(ExpandTempRoute(it.coordinates.size,"출발지 이름","소요시간",it.pathType,"이름","도착시간"))
-        }
-    }
-    return routeList
-}
-
 /**
  * LazyColumn에 나열 될 경로를 우선순위 별로 정렬하는데 사용할 버튼들
  *
@@ -270,7 +263,7 @@ fun mappingToTempRoute(originalRouteList:MutableList<MutableList<LegRoute>>):Lis
  * 대중교통 리스트가 정렬되는 기준
  */
 @Composable
-fun SortingArea() {
+fun SortingArea(searchingTime:Long) {
     Row(modifier = Modifier
         .fillMaxWidth()
         .wrapContentHeight()
@@ -279,7 +272,7 @@ fun SortingArea() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Text("출발시간")
+        Text("${SimpleDateFormat("hh:mm").format(searchingTime)}" )
         Text("최적경로 순")
     }
 }
@@ -291,11 +284,11 @@ fun SortingArea() {
  * 전체 대중교통 리스트가 나온다.
  */
 @Composable
-fun RouteListArea(routeList:List<TempRoute>){
+fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
     // 샘플 코드
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(routeList){
-            ExpandableCard(it)
+            ExpandableCard(it, searchingTime)
         }
     }
 }
@@ -307,7 +300,7 @@ fun RouteListArea(routeList:List<TempRoute>){
  * ※ (2024-07-30) 리스트 확장 후 화면을 밑으로 내렸다가 올리면 리스트가 자동으로 닫히는 오류가 존재한다.
  */
 @Composable
-fun ExpandableCard(route:TempRoute) {
+fun ExpandableCard(route:TransportRoute, searchingTime:Long) {
     val padding: Dp = 10.dp
     var expandedState by remember { mutableStateOf(false) }
 
@@ -332,9 +325,12 @@ fun ExpandableCard(route:TempRoute) {
         ) {
             Row(verticalAlignment = Alignment.Top){
                 Row(verticalAlignment = Alignment.Bottom){
-                    Text(text = route.totalTime, fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                    // totalTime 연산 필요
+                    Text(text = hourOfMinute(route.info.totalTime), fontSize = 25.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(30.dp))
-                    Text(text =route.arrivalTime)
+                    // arrivalTime 연산 필요
+                    val arrivalTime = searchingTime + route.info.totalTime*60*1000 // 단위 ms
+                    Text(text = "${SimpleDateFormat("hh:mm").format(arrivalTime)} 도착" )
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 IconButton(
@@ -351,13 +347,13 @@ fun ExpandableCard(route:TempRoute) {
                     )
                 }
             }
-
-            Chart(route.expandTempRouteList,200)
+            Spacer(modifier = Modifier.height(5.dp))
+            Chart(route.subPath,route.info.totalTime)
 
             if (expandedState) {
-                ExpandItem()
-                ExpandItem()
-                ExpandItem()
+                route.subPath.forEach{
+                    ExpandItem(it)
+                }
             }
         }
     }
@@ -368,54 +364,178 @@ fun ExpandableCard(route:TempRoute) {
  * 이동수단 단위의 정보를 다룬다.
  */
 @Composable
-fun ExpandItem() {
+fun ExpandItem(subPath: SubPath) {
     Row(modifier = Modifier.padding(5.dp)){
-        Text("출발지 이름")
+        Text("${subPath.sectionInfo.startName?:"도보"}")
         Spacer(modifier = Modifier.width(10.dp))
-        Text("소요시간")
+        Text(hourOfMinute(subPath.sectionInfo.sectionTime!!))
         Spacer(modifier = Modifier.weight(1f))
         Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.walk),
+            imageVector = typeOfIcon(subPath.trafficType),
             contentDescription = "디폴트: 도보"
         )
         Spacer(modifier = Modifier.width(10.dp))
-        Text("이름")
+        Text(getLaneName(subPath))
         Spacer(modifier = Modifier.width(10.dp))
         Text("도착 시간")
     }
 }
 
-// 임시 샘플 코드이다.
-data class TempRoute(val totalTime:String, val arrivalTime:String, val expandTempRouteList:MutableList<ExpandTempRoute>)
-data class ExpandTempRoute(val partTime:Int, val name:String="출발지 이름", val time:String = "소요시간", val type:PathType = PathType.WALK, val number:String = "이름", val time2:String = "도착시간")
-object TempColor{
-    val color = listOf(Color.Red, Color.Yellow, Color.Green, Color.Blue, Color.Magenta)
+fun getLaneName(subPath: SubPath): String{
+    var name: String? = null
+    when(subPath.trafficType){
+        // 지하철
+        1 -> {
+            val subway = subPath.sectionInfo as SubwaySectionInfo
+            val subwayLane = subway.lane[0] as SubwayLane
+            name = "${subwayLane.name}호선"
+        }
+
+        // 버스 <- 지역마다 색상이 달라서, 경기 서울 기준으로 색 부여
+        // https://librewiki.net/wiki/%ED%8B%80:%EB%B2%84%EC%8A%A4_%EB%85%B8%EC%84%A0%EC%83%89
+        2 -> {
+            val bus = subPath.sectionInfo as BusSectionInfo
+            val busLane = bus.lane[0] as BusLane
+            name = "${busLane.busNo}번"
+        }
+        // 도보
+        3 -> name = "도보"
+    }
+    return name!!
 }
 
 /**
  * 대중교통의 정보를 요약해서 표현하기 위한 차트이다.
  * ※ (2024-07-30) 차트의 말단이 원형이 아니어서 현재 다르게 보이지만, 실제의 경우 양끝단이 도보일 거라는 점에서 이후에 고려
+ * @param routeList
+ * @param fullTime 시간 기반으로 비율 측정
  */
 @Composable
-fun Chart(routeList:List<ExpandTempRoute>, fullTime:Int) {
+fun Chart(routeList:List<SubPath>, fullTime:Int) {
     val width = 400.dp
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .height(12.dp)
-        .background(Color.LightGray)) {
-        routeList.forEachIndexed { index, it ->
-            Text(text = it.time,
-                fontSize = 7.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .width(width * it.partTime / fullTime)
+    Box {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(15.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray)
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(15.dp)
+        ) {
+            routeList.forEachIndexed { index, it ->
+                Box(modifier = Modifier
+                    .width((width.value * it.sectionInfo.sectionTime!! / fullTime).dp)
                     .fillMaxHeight()
-                    .background(
-                        TempColor.color[index],
-                        CircleShape
-                    ), textAlign = TextAlign.Center)
+                    .clip(CircleShape)
+                    .background(typeOfColor(it)),
+                    contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "${it.sectionInfo.sectionTime}분",
+                        modifier = Modifier.align(Alignment.Center),
+                        fontSize = 10.sp,
+                        lineHeight = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
         }
     }
+}
+
+fun hourOfMinute(minute:Int) =
+    if(minute > 60) "${minute/60}시간 ${minute%60}분"
+    else if(minute % 60 == 0) "${minute/60}시간"
+    else "${minute%60}분"
+
+@Composable
+fun typeOfIcon(trafficType: Int) =
+    when(trafficType) {
+        // 지하철
+        1 -> ImageVector.vectorResource(R.drawable.subway)
+        // 버스
+        2 -> ImageVector.vectorResource(R.drawable.express_bus)
+        // 도보
+        3 -> ImageVector.vectorResource(R.drawable.walk)
+        else -> ImageVector.vectorResource(R.drawable.close)
+    }
+
+fun typeOfColor(subPath: SubPath):Color {
+    var color:Color? = null
+    when(subPath.trafficType){
+        // 지하철
+        1 -> {
+            val subway = subPath.sectionInfo as SubwaySectionInfo
+            val subwayLane = subway.lane[0] as SubwayLane
+            color = when(subwayLane.subwayCode){
+                // 1호선
+                1 -> Color(0xFF0052A4)
+                // 2호선
+                2 -> Color(0xFF00A84D)
+                // 3호선
+                3 -> Color(0xFFEF7C1C)
+                // 4호선
+                4 -> Color(0xFF00A5DE)
+                // 5호선
+                5 -> Color(0xFF996CAC)
+                // 6호선
+                6 -> Color(0xFFCD7C2F)
+                // 7호선
+                7 -> Color(0xFF747F00)
+                // 8호선
+                8 -> Color(0xFFE6186C)
+                else -> Color(0x00000000)
+            }
+        }
+
+        // 버스 <- 지역마다 색상이 달라서, 경기 서울 기준으로 색 부여
+        // https://librewiki.net/wiki/%ED%8B%80:%EB%B2%84%EC%8A%A4_%EB%85%B8%EC%84%A0%EC%83%89
+        2 -> {
+            val bus = subPath.sectionInfo as BusSectionInfo
+            val busLane = bus.lane[0] as BusLane
+            color = when(busLane.type){
+                // 일반 (경기 시내일반: 일반)
+                1 -> Color(0xFF33CC99)
+                // 좌석 (경기 일반좌석: 좌석)
+                2 -> Color(0xFF0068b7)
+                // 마을
+                3 -> Color(0xFF53b332)
+                // 직행 좌석
+                4 -> Color(0xFFe60012)
+                // 공항 버스 (시외버스 공항)
+                5 -> Color(0x00a0e9)
+                // 간선 급행 (경기 간선급행)
+                6 -> Color(0xFFe60012)
+                // 외곽 (대전 외곽)
+                10 -> Color(0xFF53b332)
+                // 간선
+                11 -> Color(0xFF0068b7)
+                // 지선
+                12 -> Color(0xFF53b332)
+                // 순환
+                13 -> Color(0xFFf2b70a)
+                // 광역
+                14 -> Color(0xFFe60012)
+                // 급행 (부산 급행 ※ 급행은 모두 색상이 다양해서 부산으로 함)
+                15 -> Color(0xFFff3300)
+                // 관광 버스 (색상 존재 X)
+                16 -> Color.Black
+                // 농어촌 버스 (색상 존재 X)
+                20 -> Color.Black
+                // 경기도 시외형버스
+                22 -> Color(0xFF)
+                // 급행 간선 (인천 급행 간선)
+                26 -> Color(0xFF5112ab)
+                else -> Color.Black
+            }
+        }
+        // 도보
+        3 -> color = Color.LightGray
+    }
+    return color!!
 }
 
 @Preview
