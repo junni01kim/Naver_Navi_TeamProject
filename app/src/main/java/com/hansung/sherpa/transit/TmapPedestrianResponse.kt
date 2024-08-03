@@ -10,7 +10,7 @@ data class TmapPedestrianResponse(
         val type: String
     ) {
         data class Geometry(
-            val coordinates: List<Any>,
+            val coordinates: List<List<Double>>,
             val type: String
         )
 

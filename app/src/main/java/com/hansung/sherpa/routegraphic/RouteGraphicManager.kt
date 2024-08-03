@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.hansung.sherpa.R
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import okhttp3.ResponseBody
@@ -50,8 +49,8 @@ class RouteGraphicManager(val context: Context) {
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                Log.d("explain", "onFailure: 실패")
-                Log.d("explain", "message: ${t.message}")
+                Log.e("error:RouteGraphic", "RouteGraphic 요청 실패")
+                Log.e("error:RouteGraphic", "error code: ${t.cause} message: ${t.message}")
             }
         })
         return resultLiveData
@@ -75,8 +74,8 @@ class RouteGraphicManager(val context: Context) {
                         .getService(request.getMap()).execute()
                     result = Gson().fromJson(response.body()!!.string(), RouteGraphicResponse::class.java)
                 } catch (e: IOException) {
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    Log.e("error:RouteGraphic", "RouteGraphic 요청 실패")
+                    Log.e("error:RouteGraphic", "error code: ${e.cause} message: ${e.message}")
                 }
             }
         }

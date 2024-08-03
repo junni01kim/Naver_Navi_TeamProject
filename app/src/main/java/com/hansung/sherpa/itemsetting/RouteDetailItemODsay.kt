@@ -51,14 +51,14 @@ data class SubPath( // OdsaySubPath에 해당
  * @param endY
  */
 interface SectionInfo { // OdsaySubPath에 해당
-    var distance: Double
-    var sectionTime: Int
-    var startName: String
-    val endName: String
-    var startX:Double
-    var startY:Double
-    var endX:Double
-    var endY:Double
+    var distance: Double?
+    var sectionTime: Int?
+    var startName: String?
+    var endName: String?
+    var startX:Double?
+    var startY:Double?
+    var endX:Double?
+    var endY:Double?
 }
 
 
@@ -75,14 +75,14 @@ interface SectionInfo { // OdsaySubPath에 해당
  * @param contents 보행자 세부 경로 (100m 앞 우회전, 200m 좌회전, 파리바게트 우회전...) -> TMap API 이용
  */
 data class PedestrianSectionInfo(
-    override var distance: Double,
-    override var sectionTime: Int,
-    override var startName: String, // PedestrianResponse.Feature[0].Properties.facilityName 김명준 추정
-    override val endName: String, // PedestrianResponse.Feature[PedestrianResponse.Feature.size-1].Properties.facilityName 김명준 추정
-    override var startX: Double,
-    override var startY: Double,
-    override var endX: Double,
-    override var endY: Double,
+    override var distance: Double? = null,
+    override var sectionTime: Int? = null,
+    override var startName: String? = null, // PedestrianResponse.Feature[0].Properties.facilityName 김명준 추정
+    override var endName: String? = null, // PedestrianResponse.Feature[PedestrianResponse.Feature.size-1].Properties.facilityName 김명준 추정
+    override var startX: Double? = null,
+    override var startY: Double? = null,
+    override var endX: Double? = null,
+    override var endY: Double? = null,
     var contents:MutableList<String>
 ):SectionInfo
 
@@ -109,14 +109,14 @@ data class PedestrianSectionInfo(
  * @param stationNames Bus 정류장 이름들
  */
 data class BusSectionInfo(
-    override var distance: Double,
-    override var sectionTime: Int,
-    override var startName: String,
-    override val endName: String,
-    override var startX: Double,
-    override var startY: Double,
-    override var endX: Double,
-    override var endY: Double,
+    override var distance: Double? = null,
+    override var sectionTime: Int? = null,
+    override var startName: String? = null,
+    override var endName: String? = null,
+    override var startX: Double? = null,
+    override var startY: Double? = null,
+    override var endX: Double? = null,
+    override var endY: Double? = null,
     var lane: List<Lane>,
     val stationCount: Int,
     val startID: Int,
@@ -127,7 +127,7 @@ data class BusSectionInfo(
     val endStationCityCode: Int,
     val endStationProviderCode: Int,
     val endLocalStationID: String,
-    var stationNames:MutableList<String>
+    var stationNames:List<String>
 ):SectionInfo
 
 /**
@@ -154,14 +154,14 @@ data class BusSectionInfo(
  * @param stationNames Subway 정류장들 이름
  */
 data class SubwaySectionInfo(
-    override var distance: Double,
-    override var sectionTime: Int,
-    override var startName: String,
-    override val endName: String,
-    override var startX: Double,
-    override var startY: Double,
-    override var endX: Double,
-    override var endY: Double,
+    override var distance: Double? = null,
+    override var sectionTime: Int? = null,
+    override var startName: String? = null,
+    override var endName: String? = null,
+    override var startX: Double? = null,
+    override var startY: Double? = null,
+    override var endX: Double? = null,
+    override var endY: Double? = null,
     var lane: List<Lane>,
     val way:String,
     val wayCode:Int,
@@ -173,7 +173,7 @@ data class SubwaySectionInfo(
     val endID: Int,
     val endStationProviderCode: Int,
     val endLocalStationID: String,
-    var stationNames:MutableList<String>
+    var stationNames:List<String>
 ):SectionInfo
 
 /**
@@ -186,13 +186,13 @@ interface Lane {
     val busNo:String?
 }
 /**
- * 교통 수단 정보 확장 노드
- * @param name 지하철 노선명 Bus에서는 불필요
- * @param busNo 버스 번호
- * @param type // 해당값을 통해 색상 구별 가능(시외, 고속, 마을 등등)
- * @param busID 버스 코드 (버스인 경우에만 필수) #김명준: 버스 대기 시간 요청 파라미터
- * @param busLocalBlID 각 지역 버스노선 ID (BIS 제공지역인 경우에만 필수)
- * @param busProviderCode BIS 코드 (BIS 제공지역인 경우에만 필수)
+* 교통 수단 정보 확장 노드
+* @param name 지하철 노선명 Bus에서는 불필요
+* @param busNo 버스 번호
+* @param type // 해당값을 통해 색상 구별 가능(시외, 고속, 마을 등등)
+* @param busID 버스 코드 (버스인 경우에만 필수) #김명준: 버스 대기 시간 요청 파라미터
+* @param busLocalBlID 각 지역 버스노선 ID (BIS 제공지역인 경우에만 필수)
+* @param busProviderCode BIS 코드 (BIS 제공지역인 경우에만 필수)
  */
 data class BusLane(
     override val name: String? = null,
@@ -204,11 +204,11 @@ data class BusLane(
 ):Lane
 
 /**
- * @param name 호선명
- * @param busNo 버스 번호 Subway에서는 불필요
- * @param subwayCode 호선 번호
- * @param subwayCityCode 지하철 도시코드
- */
+* @param name 호선명
+* @param busNo 버스 번호 Subway에서는 불필요
+* @param subwayCode 호선 번호
+* @param subwayCityCode 지하철 도시코드
+*/
 data class SubwayLane(
     override val name: String,
     override val busNo: String? = null,
@@ -221,5 +221,5 @@ data class SubwayLane(
  * @param routeList 경로 위치 리스트
  */
 data class SectionRoute(
-    val routeList:List<LatLng>
+    val routeList:MutableList<LatLng>
 )

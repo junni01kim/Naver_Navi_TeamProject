@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 val clientId = getLocalPropertyKey("CLIENT_ID")
@@ -33,10 +34,6 @@ android {
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
-
-        vectorDrawables {
-            useSupportLibrary = true
-        }
     }
 
     buildFeatures {
@@ -69,6 +66,9 @@ android {
     }
     packaging {
         resources {
+            merges += "META-INF/spring.*"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/notice.txt"
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
@@ -85,7 +85,6 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.filament.android)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.compose.material)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -141,8 +140,7 @@ dependencies {
     implementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    // for arrow Icon
-    implementation("androidx.compose.material:material-icons-extended")
+
     // for MP Android Chart
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
@@ -154,4 +152,15 @@ dependencies {
 
     // for Barchart in Routes UI
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // MapStruct dependencies
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor)
+
+    // spring-context
+    implementation(libs.spring.context)
+
+
+    // for Extendable View
+    implementation("com.github.skydoves:expandablelayout:1.0.7")
 }

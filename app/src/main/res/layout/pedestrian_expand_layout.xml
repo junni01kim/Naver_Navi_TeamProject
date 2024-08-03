@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/expand_pedestrian_contents"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="4dp"
+    android:layout_margin="16dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/group_of_specific_route_context"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="@id/expand_pedestrian_contents"
+        app:layout_constraintLeft_toLeftOf="@id/expand_pedestrian_contents"
+        app:layout_constraintRight_toRightOf="@id/expand_pedestrian_contents"
+        app:layout_constraintTop_toTopOf="@+id/expand_pedestrian_contents"
+        tools:ignore="NotSibling,UnknownIdInLayout">
+
+        <ImageView
+            android:id="@+id/expand_route_color_image"
+            app:layout_constraintLeft_toLeftOf="@id/expand_pedestrian_contents"
+            app:layout_constraintTop_toTopOf="@id/expand_pedestrian_contents"
+            app:layout_constraintBottom_toBottomOf="@id/expand_pedestrian_contents"
+            android:layout_width="15dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/greenbusrouteimage"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/number_of_transit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:text="버스 번호"
+                    android:textStyle="bold"
+                    android:textSize="26sp"/>
+                <TextView
+                    android:id="@+id/number_of_transit1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:text="몇분 뒤 도착"
+                    android:textStyle="bold"
+                    android:textSize="16sp"/>
+                <TextView
+                    android:id="@+id/number_of_transit2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:text="다음 예정 몇분 뒤"
+                    android:textStyle="bold"
+                    android:textSize="10sp"/>
+
+            </LinearLayout>
+
+
+<!--            <TextView-->
+<!--                android:id="@+id/layover"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginLeft="23dp"-->
+<!--                android:text="정류장1\n정류장2\n정류장3\n...\n정류장4" />-->
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

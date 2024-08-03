@@ -26,4 +26,9 @@
     <string name="departure_edit_text_hint">출발지를 입력하세요</string>
     <string name="destination_edit_text_hint">도착지를 입력하세요</string>
     <string name="route_sorting_text_view">00 경로 순</string>
+
+    <string name="location_tracking_mode_none">None</string>
+    <string name="location_tracking_mode_no_follow">NoFollow</string>
+    <string name="location_tracking_mode_follow">Follow</string>
+    <string name="location_tracking_mode_face">Face</string>
 </resources>
