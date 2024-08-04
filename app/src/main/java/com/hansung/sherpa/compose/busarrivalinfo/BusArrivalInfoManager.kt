@@ -5,6 +5,9 @@ import com.google.gson.Gson
 import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoRequest
 import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoResponse
 import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoService
+import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoRequest
+import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoResponse
+import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -19,7 +22,7 @@ class BusArrivalInfoManager {
      * @param request 요청할 정보 객체
      * @return BusArrivalInfoResponse
      */
-    fun getBusArrivalInfoList2(request: BusArrivalInfoRequest): BusArrivalInfoResponse? {
+    fun getBusArrivalInfoList(request: BusArrivalInfoRequest): BusArrivalInfoResponse? {
         var result: BusArrivalInfoResponse? = null
         runBlocking {
             launch(Dispatchers.IO) {
@@ -32,6 +35,27 @@ class BusArrivalInfoManager {
                         .getService(request.getMap()).execute()
                     result = Gson().fromJson(response.body()!!.string(), BusArrivalInfoResponse::class.java)
                 } catch (e: IOException) {
+                    Log.d("explain", "onFailure: 실패")
+                    Log.d("explain", "message: ${e.message}")
+                }
+            }
+        }
+        return result
+    }
+
+    fun getODsayBusArrivalInfoList(request: ODsayBusArrivalInfoRequest): ODsayBusArrivalInfoResponse? {
+        var result: ODsayBusArrivalInfoResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO){
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(ODsayBusArrivalInfoService::class.java)
+                        .getODsayBusArrivalInfoService(request.getMap()).execute()
+                    result = Gson().fromJson(response.body()!!.string(),ODsayBusArrivalInfoResponse::class.java)
+                } catch(e:IOException){
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
                 }

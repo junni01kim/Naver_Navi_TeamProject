@@ -56,6 +56,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoRequest
+import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoRequest
 import com.hansung.sherpa.compose.busarrivalinfo.BusArrivalInfoManager
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
@@ -299,7 +300,7 @@ fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
     LaunchedEffect(true) {
         coroutineScope.launch {
             while(true){
-                delay(1000 * 60)
+                delay(1000 * 30)
                 timer++
             }
         }
@@ -402,7 +403,27 @@ fun ExpandItem(subPath: SubPath,  timer:Int) {
 
         var waitingTime by remember { mutableStateOf(-1) }
         LaunchedEffect(timer) {
-            waitingTime = BusArrivalInfoManager().getBusArrivalInfoList2(BusArrivalInfoRequest(cityCode = 25, nodeId = "DJB8001793", routeId = "DJB30300002"))?.response?.body?.items?.item?.arrtime?:-1
+            //waitingTime = BusArrivalInfoManager().getBusArrivalInfoList(BusArrivalInfoRequest(cityCode = 25, nodeId = "DJB8001793", routeId = "DJB30300002"))?.response?.body?.items?.item?.arrtime?:-1
+            val (stationID,routeID) = when(subPath.trafficType) {
+                1 -> {
+                    val sectionInfo = subPath.sectionInfo as SubwaySectionInfo
+                    val lane = sectionInfo.lane[0] as SubwayLane
+                    Pair(sectionInfo.startID, lane.subwayCode)
+                }
+
+                2 -> {
+                    val sectionInfo = subPath.sectionInfo as BusSectionInfo
+                    val lane = sectionInfo.lane[0] as BusLane
+                    Pair(sectionInfo.startID, lane.busID)
+                }
+                else -> Pair(-1, -1)
+            }
+
+            waitingTime = if(subPath.trafficType != 3)
+                BusArrivalInfoManager().getODsayBusArrivalInfoList(
+                    ODsayBusArrivalInfoRequest(stationID = stationID,routeIDs = routeID)
+                )?.result?.real?.get(0)?.arrival1?.arrivalSec?:0 else -1
+            Log.d("explain", "stationID: ${stationID}, routeIDS: ${routeID}, 도착 남은 시간: ${waitingTime}")
         }
         Text(minuteOfSecond(waitingTime))
     }
