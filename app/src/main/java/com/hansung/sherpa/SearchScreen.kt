@@ -501,7 +501,7 @@ fun hourOfMinute(minute:Int) =
 
 fun minuteOfSecond(second:Int) =
     if(second >= 60) "${second/60}분 뒤 도착"
-    else if(second == -1) "Null"
+    else if(second == -1) "도착 정보 없음"
     else "곧 도착"
 
 @Composable
