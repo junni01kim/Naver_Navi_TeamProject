@@ -219,7 +219,6 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          */
         var waitingTime by remember { mutableStateOf(-1) }
         LaunchedEffect(timerFlag) {
-            //waitingTime = BusArrivalInfoManager().getBusArrivalInfoList(BusArrivalInfoRequest(cityCode = 25, nodeId = "DJB8001793", routeId = "DJB30300002"))?.response?.body?.items?.item?.arrtime?:-1
 
             // ODsay ArrivalInfo TODO("명칭에 Bus가 작성되어 있는데 수정 예정")
             val (stationID,routeID) = when(subPath.trafficType) {

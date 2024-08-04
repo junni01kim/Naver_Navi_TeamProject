@@ -33,7 +33,7 @@ fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
         coroutineScope.launch {
             while(true){
                 delay(1000 * 30)
-                timerFlag = if(timerFlag) false else true
+                timerFlag = !timerFlag
             }
         }
     }
