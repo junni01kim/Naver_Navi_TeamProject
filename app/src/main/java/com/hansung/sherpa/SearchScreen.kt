@@ -422,7 +422,7 @@ fun ExpandItem(subPath: SubPath,  timer:Int) {
             waitingTime = if(subPath.trafficType != 3)
                 BusArrivalInfoManager().getODsayBusArrivalInfoList(
                     ODsayBusArrivalInfoRequest(stationID = stationID,routeIDs = routeID)
-                )?.result?.real?.get(0)?.arrival1?.arrivalSec?:0 else -1
+                )?.result?.real?.get(0)?.arrival1?.arrivalSec?:-1 else -1
             Log.d("explain", "stationID: ${stationID}, routeIDS: ${routeID}, 도착 남은 시간: ${waitingTime}")
         }
         Text(minuteOfSecond(waitingTime))
