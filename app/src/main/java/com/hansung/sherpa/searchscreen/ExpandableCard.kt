@@ -244,6 +244,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
                 BusArrivalInfoManager().getODsayBusArrivalInfoList(
                     ODsayBusArrivalInfoRequest(stationID = stationID,routeIDs = routeID)
                 )?.result?.real?.get(0)?.arrival1?.arrivalSec?:-1 else -1
+
             Log.d("explain", "stationID: ${stationID}, routeIDS: ${routeID}, 도착 남은 시간: ${waitingTime}")
         }
 
