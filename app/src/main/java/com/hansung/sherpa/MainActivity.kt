@@ -27,7 +27,7 @@ import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.routelist.RouteListActivity
+import com.hansung.sherpa.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -111,18 +111,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         // ---------- 삭제할 것 ----------
         StaticValue.navigation = navigation
         // ---------- 여기까지 ----------
-
-        // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
-        searchButton.setOnClickListener {
-            //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
-
-            val intent = Intent(
-                applicationContext,
-                RouteListActivity::class.java
-            )
-            intent.putExtra("destination", destinationTextView.text.toString())
-            startActivityForResult(intent, 1) // activityResultLauncher로 수정 예정
-        }
 
         // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
         val i = object : MyOnLocationChangeListener {

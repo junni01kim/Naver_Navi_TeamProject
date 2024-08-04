@@ -141,15 +141,6 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
 
-    // for MP Android Chart
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
-    // for tikxml
-    implementation("com.tickaroo.tikxml:annotation:0.8.13")
-    implementation("com.tickaroo.tikxml:core:0.8.13")
-    ksp("com.tickaroo.tikxml:processor:0.8.13")
-    implementation("com.tickaroo.tikxml:retrofit-converter:0.8.13")
-
     // for Barchart in Routes UI
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
