@@ -294,10 +294,21 @@ fun SortingArea(searchingTime:Long) {
  */
 @Composable
 fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
+    var timer by remember { mutableIntStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(true) {
+        coroutineScope.launch {
+            while(true){
+                delay(1000 * 60)
+                timer++
+            }
+        }
+    }
+
     // 샘플 코드
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(routeList){
-            ExpandableCard(it, searchingTime)
+            ExpandableCard(it, searchingTime, timer)
         }
     }
 }
@@ -309,7 +320,7 @@ fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
  * ※ (2024-07-30) 리스트 확장 후 화면을 밑으로 내렸다가 올리면 리스트가 자동으로 닫히는 오류가 존재한다.
  */
 @Composable
-fun ExpandableCard(route:TransportRoute, searchingTime:Long) {
+fun ExpandableCard(route:TransportRoute, searchingTime:Long, timer: Int) {
     val padding: Dp = 10.dp
     var expandedState by remember { mutableStateOf(false) }
 
@@ -359,15 +370,7 @@ fun ExpandableCard(route:TransportRoute, searchingTime:Long) {
             Spacer(modifier = Modifier.height(5.dp))
             Chart(route.subPath,route.info.totalTime)
 
-            var timer by remember { mutableIntStateOf(0) }
-            val coroutineScope = rememberCoroutineScope()
-            LaunchedEffect(true) {
-                coroutineScope.launch {
-                    delay(1000 * 60)
-                    Log.d("explain", "===== timer 변경! =====")
-                    timer++
-                }
-            }
+
 
             if (expandedState) {
                 route.subPath.forEach{
@@ -397,12 +400,11 @@ fun ExpandItem(subPath: SubPath,  timer:Int) {
         Text(getLaneName(subPath))
         Spacer(modifier = Modifier.width(10.dp))
 
-        var waitingTime by remember { mutableStateOf("None") }
+        var waitingTime by remember { mutableStateOf(-1) }
         LaunchedEffect(timer) {
-            waitingTime = BusArrivalInfoManager().getBusArrivalInfoList2(BusArrivalInfoRequest(cityCode = 25, nodeId = "DJB8001793", routeId = "DJB30300002"))?.response?.body?.items?.item?.arrtime.toString()
-            Log.d("explain", "watingTime 변경")
+            waitingTime = BusArrivalInfoManager().getBusArrivalInfoList2(BusArrivalInfoRequest(cityCode = 25, nodeId = "DJB8001793", routeId = "DJB30300002"))?.response?.body?.items?.item?.arrtime?:-1
         }
-        Text(waitingTime)
+        Text(minuteOfSecond(waitingTime))
     }
 }
 
@@ -475,6 +477,11 @@ fun hourOfMinute(minute:Int) =
     if(minute > 60) "${minute/60}시간 ${minute%60}분"
     else if(minute % 60 == 0) "${minute/60}시간"
     else "${minute%60}분"
+
+fun minuteOfSecond(second:Int) =
+    if(second >= 60) "${second/60}분 뒤 도착"
+    else if(second == -1) "Null"
+    else "곧 도착"
 
 @Composable
 fun typeOfIcon(trafficType: Int) =
