@@ -3,6 +3,7 @@ package com.hansung.sherpa.searchscreen
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -157,7 +158,8 @@ fun ExpandableCard(route: TransportRoute, searchingTime:Long, timerFlag: Boolean
  */
 @Composable
 fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
-    Row(modifier = Modifier.padding(5.dp)){
+    Row(modifier = Modifier.padding(5.dp),
+        verticalAlignment = Alignment.CenterVertically){
         /**
          * Starting Area Text
          * 
@@ -167,7 +169,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          */
         Text(
             text ="${subPath.sectionInfo.startName?:"도보"}",
-            modifier = Modifier.widthIn(max = 160.dp).align(Alignment.CenterVertically),
+            modifier = Modifier.widthIn(max = 160.dp),
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -181,7 +183,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          */
         Text(
             text = hourOfMinute(subPath.sectionInfo.sectionTime!!),
-            modifier = Modifier.align(Alignment.CenterVertically),
+            modifier = Modifier,
             fontSize = 12.sp
         )
         Spacer(modifier = Modifier.weight(1f))
@@ -254,8 +256,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          */
         Text(
             text = minuteOfSecond(waitingTime),
-            modifier = Modifier.width(55.dp)
-                .align(Alignment.CenterVertically),
+            modifier = Modifier.width(55.dp),
             fontSize = 8.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
