@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,10 +30,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hansung.sherpa.R
 import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoRequest
 import com.hansung.sherpa.compose.busarrivalinfo.BusArrivalInfoManager
 import com.hansung.sherpa.compose.chart.Chart
@@ -158,8 +163,15 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          * 
          * 이동수단의 출발지 명칭
          * ※ (2024-08-04) 현재 도보 정보가 사전에 들어오지 않아 주변 지역 명칭을 지정할 수 없다.
+         * ※ Text 너비는 하드코딩
          */
-        Text("${subPath.sectionInfo.startName?:"도보"}")
+        Text(
+            text ="${subPath.sectionInfo.startName?:"도보"}",
+            modifier = Modifier.widthIn(max = 160.dp).align(Alignment.CenterVertically),
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
         Spacer(modifier = Modifier.width(10.dp))
 
         /**
@@ -167,7 +179,11 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          *
          * 이동수단을 이용한 총 이동 시간
          */
-        Text(hourOfMinute(subPath.sectionInfo.sectionTime!!))
+        Text(
+            text = hourOfMinute(subPath.sectionInfo.sectionTime!!),
+            modifier = Modifier.align(Alignment.CenterVertically),
+            fontSize = 12.sp
+        )
         Spacer(modifier = Modifier.weight(1f))
 
         /**
@@ -185,8 +201,14 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          * Traffic Name Text
          * 
          * 이동 수단의 명칭 ex) 지하철: n호선, 버스: n-m번, 도보: 도보
+         * ※ Text 너비는 하드코딩
          */
-        Text(getLaneName(subPath))
+        Text(getLaneName(subPath),
+            modifier = Modifier
+                .width(55.dp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
         Spacer(modifier = Modifier.width(10.dp))
 
         /**
@@ -228,7 +250,92 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          * Transport Waiting Time Text
          *
          * 이동수단 도착 정보
+         * ※ Text 너비는 하드코딩 (들어올 수 있는 최대 텍스트인 error 값 "도착 정보 없음"에 맞춤)
          */
-        Text(minuteOfSecond(waitingTime))
+        Text(
+            text = minuteOfSecond(waitingTime),
+            modifier = Modifier.width(55.dp)
+                .align(Alignment.CenterVertically),
+            fontSize = 8.sp,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
+}
+
+/**
+ * 이동수단의 이름을 서식에 맞게 부여하는 함수
+ * 
+ * @param 이동수단의 정보가 들어있는 경로 객체
+ * 
+ * @return 서식이 있는 이동수단 이름 ex) subway: n호선, bus: n-m번, walk: 도보
+ */
+fun getLaneName(subPath: SubPath): String{
+    var name: String? = null
+    when(subPath.trafficType){
+        // 지하철
+        1 -> {
+            val subway = subPath.sectionInfo as SubwaySectionInfo
+            val subwayLane = subway.lane[0] as SubwayLane
+            name = "${subwayLane.name}호선"
+        }
+
+        // 버스 <- 지역마다 색상이 달라서, 경기 서울 기준으로 색 부여
+        // https://librewiki.net/wiki/%ED%8B%80:%EB%B2%84%EC%8A%A4_%EB%85%B8%EC%84%A0%EC%83%89
+        2 -> {
+            val bus = subPath.sectionInfo as BusSectionInfo
+            val busLane = bus.lane[0] as BusLane
+            name = "${busLane.busNo}번"
+        }
+        // 도보
+        3 -> name = "도보"
+    }
+    return name!!
+}
+
+/**
+ * 이동수단 종류에 맞는 아이콘을 반환
+ *
+ * @param trafficType 대중교통 타입: ex) (1) 지하철 (2) 버스 (3) 도보
+ */
+@Composable
+fun typeOfIcon(trafficType: Int) =
+    when(trafficType) {
+        // 지하철
+        1 -> ImageVector.vectorResource(R.drawable.subway)
+        // 버스
+        2 -> ImageVector.vectorResource(R.drawable.express_bus)
+        // 도보
+        3 -> ImageVector.vectorResource(R.drawable.walk)
+        else -> ImageVector.vectorResource(R.drawable.close)
+    }
+
+/**
+ * 단일 시간(분)을 이용하여 서식을 부여하는 함수
+ *
+ * @param minute 분
+ *
+ * @return 시간에 대한 서식 ex) "n분 뒤 도착", "n시간 m분 뒤 도착"
+ */
+fun hourOfMinute(minute:Int) =
+    if(minute > 60) "${minute/60}시간 ${minute%60}분"
+    else if(minute % 60 == 0) "${minute/60}시간"
+    else "${minute%60}분"
+
+/**
+ * 단일 시간(초)를 이용하여 서식을 부여하는 함수
+ *
+ * @param second 초
+ *
+ * @return 시간에 대한 서식 ex) "n분 뒤 도착", "곧 도착", "도착 정보 없음"(예외 처리)
+ */
+fun minuteOfSecond(second:Int) =
+    if(second >= 60) "${second/60}분 뒤 도착"
+    else if(second == -1) "도착 정보 없음"
+    else "곧 도착"
+
+@Preview
+@Composable
+fun ExpandableCardPreview(){
+    SearchScreen()
 }
