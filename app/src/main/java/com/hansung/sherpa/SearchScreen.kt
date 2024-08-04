@@ -3,6 +3,7 @@ package com.hansung.sherpa
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -140,6 +141,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, routeLis
             .wrapContentHeight()
             .background(Color.White)
             .padding(vertical = 5.dp)
+            .clickable { navController.navigate(SherpaScreen.SpecificRoute.name) }
     ) {
         /**
          * Change Button

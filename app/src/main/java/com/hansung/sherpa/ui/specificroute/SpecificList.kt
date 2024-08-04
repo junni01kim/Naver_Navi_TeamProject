@@ -44,11 +44,17 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
 @Composable
 fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
+    val toTransport = 100f
+    val toPedestrian = 10f
+
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -58,12 +64,12 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
         items(items = showRouteDetails){item->
             when(item){
                 is PedestrianSectionInfo ->{
-                    SpecificListItem(R.drawable.pedestrianrouteimage,
+                    SpecificListItem(toPedestrian,
                         item.startName, item.endName, item.distance, item.sectionTime, item)
                 }
                 is BusSectionInfo ->{
-                    SpecificListItem(R.drawable.greenbusrouteimage,
-                        item.startName, item.endName, item.distance, item.sectionTime, item)
+                    SpecificListItem(toTransport,
+                        item.startName, item.endName, item.distance, item.sectionTime, item,Color.Green) //TODO 버스 색상 판별
                 }
             }
         }
@@ -80,12 +86,13 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
  */
 @Composable
 fun SpecificListItem(
-    imageSource: Int,
+    drawType:Float,
     fromName:String?,
     toName: String?,
     total:Double? = 0.0,
     totalTime:Int? = 0,
-    origin:SectionInfo
+    origin:SectionInfo,
+    lineColor:Color = Color.Black
 ){
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -108,14 +115,8 @@ fun SpecificListItem(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Image(
-                        painter = painterResource(imageSource),
-                        contentDescription = "이동 수단 이미지",
-                        modifier = Modifier
-                            .width(20.dp)
-                            .height(40.dp)
-                            .padding(2.dp)
-                    )
+                    DrawTransitLine(drawType,lineColor)
+
                     Column (
                         modifier = Modifier
                             .wrapContentHeight()
@@ -154,6 +155,27 @@ fun SpecificListItem(
     }
     // expand 버튼을 눌렀을 때 보여질 이미지
     SpecificContents(origin, expanded)
+}
+
+@Composable
+fun DrawTransitLine(drawType: Float, lineNum:Color){
+    androidx.compose.foundation.Canvas(
+        modifier = Modifier
+            .width(20.dp)
+            .height(40.dp)
+            .padding(2.dp)
+            .background(Color.White),
+        onDraw = {
+            drawLine(
+                color = lineNum,
+                start = Offset(10.dp.toPx(), 0.dp.toPx()),
+                end = Offset(10.dp.toPx(), 40.dp.toPx()),
+                strokeWidth = 5.dp.toPx(),
+                cap = StrokeCap.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(drawType, 20f), 0f)
+            )
+        }
+    )
 }
 
 fun cuttingString(target:String):String{
