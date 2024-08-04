@@ -12,8 +12,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.itemsetting.TransportRoute
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.lang.Thread.sleep
 
 /**
  * 경로 요청 후 실직적으로 보여줄 경로 리스트 영역
@@ -32,7 +32,7 @@ fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
     LaunchedEffect(true) {
         coroutineScope.launch {
             while(true){
-                sleep(1000 * 30)
+                delay(1000 * 30)
                 timerFlag = if(timerFlag) false else true
             }
         }
