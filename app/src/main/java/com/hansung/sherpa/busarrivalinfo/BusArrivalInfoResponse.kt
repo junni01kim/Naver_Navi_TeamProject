@@ -41,11 +41,15 @@ data class Header(
  * @param totalCount 데이터 총 개수
  */
 data class Body(
-    val items:String? = null, // 정상작동하는 최대 영역
-    //val items:List<Item>? = null, 파싱 오류로 잠시 잠궈둠
+    //val items:String? = null, // 정상작동하는 최대 영역
+    val items:Items? = null, // 파싱 오류로 잠시 잠궈둠
     val numOfRows:Int? = null,
     val pageNo:Int? = null,
     val totalCount:Int? = null
+)
+
+data class Items(
+    val item : Item? = null
 )
 
 /**

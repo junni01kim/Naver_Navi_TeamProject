@@ -1,5 +1,6 @@
 package com.hansung.sherpa
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,9 +32,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +55,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoRequest
+import com.hansung.sherpa.compose.busarrivalinfo.BusArrivalInfoManager
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.SubPath
@@ -58,6 +64,9 @@ import com.hansung.sherpa.itemsetting.SubwayLane
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.compose.navigation.Navigation
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
 /**
@@ -350,9 +359,19 @@ fun ExpandableCard(route:TransportRoute, searchingTime:Long) {
             Spacer(modifier = Modifier.height(5.dp))
             Chart(route.subPath,route.info.totalTime)
 
+            var timer by remember { mutableIntStateOf(0) }
+            val coroutineScope = rememberCoroutineScope()
+            LaunchedEffect(true) {
+                coroutineScope.launch {
+                    delay(1000 * 60)
+                    Log.d("explain", "===== timer 변경! =====")
+                    timer++
+                }
+            }
+
             if (expandedState) {
                 route.subPath.forEach{
-                    ExpandItem(it)
+                    ExpandItem(it, timer)
                 }
             }
         }
@@ -364,7 +383,7 @@ fun ExpandableCard(route:TransportRoute, searchingTime:Long) {
  * 이동수단 단위의 정보를 다룬다.
  */
 @Composable
-fun ExpandItem(subPath: SubPath) {
+fun ExpandItem(subPath: SubPath,  timer:Int) {
     Row(modifier = Modifier.padding(5.dp)){
         Text("${subPath.sectionInfo.startName?:"도보"}")
         Spacer(modifier = Modifier.width(10.dp))
@@ -377,7 +396,13 @@ fun ExpandItem(subPath: SubPath) {
         Spacer(modifier = Modifier.width(10.dp))
         Text(getLaneName(subPath))
         Spacer(modifier = Modifier.width(10.dp))
-        Text("도착 시간")
+
+        var waitingTime by remember { mutableStateOf("None") }
+        LaunchedEffect(timer) {
+            waitingTime = BusArrivalInfoManager().getBusArrivalInfoList2(BusArrivalInfoRequest(cityCode = 25, nodeId = "DJB8001793", routeId = "DJB30300002"))?.response?.body?.items?.item?.arrtime.toString()
+            Log.d("explain", "watingTime 변경")
+        }
+        Text(waitingTime)
     }
 }
 
