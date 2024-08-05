@@ -44,14 +44,10 @@ fun SearchScreen(
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
         // 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
-        SearchArea(navController, destinationValue){ childRouteList, childSearchingTime ->
+        SearchArea(navController, destinationValue, searchingTime){ childRouteList, childSearchingTime ->
             routeList = childRouteList
             searchingTime = childSearchingTime
         }
-
-        // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
-        // 결과 경로 리스트를 정렬하여 보여주기 설정 영역
-        SortingArea(searchingTime)
 
         // 경로 검색 결과 리스트가 나오는 Composable
         // 경로 요청 후 실직적으로 보여줄 경로 리스트 영역

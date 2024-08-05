@@ -2,6 +2,7 @@ package com.hansung.sherpa.searchscreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -54,7 +55,7 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  * ※ Preview는 SearchScreen에서 실행할 것
  */
 @Composable
-fun SearchArea(navController: NavController, _destinationValue: String, update: (List<TransportRoute>, Long) -> Unit) {
+fun SearchArea(navController: NavController, _destinationValue: String, searchingTime:Long, update: (List<TransportRoute>, Long) -> Unit) {
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
@@ -66,7 +67,9 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
 
 
     // 아이템 간격 모듈화
-    val space = 10.dp
+    val bigSpace = 10.dp
+    val middleSpace = 5.dp
+    val smallSpace = 2.dp
     Column {
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
@@ -75,7 +78,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .background(Color.White)
-                .padding(vertical = 5.dp)
+                .padding(vertical = middleSpace)
         ) {
             /**
              * Change Button
@@ -124,7 +127,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
                             destinationFocusRequester.requestFocus()
                         })
                     )
-                    Spacer(modifier = Modifier.width(5.dp))
+                    Spacer(modifier = Modifier.width(middleSpace))
                     /**
                      * Back Button
                      *
@@ -144,7 +147,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
                     }
                 }
 
-                Spacer(modifier = Modifier.height(space))
+                Spacer(modifier = Modifier.height(bigSpace))
 
                 Row(modifier = Modifier, verticalAlignment = Alignment.CenterVertically) {
                     /**
@@ -171,7 +174,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
 
                         })
                     )
-                    Spacer(modifier = Modifier.width(5.dp))
+                    Spacer(modifier = Modifier.width(middleSpace))
 
                     /**
                      * Search Button
@@ -179,6 +182,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
                      * 경로 검색하기 버튼
                      * 1) TextField에 있던 값들을 지우고
                      * 2) 해당 내용을 기반으로 경로를 검색한다.
+                     * TODO: TextField 완성 후. 수정해야함
                      */
                     IconButton(modifier = Property.Button.modifier,
                         onClick = {
@@ -207,8 +211,17 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
                 }
             }
         }
-        LocationList(locationValue){
-            locationValue = ""
+
+        Spacer(modifier = Modifier.height(smallSpace))
+
+        Box {
+            // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
+            // 결과 경로 리스트를 정렬하여 보여주기 설정 영역
+            SortingArea(searchingTime)
+
+            LocationList(locationValue) {
+                locationValue = ""
+            }
         }
     }
 }
