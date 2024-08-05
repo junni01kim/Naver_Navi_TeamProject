@@ -1,4 +1,4 @@
-package com.hansung.sherpa.busarrivalinfo
+package com.hansung.sherpa.arrivalinfo
 
 import com.google.gson.annotations.SerializedName
 import com.hansung.sherpa.BuildConfig
@@ -13,7 +13,7 @@ import com.hansung.sherpa.BuildConfig
  *  @param nodeId 정류소 ID - [국토교통부(TAGO)_버스정류소정보]에서 조회가능
  *  @param routeId 노선 ID - 버스고유 ID
  */
-class BusArrivalInfoRequest(
+class ArrivalInfoRequest(
     @SerializedName("serviceKey") val serviceKey:String = BuildConfig.OPEN_DATA_POTAL_KEY,
     @SerializedName("_type") val _type:String = "json",
     @SerializedName("cityCode") val cityCode:Int,
@@ -21,7 +21,7 @@ class BusArrivalInfoRequest(
     @SerializedName("routeId") val routeId:String
 ) {
     /**
-     * BusArrivalInfoService가 @QueryMap으로 전달됨
+     * ArrivalInfoService가 @QueryMap으로 전달됨
      */
     fun getMap():Map<String,String> = mapOf("serviceKey" to serviceKey,"_type" to _type,"cityCode" to cityCode.toString(),"nodeId" to nodeId,"routeId" to routeId)
 }

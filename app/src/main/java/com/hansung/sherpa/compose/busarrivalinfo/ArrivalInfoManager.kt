@@ -2,12 +2,12 @@ package com.hansung.sherpa.compose.busarrivalinfo
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoRequest
-import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoResponse
-import com.hansung.sherpa.busarrivalinfo.BusArrivalInfoService
-import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoRequest
-import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoResponse
-import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoService
+import com.hansung.sherpa.arrivalinfo.ArrivalInfoRequest
+import com.hansung.sherpa.arrivalinfo.ArrivalInfoResponse
+import com.hansung.sherpa.arrivalinfo.ArrivalInfoService
+import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoRequest
+import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoResponse
+import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -15,15 +15,15 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-class BusArrivalInfoManager {
+class ArrivalInfoManager {
     /**
      * 정류소별특정노선버스 도착예정정보 목록조회 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
      *
      * @param request 요청할 정보 객체
      * @return BusArrivalInfoResponse
      */
-    fun getBusArrivalInfoList(request: BusArrivalInfoRequest): BusArrivalInfoResponse? {
-        var result: BusArrivalInfoResponse? = null
+    fun getArrivalInfoList(request: ArrivalInfoRequest): ArrivalInfoResponse? {
+        var result: ArrivalInfoResponse? = null
         runBlocking {
             launch(Dispatchers.IO) {
                 try {
@@ -31,9 +31,9 @@ class BusArrivalInfoManager {
                         .baseUrl("https://apis.data.go.kr/1613000/ArvlInfoInqireService/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
-                        .create(BusArrivalInfoService::class.java)
+                        .create(ArrivalInfoService::class.java)
                         .getService(request.getMap()).execute()
-                    result = Gson().fromJson(response.body()!!.string(), BusArrivalInfoResponse::class.java)
+                    result = Gson().fromJson(response.body()!!.string(), ArrivalInfoResponse::class.java)
                 } catch (e: IOException) {
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
@@ -43,8 +43,8 @@ class BusArrivalInfoManager {
         return result
     }
 
-    fun getODsayBusArrivalInfoList(request: ODsayBusArrivalInfoRequest): ODsayBusArrivalInfoResponse? {
-        var result: ODsayBusArrivalInfoResponse? = null
+    fun getODsayArrivalInfoList(request: ODsayArrivalInfoRequest): ODsayArrivalInfoResponse? {
+        var result: ODsayArrivalInfoResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
@@ -52,9 +52,9 @@ class BusArrivalInfoManager {
                         .baseUrl("https://api.odsay.com/v1/api/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
-                        .create(ODsayBusArrivalInfoService::class.java)
-                        .getODsayBusArrivalInfoService(request.getMap()).execute()
-                    result = Gson().fromJson(response.body()!!.string(),ODsayBusArrivalInfoResponse::class.java)
+                        .create(ODsayArrivalInfoService::class.java)
+                        .getODsayArrivalInfoService(request.getMap()).execute()
+                    result = Gson().fromJson(response.body()!!.string(),ODsayArrivalInfoResponse::class.java)
                 } catch(e:IOException){
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
