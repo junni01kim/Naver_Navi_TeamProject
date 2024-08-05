@@ -21,11 +21,11 @@ class Navigation {
      * getDetailTransitRoutes 참조해서 제작
      *
      */
-    fun getDetailTransitRoutes(start: String, end: String): List<TransportRoute> {
+    fun getDetailTransitRoutes(startLatLng: LatLng, endLatLng: LatLng): List<TransportRoute> {
         val TM = TransitManager()
 
         // [API] 대중교통+도보 길찾기
-        val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)
+        val routeRequest =  setODsayRouteRequest(startLatLng, endLatLng)
         val ODsayTransitRouteResponse = TM.getODsayTransitRoute(routeRequest)
         Log.i("API", ODsayTransitRouteResponse.toString())
 

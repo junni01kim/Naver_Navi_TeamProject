@@ -1,6 +1,8 @@
 package com.hansung.sherpa.searchscreen
 
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -63,9 +65,9 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
-    var departureLatLng by remember {mutableStateOf(LatLng(0.0,0.0))}
+    var departureLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
     var destinationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) }
-    var destinationLatLng by remember {mutableStateOf(LatLng(0.0,0.0))}
+    var destinationLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
     var locationValue by remember { mutableStateOf("") }
 
     val departureFocusRequester = FocusRequester()
@@ -133,8 +135,6 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                         keyboardActions = KeyboardActions(onDone = {
                             locationValue = departureValue
                             type = 0
-
-                            destinationFocusRequester.requestFocus()
                         })
                     )
                     Spacer(modifier = Modifier.width(middleSpace))
@@ -181,7 +181,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                         singleLine = Property.TextField.singleLine,
                         placeholder = { Text("목적지를 입력하세요", fontSize = 12.sp) },
                         keyboardActions = KeyboardActions(onDone = {
-                            locationValue = departureValue
+                            locationValue = destinationValue
                             type = 1
                         })
                     )
@@ -193,23 +193,37 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                      * 경로 검색하기 버튼
                      * 1) TextField에 있던 값들을 지우고
                      * 2) 해당 내용을 기반으로 경로를 검색한다.
-                     * TODO: TextField 완성 후. 수정해야함
                      */
                     IconButton(modifier = Property.Button.modifier,
                         onClick = {
-                            if (departureValue == ""||destinationValue == "") {
-                                if (departureValue == "") departureFocusRequester.requestFocus()
-                                if (destinationValue == "") destinationFocusRequester.requestFocus()
+                            if(departureLatLng == LatLng(-1.0,-1.0) || departureValue == ""){
+                                departureLatLng == LatLng(-1.0,-1.0)
+                                departureValue == ""
+                                departureFocusRequester.requestFocus()
                                 return@IconButton
                             }
 
-                            departureValue = ""
-                            destinationValue = ""
+                            if(destinationLatLng == LatLng(-1.0,-1.0) || destinationValue == ""){
+                                destinationLatLng == LatLng(-1.0,-1.0)
+                                destinationValue == ""
+                                destinationFocusRequester.requestFocus()
+                                return@IconButton
+                            }
+
+                            Log.d("explain", "departure: (lat) ${departureLatLng.latitude}, (lon) ${departureLatLng.longitude}")
+                            Log.d("explain", "destination: (lat) ${destinationLatLng.latitude}, (lon) ${destinationLatLng.longitude}")
 
                             // 테스트용 코드 (하단에 코드 샘플 기재) << 부끄러우니까 보지 마세요
                             val transportRoutes =
-                                Navigation().getDetailTransitRoutes("tempString", "tempString")
+                                Navigation().getDetailTransitRoutes(
+                                    com.naver.maps.geometry.LatLng(departureLatLng.latitude,departureLatLng.longitude),
+                                    com.naver.maps.geometry.LatLng(destinationLatLng.latitude,destinationLatLng.longitude))
                             update(transportRoutes, System.currentTimeMillis())
+
+                            departureValue = ""
+                            departureLatLng = LatLng(-1.0,-1.0)
+                            destinationValue = ""
+                            destinationLatLng = LatLng(-1.0,-1.0)
                         }) {
                         // 버튼에 들어갈 이미지
                         Icon(
