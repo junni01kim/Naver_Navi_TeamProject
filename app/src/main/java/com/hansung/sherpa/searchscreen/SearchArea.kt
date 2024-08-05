@@ -59,23 +59,30 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  * ※ Preview는 SearchScreen에서 실행할 것
  */
 @Composable
-fun SearchArea(navController: NavController, _destinationValue: String, searchingTime:Long, update: (List<TransportRoute>, Long) -> Unit) {
-    // 저장되는 데이터 목록
-    // Departure TextField, Destination TextField에 사용할 변수
+fun SearchArea(navController: NavController, _destinationValue: String, update: (List<TransportRoute>, Long) -> Unit) {
+    // ===== 저장되는 데이터 목록 =====
+    // Departure TextField, Destination TextField에 사용할 변수: 문자열(String)
     var departureValue by remember { mutableStateOf("") }
-    var departureLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
-    var destinationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) }
-    var destinationLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
-    var locationValue by remember { mutableStateOf("") }
+    var destinationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) } // HomeScreen에서 받아온 값이 기존에 들어온다.
 
+    // Departure TextField, Destination TextField에 사용할 변수: 좌표값(LatLng)
+    var departureLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
+    var destinationLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
+    
+    // 검색 키워드를 저장하는 변수
+    var locationValue by remember { mutableStateOf("") }
+    
+    // 검색을 한 시간 정보를 담는 변수
+    var searchingTime by remember { mutableStateOf(0L) }
+
+    // Search Button을 눌렀는데, 값이 저장되어 있지 않을 때 해당 TextField로 포커스를 옮기기 위한 객체
     val departureFocusRequester = FocusRequester()
     val destinationFocusRequester = FocusRequester()
 
-    // 0이면 출발지 1이면 목적지
-    var type by remember{mutableStateOf(0)}
+    // locationValue에 저장된 정보가 어느 TextField의 키워드인지 구분하는 Flag (false면 출발지 true이면 목적지)
+    var type by remember{mutableStateOf(false)}
 
-
-    // 아이템 간격 모듈화
+    // 아이템 간격 모듈화: dp
     val bigSpace = 10.dp
     val middleSpace = 5.dp
     val smallSpace = 2.dp
@@ -132,7 +139,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                         placeholder = { Text("출발지를 입력하세요", fontSize = 12.sp) },
                         keyboardActions = KeyboardActions(onDone = {
                             locationValue = departureValue
-                            type = 0
+                            type = false
                         })
                     )
                     Spacer(modifier = Modifier.width(middleSpace))
@@ -180,47 +187,64 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                         placeholder = { Text("목적지를 입력하세요", fontSize = 12.sp) },
                         keyboardActions = KeyboardActions(onDone = {
                             locationValue = destinationValue
-                            type = 1
+                            type = true
                         })
                     )
                     Spacer(modifier = Modifier.width(middleSpace))
-
                     /**
                      * Search Button
                      *
-                     * 경로 검색하기 버튼
-                     * 1) TextField에 있던 값들을 지우고
-                     * 2) 해당 내용을 기반으로 경로를 검색한다.
+                     * 경로 검색 버튼
                      */
                     IconButton(modifier = Property.Button.modifier,
                         onClick = {
+                            /**
+                             * 각 TextField의 장소가 LocationList를 통해 저장되었는지 확인하는 함수
+                             */
                             if(departureLatLng == LatLng(-1.0,-1.0) || departureValue == ""){
                                 departureLatLng == LatLng(-1.0,-1.0)
                                 departureValue == ""
                                 departureFocusRequester.requestFocus()
                                 return@IconButton
                             }
-
                             if(destinationLatLng == LatLng(-1.0,-1.0) || destinationValue == ""){
                                 destinationLatLng == LatLng(-1.0,-1.0)
                                 destinationValue == ""
                                 destinationFocusRequester.requestFocus()
                                 return@IconButton
                             }
-
-                            // 테스트용 코드 (하단에 코드 샘플 기재) << 부끄러우니까 보지 마세요
+                            /**
+                             * 출발지와 목적지에 대한 경로를 요청하는 함수
+                             *
+                             * 동일명 LatLng 클래스를 중복하여 사용하여 코드가 길어졌다.
+                             * ※ 네이버 LatLng이 필요하나, 네이버 LatLng 클래스에는 getLatLng()함수가 없어 중복하여 사용하였다.
+                             */
                             val transportRoutes =
                                 Navigation().getDetailTransitRoutes(
                                     com.naver.maps.geometry.LatLng(departureLatLng.latitude,departureLatLng.longitude),
                                     com.naver.maps.geometry.LatLng(destinationLatLng.latitude,destinationLatLng.longitude))
-                            update(transportRoutes, System.currentTimeMillis())
 
+                            /**
+                             * 검색시간을 요청하는 함수.
+                             *
+                             * SortingArea와 ExpandableCard에서 이용한다.
+                             */
+                            searchingTime = System.currentTimeMillis()
+                            update(transportRoutes, searchingTime)
+
+                            /**
+                             * TextField 값 초기화
+                             */
                             departureValue = ""
                             departureLatLng = LatLng(-1.0,-1.0)
                             destinationValue = ""
                             destinationLatLng = LatLng(-1.0,-1.0)
                         }) {
-                        // 버튼에 들어갈 이미지
+                        /**
+                         * Search Icon
+                         *
+                         * 버튼에 들어갈 이미지
+                         */
                         Icon(
                             imageVector = Icons.Default.Search,
                             modifier = Property.Icon.modifier,
@@ -235,12 +259,20 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
         Spacer(modifier = Modifier.height(smallSpace))
 
         Box {
-            // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
-            // 결과 경로 리스트를 정렬하여 보여주기 설정 영역
+            /**
+             * 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
+             *
+             * 결과 경로 리스트를 정렬하여 보여주기 설정 영역
+             * ※ 2024-08-06 미완
+             */
             SortingArea(searchingTime)
 
+            /**
+             * 검색 키워드를 통해 장소를 선택하기 위한 영역
+             * 최종적으로 장소(출발지 or 목적지)를 선택하는 영역이다.
+             */
             LocationList(locationValue) { childLocationValue, childLocationLatLng ->
-                if(type == 0){
+                if(type == false){
                     departureValue = childLocationValue
                     departureLatLng = childLocationLatLng
                 }

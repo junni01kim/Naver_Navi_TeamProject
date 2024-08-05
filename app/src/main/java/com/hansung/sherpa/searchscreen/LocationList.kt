@@ -26,12 +26,10 @@ import com.hansung.sherpa.searchlocation.SearchLocation
 import com.hansung.sherpa.searchlocation.SearchLocationResponse
 
 /**
- * 해야할 것
- * 1. 끝날 때 locationValue가 0이 되어야한다.
- * 2. expand flag가 false가 되어야 한다.
+ * 검색 키워드를 통해 장소를 선택하기 위한 영역
+ * 최종적으로 장소(출발지 or 목적지)를 선택하는 영역이다.
  *
  * @param locationValue 장소 리스트를 띄울 검색어
- * @param searchLocation
  * @param update 장소 선택이 완료되었다면, 선택한 장소 정보를 타입에 맞게 출발지 목적지로 지정하기 위한 함수. State Hoisting을 이용한다.
  */
 @Composable

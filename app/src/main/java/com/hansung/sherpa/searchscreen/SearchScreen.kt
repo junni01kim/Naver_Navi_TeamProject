@@ -34,8 +34,9 @@ fun SearchScreen(
 ) {
     // 검색 경로들이 저장될 객체이다.
     var routeList by remember { mutableStateOf(listOf<TransportRoute>())}
+
     // 경로를 요청한 시간을 저장하기 위한 변수이다. State Hoisting을 이용해 값을 통일하기 위해 해당 위치에 저장
-    var searchingTime by remember { mutableStateOf( 0L )}
+    var searchingTime by remember { mutableStateOf( System.currentTimeMillis() )}
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -43,7 +44,7 @@ fun SearchScreen(
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
         // 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
-        SearchArea(navController, destinationValue, searchingTime){ childRouteList, childSearchingTime ->
+        SearchArea(navController, destinationValue){ childRouteList, childSearchingTime ->
             routeList = childRouteList
             searchingTime = childSearchingTime
         }
