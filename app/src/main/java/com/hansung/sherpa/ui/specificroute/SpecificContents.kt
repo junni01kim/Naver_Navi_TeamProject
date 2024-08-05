@@ -3,12 +3,14 @@ package com.hansung.sherpa.ui.specificroute
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,12 +25,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,14 +45,16 @@ import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SectionInfo
+import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 
 @Composable
-fun SpecificContents(sectionInfo:SectionInfo, expand:Boolean){
+fun SpecificContents(sectionInfo:SectionInfo,lineColor:Color, expand:Boolean){
     AnimatedVisibility(
         visible = expand,
         enter = slideInVertically(),
         exit = shrinkVertically(),
-        modifier = Modifier.background(Color.White)
+        modifier = Modifier
+            .background(Color.White)
             .border(2.dp, Color.Transparent)
             .bottomBorder(2.dp, Color.Black)
     ) {
@@ -60,10 +65,13 @@ fun SpecificContents(sectionInfo:SectionInfo, expand:Boolean){
         ){
             when(sectionInfo){
                 is PedestrianSectionInfo ->{
-                    SpecificRouteContentsUI(R.drawable.pedestrianrouteimage, sectionInfo.contents)
+                    SpecificRouteContentsUI(sectionInfo.contents.toList(), lineColor)
                 }
                 is BusSectionInfo ->{
-                    SpecificRouteContentsUI(R.drawable.greenbusrouteimage, sectionInfo.stationNames)
+                    SpecificRouteContentsUI(sectionInfo.stationNames, lineColor)
+                }
+                is SubwaySectionInfo ->{
+                    SpecificRouteContentsUI(sectionInfo.stationNames, lineColor)
                 }
             }
         }
@@ -71,23 +79,17 @@ fun SpecificContents(sectionInfo:SectionInfo, expand:Boolean){
 }
 
 @Composable
-fun SpecificRouteContentsUI(imagesrc:Int, contents:List<String>){
-    var composableSize by remember { mutableStateOf(Size.Zero) }
+fun SpecificRouteContentsUI(contents:List<String>, lineColor: Color){
+    var composableSize by remember { mutableStateOf(0f) }
 
     Row {
-        Image(
-            painter = painterResource(imagesrc),
-            contentDescription = "경로 이동 수단 이미지",
-            modifier = Modifier
-                .height(with(LocalDensity.current) { composableSize.height.toDp() })
-                .width(16.dp)
-        )
+        DrawTransitLineContents(lineColor, composableSize)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .onGloballyPositioned { layoutCoordinates ->
-                    composableSize = layoutCoordinates.size.toSize()
+                    composableSize = layoutCoordinates.size.height.toFloat()
                 },
         ) {
             for(content in contents){
@@ -95,7 +97,7 @@ fun SpecificRouteContentsUI(imagesrc:Int, contents:List<String>){
                     modifier = Modifier.padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if(imagesrc==R.drawable.pedestrianrouteimage){
+                    if(lineColor==Color.Black){
                         SetContentsImage(content)
                     }
                     Text(
@@ -110,6 +112,33 @@ fun SpecificRouteContentsUI(imagesrc:Int, contents:List<String>){
             }
         }
     }
+}
+
+@Composable
+fun DrawTransitLineContents(lineColor:Color, contentsSize:Float){
+    var drawType = 100f
+    var spacing = 0f
+    if (lineColor==Color.Black){
+        drawType = 15f
+        spacing = 20f
+    }
+
+    Canvas(
+        modifier = Modifier
+            .width(50.dp)
+            .padding(2.dp)
+            .background(Color.White),
+        onDraw = {
+            drawLine(
+                color = lineColor,
+                start = Offset(10.dp.toPx(), 0.dp.toPx()),
+                end = Offset(10.dp.toPx(), contentsSize-10.dp.toPx()),
+                strokeWidth = 5.dp.toPx(),
+                cap = StrokeCap.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(drawType, spacing), 0f)
+            )
+        }
+    )
 }
 
 @Composable
@@ -152,5 +181,5 @@ fun SpecificRouteContentsPreview(){
         ), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
         PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
     )
-    SpecificContents(showRouteDetails[0], true)
+    SpecificContents(showRouteDetails[0], Color.Black, true)
 }

@@ -2,10 +2,11 @@ package com.hansung.sherpa.compose.navigation
 
 import android.util.Log
 import com.hansung.sherpa.BuildConfig
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.transit.ODsayTransitRouteRequest
+import com.hansung.sherpa.transit.TransitManager
 import com.naver.maps.geometry.LatLng
 
 /**
@@ -22,7 +23,7 @@ class Navigation {
      *
      */
     fun getDetailTransitRoutes(start: String, end: String): List<TransportRoute> {
-        val TM = TransitManager()
+        val TM = TransitManager(StaticValue.mainActivity)
 
         // [API] 대중교통+도보 길찾기
         val routeRequest =  setODsayRouteRequest(tempStartLatLng, tempEndLatLng)

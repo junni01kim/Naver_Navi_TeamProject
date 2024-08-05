@@ -39,6 +39,7 @@ import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.transit.TransitManager
 
 enum class DragValue { Start, Center, End }
 
@@ -46,20 +47,16 @@ enum class DragValue { Start, Center, End }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SpecificRouteScreen(){
-    var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
-        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장")),
-        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(BusLane("","성북02",0,0,"0",0)), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
-        PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
-    )
+//    var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
+//        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장")),
+//        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(BusLane("","성북02",0,0,"0",0)), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
+//        PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
+//    )
 
     //StaticValue를 통해Navitaion의 index 멤버변수에 접근한다. -> 원본 값은 어디에 존재?
+    val response:TransportRoute? by remember { mutableStateOf(StaticValue.navigation.getDetailTransitRoutes("", "")) }
 
-//    val response:TransportRoute? = StaticValue.navigation.getDetailTransitRoutes("", "")
-//
-//    val showRouteDetails = response?.subPath?.map { it.sectionInfo }?.toMutableList()
-//        ?: emptyList<SectionInfo>().toMutableList()
-//
-//    val totalTime by remember { mutableIntStateOf(response?.info?.totalTime ?: 0) }
+    val totalTime by remember { mutableIntStateOf(response?.info?.totalTime ?: 0) }
 
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
@@ -98,7 +95,7 @@ fun SpecificRouteScreen(){
                 .background(Color.Green)
                 .anchoredDraggable(state, Orientation.Vertical),
             colors = cardColors(
-                containerColor = Color.LightGray  // 카드의 배경 색상 설정
+                containerColor = Color.White  // 카드의 배경 색상 설정
             ),
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
             border = BorderStroke(2.dp, Color.Black)
@@ -107,8 +104,10 @@ fun SpecificRouteScreen(){
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SpecificPreview(0)
-                SpecificList(showRouteDetails)
+                if(response!=null) {
+                    SpecificPreview(response!!, totalTime) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
+                    SpecificList(response!!) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
+                }
             }
         }
     }

@@ -24,14 +24,9 @@ import androidx.navigation.navArgument
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
-import com.hansung.sherpa.itemsetting.BusLane
-import com.hansung.sherpa.itemsetting.BusSectionInfo
-import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
-import com.hansung.sherpa.itemsetting.SectionInfo
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.routelist.RouteListActivity
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme

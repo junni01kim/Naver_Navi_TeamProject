@@ -1,6 +1,6 @@
 package com.hansung.sherpa.ui.specificroute
 
-import androidx.compose.foundation.Image
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,12 +28,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hansung.sherpa.R
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
@@ -44,14 +42,16 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import com.hansung.sherpa.compose.chart.typeOfColor
+import com.hansung.sherpa.itemsetting.SubwaySectionInfo
+import com.hansung.sherpa.itemsetting.TransportRoute
 
 @Composable
-fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
+fun SpecificList(showRouteDetails:TransportRoute){
     val toTransport = 100f
     val toPedestrian = 10f
 
@@ -61,15 +61,20 @@ fun SpecificList(showRouteDetails:MutableList<SectionInfo>){
             .wrapContentHeight()
             .border(0.5.dp, color = Color.Black)
     ) {
-        items(items = showRouteDetails){item->
-            when(item){
+        items(items = showRouteDetails.subPath){item->
+            var value = item.sectionInfo
+            when(value){
                 is PedestrianSectionInfo ->{
                     SpecificListItem(toPedestrian,
-                        item.startName, item.endName, item.distance, item.sectionTime, item)
+                        value.startName, value.endName, value.distance, value.sectionTime, value)
                 }
                 is BusSectionInfo ->{
                     SpecificListItem(toTransport,
-                        item.startName, item.endName, item.distance, item.sectionTime, item,Color.Green) //TODO 버스 색상 판별
+                        value.startName, value.endName, value.distance, value.sectionTime, value, typeOfColor(item))
+                }
+                is SubwaySectionInfo ->{
+                    SpecificListItem(toTransport,
+                        value.startName, value.endName, value.distance, value.sectionTime, value, typeOfColor(item))
                 }
             }
         }
@@ -154,12 +159,12 @@ fun SpecificListItem(
         }
     }
     // expand 버튼을 눌렀을 때 보여질 이미지
-    SpecificContents(origin, expanded)
+    SpecificContents(origin,lineColor, expanded)
 }
 
 @Composable
 fun DrawTransitLine(drawType: Float, lineNum:Color){
-    androidx.compose.foundation.Canvas(
+    Canvas(
         modifier = Modifier
             .width(20.dp)
             .height(40.dp)
@@ -216,5 +221,5 @@ fun previewSpecificList(){
         ), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
         PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
     )
-    SpecificList(showRouteDetails)
+    //SpecificList(showRouteDetails)
 }
