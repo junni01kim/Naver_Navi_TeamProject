@@ -210,9 +210,6 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                                 return@IconButton
                             }
 
-                            Log.d("explain", "departure: (lat) ${departureLatLng.latitude}, (lon) ${departureLatLng.longitude}")
-                            Log.d("explain", "destination: (lat) ${destinationLatLng.latitude}, (lon) ${destinationLatLng.longitude}")
-
                             // 테스트용 코드 (하단에 코드 샘플 기재) << 부끄러우니까 보지 마세요
                             val transportRoutes =
                                 Navigation().getDetailTransitRoutes(

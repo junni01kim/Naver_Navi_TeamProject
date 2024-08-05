@@ -49,9 +49,13 @@ fun LocationList(locationValue:String, searchLocation: (String) -> Unit ,update:
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(searchLocationResponse.items){
             Row(modifier = Modifier.background(Color.White).padding(vertical = 8.dp).clickable {
+                // 경도 (lon)
                 val x = (it.mapx?.substring(0,3)+"."+it.mapx?.substring(2)).toDouble()
+                //val x = it.mapx?.substring(0,3)?.toDouble()!!
+                // 위도 (lat)
                 val y = (it.mapy?.substring(0,2)+"."+it.mapy?.substring(3)).toDouble()
-                update(it.title?:"Null",LatLng(x,y))
+                //val y = it.mapy?.substring(0,2)?.toDouble()!!
+                update(it.title?:"Null",LatLng(y,x))
 
                 searchLocationResponse = SearchLocationResponse()
             }){
