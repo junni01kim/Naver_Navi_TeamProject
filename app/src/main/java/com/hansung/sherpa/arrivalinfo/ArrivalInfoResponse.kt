@@ -1,4 +1,4 @@
-package com.hansung.sherpa.busarrivalinfo
+package com.hansung.sherpa.arrivalinfo
 
 /**
  * '정류소별특정노선버스 도착예정정보 목록조회' 최상단 반환 클래스
@@ -6,7 +6,7 @@ package com.hansung.sherpa.busarrivalinfo
  *
  *  @param response 결과 값 모든 정보가 들어있다.
  */
-data class BusArrivalInfoResponse(
+data class ArrivalInfoResponse(
     val response: Response? = null
 )
 

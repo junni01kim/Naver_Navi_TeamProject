@@ -1,12 +1,12 @@
 package com.hansung.sherpa.searchscreen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.widget.ConstraintSet.Layout
 import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.searchlocation.SearchLoactionCallBack
 import com.hansung.sherpa.searchlocation.SearchLocation
@@ -30,39 +29,64 @@ import com.hansung.sherpa.searchlocation.SearchLocationResponse
  * 해야할 것
  * 1. 끝날 때 locationValue가 0이 되어야한다.
  * 2. expand flag가 false가 되어야 한다.
+ *
+ * @param locationValue 장소 리스트를 띄울 검색어
+ * @param searchLocation
+ * @param update 장소 선택이 완료되었다면, 선택한 장소 정보를 타입에 맞게 출발지 목적지로 지정하기 위한 함수. State Hoisting을 이용한다.
  */
 @Composable
 fun LocationList(locationValue:String, searchLocation: (String) -> Unit ,update: (String, LatLng) -> Unit) {
     var searchLocationResponse by remember { mutableStateOf(SearchLocationResponse()) }
 
+    /**
+     * locationValue가 변경된다면 발생하는 함수
+     * SearchArea.kt의 Departure TextField, Destination TextField 참고
+     * 
+     * locationValue 값에 따라서 장소 리스트를 생성한다.
+     */
     LaunchedEffect(locationValue) {
         SearchLocation().search(locationValue, object : SearchLoactionCallBack {
             override fun onSuccess(response: SearchLocationResponse?) {
                 searchLocationResponse = response!!
             }
 
-            override fun onFailure(message: String) {}
+            override fun onFailure(message: String) {
+                Log.e("SearchLocation error", "지역검색 API 오류: $message")
+            }
         })
         searchLocation(locationValue)
     }
 
+    /**
+     * Location List LazyColumn
+     * locationValue 키워드에 맞는 장소 리스트
+     *
+     * 선택 시 해당 경로의 이름과 주소를 반환 받는다.
+     */
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(searchLocationResponse.items){
             Row(modifier = Modifier.background(Color.White).padding(vertical = 8.dp).clickable {
-                // 경도 (lon)
-                val x = it.mapx?.toDouble()?.div(10000000)!!
-
-                // 위도 (lat)
-                val y = it.mapy?.toDouble()?.div(10000000)!!
+                val x = it.mapx?.toDouble()?.div(10000000)?:-1.0 // 경도 (lon)
+                val y = it.mapy?.toDouble()?.div(10000000)?:-1.0 // 위도 (lat)
 
                 update(it.title?:"Null",LatLng(y,x))
 
                 searchLocationResponse = SearchLocationResponse()
             }){
+                /**
+                 * Location Name Text
+                 *
+                 * 장소의 이름이 나오는 영역
+                 */
                 Text(text = it.title!! , maxLines = 1)
 
                 Spacer(modifier = Modifier.weight(1f))
 
+                /**
+                 * Address Text
+                 *
+                 * 장소의 주소가 나오는 영역
+                 */
                 Text(text = it.address!!,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis)
