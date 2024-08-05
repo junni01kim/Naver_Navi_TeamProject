@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.R
 import com.hansung.sherpa.compose.navigation.Navigation
+import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.itemsetting.TransportRoute
 
 /**
@@ -47,6 +48,9 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  * -구성-
  * 버튼: 검색, 뒤로가기, 변경 버튼
  * 입력창: 출발지, 목적지
+ * 
+ * SortingArea: 결과 경로 리스트를 정렬하여 보여주기 설정 영역
+ * LocationList: 검색어를 이용해 검색 위치를 결정하기 위한 영역
  *
  * @param navController 홈화면 navController 원형 ※ 해당 Composable에서는 뒤로가기를 구현하기 위해 참조
  * @param _destinationValue HomeScreen에서 작성한 목적지 정보를 가져오기 위한 String값
@@ -59,11 +63,16 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
     // 저장되는 데이터 목록
     // Departure TextField, Destination TextField에 사용할 변수
     var departureValue by remember { mutableStateOf("") }
+    var departureLatLng by remember {mutableStateOf(LatLng(0.0,0.0))}
     var destinationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) }
+    var destinationLatLng by remember {mutableStateOf(LatLng(0.0,0.0))}
     var locationValue by remember { mutableStateOf("") }
 
     val departureFocusRequester = FocusRequester()
     val destinationFocusRequester = FocusRequester()
+
+    // 0이면 출발지 1이면 목적지
+    var type by remember{mutableStateOf(0)}
 
 
     // 아이템 간격 모듈화
@@ -123,6 +132,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                         placeholder = { Text("출발지를 입력하세요", fontSize = 12.sp) },
                         keyboardActions = KeyboardActions(onDone = {
                             locationValue = departureValue
+                            type = 0
 
                             destinationFocusRequester.requestFocus()
                         })
@@ -171,7 +181,8 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
                         singleLine = Property.TextField.singleLine,
                         placeholder = { Text("목적지를 입력하세요", fontSize = 12.sp) },
                         keyboardActions = KeyboardActions(onDone = {
-
+                            locationValue = departureValue
+                            type = 1
                         })
                     )
                     Spacer(modifier = Modifier.width(middleSpace))
@@ -219,8 +230,15 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
             // 결과 경로 리스트를 정렬하여 보여주기 설정 영역
             SortingArea(searchingTime)
 
-            LocationList(locationValue) {
-                locationValue = ""
+            LocationList(locationValue, {locationValue = it}) { childLocationValue, childLocationLatLng ->
+                if(type == 0){
+                    departureValue = childLocationValue
+                    departureLatLng = childLocationLatLng
+                }
+                else {
+                    destinationValue = childLocationValue
+                    destinationLatLng = childLocationLatLng
+                }
             }
         }
     }

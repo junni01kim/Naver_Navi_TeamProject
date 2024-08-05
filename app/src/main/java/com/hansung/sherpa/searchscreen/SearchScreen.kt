@@ -22,7 +22,6 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  * 화면은 SearchArea, SortingArea, RouteListArea로 구성된다.
  * 
  * SearchArea: 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
- * SortingArea: 결과 경로 리스트를 정렬하여 보여주기 설정 영역
  * RouteListArea: 경로 요청 후 실직적으로 보여줄 경로 리스트 영역
  *
  * @param navController 홈화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
