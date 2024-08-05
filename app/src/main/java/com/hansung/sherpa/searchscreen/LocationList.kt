@@ -50,11 +50,11 @@ fun LocationList(locationValue:String, searchLocation: (String) -> Unit ,update:
         items(searchLocationResponse.items){
             Row(modifier = Modifier.background(Color.White).padding(vertical = 8.dp).clickable {
                 // 경도 (lon)
-                val x = (it.mapx?.substring(0,3)+"."+it.mapx?.substring(2)).toDouble()
-                //val x = it.mapx?.substring(0,3)?.toDouble()!!
+                val x = it.mapx?.toDouble()?.div(10000000)!!
+
                 // 위도 (lat)
-                val y = (it.mapy?.substring(0,2)+"."+it.mapy?.substring(3)).toDouble()
-                //val y = it.mapy?.substring(0,2)?.toDouble()!!
+                val y = it.mapy?.toDouble()?.div(10000000)!!
+
                 update(it.title?:"Null",LatLng(y,x))
 
                 searchLocationResponse = SearchLocationResponse()
