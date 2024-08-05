@@ -205,7 +205,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
         Text(
             text = laneName,
             modifier = Modifier
-                .width(55.dp),
+                .width(75.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -284,7 +284,7 @@ fun getStationLaneName(subPath: SubPath): Pair<String,String>{
         1 -> {
             val subway = subPath.sectionInfo as SubwaySectionInfo
             val subwayLane = subway.lane[0] as SubwayLane
-            stationName = "${subPath.sectionInfo.startName}역"
+            stationName = "${subPath.sectionInfo.startName} 역"
             laneName = "${subwayLane.name}호선"
         }
 

@@ -35,7 +35,7 @@ import com.hansung.sherpa.searchlocation.SearchLocationResponse
  * @param update 장소 선택이 완료되었다면, 선택한 장소 정보를 타입에 맞게 출발지 목적지로 지정하기 위한 함수. State Hoisting을 이용한다.
  */
 @Composable
-fun LocationList(locationValue:String, searchLocation: (String) -> Unit ,update: (String, LatLng) -> Unit) {
+fun LocationList(locationValue:String, update: (String, LatLng) -> Unit) {
     var searchLocationResponse by remember { mutableStateOf(SearchLocationResponse()) }
 
     /**
@@ -54,7 +54,6 @@ fun LocationList(locationValue:String, searchLocation: (String) -> Unit ,update:
                 Log.e("SearchLocation error", "지역검색 API 오류: $message")
             }
         })
-        searchLocation(locationValue)
     }
 
     /**

@@ -239,7 +239,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, searchin
             // 결과 경로 리스트를 정렬하여 보여주기 설정 영역
             SortingArea(searchingTime)
 
-            LocationList(locationValue, {locationValue = it}) { childLocationValue, childLocationLatLng ->
+            LocationList(locationValue) { childLocationValue, childLocationLatLng ->
                 if(type == 0){
                     departureValue = childLocationValue
                     departureLatLng = childLocationLatLng

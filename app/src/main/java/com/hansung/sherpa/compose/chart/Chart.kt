@@ -144,7 +144,7 @@ fun typeOfColor(subPath: SubPath):Color {
                 7 -> Color(0xFF747F00)
                 // 8호선
                 8 -> Color(0xFFE6186C)
-                else -> Color(0x00000000)
+                else -> Color.DarkGray
             }
         }
 
@@ -179,14 +179,14 @@ fun typeOfColor(subPath: SubPath):Color {
                 // 급행 (부산 급행 ※ 급행은 모두 색상이 다양해서 부산으로 함)
                 15 -> Color(0xFFff3300)
                 // 관광 버스 (색상 존재 X)
-                16 -> Color.Black
+                16 -> Color.DarkGray
                 // 농어촌 버스 (색상 존재 X)
-                20 -> Color.Black
+                20 -> Color.DarkGray
                 // 경기도 시외형버스
                 22 -> Color(0xFF)
                 // 급행 간선 (인천 급행 간선)
                 26 -> Color(0xFF5112ab)
-                else -> Color.Black
+                else -> Color.DarkGray
             }
         }
         // 도보
