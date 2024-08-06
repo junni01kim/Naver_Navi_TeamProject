@@ -56,9 +56,9 @@ class RouteControl {
      * @param nowSection route에서 지금 이동하고 있는 경로
      * @param outRouteDistance 이탈 되었다고 판단 할 거리
      */
-    var route : List<LatLng> = emptyList()
+    var route : MutableList<LatLng> = mutableListOf()
     var nowSection = 0
-    val outRouteDistance = 8.0
+    val outRouteDistance = 162.7
 
     /**
      * ※ from, to는 연산을 요구하기 보다 코드를 짧게 유지하기 위해 만든 함수이다. 변수로 만들지 않아도 이용 가능하다. ※
@@ -113,6 +113,10 @@ class RouteControl {
             /*polygonOverlay.map = null
             circle.map = null*/
             //---------- <김명준> 여기까지 ----------
+
+            if(nowSection>=route.size-2){
+                return true
+            }
 
             // 다음 섹션 이동
             nowSection++
@@ -274,6 +278,34 @@ class RouteControl {
         val inArea = isInArea(user)
 
         return distance > outRouteDistance+2 && !inArea
+    }
+
+    fun findShortestIndex(location:LatLng):Int{
+        var dist=1000000000.0
+
+        var tmp:Double //확인된 거리
+        var tmpIndex:Int=nowSection// 가장 짧은 거리에 있는 좌표의 값
+
+        for(i in nowSection until route.size){
+            tmp = location.distanceTo(route[i])
+            if(tmp<dist){
+                dist = tmp
+                tmpIndex = i
+            }
+        }
+
+        return tmpIndex
+    }
+
+    fun delRouteToIndex(index:Int){
+        for(i in 0 .. index){
+            route.removeAt(0)
+        }
+    }
+
+    fun addPedestrianRoute(pedestrianRoute:MutableList<LatLng>){
+        nowSection=0
+        route.addAll(0,pedestrianRoute)
     }
 
     /**

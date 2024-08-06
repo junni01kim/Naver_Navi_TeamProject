@@ -5,7 +5,7 @@
     android:viewportHeight="96">
     <group>
         <path
-            android:fillColor="#FF000000"
+            android:fillColor="#FFCCCCCC"
             android:pathData="M62 56h-3.16l-1.12-1.08C61.64 50.36 64 44.44 64 38c0-14.36-11.64-26-26-26S12 23.64 12 38s11.64 26 26 26c6.44 0 12.36-2.36 16.92-6.28L56 58.84V62l20 19.96L81.96 76 62 56Zm-24 0c-9.96 0-18-8.04-18-18s8.04-18 18-18 18 8.04 18 18-8.04 18-18 18Z"/>
     </group>
 </vector>
