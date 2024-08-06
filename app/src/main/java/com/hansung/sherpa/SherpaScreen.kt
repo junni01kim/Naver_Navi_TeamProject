@@ -6,5 +6,6 @@ package com.hansung.sherpa
  */
 enum class SherpaScreen() {
     Home,
-    Search
+    Search,
+    SpecificRoute
 }
