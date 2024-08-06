@@ -21,13 +21,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.gson.Gson
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.searchscreen.SearchScreen
+import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -82,7 +85,9 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         composable(route = "${SherpaScreen.SpecificRoute.name}/{transportRoute}",
                             arguments = listOf(navArgument("transportRoute"){type = NavType.StringType})){
                             // KJH 세부 경로 화면
-                            //SpecificRouteScreen()
+                            val transportRouteJson = it.arguments?.getString("transportRoute")
+                            val transportRoute = Gson().fromJson(transportRouteJson, TransportRoute::class.java)
+                            SpecificRouteScreen(transportRoute)
                         }
                     }
                 }

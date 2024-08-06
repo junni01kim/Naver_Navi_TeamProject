@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.hansung.sherpa.R
+import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoRequest
 import com.hansung.sherpa.compose.busarrivalinfo.ArrivalInfoManager
 import com.hansung.sherpa.compose.chart.Chart
@@ -141,7 +142,7 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
                 route.subPath.forEach{
                     ExpandItem(it, timerFlag){
                         val routeJson = Uri.encode(Gson().toJson(route))
-                        navController.navigate(routeJson)
+                        navController.navigate("${SherpaScreen.Search.name}/${routeJson}")
                     }
                 }
             }
