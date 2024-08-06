@@ -1,6 +1,7 @@
 package com.hansung.sherpa.searchscreen
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.hansung.sherpa.R
 import com.hansung.sherpa.SherpaScreen
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoRequest
 import com.hansung.sherpa.compose.busarrivalinfo.ArrivalInfoManager
 import com.hansung.sherpa.compose.chart.Chart
@@ -139,10 +141,10 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
              * Card가 확장된 경우 나타난다.
              */
             if (expandedState) {
-                route.subPath.forEach{
+                route.subPath.forEachIndexed{ index, it ->
                     ExpandItem(it, timerFlag){
-                        val routeJson = Uri.encode(Gson().toJson(route))
-                        navController.navigate("${SherpaScreen.Search.name}/${routeJson}")
+                        StaticValue.transportRoute = route
+                        navController.navigate("${SherpaScreen.SpecificRoute.name}")
                     }
                 }
             }
@@ -162,7 +164,10 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
  */
 @Composable
 fun ExpandItem(subPath: SubPath, timerFlag:Boolean, onclick: () -> Unit) {
-    Row(modifier = Modifier.padding(5.dp).clickable { onclick() },
+    Row(modifier = Modifier.padding(5.dp)
+        .clickable {
+            onclick()
+                   },
         verticalAlignment = Alignment.CenterVertically){
         /**
          * Starting Area Text

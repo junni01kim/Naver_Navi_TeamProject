@@ -82,12 +82,9 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             val destinationValue = it.arguments?.getString("destinationValue")!!
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
-                        composable(route = "${SherpaScreen.SpecificRoute.name}/{transportRoute}",
-                            arguments = listOf(navArgument("transportRoute"){type = NavType.StringType})){
+                        composable(route = "${SherpaScreen.SpecificRoute.name}/{transportRoute}"){
                             // KJH 세부 경로 화면
-                            val transportRouteJson = it.arguments?.getString("transportRoute")
-                            val transportRoute = Gson().fromJson(transportRouteJson, TransportRoute::class.java)
-                            SpecificRouteScreen(transportRoute)
+                            SpecificRouteScreen(StaticValue.transportRoute)
                         }
                     }
                 }
