@@ -77,6 +77,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     ){
                         composable(route = "${SherpaScreen.Home.name}"){
                             HomeScreen(navController, Modifier.padding(innerPadding))
+                            SpecificRouteScreen()
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
                             arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
