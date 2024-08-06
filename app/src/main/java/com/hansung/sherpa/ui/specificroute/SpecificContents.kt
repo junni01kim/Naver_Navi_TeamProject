@@ -47,6 +47,17 @@ import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SectionInfo
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 
+/**
+ * 세부 정보를 표시
+ *
+ * 보행자 : 몇m앞 우회전, 횡단 보도...
+ *
+ * 버스, 지하철 : 정류장 이름
+ *
+ * @param sectionInfo 그려질 UI의 정보
+ * @param lineColor 이동 수단의 색상
+ * @param expand 화면 펼치기 유무
+ * */
 @Composable
 fun SpecificContents(sectionInfo:SectionInfo,lineColor:Color, expand:Boolean){
     AnimatedVisibility(
@@ -78,6 +89,20 @@ fun SpecificContents(sectionInfo:SectionInfo,lineColor:Color, expand:Boolean){
     }
 }
 
+/**
+ * 경로의 세부 내용을 보여주는 UI 
+ * 
+ * 보행자 : 이동 방법 (우회전, 좌회전, 횡단보도)
+ * 
+ * 버스, 지하철 : 정류장 이름들
+ *
+ * @param contents
+ * @param lineColor 이동 수단의 색상 
+ * 
+ * (보행자 : 점선, 
+ * 
+ * 대중교통 : 버스, 호선의 색상)
+ * */
 @Composable
 fun SpecificRouteContentsUI(contents:List<String>, lineColor: Color){
     var composableSize by remember { mutableStateOf(0f) }
@@ -92,6 +117,7 @@ fun SpecificRouteContentsUI(contents:List<String>, lineColor: Color){
                     composableSize = layoutCoordinates.size.height.toFloat()
                 },
         ) {
+            // 이동 내용, 정류장 이름 표시
             for(content in contents){
                 Row(
                     modifier = Modifier.padding(4.dp),
@@ -114,33 +140,11 @@ fun SpecificRouteContentsUI(contents:List<String>, lineColor: Color){
     }
 }
 
-@Composable
-fun DrawTransitLineContents(lineColor:Color, contentsSize:Float){
-    var drawType = 100f
-    var spacing = 0f
-    if (lineColor==Color.Black){
-        drawType = 15f
-        spacing = 20f
-    }
-
-    Canvas(
-        modifier = Modifier
-            .width(50.dp)
-            .padding(2.dp)
-            .background(Color.White),
-        onDraw = {
-            drawLine(
-                color = lineColor,
-                start = Offset(10.dp.toPx(), 0.dp.toPx()),
-                end = Offset(10.dp.toPx(), contentsSize-10.dp.toPx()),
-                strokeWidth = 5.dp.toPx(),
-                cap = StrokeCap.Round,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(drawType, spacing), 0f)
-            )
-        }
-    )
-}
-
+/**
+ * 보행자의 경우 이동 내용(횡단보도, 우회전, 좌회전...)에 따라서 보여지는 추가적인 이미지가 존재함
+ *
+ * @param text 이동 내용의 이름
+ * */
 @Composable
 fun SetContentsImage(text:String){
     val settingImageID:Int
@@ -168,6 +172,39 @@ fun SetContentsImage(text:String){
             .width(25.dp)
             .height(25.dp)
             .padding(2.dp)
+    )
+}
+
+/**
+ * 보행자의 경우 점선, 대중교통의 경우 직선
+ * 
+ * @param lineColor 이동수단의 색상
+ * @param contentsSize 보여질 Composable의 높이
+ * */
+@Composable
+fun DrawTransitLineContents(lineColor:Color, contentsSize:Float){
+    var drawType = 100f
+    var spacing = 0f
+    if (lineColor==Color.Black){
+        drawType = 15f
+        spacing = 20f
+    }
+
+    Canvas(
+        modifier = Modifier
+            .width(50.dp)
+            .padding(2.dp)
+            .background(Color.White),
+        onDraw = {
+            drawLine(
+                color = lineColor,
+                start = Offset(10.dp.toPx(), 0.dp.toPx()),
+                end = Offset(10.dp.toPx(), contentsSize-10.dp.toPx()),
+                strokeWidth = 5.dp.toPx(),
+                cap = StrokeCap.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(drawType, spacing), 0f)
+            )
+        }
     )
 }
 

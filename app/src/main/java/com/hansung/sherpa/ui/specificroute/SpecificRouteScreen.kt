@@ -43,6 +43,13 @@ import com.hansung.sherpa.transit.TransitManager
 
 enum class DragValue { Start, Center, End }
 
+/**
+ * 경로의 세부 경로들 몇번 버스 이용, 어디서 내리기, 몇m 이동 등등의
+ * 세부 정부 표현 화면
+ *
+ * (해당 Composable에서 UI조합 시작함)
+ */
+
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -53,7 +60,7 @@ fun SpecificRouteScreen(){
 //        PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
 //    )
 
-    //StaticValue를 통해Navitaion의 index 멤버변수에 접근한다. -> 원본 값은 어디에 존재?
+    //TODO StaticValue를 통해Navitaion의 index 멤버변수에 접근한다. -> 원본 값은 어디에 존재?
     val response:TransportRoute? by remember { mutableStateOf(StaticValue.navigation.getDetailTransitRoutes("", "")) }
 
     val totalTime by remember { mutableIntStateOf(response?.info?.totalTime ?: 0) }
@@ -92,20 +99,20 @@ fun SpecificRouteScreen(){
             modifier = Modifier
                 .fillMaxWidth()
                 .height(305.dp)
-                .background(Color.Green)
+                .background(Color.Transparent)
                 .anchoredDraggable(state, Orientation.Vertical),
             colors = cardColors(
                 containerColor = Color.White  // 카드의 배경 색상 설정
             ),
             shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
-            border = BorderStroke(2.dp, Color.Black)
+            border = BorderStroke(2.dp, Color.LightGray)
         ){
             Column(
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if(response!=null) {
-                    SpecificPreview(response!!, totalTime) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
+                    SpecificPreview(response!!) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
                     SpecificList(response!!) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
                 }
             }

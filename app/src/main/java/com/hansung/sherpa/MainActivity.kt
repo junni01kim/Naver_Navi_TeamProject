@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
     // 내비게이션 안내 값을 전송하기 위함
     lateinit var navigation:Navigation
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -76,7 +77,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     ){
                         composable(route = "${SherpaScreen.Home.name}"){
                             HomeScreen(navController, Modifier.padding(innerPadding))
-                            SpecificRouteScreen() // 지우기
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
                             arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})

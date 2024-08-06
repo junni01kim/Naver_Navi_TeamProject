@@ -50,31 +50,39 @@ import com.hansung.sherpa.compose.chart.typeOfColor
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
 
+/**
+ * 경로의 이동 수단에 따른 전체 내용
+ *
+ * 버스, 지하철 : 총 몇개의 정류장 이동
+ *
+ * 보행자 : 총 몇m 이동
+ * @param showRouteDetails 명준 UI에서 선택된 경로
+ */
 @Composable
 fun SpecificList(showRouteDetails:TransportRoute){
-    val toTransport = 100f
-    val toPedestrian = 10f
+    val toTransport = 100f // 교통수단의 경우 연결된 선으로 그려야 함
+    val toPedestrian = 10f // 보행자의 경우 점선으로 그려야 함 -> 점선 하나의 선 길이
 
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .border(0.5.dp, color = Color.Black)
+            .border(1.dp, color = Color.LightGray)
     ) {
         items(items = showRouteDetails.subPath){item->
             var value = item.sectionInfo
-            when(value){
+            if(value.distance==0.0 || value.sectionTime==0){ // 이동 수단간 바로 환승 하는 경우(UI로 표시X)
+                return@items
+            }
+            when(value){ // 업 다운 케스팅을 통한 이동 수단에 따른 화면 UI 자동 생성
                 is PedestrianSectionInfo ->{
-                    SpecificListItem(toPedestrian,
-                        value.startName, value.endName, value.distance, value.sectionTime, value)
+                    SpecificListItem(toPedestrian, value.startName, value.endName, value.distance?.toInt(), value.sectionTime, value)
                 }
                 is BusSectionInfo ->{
-                    SpecificListItem(toTransport,
-                        value.startName, value.endName, value.distance, value.sectionTime, value, typeOfColor(item))
+                    SpecificListItem(toTransport, value.startName, value.endName, value.stationCount, value.sectionTime, value, typeOfColor(item))
                 }
                 is SubwaySectionInfo ->{
-                    SpecificListItem(toTransport,
-                        value.startName, value.endName, value.distance, value.sectionTime, value, typeOfColor(item))
+                    SpecificListItem(toTransport, value.startName, value.endName, value.stationCount, value.sectionTime, value, typeOfColor(item))
                 }
             }
         }
@@ -83,18 +91,20 @@ fun SpecificList(showRouteDetails:TransportRoute){
 }
 
 /**
- * @param imageSource 경로에 따라 보여질 이미지
+ * @param drawType 점선 or 직선
  * @param fromName 출발지 이름
  * @param toName 도착지 이름
  * @param total 총걸리는 비용 (도보 : 150m, 대중교통 : 6개 정류장)
  * @param totalTime 총걸리는 시간
+ * @param origin 원본 데이터 (현재 그려질 UI의 원본 내용)
+ * @param lineColor 버스 or 지하철 호선 색상
  */
 @Composable
 fun SpecificListItem(
     drawType:Float,
     fromName:String?,
     toName: String?,
-    total:Double? = 0.0,
+    total:Int? = 0,
     totalTime:Int? = 0,
     origin:SectionInfo,
     lineColor:Color = Color.Black
@@ -106,7 +116,7 @@ fun SpecificListItem(
             .background(Color.White)
             .fillMaxWidth()
             .wrapContentHeight()
-            .bottomBorder(strokeWidth = 1.dp, color = if(expanded){ Color.Transparent }else{ Color.Black })
+            .bottomBorder(strokeWidth = 1.dp, color = if(expanded){ Color.Transparent } else { Color.Black })
             .clickable { expanded = !expanded }
     ) {
         Row(
@@ -114,7 +124,7 @@ fun SpecificListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(// 좌측 부분
+            Box(// 좌측 부분 (전체 이동 시간, 대중교통 : 이동 정류장 수(보행자 : 이동 거리), 출발지 이름)
                 modifier = Modifier.wrapContentSize()
             ){
                 Row(
@@ -128,21 +138,20 @@ fun SpecificListItem(
                             .width(150.dp)
                             .padding(start = 6.dp)
                     ){
-                        Text(text = cuttingString(fromName ?: "정보를 불러올 수 없음"), fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                        Text(text = cuttingString(fromName ?: "정보를 불러올 수 없음"), fontSize = 18.sp, fontWeight = FontWeight.Bold)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (total != null) {
-                                Text(text = "${total.roundToInt()}m", fontSize = 20.sp, fontWeight = FontWeight.W300)
-                            }
+                            val totalText = if (lineColor==Color.Black) "${total}m" else "${total}개 정류장"
+                            Text(text = "${totalText}", fontSize = 18.sp, fontWeight = FontWeight.W300)
                             Text(text = "${totalTime}분", fontSize = 20.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
             }
-            Box {
+            Box {// 우측 부분 (도착지 이름 및 세부 내용 확장 버튼)
                 Row(
                     modifier = Modifier.wrapContentSize(),
                     verticalAlignment = Alignment.CenterVertically
@@ -158,31 +167,14 @@ fun SpecificListItem(
             }
         }
     }
-    // expand 버튼을 눌렀을 때 보여질 이미지
+    // expand 버튼을 눌렀을 때 보여질 세부 내용들 (어디 앞 우회전, ○○역...)
     SpecificContents(origin,lineColor, expanded)
 }
 
-@Composable
-fun DrawTransitLine(drawType: Float, lineNum:Color){
-    Canvas(
-        modifier = Modifier
-            .width(20.dp)
-            .height(40.dp)
-            .padding(2.dp)
-            .background(Color.White),
-        onDraw = {
-            drawLine(
-                color = lineNum,
-                start = Offset(10.dp.toPx(), 0.dp.toPx()),
-                end = Offset(10.dp.toPx(), 40.dp.toPx()),
-                strokeWidth = 5.dp.toPx(),
-                cap = StrokeCap.Round,
-                pathEffect = PathEffect.dashPathEffect(floatArrayOf(drawType, 20f), 0f)
-            )
-        }
-    )
-}
-
+/**
+ * 보여질 문자열이 너무 긴 경우 잘라내기 작업
+ * @param target 잘라낼 문자열
+ */
 fun cuttingString(target:String):String{
     val to = 8
     if(target.length<=to){
@@ -192,6 +184,9 @@ fun cuttingString(target:String):String{
     return target.substring(0 until (to-1)) + "..."
 }
 
+/**
+ * 밑에만 border를 주기위함
+ * */
 fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
     factory = {
         val density = LocalDensity.current
@@ -210,6 +205,34 @@ fun Modifier.bottomBorder(strokeWidth: Dp, color: Color) = composed(
         }
     }
 )
+
+
+/**
+* 이동 수단에 따라 점선 or 직선
+ * 대중 교통의 경우 해당 색상 적용하여 선을 그림
+ * @param drawType 점선 or 직선
+ * @param lineNum 버스, 지하철 호선 색상
+* */
+@Composable
+fun DrawTransitLine(drawType: Float, lineNum:Color){
+    Canvas(
+        modifier = Modifier
+            .width(20.dp)
+            .height(40.dp)
+            .padding(2.dp)
+            .background(Color.White),
+        onDraw = {
+            drawLine(
+                color = lineNum,
+                start = Offset(10.dp.toPx(), 0.dp.toPx()),
+                end = Offset(10.dp.toPx(), 40.dp.toPx()),
+                strokeWidth = 5.dp.toPx(),
+                cap = StrokeCap.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(drawType, 20f), 0f)// 점선 옵션
+            )
+        }
+    )
+}
 
 @Preview(showBackground = true)
 @Composable

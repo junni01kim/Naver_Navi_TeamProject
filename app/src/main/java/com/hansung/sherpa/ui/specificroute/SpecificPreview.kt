@@ -31,25 +31,23 @@ import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.TmapTransitRouteResponse
 import java.time.LocalDateTime
 
-
+/**
+ * 경로의 전체적인 요약본
+ *
+ * 전체 이동 시간 적인 내용을 프로그래스바로 표현
+ * 
+ * (총 이동 시간, 지하철 몇분 이동, 도보 몇분 이동...)
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun SpecificPreview(response: TransportRoute, totalTime:Int=0){
-
-
-    Log.d("totaltime",totalTime.toString())
-
+fun SpecificPreview(response: TransportRoute){
+    val totalTime = response.info.totalTime
     val current = LocalDateTime.now()
 
-    val futureTime = current.plusMinutes(totalTime.toLong())
+    val futureTime = current.plusMinutes(totalTime.toLong()) // 도착 예정 시간
 
-    var futureHour = futureTime.hour
-    var futureMin = futureTime.minute
-
-    if(response==null){
-        futureHour = 0
-        futureMin = 0
-    }
+    val futureHour = futureTime.hour // 도착 예정 시
+    val futureMin = futureTime.minute // 도착 예정 분
 
     Column(
         modifier = Modifier
@@ -62,10 +60,10 @@ fun SpecificPreview(response: TransportRoute, totalTime:Int=0){
         ) {
             Text(text = "${(totalTime)}", fontSize = 20.sp, fontWeight = FontWeight.Bold) // 전체 걸리는 시간
             Text(text = "분", fontWeight = FontWeight.Bold)
-            Text(text = "${futureHour}시 ${futureMin}분", modifier = Modifier.padding(start = 16.dp), fontSize = 13.sp) // 전체 걸리는 시간을 통한 도착시간
+            Text(text = "${futureHour}시 ${futureMin}분", modifier = Modifier.padding(start = 16.dp), fontSize = 13.sp) // 전체 걸리는 시간을 통한 도착 예상 시간
             Text(text = "도착", fontSize = 13.sp)
         }
-        Chart(transportRoute = response)
+        Chart(transportRoute = response)// 프로그래스바
     }
 }
 
