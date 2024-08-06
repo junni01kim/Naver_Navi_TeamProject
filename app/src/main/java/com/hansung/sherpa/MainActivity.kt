@@ -27,7 +27,6 @@ import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
@@ -61,10 +60,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
         locationSource = GpsLocationSource.createInstance(this)
 
-        StaticValue.navigation = Navigation()
-        StaticValue.navigation.mainActivity = this@MainActivity
-        StaticValue.mainActivity = this@MainActivity
-
         setContent {
             SherpaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -77,7 +72,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     ){
                         composable(route = "${SherpaScreen.Home.name}"){
                             HomeScreen(navController, Modifier.padding(innerPadding))
-                            SpecificRouteScreen()
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
                             arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
@@ -85,9 +79,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             val destinationValue = it.arguments?.getString("destinationValue")!!
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
-                        composable(route = SherpaScreen.SpecificRoute.name){
+                        composable(route = "${SherpaScreen.SpecificRoute.name}/{transportRoute}",
+                            arguments = listOf(navArgument("transportRoute"){type = NavType.StringType})){
                             // KJH 세부 경로 화면
-                            SpecificRouteScreen()
+                            //SpecificRouteScreen()
                         }
                     }
                 }
