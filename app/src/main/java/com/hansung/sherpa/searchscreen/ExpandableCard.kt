@@ -1,6 +1,5 @@
 package com.hansung.sherpa.searchscreen
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,8 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
-import com.hansung.sherpa.busarrivalinfo.ODsayBusArrivalInfoRequest
-import com.hansung.sherpa.compose.busarrivalinfo.BusArrivalInfoManager
+import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoRequest
+import com.hansung.sherpa.compose.busarrivalinfo.ArrivalInfoManager
 import com.hansung.sherpa.compose.chart.Chart
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
@@ -93,9 +92,8 @@ fun ExpandableCard(route: TransportRoute, searchingTime:Long, timerFlag: Boolean
                      *
                      * 경로의 전체 소요 시간이 기술된다.
                      */
-                    Text(text = hourOfMinute(route.info.totalTime), fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                    Text(text = "${hourOfMinute(route.info.totalTime)}소요", fontSize = 25.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.width(30.dp))
-
                     /**
                      * Arrival Time Text
                      *
@@ -130,7 +128,6 @@ fun ExpandableCard(route: TransportRoute, searchingTime:Long, timerFlag: Boolean
              * 대중교통 경로의 시간을 차트로 안내한다.
              */
             Chart(route)
-
             /**
              * Expand Card
              *
@@ -166,8 +163,9 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          * ※ (2024-08-04) 현재 도보 정보가 사전에 들어오지 않아 주변 지역 명칭을 지정할 수 없다.
          * ※ Text 너비는 하드코딩
          */
+        val (stationName,laneName) = getStationLaneName(subPath)
         Text(
-            text ="${subPath.sectionInfo.startName?:"도보"}",
+            text = stationName,
             modifier = Modifier.widthIn(max = 160.dp),
             fontWeight = FontWeight.Bold,
             maxLines = 1,
@@ -204,9 +202,10 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          * 이동 수단의 명칭 ex) 지하철: n호선, 버스: n-m번, 도보: 도보
          * ※ Text 너비는 하드코딩
          */
-        Text(getLaneName(subPath),
+        Text(
+            text = laneName,
             modifier = Modifier
-                .width(55.dp),
+                .width(75.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -215,37 +214,40 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
         /**
          * 이동수단 도착 정보를 갱신하기 위한 영역
          *
-         * 상위 Composable에서 timerFlag가 변경된다면 해당 영역이 실행된다.
+         * 상위 Composable에서 timerFlag가 변경된다면 해당 영역(도착정보 텍스트 갱신)이 실행된다.
          */
         var waitingTime by remember { mutableStateOf(-1) }
         LaunchedEffect(timerFlag) {
-            //waitingTime = BusArrivalInfoManager().getBusArrivalInfoList(BusArrivalInfoRequest(cityCode = 25, nodeId = "DJB8001793", routeId = "DJB30300002"))?.response?.body?.items?.item?.arrtime?:-1
 
-            // ODsay ArrivalInfo TODO("명칭에 Bus가 작성되어 있는데 수정 예정")
+            /**
+             * ODsay ArrivalInfo ※ 색상은 0번째 인덱스의 대중교통 종류를 따른다.
+             * trafficType을 이용하여 다운 캐스팅을 진행한다.
+             */
             val (stationID,routeID) = when(subPath.trafficType) {
-                // 지하철의 경우
-                1 -> {
+                1 -> { // 지하철의 경우
                     val sectionInfo = subPath.sectionInfo as SubwaySectionInfo
                     val lane = sectionInfo.lane[0] as SubwayLane
                     Pair(sectionInfo.startID, lane.subwayCode)
                 }
-                // 버스의 경우
-                2 -> {
+                2 -> { // 버스의 경우
                     val sectionInfo = subPath.sectionInfo as BusSectionInfo
                     val lane = sectionInfo.lane[0] as BusLane
                     Pair(sectionInfo.startID, lane.busID)
                 }
-                // 예외 처리
+                // 예외 처리 ※ 도보의 경우 현재 반환할 정류장 ID와 명칭이 없다.
                 else -> Pair(-1, -1)
             }
 
-            // 도보의 경우 정보가 없어 -1을 반환한다. (-1은 "도착 정보 없음"을 의미한다.)
-            waitingTime = if(subPath.trafficType != 3)
-                BusArrivalInfoManager().getODsayBusArrivalInfoList(
-                    ODsayBusArrivalInfoRequest(stationID = stationID,routeIDs = routeID)
-                )?.result?.real?.get(0)?.arrival1?.arrivalSec?:-1 else -1
-
-            Log.d("explain", "stationID: ${stationID}, routeIDS: ${routeID}, 도착 남은 시간: ${waitingTime}")
+            /**
+             * 도보의 경우 정보가 없어 -1을 반환한다.
+             * ※ -1은 "도착 정보 없음"을 의미한다. 하단 minuteOfSecond() 함수 참고
+             */
+            waitingTime =
+                if(subPath.trafficType != 3)
+                    ArrivalInfoManager().getODsayArrivalInfoList(
+                        ODsayArrivalInfoRequest(stationID = stationID,routeIDs = routeID)
+                    )?.result?.real?.get(0)?.arrival1?.arrivalSec?:-1
+                else -1
         }
 
         /**
@@ -265,20 +267,25 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
 }
 
 /**
- * 이동수단의 이름을 서식에 맞게 부여하는 함수
+ * 출발 정류장(정거장)과 이동수단의 이름을 서식에 맞게 부여하는 함수
  * 
- * @param 이동수단의 정보가 들어있는 경로 객체
+ * @param subpath 이동수단의 정보가 들어있는 경로 객체
  * 
- * @return 서식이 있는 이동수단 이름 ex) subway: n호선, bus: n-m번, walk: 도보
+ * @return 출발 정류장 이름, 서식 있는 이동수단 이름
+ * ex1) subway: ???역, bus: ???, 도보: Null
+ * ex2) subway: n호선, bus: n-m번, walk: 도보
  */
-fun getLaneName(subPath: SubPath): String{
-    var name: String? = null
+fun getStationLaneName(subPath: SubPath): Pair<String,String>{
+    var stationName: String? = null
+    var laneName: String? = null
+
     when(subPath.trafficType){
         // 지하철
         1 -> {
             val subway = subPath.sectionInfo as SubwaySectionInfo
             val subwayLane = subway.lane[0] as SubwayLane
-            name = "${subwayLane.name}호선"
+            stationName = "${subPath.sectionInfo.startName} 역"
+            laneName = "${subwayLane.name}호선"
         }
 
         // 버스 <- 지역마다 색상이 달라서, 경기 서울 기준으로 색 부여
@@ -286,12 +293,16 @@ fun getLaneName(subPath: SubPath): String{
         2 -> {
             val bus = subPath.sectionInfo as BusSectionInfo
             val busLane = bus.lane[0] as BusLane
-            name = "${busLane.busNo}번"
+            stationName = "${subPath.sectionInfo.startName}"
+            laneName = "${busLane.busNo}번"
         }
-        // 도보
-        3 -> name = "도보"
+        // 도보 TODO: (2024-08-06) 출발지 정보가 아직 없다. 업데이트 필요
+        3 -> {
+            stationName = "Null"
+            laneName = "도보"
+        }
     }
-    return name!!
+    return Pair(stationName!!, laneName!!)
 }
 
 /**
@@ -316,10 +327,11 @@ fun typeOfIcon(trafficType: Int) =
  *
  * @param minute 분
  *
- * @return 시간에 대한 서식 ex) "n분 뒤 도착", "n시간 m분 뒤 도착"
+ * @return 시간에 대한 서식 ex) "n분", "n시간 m분", "Null"(예외처리)
  */
 fun hourOfMinute(minute:Int) =
-    if(minute > 60) "${minute/60}시간 ${minute%60}분"
+    if(minute == 0) "Null"
+    else if(minute > 60) "${minute/60}시간 ${minute%60}분"
     else if(minute % 60 == 0) "${minute/60}시간"
     else "${minute%60}분"
 
@@ -331,8 +343,8 @@ fun hourOfMinute(minute:Int) =
  * @return 시간에 대한 서식 ex) "n분 뒤 도착", "곧 도착", "도착 정보 없음"(예외 처리)
  */
 fun minuteOfSecond(second:Int) =
-    if(second >= 60) "${second/60}분 뒤 도착"
-    else if(second == -1) "도착 정보 없음"
+    if(second == -1) "도착 정보 없음"
+    else if(second >= 60) "${second/60}분 뒤 도착"
     else "곧 도착"
 
 @Preview

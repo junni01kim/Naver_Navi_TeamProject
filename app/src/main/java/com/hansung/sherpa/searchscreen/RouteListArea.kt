@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
  * 경로 요청 후 실직적으로 보여줄 경로 리스트 영역
  *
  * @param routeList 요청한 경로 결과 리스트
+ * @param searchingTime 검색을 한 시간
  *
  * ※ Preview는 SearchScreen에서 실행할 것
  */
@@ -33,15 +34,15 @@ fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
         coroutineScope.launch {
             while(true){
                 delay(1000 * 30)
-                timerFlag = if(timerFlag) false else true
+                timerFlag = !timerFlag
             }
         }
     }
 
     /**
-     * LazyColumn
+     * Route List LazyColumn
      *
-     * 전체 대중교통 리스트가 나온다.
+     * 이동할 수 있는 전체 대중교통 리스트가 나온다.
      */
     LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(routeList){

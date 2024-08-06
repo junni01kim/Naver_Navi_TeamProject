@@ -1,9 +1,9 @@
-package com.hansung.sherpa.busarrivalinfo
+package com.hansung.sherpa.arrivalinfo
 
 import com.google.gson.annotations.SerializedName
 import com.hansung.sherpa.BuildConfig
 
-class ODsayBusArrivalInfoRequest (
+class ODsayArrivalInfoRequest (
     @SerializedName("apiKey") val apiKey : String = BuildConfig.ODSAY_APP_KEY,
     @SerializedName("stationID") val stationID:Int,
     @SerializedName("routeIDs") val routeIDs:Int,

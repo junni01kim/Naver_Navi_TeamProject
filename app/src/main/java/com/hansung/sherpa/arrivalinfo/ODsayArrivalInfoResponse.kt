@@ -1,6 +1,6 @@
-package com.hansung.sherpa.busarrivalinfo
+package com.hansung.sherpa.arrivalinfo
 
-class ODsayBusArrivalInfoResponse {
+class ODsayArrivalInfoResponse {
     val result: Result? = null
 }
 

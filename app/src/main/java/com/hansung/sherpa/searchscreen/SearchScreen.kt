@@ -22,7 +22,6 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  * 화면은 SearchArea, SortingArea, RouteListArea로 구성된다.
  * 
  * SearchArea: 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
- * SortingArea: 결과 경로 리스트를 정렬하여 보여주기 설정 영역
  * RouteListArea: 경로 요청 후 실직적으로 보여줄 경로 리스트 영역
  *
  * @param navController 홈화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
@@ -35,8 +34,9 @@ fun SearchScreen(
 ) {
     // 검색 경로들이 저장될 객체이다.
     var routeList by remember { mutableStateOf(listOf<TransportRoute>())}
+
     // 경로를 요청한 시간을 저장하기 위한 변수이다. State Hoisting을 이용해 값을 통일하기 위해 해당 위치에 저장
-    var searchingTime by remember { mutableStateOf( 0L )}
+    var searchingTime by remember { mutableStateOf( System.currentTimeMillis() )}
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -48,10 +48,6 @@ fun SearchScreen(
             routeList = childRouteList
             searchingTime = childSearchingTime
         }
-
-        // 하단 LazyColumn item을 정렬 방식을 지정하는 Composable
-        // 결과 경로 리스트를 정렬하여 보여주기 설정 영역
-        SortingArea(searchingTime)
 
         // 경로 검색 결과 리스트가 나오는 Composable
         // 경로 요청 후 실직적으로 보여줄 경로 리스트 영역
