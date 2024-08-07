@@ -25,7 +25,6 @@ import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,13 +32,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.itemsetting.BusLane
-import com.hansung.sherpa.itemsetting.BusSectionInfo
-import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
-import com.hansung.sherpa.itemsetting.SectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.transit.TransitManager
 
 enum class DragValue { Start, Center, End }
 
@@ -54,13 +47,6 @@ enum class DragValue { Start, Center, End }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SpecificRouteScreen(response:TransportRoute){
-//    var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
-//        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장")),
-//        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(BusLane("","성북02",0,0,"0",0)), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
-//        PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
-//    )
-    //TODO StaticValue를 통해Navitaion의 index 멤버변수에 접근한다. -> 원본 값은 어디에 존재?
-//    val response:TransportRoute? by remember { mutableStateOf(StaticValue.navigation.getDetailTransitRoutes("", "")) }
 
     val totalTime by remember { mutableIntStateOf(response?.info?.totalTime ?: 0) }
 

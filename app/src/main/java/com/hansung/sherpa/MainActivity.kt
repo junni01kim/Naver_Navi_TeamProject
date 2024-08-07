@@ -82,8 +82,9 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             val destinationValue = it.arguments?.getString("destinationValue")!!
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
-                        composable(route = "${SherpaScreen.SpecificRoute.name}/{transportRoute}"){
+                        composable(route = "${SherpaScreen.SpecificRoute.name}"){
                             // KJH 세부 경로 화면
+                            HomeScreen(navController, Modifier.padding(innerPadding))
                             SpecificRouteScreen(StaticValue.transportRoute)
                         }
                     }
