@@ -8,8 +8,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+
+val titleColor = Color.Black
+val contentColor = Color.Black
+val buttonColor = Color(0xFF34DFD5)
 
 /**
  * 보행자 내비게이션 공용 에러 Dialog
@@ -29,7 +35,10 @@ fun ErrorDialog(title:String, message:String, confirmButtonText:String, dissmiss
     AlertDialog(
         icon = {},
         onDismissRequest = onDismissRequest,
-        title = {Text(title)},
+        title = {Text(
+            text = title,
+            fontWeight = FontWeight.Bold
+        )},
         text = {
             Row(
                 modifier = Modifier.width(400.dp),
@@ -40,15 +49,25 @@ fun ErrorDialog(title:String, message:String, confirmButtonText:String, dissmiss
         },
         confirmButton = {
             TextButton(onClick = onConfirmation) {
-                Text(confirmButtonText)
+                Text(
+                    text = confirmButtonText,
+                    fontWeight = FontWeight.Bold,
+                    color = buttonColor
+                )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
-                Text(dissmissButtonText)
+                Text(
+                    text = dissmissButtonText,
+                    fontWeight = FontWeight.Bold,
+                    color = buttonColor
+                )
             }
-        }
-
+        },
+        containerColor = Color.White,
+        titleContentColor = titleColor,
+        textContentColor = contentColor
     )
 }
 
