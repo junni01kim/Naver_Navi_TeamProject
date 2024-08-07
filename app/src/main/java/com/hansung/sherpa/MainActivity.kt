@@ -21,13 +21,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.gson.Gson
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
+import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.searchscreen.SearchScreen
+import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -51,6 +54,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
     // 내비게이션 안내 값을 전송하기 위함
     lateinit var navigation:Navigation
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -77,6 +81,11 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         ){
                             val destinationValue = it.arguments?.getString("destinationValue")!!
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
+                        }
+                        composable(route = "${SherpaScreen.SpecificRoute.name}"){
+                            // KJH 세부 경로 화면
+                            HomeScreen(navController, Modifier.padding(innerPadding))
+                            SpecificRouteScreen(StaticValue.transportRoute)
                         }
                     }
                 }

@@ -1,6 +1,9 @@
 package com.hansung.sherpa.searchscreen
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +39,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import com.google.gson.Gson
 import com.hansung.sherpa.R
+import com.hansung.sherpa.SherpaScreen
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoRequest
 import com.hansung.sherpa.compose.busarrivalinfo.ArrivalInfoManager
 import com.hansung.sherpa.compose.chart.Chart
@@ -61,7 +68,7 @@ import java.text.SimpleDateFormat
  * ※ Preview는 SearchScreen에서 실행할 것
  */
 @Composable
-fun ExpandableCard(route: TransportRoute, searchingTime:Long, timerFlag: Boolean) {
+fun ExpandableCard(navController:NavController ,route: TransportRoute, searchingTime:Long, timerFlag: Boolean) {
     // 확장 정보를 저장하기 위한 변수 TODO: 오류원인 수정 필요
     var expandedState by remember { mutableStateOf(false) }
 
@@ -134,8 +141,11 @@ fun ExpandableCard(route: TransportRoute, searchingTime:Long, timerFlag: Boolean
              * Card가 확장된 경우 나타난다.
              */
             if (expandedState) {
-                route.subPath.forEach{
-                    ExpandItem(it, timerFlag)
+                route.subPath.forEachIndexed{ index, it ->
+                    ExpandItem(it, timerFlag){
+                        StaticValue.transportRoute = route
+                        navController.navigate("${SherpaScreen.SpecificRoute.name}")
+                    }
                 }
             }
         }
@@ -153,8 +163,11 @@ fun ExpandableCard(route: TransportRoute, searchingTime:Long, timerFlag: Boolean
  * ※ Preview는 SearchScreen에서 실행할 것
  */
 @Composable
-fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
-    Row(modifier = Modifier.padding(5.dp),
+fun ExpandItem(subPath: SubPath, timerFlag:Boolean, onclick: () -> Unit) {
+    Row(modifier = Modifier.padding(5.dp)
+        .clickable {
+            onclick()
+                   },
         verticalAlignment = Alignment.CenterVertically){
         /**
          * Starting Area Text
