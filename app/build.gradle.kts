@@ -12,6 +12,7 @@ val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
 val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
 val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
 val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
+val openDataPotalKey = getLocalPropertyKey("OPEN_DATA_POTAL_KEY")
 
 android {
 
@@ -31,6 +32,7 @@ android {
         buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
+        buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
 
         vectorDrawables {
@@ -142,4 +144,19 @@ dependencies {
     implementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+
+    // for Barchart in Routes UI
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // MapStruct dependencies
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor)
+
+    // spring-context
+    implementation(libs.spring.context)
+
+
+    // for Extendable View
+    implementation("com.github.skydoves:expandablelayout:1.0.7")
 }

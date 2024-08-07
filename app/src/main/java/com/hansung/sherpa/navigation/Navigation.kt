@@ -31,10 +31,12 @@ class Navigation {
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
-    var tempStartLatLng = LatLng(37.642743, 126.835375)
-    val tempEndLatLng = LatLng(37.627444, 126.829600)
-    /*var tempStartLatLng = LatLng(37.642621, 126.833654)
-    val tempEndLatLng = LatLng(37.642400, 126.833627)*/
+    var tempStartLatLng = LatLng(37.639853,126.832716)
+    var tempEndLatLng = LatLng(37.587777, 127.030373)
+
+    // 재호 경로
+    //private val tempStartLatLng = LatLng(37.6417, 126.8364)
+    //val tempEndLatLng = LatLng(37.6274, 126.829613)
     // 반드시 지울 것!!
 
     // 경로 탐색(경로만 탐색)

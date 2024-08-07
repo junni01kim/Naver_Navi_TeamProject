@@ -1,5 +1,7 @@
 package com.hansung.sherpa.searchscreen
 
+import android.net.Uri
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,7 +12,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.google.gson.Gson
 import com.hansung.sherpa.itemsetting.TransportRoute
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -24,7 +29,7 @@ import kotlinx.coroutines.launch
  * ※ Preview는 SearchScreen에서 실행할 것
  */
 @Composable
-fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
+fun RouteListArea(navController: NavHostController, routeList:List<TransportRoute>, searchingTime:Long){
     /**
      * 30초 단위로 대중교통 도착 정보를 갱신하기 위한 Coroutine이다.
      */
@@ -44,9 +49,10 @@ fun RouteListArea(routeList:List<TransportRoute>, searchingTime:Long){
      *
      * 이동할 수 있는 전체 대중교통 리스트가 나온다.
      */
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(2.dp)) {
         items(routeList){
-            ExpandableCard(it, searchingTime, timerFlag)
+            ExpandableCard(navController, it, searchingTime, timerFlag)
         }
     }
 }

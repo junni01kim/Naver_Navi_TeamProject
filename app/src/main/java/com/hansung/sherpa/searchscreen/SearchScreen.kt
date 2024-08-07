@@ -51,7 +51,7 @@ fun SearchScreen(
 
         // 경로 검색 결과 리스트가 나오는 Composable
         // 경로 요청 후 실직적으로 보여줄 경로 리스트 영역
-        RouteListArea(routeList, searchingTime)
+        RouteListArea(navController, routeList, searchingTime)
     }
 }
 
