@@ -32,7 +32,7 @@ val buttonColor = Color(0xFF34DFD5)
  * @sample ErrorDialogSample
  */
 @Composable
-fun ErrorDialog(title:String, message:List<String>, confirmButtonText:String, dissmissButtonText:String = "", onDismissRequest: () -> Unit = {}, onConfirmation: () -> Unit) {
+fun SherpaDialog(title:String, message:List<String>, confirmButtonText:String, dissmissButtonText:String = "", onDismissRequest: () -> Unit = {}, onConfirmation: () -> Unit) {
     AlertDialog(
         icon = {},
         onDismissRequest = onDismissRequest,
@@ -79,18 +79,18 @@ fun ErrorDialog(title:String, message:List<String>, confirmButtonText:String, di
 @Composable
 fun ErrorDialogSample() {
     // 거절 기능 안넣고 싶은 경우
-    ErrorDialog("제목", listOf("내용1", "내용2"), "확인") {
+    SherpaDialog("제목", listOf("내용1", "내용2"), "확인") {
         //TODO: 확인 버튼을 누를 시 실행될 람다 함수
     }
 
     // 거절 기능 넣고 싶은 경우
-    ErrorDialog("제목", listOf("내용1", "내용2"), "확인", "거부", { println("화면 닫을 때 실행할 람다 함수")}) {
+    SherpaDialog("제목", listOf("내용1", "내용2"), "확인", "거부", { println("화면 닫을 때 실행할 람다 함수")}) {
         //TODO: 확인 버튼을 누를 시 실행될 람다 함수
     }
 }
 
 @Preview
 @Composable
-fun ErrorDialogPreview(){
-    ErrorDialog("제목", listOf("내용1: 프리뷰 화면", "내용2: 테스트 텍스트 입니다."), "확인", "거부") { println("test") }
+fun SherpaDialogPreview(){
+    SherpaDialog("제목", listOf("내용1: 프리뷰 화면", "내용2: 테스트 텍스트 입니다."), "확인", "거부") { println("test") }
 }
