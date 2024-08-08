@@ -19,11 +19,11 @@
             android:value="{CLIENT_ID}" />
 
         <activity
-            android:name=".preference.PreferenceActivity"
+            android:name="com.hansung.sherpa.ui.preference.PreferenceActivity"
             android:exported="true">
         </activity>
         <activity
-            android:name=".preference.CalendarActivity"
+            android:name="com.hansung.sherpa.ui.preference.CalendarActivity"
             android:exported="true">
         </activity>
         <activity

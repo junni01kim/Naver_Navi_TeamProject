@@ -1,4 +1,4 @@
-package com.hansung.sherpa.preference
+package com.hansung.sherpa.ui.preference
 
 import android.icu.util.Calendar
 import android.os.Build

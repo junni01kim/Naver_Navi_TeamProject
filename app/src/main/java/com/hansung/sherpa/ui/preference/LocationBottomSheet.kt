@@ -1,4 +1,4 @@
-package com.hansung.sherpa.preference
+package com.hansung.sherpa.ui.preference
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
