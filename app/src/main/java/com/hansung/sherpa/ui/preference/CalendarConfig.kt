@@ -1,4 +1,4 @@
-package com.hansung.sherpa.preference
+package com.hansung.sherpa.ui.preference
 
 import java.util.Locale
 

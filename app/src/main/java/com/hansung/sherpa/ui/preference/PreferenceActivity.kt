@@ -1,4 +1,4 @@
-package com.hansung.sherpa.preference
+package com.hansung.sherpa.ui.preference
 
 import android.annotation.SuppressLint
 import android.content.Intent
