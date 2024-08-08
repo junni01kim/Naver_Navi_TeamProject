@@ -19,8 +19,12 @@
             android:value="{CLIENT_ID}" />
 
         <activity
-            android:name=".ui.preference.SettingActivity"
-            android:exported="false">
+            android:name=".preference.PreferenceActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".preference.CalendarActivity"
+            android:exported="true">
         </activity>
         <activity
             android:name=".MainActivity"
