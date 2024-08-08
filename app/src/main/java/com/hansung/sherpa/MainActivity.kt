@@ -15,27 +15,19 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.google.gson.Gson
-import com.hansung.sherpa.compose.chart.typeOfColor
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
-import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.searchscreen.SearchScreen
+import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.login.LoginScreen
 import com.hansung.sherpa.ui.signup.SignupScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
@@ -47,15 +39,9 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
-import com.naver.maps.map.compose.MapProperties
-import com.naver.maps.map.compose.MapUiSettings
-import com.naver.maps.map.compose.NaverMap
-import com.naver.maps.map.compose.PathOverlay
-import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
-import com.naver.maps.map.util.GeometryUtils
 
 class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
