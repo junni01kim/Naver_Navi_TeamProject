@@ -109,21 +109,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = "${SherpaScreen.SpecificRoute.name}"){
-                            val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
-                            // KJH 세부 경로 화면
-                            //HomeScreen(navController, Modifier.padding(innerPadding))
-                            NaverMap(
-                                locationSource = rememberFusedLocationSource(isCompassEnabled = true),
-                                properties = MapProperties(
-                                    locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.None,
-                                ),
-                                uiSettings = MapUiSettings(
-                                    isLocationButtonEnabled = true,
-                                ),
-                                onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }
-                            ){
-                                DrawPathOverlay(StaticValue.transportRoute)
-                            }
                             SpecificRouteScreen(StaticValue.transportRoute)
                         }
                     }
@@ -229,21 +214,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     navigation.getTransitRoutes(startKeyword, endKeyword)
                 }
             }
-        }
-    }
-}
-
-// 경로를 그리는 함수
-@Composable
-fun DrawPathOverlay(transportRoute: TransportRoute) {
-    for(subPath in transportRoute.subPath){
-        if(subPath.trafficType != 3) {
-            PathOverlay(
-                coords = subPath.sectionRoute.routeList,
-                width = 2.dp,
-                color = typeOfColor(subPath),
-                outlineColor = Color.Transparent
-            )
         }
     }
 }
