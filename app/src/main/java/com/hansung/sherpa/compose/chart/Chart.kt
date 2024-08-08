@@ -183,7 +183,7 @@ fun typeOfColor(subPath: SubPath):Color {
                 // 농어촌 버스 (색상 존재 X)
                 20 -> Color.DarkGray
                 // 경기도 시외형버스
-                22 -> Color(0xFF)
+                22 -> Color.DarkGray
                 // 급행 간선 (인천 급행 간선)
                 26 -> Color(0xFF5112ab)
                 else -> Color.DarkGray
