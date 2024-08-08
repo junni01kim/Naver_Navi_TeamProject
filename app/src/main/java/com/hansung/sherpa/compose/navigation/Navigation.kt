@@ -1,33 +1,25 @@
 package com.hansung.sherpa.compose.navigation
 
 import android.util.Log
+import androidx.compose.runtime.Composable
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.transit.ODsayTransitRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.compose.PathOverlay
 
 /**
  * SearchScreen을 위한 임시 클래스 변형 -2024-08-03
  */
 class Navigation {
-    // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
-    // [개발]: 시작, 도착 좌표
-    var tempStartLatLng = LatLng(37.642743, 126.835375)
-    val tempEndLatLng = LatLng(37.627444, 126.829600)
-
     /**
      * getDetailTransitRoutes 참조해서 제작
      *
      */
     fun getDetailTransitRoutes(startLatLng: LatLng, endLatLng: LatLng): List<TransportRoute> {
         val TM = TransitManager()
-
-        Log.d("explain", "start: ${startLatLng}")
-        Log.d("explain", "end: ${endLatLng}")
-        Log.d("explain", "tempStart: ${tempStartLatLng}")
-        Log.d("explain", "tempEnd: ${tempEndLatLng}")
 
         // [API] 대중교통+도보 길찾기
         val routeRequest =  setODsayRouteRequest(startLatLng, endLatLng)
@@ -60,4 +52,6 @@ class Navigation {
             EY = endLatLng.latitude.toString()
         )
     }
+
+
 }

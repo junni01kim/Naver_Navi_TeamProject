@@ -25,6 +25,7 @@ import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,7 +33,14 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapUiSettings
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberFusedLocationSource
 
 enum class DragValue { Start, Center, End }
 
@@ -44,7 +52,7 @@ enum class DragValue { Start, Center, End }
  */
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalNaverMapApi::class)
 @Composable
 fun SpecificRouteScreen(response:TransportRoute){
 
@@ -71,6 +79,22 @@ fun SpecificRouteScreen(response:TransportRoute){
             confirmValueChange = { true }
         )
     }
+
+    // TODO: 김명준이 코드 추가한 부분 시작 ----------
+    val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+    NaverMap(
+        locationSource = rememberFusedLocationSource(isCompassEnabled = true),
+        properties = MapProperties(
+            locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.None,
+        ),
+        uiSettings = MapUiSettings(
+            isLocationButtonEnabled = true,
+        ),
+        onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }
+    ){
+        DrawPathOverlay(response)
+    }
+    // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
     Column(
         modifier = Modifier.fillMaxSize(),

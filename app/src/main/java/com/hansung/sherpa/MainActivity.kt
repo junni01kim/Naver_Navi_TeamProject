@@ -21,15 +21,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.google.gson.Gson
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
-import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.searchscreen.SearchScreen
+import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.login.LoginScreen
 import com.hansung.sherpa.ui.signup.SignupScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
@@ -40,6 +38,7 @@ import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
@@ -57,6 +56,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
     // 내비게이션 안내 값을 전송하기 위함
     lateinit var navigation:Navigation
 
+    @OptIn(ExperimentalNaverMapApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -95,8 +95,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = "${SherpaScreen.SpecificRoute.name}"){
-                            // KJH 세부 경로 화면
-                            HomeScreen(navController, Modifier.padding(innerPadding))
                             SpecificRouteScreen(StaticValue.transportRoute)
                         }
                     }
@@ -205,4 +203,3 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         }
     }
 }
-

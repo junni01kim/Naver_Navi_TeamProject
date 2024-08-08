@@ -113,7 +113,7 @@ class RouteFilterMapper {
             TrafficType.SUBWAY.value, TrafficType.BUS.value ->
                 SectionRoute(routeList = response
                     .result!!.lane?.get(0)!!.section?.get(0)?.graphPos!!
-                    .map { value -> LatLng(value.x!!, value.y!!) }.toMutableList()
+                    .map { value -> LatLng(value.y!!, value.x!!) }.toMutableList()
                 )
 
             TrafficType.WALK.value ->

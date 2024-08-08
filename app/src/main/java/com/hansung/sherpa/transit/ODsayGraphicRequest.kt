@@ -26,8 +26,8 @@ class ODsayGraphicRequest(
  * - ODsayTransitRouteResponse.result.path[0].info.mapObj
  */
 class ODsayMapObject(
-    private val baseX:Int = 127,
-    private val baseY:Int = 36,
+    private val baseX:Int = 0,
+    private val baseY:Int = 0,
     private val responseMapObject: String
 ) {
     /**
