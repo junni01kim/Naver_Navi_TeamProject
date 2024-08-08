@@ -14,7 +14,7 @@ fun DrawPathOverlay(transportRoute: TransportRoute) {
         if(subPath.trafficType != 3) {
             PathOverlay(
                 coords = subPath.sectionRoute.routeList,
-                width = 2.dp,
+                width = 5.dp,
                 color = typeOfColor(subPath),
                 outlineColor = Color.Transparent
             )
