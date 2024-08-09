@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.preference
 
 import android.icu.util.Calendar
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -35,7 +36,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,30 +63,10 @@ import java.time.LocalTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ScheduleBottomSheet(
-    closeBottomSheet : () -> Unit
+    closeBottomSheet : (Boolean) -> Unit,
+    scheduleData: ScheduleData,
+    scheduleModalSheetOption: ScheduleModalSheetOption
 ){
-    val startDateTime = Calendar.getInstance().apply {
-        set(Calendar.MINUTE, 0)
-    }
-    val endDateTime = Calendar.getInstance().apply {
-        set(Calendar.MINUTE, 0)
-    }
-    val scheduleData = ScheduleData(
-        title = remember { mutableStateOf("") },
-        scheduledLocation = remember {
-            ScheduleLocation(
-                mutableStateOf(""),
-                mutableDoubleStateOf(0.0),
-                mutableDoubleStateOf(0.0)
-            )
-        },
-        isWholeDay = remember { mutableStateOf(false) },
-        isDateValidate = remember { mutableStateOf(true )},
-        startDateTime = remember { mutableLongStateOf(startDateTime.timeInMillis) },
-        endDateTime = remember { mutableLongStateOf(endDateTime.timeInMillis) },
-        repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
-        comment = remember { mutableStateOf("") }
-    )
 
     if(scheduleData.isWholeDay.value){
         val millisecondsInDay = 24 * 60 * 60 * 1000
@@ -93,20 +74,24 @@ fun ScheduleBottomSheet(
         scheduleData.endDateTime.longValue -= (scheduleData.endDateTime.longValue % millisecondsInDay)
         scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
     }
-
+    val invalidDateToast = Toast.makeText(LocalContext.current, "날짜가 올바르지 않습니다.", Toast.LENGTH_SHORT)
     val locationSheetState = remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
-    val onClosedButtonClick : () -> Unit = {
-        coroutineScope.launch {
-            bottomSheetState.hide()
-            closeBottomSheet()
+    val onClosedButtonClick : (Boolean) -> Unit = { flag ->
+        if (flag && !scheduleData.isDateValidate.value)
+            invalidDateToast.show()
+        else {
+            coroutineScope.launch {
+                bottomSheetState.hide()
+                closeBottomSheet(flag)
+            }
         }
     }
 
     ModalBottomSheet(
         sheetState = bottomSheetState,
-        onDismissRequest = { onClosedButtonClick() },
+        onDismissRequest = { onClosedButtonClick(false) },
         modifier = Modifier
             .fillMaxHeight(0.88f)
             .heightIn(min = 200.dp),
@@ -114,7 +99,10 @@ fun ScheduleBottomSheet(
     ){
         LazyColumn {
             stickyHeader {
-                ScheduleBottomSheetHeader(onClosedButtonClick = onClosedButtonClick)
+                ScheduleBottomSheetHeader(
+                    onClosedButtonClick = onClosedButtonClick,
+                    scheduleModalSheetOption = scheduleModalSheetOption
+                )
             }
             item {
                 BottomSheetBody(
@@ -123,9 +111,9 @@ fun ScheduleBottomSheet(
                 )
                 if(locationSheetState.value) {
                     LocationBottomSheet(locationSheetState) { items ->
-                        scheduleData.scheduledLocation.name.value = items.title.toString()
-                        scheduleData.scheduledLocation.lat.value = items.mapx!!.toDouble()
-                        scheduleData.scheduledLocation.lon.value = items.mapy!!.toDouble()
+                        scheduleData.scheduledLocation.name = items.title.toString()
+                        scheduleData.scheduledLocation.lat = items.mapx!!.toDouble()
+                        scheduleData.scheduledLocation.lon = items.mapy!!.toDouble()
                     }
                 }
                 Memo(scheduleData = scheduleData)
@@ -134,7 +122,6 @@ fun ScheduleBottomSheet(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomSheetBody(
@@ -179,7 +166,7 @@ fun BottomSheetBody(
                 singleLine = true
             )
             TextField(
-                value = scheduleData.scheduledLocation.name.value,
+                value = scheduleData.scheduledLocation.name,
                 onValueChange = {},
                 enabled = false,
                 placeholder = {
@@ -603,9 +590,9 @@ fun preview(){
         title = remember { mutableStateOf("") },
         scheduledLocation = remember {
             ScheduleLocation(
-                mutableStateOf(""),
-                mutableDoubleStateOf(0.0),
-                mutableDoubleStateOf(0.0)
+                "",
+                0.0,
+                0.0
             )
         },
         isWholeDay = remember { mutableStateOf(false) },

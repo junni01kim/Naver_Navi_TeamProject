@@ -10,7 +10,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
@@ -52,6 +51,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -93,7 +93,12 @@ fun CalendarScreen(
     finish : () -> Unit
 ){
     var showBottomSheet by remember { mutableStateOf(false) }
-    val closeBottomSheet : () -> Unit = { showBottomSheet = false }
+    val closeBottomSheet : (Boolean) -> Unit = { flag ->
+        if(flag){
+
+        }
+        showBottomSheet = false
+    }
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
@@ -123,7 +128,7 @@ fun CalendarScreen(
         floatingActionButton = {
             FloatingActionButton(onClick = { showBottomSheet = true },
                 modifier = Modifier
-                    .padding(vertical = 18.dp)
+                    .padding(vertical = 8.dp)
                     .clip(shape = RoundedCornerShape(40.dp))
                     .width(80.dp)
                     .height(40.dp),
@@ -141,10 +146,37 @@ fun CalendarScreen(
         }
     )
 
-    if (showBottomSheet)
-        ScheduleBottomSheet(closeBottomSheet = closeBottomSheet)
+    if (showBottomSheet){
+        val startDateTime = android.icu.util.Calendar.getInstance().apply {
+            set(android.icu.util.Calendar.MINUTE, 0)
+        }
+        val endDateTime = android.icu.util.Calendar.getInstance().apply {
+            set(android.icu.util.Calendar.MINUTE, 0)
+        }
+        val scheduleData = ScheduleData(
+            title = remember { mutableStateOf("") },
+            scheduledLocation = remember {
+                ScheduleLocation(
+                    "",
+                    0.0,
+                    0.0
+                )
+            },
+            isWholeDay = remember { mutableStateOf(false) },
+            isDateValidate = remember { mutableStateOf(true )},
+            startDateTime = remember { mutableLongStateOf(startDateTime.timeInMillis) },
+            endDateTime = remember { mutableLongStateOf(endDateTime.timeInMillis) },
+            repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
+            comment = remember { mutableStateOf("") }
+        )
+        ScheduleBottomSheet(
+            closeBottomSheet = closeBottomSheet,
+            scheduleData = scheduleData,
+            scheduleModalSheetOption = ScheduleModalSheetOption.ADD
+        )
+    }
 }
-@OptIn(ExperimentalFoundationApi::class)
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Calendar(
@@ -202,11 +234,9 @@ fun Calendar(
                 )
             }
         }
-        for(i : Int in 1..100){
-            // TODO: 일정 처리 방법
-            // 1. 이벤트 리스트 가져오기
-            // 2. 날짜 바뀌면 divider 추가하기
-            // 3. sticky header 고려하기
+        item{
+            CurrentDateColumn(currentSelectedDate)
+            ScheduleColumns()
         }
     }
 }
@@ -365,19 +395,13 @@ fun CalendarHeader(
                 .align(Alignment.CenterVertically)
         )
         IconButton(
-            onClick = { /*TODO*/  },
+            onClick = { /*TODO*/ },
             modifier = Modifier.align(Alignment.CenterVertically)) {
             Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "이전달")
         }
     }
 }
 
-@Composable
-fun ScheduleColumns(){
-    // 스케줄 요청 필요
-    val isEmpty by remember { mutableStateOf(true) }
-    Column { }
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview

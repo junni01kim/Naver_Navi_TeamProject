@@ -9,9 +9,9 @@ data class Repeat (
 )
 
 data class ScheduleLocation (
-    var name : MutableState<String>,
-    val lon: MutableState<Double>,
-    val lat: MutableState<Double>
+    var name : String,
+    var lon: Double,
+    var lat: Double
 )
 
 data class ScheduleData(

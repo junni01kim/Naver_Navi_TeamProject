@@ -22,7 +22,8 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun ScheduleBottomSheetHeader(
-    onClosedButtonClick : () -> Unit
+    onClosedButtonClick: (Boolean) -> Unit,
+    scheduleModalSheetOption : ScheduleModalSheetOption
 ){
     val textStyle : TextStyle = TextStyle(
         fontWeight = FontWeight.Bold,
@@ -46,7 +47,7 @@ fun ScheduleBottomSheetHeader(
             TextButton(
                 modifier = Modifier
                     .align(Alignment.TopStart),
-                onClick = { onClosedButtonClick() }
+                onClick = { onClosedButtonClick(false) }
             ) {
                 Text(
                     text = "취소",
@@ -55,7 +56,10 @@ fun ScheduleBottomSheetHeader(
                 )
             }
             Text(
-                text = "새로운 일정",
+                text = when (scheduleModalSheetOption) {
+                    ScheduleModalSheetOption.ADD -> "새로운 일정"
+                    ScheduleModalSheetOption.EDIT -> "일정 수정"
+                },
                 modifier = Modifier
                     .padding(top = (12).dp)
                     .align(Alignment.TopCenter),
@@ -64,10 +68,13 @@ fun ScheduleBottomSheetHeader(
             TextButton(
                 modifier = Modifier
                     .align(Alignment.TopEnd),
-                onClick = { onClosedButtonClick() }
+                onClick = { onClosedButtonClick(true) }
             ) {
                 Text(
-                    text = "추가",
+                    text = when (scheduleModalSheetOption) {
+                        ScheduleModalSheetOption.ADD -> "추가"
+                        ScheduleModalSheetOption.EDIT -> "수정"
+                    },
                     color = Color(24, 109, 234),
                     style = textStyle
                 )
