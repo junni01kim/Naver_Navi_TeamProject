@@ -67,12 +67,6 @@ fun ScheduleBottomSheet(
     scheduleData: ScheduleData,
     scheduleModalSheetOption: ScheduleModalSheetOption
 ){
-    if(scheduleData.isWholeDay.value){
-        val millisecondsInDay = 24 * 60 * 60 * 1000
-        scheduleData.startDateTime.longValue -= (scheduleData.startDateTime.longValue % millisecondsInDay)
-        scheduleData.endDateTime.longValue -= (scheduleData.endDateTime.longValue % millisecondsInDay)
-        scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
-    }
     val invalidDateToast = Toast.makeText(LocalContext.current, "날짜가 올바르지 않습니다.", Toast.LENGTH_SHORT)
     val locationSheetState = remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -85,6 +79,18 @@ fun ScheduleBottomSheet(
                 bottomSheetState.hide()
                 closeBottomSheet(scheduleData, flag)
             }
+        }
+    }
+
+    when(scheduleData.isWholeDay.value){
+        true -> {
+            scheduleData.startDateTime.longValue = resetToMidnight(scheduleData.startDateTime.longValue)
+            scheduleData.endDateTime.longValue = resetToMidnight(scheduleData.endDateTime.longValue)
+            scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
+        }
+        false -> {
+            scheduleData.startDateTime.longValue = Calendar.getInstance().timeInMillis
+            scheduleData.endDateTime.longValue = Calendar.getInstance().timeInMillis
         }
     }
 
@@ -611,4 +617,17 @@ fun preview(){
         Memo(scheduleData = scheduleData)
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+fun resetToMidnight(timeInMillis: Long): Long {
+    val calendar = Calendar.getInstance()
+    calendar.timeInMillis = timeInMillis
+
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+
+    return calendar.timeInMillis
 }

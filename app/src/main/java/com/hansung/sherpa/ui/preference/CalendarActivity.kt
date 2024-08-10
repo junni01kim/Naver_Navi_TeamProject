@@ -97,18 +97,21 @@ fun CalendarScreen(
     var scheduleDataList = remember { mutableStateListOf<ScheduleData>() }
     var showBottomSheet by remember { mutableStateOf(false) }
     val beforeSelectedLocalDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
-    val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, flag ->
-        if(flag){
+
+    val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, isAdded ->
+        if(isAdded){
             // TODO: 추가 API 호출
             scheduleDataList.add(item)
         }
         showBottomSheet = false
     }
-    val updateScheduleData : @Composable (LocalDate) -> Unit = { item ->
+    val updateScheduleData : @Composable (LocalDate) -> Unit = { changeDate ->
         // TODO: 조회 API 호출
-        if(!item.isEqual(beforeSelectedLocalDate))
+        if(!changeDate.isEqual(beforeSelectedLocalDate))
             scheduleDataList.clear()
     }
+
+
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(

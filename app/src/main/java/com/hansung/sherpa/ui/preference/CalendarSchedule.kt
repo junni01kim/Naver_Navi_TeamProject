@@ -84,7 +84,7 @@ fun ScheduleColumns(
     var isEmpty by remember { mutableStateOf(true) }
     var currentVisibleColumnsCount by remember { mutableIntStateOf(scheduleDataList.size) }
     var beforeListSize by remember { mutableIntStateOf(scheduleDataList.size) }
-    var isDeleted = remember { mutableStateMapOf<ScheduleData, Boolean>() }
+    val isDeleted = remember { mutableStateMapOf<ScheduleData, Boolean>() }
     scheduleDataList.sortWith(
         compareBy<ScheduleData> { !it.isWholeDay.value }
             .thenBy { if (it.isWholeDay.value) it.title.value else "" }
@@ -103,8 +103,9 @@ fun ScheduleColumns(
     }
 
     LaunchedEffect(scheduleDataList.size) {
-        when{
-            (scheduleDataList.size > beforeListSize) -> {
+        when {
+            // 일정 추가 시
+            scheduleDataList.size > beforeListSize -> {
                 currentVisibleColumnsCount++
                 beforeListSize = scheduleDataList.size
                 for(scheduleData in scheduleDataList){
@@ -113,6 +114,7 @@ fun ScheduleColumns(
                     }
                 }
             }
+            // 날짜 변경 시
             beforeListSize != 0 && scheduleDataList.size == 0 -> {
                 beforeListSize = 0
                 currentVisibleColumnsCount = 0
