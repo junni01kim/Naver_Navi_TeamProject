@@ -56,6 +56,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -93,12 +94,20 @@ class CalendarActivity : ComponentActivity() {
 fun CalendarScreen(
     finish : () -> Unit
 ){
+    var scheduleDataList = remember { mutableStateListOf<ScheduleData>() }
     var showBottomSheet by remember { mutableStateOf(false) }
+    val beforeSelectedLocalDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
     val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, flag ->
         if(flag){
             // TODO: 추가 API 호출
+            scheduleDataList.add(item)
         }
         showBottomSheet = false
+    }
+    val updateScheduleData : @Composable (LocalDate) -> Unit = { item ->
+        // TODO: 조회 API 호출
+        if(!item.isEqual(beforeSelectedLocalDate))
+            scheduleDataList.clear()
     }
     Scaffold (
         topBar = {
@@ -141,7 +150,7 @@ fun CalendarScreen(
         floatingActionButtonPosition = FabPosition.Center,
         content = { innerpadding ->
             Surface(modifier = Modifier.padding(innerpadding)) {
-                Calendar()
+                Calendar(scheduleDataList = scheduleDataList, updateScheduleData = updateScheduleData)
             }
         }
     )
@@ -180,8 +189,10 @@ fun CalendarScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Calendar(
+    scheduleDataList : SnapshotStateList<ScheduleData>,
     config: CalendarConfig = CalendarConfig(),
-    currentDate: LocalDate = LocalDate.now()
+    currentDate: LocalDate = LocalDate.now(),
+    updateScheduleData: @Composable (LocalDate) -> Unit
 ) {
     val initialPage = (currentDate.year - config.yearRange.first) * 12 + currentDate.monthValue - 1
     var currentSelectedDate by remember { mutableStateOf(currentDate) }
@@ -191,11 +202,8 @@ fun Calendar(
         initialPage = initialPage,
         pageCount = { (config.yearRange.last - config.yearRange.first + 1) * 12 }
     )
-    val scheduleDataList = remember { mutableStateListOf<ScheduleData>() }
-    LaunchedEffect(currentSelectedDate) {
-        // TODO: 조회 API 호출
 
-    }
+    updateScheduleData(currentSelectedDate)
 
     LaunchedEffect(pagerState.currentPage) {
         val addMonth = (pagerState.currentPage - currentPage).toLong()

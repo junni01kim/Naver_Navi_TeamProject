@@ -20,9 +20,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -80,47 +82,72 @@ fun ScheduleColumns(
     scheduleDataList: SnapshotStateList<ScheduleData>
 ){
     var isEmpty by remember { mutableStateOf(true) }
-    val isDeleted = mutableListOf<MutableState<Boolean>>()
+    var currentVisibleColumnsCount by remember { mutableIntStateOf(scheduleDataList.size) }
+    var beforeListSize by remember { mutableIntStateOf(scheduleDataList.size) }
+    var isDeleted = remember { mutableStateMapOf<ScheduleData, Boolean>() }
     scheduleDataList.sortWith(
         compareBy<ScheduleData> { !it.isWholeDay.value }
             .thenBy { if (it.isWholeDay.value) it.title.value else "" }
             .thenBy { if (!it.isWholeDay.value) it.startDateTime.longValue else Long.MAX_VALUE }
     )
+    for (scheduleData in scheduleDataList){
+        if(isDeleted[scheduleData] == null){
+            isDeleted[scheduleData] = true
+        }
+    }
 
     val onDelete : (ScheduleData) -> Unit = { deleteItem ->
         // TODO: 삭제한 deleteItem -> 서버에서도 삭제
-        isDeleted[scheduleDataList.indexOf(deleteItem)].value = false
-        var flag = false
-        for(status in isDeleted){
-            if(status.value) {
-                flag = true
-                break
-            }
-        }
-        if(!flag)
-            isEmpty = true
+        isDeleted[deleteItem] = false
+        currentVisibleColumnsCount--
     }
 
-    if (isEmpty){
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(vertical = 90.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            Text(text = "등록된 일정이 없습니다.")
+    LaunchedEffect(scheduleDataList.size) {
+        when{
+            (scheduleDataList.size > beforeListSize) -> {
+                currentVisibleColumnsCount++
+                beforeListSize = scheduleDataList.size
+                for(scheduleData in scheduleDataList){
+                    if(isDeleted[scheduleData] == null){
+                        isDeleted[scheduleData] = true
+                    }
+                }
+            }
+            beforeListSize != 0 && scheduleDataList.size == 0 -> {
+                beforeListSize = 0
+                currentVisibleColumnsCount = 0
+                isDeleted.clear()
+            }
         }
     }
-    else {
-        LazyColumn(modifier = Modifier
-            .heightIn(max = 700.dp)
-            .wrapContentSize()
-            .fillMaxWidth()
-            .padding(bottom = 80.dp)
-        ){
-            items(scheduleDataList) { item ->
-                ScheduleColumn(onDelete = onDelete, scheduleData = item)
+    // item 삭제 시
+    LaunchedEffect(currentVisibleColumnsCount) {
+        isEmpty = currentVisibleColumnsCount == 0
+    }
+
+    when(isEmpty){
+        true -> {
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(vertical = 90.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "등록된 일정이 없습니다.")
+            }
+        }
+        false -> {
+            LazyColumn(modifier = Modifier
+                .heightIn(max = 700.dp)
+                .wrapContentSize()
+                .fillMaxWidth()
+                .padding(bottom = 80.dp)
+            ){
+                items(scheduleDataList) { item ->
+                    if(isDeleted[item]!!)
+                        ScheduleColumn(onDelete = onDelete, scheduleData = item)
+                }
             }
         }
     }
