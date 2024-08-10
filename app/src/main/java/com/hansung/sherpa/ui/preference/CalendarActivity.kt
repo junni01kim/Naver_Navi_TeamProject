@@ -52,6 +52,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -95,7 +96,7 @@ fun CalendarScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, flag ->
         if(flag){
-
+            // TODO: 추가 API 호출
         }
         showBottomSheet = false
     }
@@ -103,7 +104,6 @@ fun CalendarScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White,
                     titleContentColor = Color.DarkGray
                 ),
 
@@ -180,7 +180,6 @@ fun CalendarScreen(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Calendar(
-    modifier: Modifier = Modifier,
     config: CalendarConfig = CalendarConfig(),
     currentDate: LocalDate = LocalDate.now()
 ) {
@@ -192,6 +191,11 @@ fun Calendar(
         initialPage = initialPage,
         pageCount = { (config.yearRange.last - config.yearRange.first + 1) * 12 }
     )
+    val scheduleDataList = remember { mutableStateListOf<ScheduleData>() }
+    LaunchedEffect(currentSelectedDate) {
+        // TODO: 조회 API 호출
+
+    }
 
     LaunchedEffect(pagerState.currentPage) {
         val addMonth = (pagerState.currentPage - currentPage).toLong()
@@ -236,7 +240,7 @@ fun Calendar(
         }
         item{
             CurrentDateColumn(currentSelectedDate)
-            ScheduleColumns()
+            ScheduleColumns(scheduleDataList = scheduleDataList)
         }
     }
 }
