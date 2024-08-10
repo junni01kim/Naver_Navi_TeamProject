@@ -63,11 +63,10 @@ import java.time.LocalTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ScheduleBottomSheet(
-    closeBottomSheet : (Boolean) -> Unit,
+    closeBottomSheet : (ScheduleData, Boolean) -> Unit,
     scheduleData: ScheduleData,
     scheduleModalSheetOption: ScheduleModalSheetOption
 ){
-
     if(scheduleData.isWholeDay.value){
         val millisecondsInDay = 24 * 60 * 60 * 1000
         scheduleData.startDateTime.longValue -= (scheduleData.startDateTime.longValue % millisecondsInDay)
@@ -84,7 +83,7 @@ fun ScheduleBottomSheet(
         else {
             coroutineScope.launch {
                 bottomSheetState.hide()
-                closeBottomSheet(flag)
+                closeBottomSheet(scheduleData, flag)
             }
         }
     }

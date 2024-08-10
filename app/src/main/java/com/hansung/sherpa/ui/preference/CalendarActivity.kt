@@ -93,7 +93,7 @@ fun CalendarScreen(
     finish : () -> Unit
 ){
     var showBottomSheet by remember { mutableStateOf(false) }
-    val closeBottomSheet : (Boolean) -> Unit = { flag ->
+    val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, flag ->
         if(flag){
 
         }

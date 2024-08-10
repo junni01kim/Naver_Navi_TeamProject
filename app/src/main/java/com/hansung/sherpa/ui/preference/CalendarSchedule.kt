@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
@@ -77,14 +78,14 @@ fun CurrentDateColumn(
 @Composable
 fun ScheduleColumns(){
     var isEmpty by remember { mutableStateOf(false) }
-
+    var isDeleted = mutableListOf<MutableState<Boolean>>()
     // TODO: 날짜에 해당하는 스케줄 받아오는 API 호출
     // TODO: 날짜별 정렬 필요 (하루종일이 맨 먼저)
     // 스케줄 API 요청 필요
-    val scheduleResponseList = mutableListOf<ScheduleResponse>()
+    val scheduleResponseList = remember { mutableStateListOf<ScheduleResponse>() }
     val scheduleList = remember { mutableStateListOf<ScheduleData>() }
     scheduleResponseList.add(ScheduleResponse(
-            title = "학교",
+            title = "대학교",
             scheduledLocation = ScheduleLocation(
                 "한성대학교",
                 0.0,
@@ -99,7 +100,7 @@ fun ScheduleColumns(){
     )
 
     scheduleResponseList.add(ScheduleResponse(
-            title = "고등학교",
+            title = "중학교",
             scheduledLocation = ScheduleLocation(
                 "한성여중",
                 0.0,
@@ -148,13 +149,21 @@ fun ScheduleColumns(){
                 comment = remember { mutableStateOf(scheduleResponse.comment) }
             )
         )
+        isDeleted.add(remember { mutableStateOf(true) })
     }
-
-
-    // TODO: 클릭한거에 상관없이 삭제된 것도 위치에 따라 다시 callback됨 
+    
     val onDelete : (ScheduleData) -> Unit = { deleteItem ->
-        scheduleList.remove(deleteItem)
-        isEmpty = scheduleList.isEmpty()
+        // TODO: 삭제한 deleteItem -> 서버에서도 삭제
+        isDeleted[scheduleList.indexOf(deleteItem)].value = false
+        var flag = false
+        for(status in isDeleted){
+            if(status.value) {
+                flag = true
+                break
+            }
+        }
+        if(!flag)
+            isEmpty = true
     }
     
     if (isEmpty){
@@ -176,7 +185,7 @@ fun ScheduleColumns(){
             .padding(bottom = 80.dp)
         ){
             items(scheduleList) { item ->
-                ScheduleColumn(onDelete = onDelete, scheduleData = item)
+                ScheduleColumn(onDelete = onDelete, scheduleData = item, scheduleResponse = scheduleResponseList[scheduleList.indexOf(item)])
             }
         }
     }
@@ -186,8 +195,12 @@ fun ScheduleColumns(){
 @Composable
 fun ScheduleColumn(
     scheduleData: ScheduleData,
+    scheduleResponse: ScheduleResponse,
     onDelete : (ScheduleData) -> Unit
 ){
+    var state by remember {
+        mutableStateOf(true)
+    }
     var showEditSheet by remember { mutableStateOf(false) }
     val textStyle = androidx.compose.ui.text.TextStyle(
         fontSize = 16.sp,
@@ -199,89 +212,122 @@ fun ScheduleColumn(
             vertical = 8.dp
         )
         .fillMaxHeight()
-    Row(
-        modifier = Modifier
-            .padding(
-                horizontal = 16.dp,
-                vertical = 4.dp
-            )
-            .clip(RoundedCornerShape(8.dp))
-            .background(Color(234, 232, 239))
-            .fillMaxWidth()
-            .height(70.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onLongPress = {
-
-                        // TODO: 삭제 Dialog 띄워야함
-
-                        onDelete(scheduleData)
-                    },
-                    onTap = {
-                        showEditSheet = true
-                    }
+    if (state){
+        Row(
+            modifier = Modifier
+                .padding(
+                    horizontal = 16.dp,
+                    vertical = 4.dp
                 )
-            }
-    ){
-        Column(
-            modifier = columnModifier.width(70.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            when(scheduleData.isWholeDay.value){
-                true ->
-                    Text(
-                        text = "하루종일",
-                        fontWeight = FontWeight.Bold
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(234, 232, 239))
+                .fillMaxWidth()
+                .height(70.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onLongPress = {
+                            // TODO: 삭제 Dialog 띄워야함
+                            onDelete(scheduleData)
+                            state = false
+                        },
+                        onTap = {
+                            showEditSheet = true
+                        }
                     )
-                false -> {
-                    val simpleDateFormat = SimpleDateFormat("hh:mm")
-                    val startTime = simpleDateFormat
-                        .format(scheduleData.startDateTime.longValue)
-                    val endTime = simpleDateFormat
-                        .format(scheduleData.endDateTime.longValue)
+                }
+        ){
+            Column(
+                modifier = columnModifier.width(70.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                when(scheduleResponse.isWholeDay){
+                    true ->
+                        Text(
+                            text = "하루종일",
+                            fontWeight = FontWeight.Bold
+                        )
+                    false -> {
+                        val simpleDateFormat = SimpleDateFormat("hh:mm")
+                        val startTime = simpleDateFormat
+                            .format(scheduleResponse.startDateTime)
+                        val endTime = simpleDateFormat
+                            .format(scheduleResponse.endDateTime)
+                        Text(
+                            text = startTime,
+                            style = textStyle
+                        )
+                        Text(text = "~" + endTime)
+                    }
+                }
+            }
+            Row(modifier = Modifier
+                .clip(RoundedCornerShape(4.dp))
+                .width(4.dp)
+                .fillMaxHeight(0.65f)
+                .background(Color(41, 161, 255))
+                .align(Alignment.CenterVertically)){}
+            Column(
+                modifier = columnModifier,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Row{
                     Text(
-                        text = startTime,
+                        text = scheduleResponse.title,
                         style = textStyle
                     )
-                    Text(text = "~" + endTime)
+                }
+                Row{
+                    Text(text = scheduleResponse.scheduledLocation.name)
                 }
             }
         }
-        Row(modifier = Modifier
-            .clip(RoundedCornerShape(4.dp))
-            .width(4.dp)
-            .fillMaxHeight(0.65f)
-            .background(Color(41, 161, 255))
-            .align(Alignment.CenterVertically)){}
-        Column(
-            modifier = columnModifier,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Row{
-                Text(
-                    text = scheduleData.title.value,
-                    style = textStyle
-                )
+        if (showEditSheet){
+            val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, flag ->
+                if (flag){
+                    scheduleResponse.title = item.title.value
+                    scheduleResponse.scheduledLocation.name = item.scheduledLocation.name
+                    scheduleResponse.scheduledLocation.lat = item.scheduledLocation.lat
+                    scheduleResponse.scheduledLocation.lat = item.scheduledLocation.lon
+                    scheduleResponse.isWholeDay = item.isWholeDay.value
+                    scheduleResponse.startDateTime = item.startDateTime.longValue
+                    scheduleResponse.endDateTime = item.endDateTime.longValue
+                    scheduleResponse.comment = item.comment.value
+                    scheduleResponse.repeat.repeatable = item.repeat.value.repeatable
+                    scheduleResponse.repeat.cycle = item.repeat.value.cycle
+                    // TODO: 일정 수정 API 호출
+                }
+                showEditSheet = false
             }
-            Row{
-                Text(text = scheduleData.scheduledLocation.name)
-            }
+            // TODO: 올바르지 않은 시간에도 remeber로 저장하니 취소 눌러도 저장됨 response 올려서 상단에서 수정하는 것이 나을 것 같음
+            ScheduleBottomSheet(
+                closeBottomSheet = closeBottomSheet,
+                scheduleData = cloneScheduleData2Response(scheduleResponse = scheduleResponse) ,
+                scheduleModalSheetOption = ScheduleModalSheetOption.EDIT)
         }
-    }
-    if (showEditSheet){
-        val closeBottomSheet : (Boolean) -> Unit = { flag ->
-            if (flag){
-                // TODO: 일정 수정 API 호출
-            }
-            showEditSheet = false
-        }
-        ScheduleBottomSheet(
-            closeBottomSheet = closeBottomSheet,
-            scheduleData = scheduleData,
-            scheduleModalSheetOption = ScheduleModalSheetOption.EDIT)
     }
 }
+
+@Composable
+fun cloneScheduleData2Response(scheduleResponse: ScheduleResponse): ScheduleData {
+    return ScheduleData(
+        title = remember { mutableStateOf(scheduleResponse.title) },
+        scheduledLocation = remember {
+            ScheduleLocation(
+                scheduleResponse.scheduledLocation.name,
+                scheduleResponse.scheduledLocation.lat,
+                scheduleResponse.scheduledLocation.lon,
+            )
+        },
+        isWholeDay = remember { mutableStateOf(scheduleResponse.isWholeDay) },
+        isDateValidate = remember { mutableStateOf(true )},
+        startDateTime = remember { mutableLongStateOf(scheduleResponse.startDateTime) },
+        endDateTime = remember { mutableLongStateOf(scheduleResponse.endDateTime) },
+        repeat = remember { mutableStateOf(Repeat(repeatable = scheduleResponse.repeat.repeatable, cycle = scheduleResponse.repeat.cycle)) },
+        comment = remember { mutableStateOf(scheduleResponse.comment) }
+    )
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview
