@@ -75,14 +75,15 @@ fun ScheduleBottomSheet(
     scheduleModalSheetOption: ScheduleModalSheetOption
 ){
     val invalidDateToast = Toast.makeText(LocalContext.current, "날짜가 올바르지 않습니다.", Toast.LENGTH_SHORT)
+    val invalidTitleToast = Toast.makeText(LocalContext.current, "제목을 입력해주세요", Toast.LENGTH_SHORT)
     val locationSheetState = remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
     val onClosedButtonClick : (Boolean) -> Unit = { flag ->
-        if (flag && !scheduleData.isDateValidate.value)
-            invalidDateToast.show()
-        else {
-            coroutineScope.launch {
+        when {
+            flag && !scheduleData.isDateValidate.value -> invalidDateToast.show()
+            flag && scheduleData.title.value.isEmpty() -> invalidTitleToast.show()
+            else -> coroutineScope.launch {
                 bottomSheetState.hide()
                 closeBottomSheet(scheduleData, flag)
             }
@@ -195,7 +196,7 @@ fun BottomSheetBody(
                 value = scheduleData.title.value,
                 onValueChange = { text ->
                     if (!text.contains('\t') && !text.contains('\n')) {
-                        scheduleData.title.value = text
+                        scheduleData.title.value = text.trim()
                     }
                 },
                 placeholder = {
@@ -251,7 +252,7 @@ fun BottomSheetBody(
                 }
             }
         }
-        Spacer(modifier = Modifier.padding(12.dp))
+        Spacer(modifier = Modifier.padding(10.dp))
 
         Column(modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
@@ -605,7 +606,7 @@ fun Alert(
     val items = mapOf(0 to "없음", 1 to "이벤트 시간", 2 to "5분전", 3 to "10분전", 4 to "15분전", 5 to "30분전")
     var selectedItem by remember { mutableStateOf(items[0]) }
 
-    Spacer(modifier = Modifier.padding(12.dp))
+    Spacer(modifier = Modifier.padding(10.dp))
     Column(
         modifier = Modifier
             .padding(horizontal = 20.dp)
@@ -691,7 +692,7 @@ fun Memo(
         unfocusedContainerColor = lightGrayColor,
         focusedContainerColor = lightGrayColor,
     )
-    Spacer(modifier = Modifier.padding(12.dp))
+    Spacer(modifier = Modifier.padding(10.dp))
     Column(
         modifier = Modifier
             .padding(horizontal = 20.dp)
