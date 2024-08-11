@@ -55,6 +55,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
@@ -68,6 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jakewharton.threetenabp.AndroidThreeTen
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -206,19 +208,39 @@ fun Calendar(
         initialPage = initialPage,
         pageCount = { (config.yearRange.last - config.yearRange.first + 1) * 12 }
     )
-
+    val coroutineScope = rememberCoroutineScope()
     updateScheduleData(currentSelectedDate)
 
-    LaunchedEffect(pagerState.currentPage) {
-        val addMonth = (pagerState.currentPage - currentPage).toLong()
-        currentMonth = currentMonth.plusMonths(addMonth)
-        currentPage = pagerState.currentPage
+//    LaunchedEffect(pagerState.currentPage) {
+//        val addMonth = (pagerState.currentPage - currentPage).toLong()
+//        currentMonth = currentMonth.plusMonths(addMonth)
+//        currentPage = pagerState.currentPage
+//    }
+
+    val onChangeMonth : @Composable (Int) -> Unit = { offset ->
+        with(pagerState) {
+            LaunchedEffect(key1 = currentPage) {
+                coroutineScope.launch {
+                    animateScrollToPage(
+                        page = (currentPage + offset).mod(pageCount)
+                    )
+                }
+                currentMonth = currentMonth.plusMonths(offset.toLong())
+                currentPage = pagerState.currentPage
+                val yearMonth = YearMonth.now()
+                currentSelectedDate = when ((currentMonth.month == yearMonth.month && currentMonth.year == yearMonth.year)){
+                    true -> LocalDate.now()
+                    false -> LocalDate.of(currentMonth.year, currentMonth.month, 1)
+                }
+            }
+        }
     }
 
     LazyColumn(modifier = Modifier) {
         val headerText = currentMonth.format(DateTimeFormatter.ofPattern("yyyy년 M월"))
         item{
             CalendarHeader(
+                onChangeMonth = onChangeMonth,
                 text = headerText,
             )
         }
@@ -226,7 +248,7 @@ fun Calendar(
             HorizontalPager(
                 state = pagerState,
                 pageSize = PageSize.Fill,
-                userScrollEnabled = true,
+                userScrollEnabled = false,
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(max = 700.dp)
@@ -394,14 +416,27 @@ fun DayOfWeek(
 
 @Composable
 fun CalendarHeader(
+    onChangeMonth : @Composable (Int) -> Unit,
     text: String,
 ) {
+    var isLeftArrowClick by remember { mutableStateOf(false) }
+    var isRightArrowClick by remember { mutableStateOf(false) }
+
+    if(isLeftArrowClick){
+        isLeftArrowClick = false
+        onChangeMonth(-1)
+    }
+    if(isRightArrowClick){
+        isRightArrowClick = false
+        onChangeMonth(1)
+    }
+
     Row(modifier = Modifier
         .padding(10.dp)
         .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center) {
         IconButton(
-            onClick = { /*TODO*/ },
+            onClick = { isLeftArrowClick = true },
             modifier = Modifier.align(Alignment.CenterVertically)) {
             Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "이전달")
         }
@@ -411,7 +446,7 @@ fun CalendarHeader(
                 .align(Alignment.CenterVertically)
         )
         IconButton(
-            onClick = { /*TODO*/ },
+            onClick = { isRightArrowClick = true },
             modifier = Modifier.align(Alignment.CenterVertically)) {
             Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "이전달")
         }
