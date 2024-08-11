@@ -10,6 +10,7 @@ data class Repeat (
 
 data class ScheduleLocation (
     var name : String,
+    var address : String,
     var lon: Double,
     var lat: Double
 )
@@ -22,5 +23,5 @@ data class ScheduleData(
     var startDateTime: MutableLongState,
     var endDateTime: MutableLongState,
     var repeat: MutableState<Repeat>,
-    var comment : MutableState<String>
+    var comment : MutableState<String>,
 )

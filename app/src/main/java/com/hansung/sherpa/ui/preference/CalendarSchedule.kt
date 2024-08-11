@@ -275,6 +275,7 @@ fun cloneScheduleData(scheduleData: ScheduleData): ScheduleData {
         scheduledLocation = remember {
             ScheduleLocation(
                 scheduleData.scheduledLocation.name,
+                scheduleData.scheduledLocation.address,
                 scheduleData.scheduledLocation.lat,
                 scheduleData.scheduledLocation.lon,
             )

@@ -170,6 +170,7 @@ fun CalendarScreen(
             scheduledLocation = remember {
                 ScheduleLocation(
                     "",
+                    "",
                     0.0,
                     0.0
                 )

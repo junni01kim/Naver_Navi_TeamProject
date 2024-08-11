@@ -35,11 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.searchlocation.Items
 import com.hansung.sherpa.searchlocation.SearchLoactionCallBack
 import com.hansung.sherpa.searchlocation.SearchLocation
@@ -60,7 +63,7 @@ fun LocationBottomSheet(
         onDismissRequest = { locationSheetStatus.value = false },
         modifier = Modifier
             .fillMaxHeight(0.6f)
-            .heightIn(min = 400.dp),
+            .heightIn(min = 200.dp),
     ){
         LazyColumn {
             item {
@@ -140,7 +143,7 @@ fun LocationList(
     locationSheetStatus : MutableState<Boolean>,
     onSelectedLocation : (Items) -> Unit
 ) {
-    val locationItems = remember { mutableStateListOf<String>() }
+    val locationItems = remember { mutableStateListOf<Pair<String?,String?>>() }
     val isValidItems = remember { mutableStateListOf<Boolean>() }
     val itemList = remember { mutableStateOf(ArrayList<Items>()) }
 
@@ -152,19 +155,19 @@ fun LocationList(
                 override fun onSuccess(response: SearchLocationResponse?) {
                     response?.items?.forEachIndexed { index, item ->
                         if (index < 6) {
-                            locationItems.add(item.title.toString())
+                            locationItems.add(Pair(item.title, item.roadAddress))
                             isValidItems.add(true)
                         }
                     }
                     if (locationItems.isEmpty()) {
-                        locationItems.add("검색 결과가 없습니다.")
+                        locationItems.add(Pair("검색 결과가 없습니다.",null))
                         isValidItems.add(true)
                     }
                     itemList.value = response?.items ?: arrayListOf()
                     onSearch.value = false
                 }
                 override fun onFailure(message: String) {
-                    locationItems.add("검색 결과가 없습니다.")
+                    locationItems.add(Pair("검색 결과가 없습니다.",null))
                     isValidItems.add(true)
                     onSearch.value = false
                 }
@@ -192,7 +195,7 @@ fun LocationList(
 @Composable
 fun LocationColumn(
     index : Int,
-    locationText : MutableState<String>,
+    locationText : MutableState<Pair<String?,String?>>,
     isValid : MutableState<Boolean>,
     selectLocation : (Int) -> Unit
 ){
@@ -202,13 +205,34 @@ fun LocationColumn(
                 isValid.value -> it.fillMaxWidth()
                 else -> it.size(0.dp)
             }
-                .padding(10.dp)
+                .padding(horizontal = 16.dp, vertical = 10.dp)
                 .clickable {
                     selectLocation(index)
                 }
+
         }
     ){
-        Text(text = locationText.value)
+        Text(
+            text = locationText.value.first.toString(),
+            style = TextStyle(
+                fontSize = 16.sp,
+                color = Color.DarkGray
+            ),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        if(locationText.value.second != null){
+            Text(
+                modifier = Modifier.fillMaxWidth(0.9f),
+                text = locationText.value.second.toString(),
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
     }
 }
 
