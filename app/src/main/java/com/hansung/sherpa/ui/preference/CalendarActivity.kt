@@ -10,7 +10,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
@@ -52,9 +51,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -92,13 +94,28 @@ class CalendarActivity : ComponentActivity() {
 fun CalendarScreen(
     finish : () -> Unit
 ){
+    var scheduleDataList = remember { mutableStateListOf<ScheduleData>() }
     var showBottomSheet by remember { mutableStateOf(false) }
-    val closeBottomSheet : () -> Unit = { showBottomSheet = false }
+    val beforeSelectedLocalDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
+
+    val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, isAdded ->
+        if(isAdded){
+            // TODO: 추가 API 호출
+            scheduleDataList.add(item)
+        }
+        showBottomSheet = false
+    }
+    val updateScheduleData : @Composable (LocalDate) -> Unit = { changeDate ->
+        // TODO: 조회 API 호출
+        if(!changeDate.isEqual(beforeSelectedLocalDate))
+            scheduleDataList.clear()
+    }
+
+
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color.White,
                     titleContentColor = Color.DarkGray
                 ),
 
@@ -123,7 +140,7 @@ fun CalendarScreen(
         floatingActionButton = {
             FloatingActionButton(onClick = { showBottomSheet = true },
                 modifier = Modifier
-                    .padding(vertical = 18.dp)
+                    .padding(vertical = 8.dp)
                     .clip(shape = RoundedCornerShape(40.dp))
                     .width(80.dp)
                     .height(40.dp),
@@ -136,21 +153,50 @@ fun CalendarScreen(
         floatingActionButtonPosition = FabPosition.Center,
         content = { innerpadding ->
             Surface(modifier = Modifier.padding(innerpadding)) {
-                Calendar()
+                Calendar(scheduleDataList = scheduleDataList, updateScheduleData = updateScheduleData)
             }
         }
     )
 
-    if (showBottomSheet)
-        ScheduleBottomSheet(closeBottomSheet = closeBottomSheet)
+    if (showBottomSheet){
+        val startDateTime = android.icu.util.Calendar.getInstance().apply {
+            set(android.icu.util.Calendar.MINUTE, 0)
+        }
+        val endDateTime = android.icu.util.Calendar.getInstance().apply {
+            set(android.icu.util.Calendar.MINUTE, 0)
+        }
+        val scheduleData = ScheduleData(
+            title = remember { mutableStateOf("") },
+            scheduledLocation = remember {
+                ScheduleLocation(
+                    "",
+                    "",
+                    0.0,
+                    0.0
+                )
+            },
+            isWholeDay = remember { mutableStateOf(false) },
+            isDateValidate = remember { mutableStateOf(true )},
+            startDateTime = remember { mutableLongStateOf(startDateTime.timeInMillis) },
+            endDateTime = remember { mutableLongStateOf(endDateTime.timeInMillis) },
+            repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
+            comment = remember { mutableStateOf("") }
+        )
+        ScheduleBottomSheet(
+            closeBottomSheet = closeBottomSheet,
+            scheduleData = scheduleData,
+            scheduleModalSheetOption = ScheduleModalSheetOption.ADD
+        )
+    }
 }
-@OptIn(ExperimentalFoundationApi::class)
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Calendar(
-    modifier: Modifier = Modifier,
+    scheduleDataList : SnapshotStateList<ScheduleData>,
     config: CalendarConfig = CalendarConfig(),
-    currentDate: LocalDate = LocalDate.now()
+    currentDate: LocalDate = LocalDate.now(),
+    updateScheduleData: @Composable (LocalDate) -> Unit
 ) {
     val initialPage = (currentDate.year - config.yearRange.first) * 12 + currentDate.monthValue - 1
     var currentSelectedDate by remember { mutableStateOf(currentDate) }
@@ -160,6 +206,8 @@ fun Calendar(
         initialPage = initialPage,
         pageCount = { (config.yearRange.last - config.yearRange.first + 1) * 12 }
     )
+
+    updateScheduleData(currentSelectedDate)
 
     LaunchedEffect(pagerState.currentPage) {
         val addMonth = (pagerState.currentPage - currentPage).toLong()
@@ -202,11 +250,9 @@ fun Calendar(
                 )
             }
         }
-        for(i : Int in 1..100){
-            // TODO: 일정 처리 방법
-            // 1. 이벤트 리스트 가져오기
-            // 2. 날짜 바뀌면 divider 추가하기
-            // 3. sticky header 고려하기
+        item{
+            CurrentDateColumn(currentSelectedDate)
+            ScheduleColumns(scheduleDataList = scheduleDataList)
         }
     }
 }
@@ -365,19 +411,13 @@ fun CalendarHeader(
                 .align(Alignment.CenterVertically)
         )
         IconButton(
-            onClick = { /*TODO*/  },
+            onClick = { /*TODO*/ },
             modifier = Modifier.align(Alignment.CenterVertically)) {
             Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "이전달")
         }
     }
 }
 
-@Composable
-fun ScheduleColumns(){
-    // 스케줄 요청 필요
-    val isEmpty by remember { mutableStateOf(true) }
-    Column { }
-}
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview

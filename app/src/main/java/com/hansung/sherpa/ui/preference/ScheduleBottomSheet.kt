@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.preference
 
 import android.icu.util.Calendar
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -16,13 +17,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
@@ -32,10 +38,10 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,8 +52,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,51 +70,45 @@ import java.time.LocalTime
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ScheduleBottomSheet(
-    closeBottomSheet : () -> Unit
+    closeBottomSheet : (ScheduleData, Boolean) -> Unit,
+    scheduleData: ScheduleData,
+    scheduleModalSheetOption: ScheduleModalSheetOption
 ){
-    val startDateTime = Calendar.getInstance().apply {
-        set(Calendar.MINUTE, 0)
-    }
-    val endDateTime = Calendar.getInstance().apply {
-        set(Calendar.MINUTE, 0)
-    }
-    val scheduleData = ScheduleData(
-        title = remember { mutableStateOf("") },
-        scheduledLocation = remember {
-            ScheduleLocation(
-                mutableStateOf(""),
-                mutableDoubleStateOf(0.0),
-                mutableDoubleStateOf(0.0)
-            )
-        },
-        isWholeDay = remember { mutableStateOf(false) },
-        isDateValidate = remember { mutableStateOf(true )},
-        startDateTime = remember { mutableLongStateOf(startDateTime.timeInMillis) },
-        endDateTime = remember { mutableLongStateOf(endDateTime.timeInMillis) },
-        repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
-        comment = remember { mutableStateOf("") }
-    )
-
-    if(scheduleData.isWholeDay.value){
-        val millisecondsInDay = 24 * 60 * 60 * 1000
-        scheduleData.startDateTime.longValue -= (scheduleData.startDateTime.longValue % millisecondsInDay)
-        scheduleData.endDateTime.longValue -= (scheduleData.endDateTime.longValue % millisecondsInDay)
-        scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
-    }
-
+    val invalidDateToast = Toast.makeText(LocalContext.current, "날짜가 올바르지 않습니다.", Toast.LENGTH_SHORT)
+    val invalidTitleToast = Toast.makeText(LocalContext.current, "제목을 입력해주세요", Toast.LENGTH_SHORT)
     val locationSheetState = remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
-    val onClosedButtonClick : () -> Unit = {
-        coroutineScope.launch {
-            bottomSheetState.hide()
-            closeBottomSheet()
+    val onClosedButtonClick : (Boolean) -> Unit = { flag ->
+        when {
+            flag && !scheduleData.isDateValidate.value -> invalidDateToast.show()
+            flag && scheduleData.title.value.isEmpty() -> invalidTitleToast.show()
+            else -> coroutineScope.launch {
+                bottomSheetState.hide()
+                closeBottomSheet(scheduleData, flag)
+            }
+        }
+    }
+
+    when(scheduleData.isWholeDay.value){
+        true -> {
+            scheduleData.startDateTime.longValue = resetToMidnight(scheduleData.startDateTime.longValue)
+            scheduleData.endDateTime.longValue = resetToMidnight(scheduleData.endDateTime.longValue)
+            scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
+        }
+        false -> {
+            scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
+                set(Calendar.MINUTE, 0)
+            }.timeInMillis
+            scheduleData.endDateTime.longValue = Calendar.getInstance().apply {
+                set(Calendar.MINUTE, 0)
+            }.timeInMillis
         }
     }
 
     ModalBottomSheet(
         sheetState = bottomSheetState,
-        onDismissRequest = { onClosedButtonClick() },
+        onDismissRequest = { onClosedButtonClick(false) },
         modifier = Modifier
             .fillMaxHeight(0.88f)
             .heightIn(min = 200.dp),
@@ -114,7 +116,10 @@ fun ScheduleBottomSheet(
     ){
         LazyColumn {
             stickyHeader {
-                ScheduleBottomSheetHeader(onClosedButtonClick = onClosedButtonClick)
+                ScheduleBottomSheetHeader(
+                    onClosedButtonClick = onClosedButtonClick,
+                    scheduleModalSheetOption = scheduleModalSheetOption
+                )
             }
             item {
                 BottomSheetBody(
@@ -123,24 +128,47 @@ fun ScheduleBottomSheet(
                 )
                 if(locationSheetState.value) {
                     LocationBottomSheet(locationSheetState) { items ->
-                        scheduleData.scheduledLocation.name.value = items.title.toString()
-                        scheduleData.scheduledLocation.lat.value = items.mapx!!.toDouble()
-                        scheduleData.scheduledLocation.lon.value = items.mapy!!.toDouble()
+                        scheduleData.scheduledLocation.name = items.title.toString()
+                        scheduleData.scheduledLocation.address = items.roadAddress.toString()
+                        scheduleData.scheduledLocation.lat = items.mapx!!.toDouble()
+                        scheduleData.scheduledLocation.lon = items.mapy!!.toDouble()
                     }
                 }
+//                Alert(scheduleData = scheduleData)
                 Memo(scheduleData = scheduleData)
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomSheetBody(
     scheduleData: ScheduleData,
     locationSheetState : MutableState<Boolean>
 ){
+    var isSearched by remember { mutableStateOf(false) }
+    var locationString by remember { mutableStateOf("위치") }
+    LaunchedEffect(scheduleData.scheduledLocation.name){
+        isSearched = when(scheduleData.scheduledLocation.name){
+            "" -> false
+            else -> true
+        }
+    }
+    LaunchedEffect(isSearched) {
+       when(isSearched){
+           true -> {
+               locationString = scheduleData.scheduledLocation.name
+           }
+           false -> {
+               locationString = "위치"
+               scheduleData.scheduledLocation.name = ""
+               scheduleData.scheduledLocation.address = ""
+               scheduleData.scheduledLocation.lat = 0.0
+               scheduleData.scheduledLocation.lon = 0.0
+           }
+       }
+    }
     val lightGrayColor = Color(229,226,234)
     val textFieldColors = TextFieldDefaults.colors(
         focusedIndicatorColor = Color.Transparent,
@@ -168,7 +196,7 @@ fun BottomSheetBody(
                 value = scheduleData.title.value,
                 onValueChange = { text ->
                     if (!text.contains('\t') && !text.contains('\n')) {
-                        scheduleData.title.value = text
+                        scheduleData.title.value = text.trim()
                     }
                 },
                 placeholder = {
@@ -178,23 +206,53 @@ fun BottomSheetBody(
                 modifier = itemModifier,
                 singleLine = true
             )
-            TextField(
-                value = scheduleData.scheduledLocation.name.value,
-                onValueChange = {},
-                enabled = false,
-                placeholder = {
-                    Text(text = "위치")
-                },
-                colors = textFieldColors,
+            Row(
                 modifier = itemModifier
+                    .padding(horizontal = 16.dp)
                     .clickable {
-                        if(!locationSheetState.value)
+                        if (!locationSheetState.value)
                             locationSheetState.value = true
                     },
-                singleLine = true
-            )
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(0.9f),
+                        text = locationString,
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            color = Color.DarkGray
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    if(isSearched){
+                        Text(
+                            modifier = Modifier.fillMaxWidth(0.9f),
+                            text = scheduleData.scheduledLocation.address,
+                            style = TextStyle(
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
+                }
+                if(isSearched){
+                    IconButton(
+                        modifier = Modifier.wrapContentSize(),
+                        onClick = { isSearched = false }) {
+                        Icon(
+                            imageVector = Icons.Default.Cancel,
+                            contentDescription = "",
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
         }
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(10.dp))
 
         Column(modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
@@ -285,7 +343,7 @@ fun ExpandableSection(
     val onTimeChanged : (LocalTime) -> Unit = { snappedTime ->
         localDateTime.apply {
             timeInMillis = localDatetimeMills.longValue
-            set(Calendar.HOUR, snappedTime.hour)
+            set(Calendar.HOUR_OF_DAY, snappedTime.hour)
             set(Calendar.MINUTE, snappedTime.minute)
         }.also {
             localDatetimeMills.longValue = it.timeInMillis
@@ -421,7 +479,7 @@ fun ExpandableCalendar(
             localDateTime.get(Calendar.DAY_OF_MONTH)
         ),
     ){
-            snappedDate -> onDateChanged(snappedDate)
+        snappedDate -> onDateChanged(snappedDate)
     }
 }
 
@@ -433,11 +491,11 @@ fun ExpandableTime(
 ){
     WheelTimePicker(
         startTime = LocalTime.of(
-            localDateTime.get(Calendar.HOUR),
+            localDateTime.get(Calendar.HOUR_OF_DAY),
             localDateTime.get(Calendar.MINUTE)
-        )
+        ),
     ){
-            snappedTime -> onTimeChanged(snappedTime)
+        snappedTime -> onTimeChanged(snappedTime)
     }
 }
 
@@ -532,6 +590,96 @@ fun setRepeat(
     }
 }
 
+// TODO: 사용미정
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Alert(
+    scheduleData: ScheduleData
+){
+    val lightGrayColor = Color(229,226,234)
+
+    val itemModifier = Modifier
+        .fillMaxWidth()
+        .height(60.dp)
+        .background(lightGrayColor)
+    var expanded by remember { mutableStateOf(false) }
+    val items = mapOf(0 to "없음", 1 to "이벤트 시간", 2 to "5분전", 3 to "10분전", 4 to "15분전", 5 to "30분전")
+    var selectedItem by remember { mutableStateOf(items[0]) }
+
+    Spacer(modifier = Modifier.padding(10.dp))
+    Column(
+        modifier = Modifier
+            .padding(horizontal = 20.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(12.dp))
+                .background(lightGrayColor)
+                .fillMaxWidth()
+        ) {
+            Row(
+                modifier = itemModifier,
+            ) {
+                Text(
+                    text = "알림",
+                    style = TextStyle(
+                        fontSize = 16.sp,
+                    ),
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
+                        .padding(start = 16.dp),
+                )
+                Spacer(modifier = Modifier.padding(horizontal = 70.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Column {
+                        ExposedDropdownMenuBox(
+                            expanded = expanded,
+                            onExpandedChange = { expanded = !expanded }
+                        ) {
+                            TextField(
+                                readOnly = true,
+                                value = selectedItem.toString(),
+                                onValueChange = {},
+                                label = { Text(selectedItem.toString()) },
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                                },
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .wrapContentSize()
+                            )
+                            ExposedDropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                items.forEach { item ->
+                                    DropdownMenuItem(
+                                        text = { Text(item.value) },
+                                        onClick = {
+                                            selectedItem = item.value
+                                            expanded = false
+                                        },
+                                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                    )
+                                    when {
+                                        selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
+                                        else -> selectedItem?.let {  }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 @Composable
 fun Memo(
     scheduleData: ScheduleData
@@ -544,11 +692,7 @@ fun Memo(
         unfocusedContainerColor = lightGrayColor,
         focusedContainerColor = lightGrayColor,
     )
-    val itemModifier = Modifier
-        .fillMaxWidth()
-        .height(60.dp)
-        .background(lightGrayColor)
-    Spacer(modifier = Modifier.padding(16.dp))
+    Spacer(modifier = Modifier.padding(10.dp))
     Column(
         modifier = Modifier
             .padding(horizontal = 20.dp)
@@ -560,27 +704,13 @@ fun Memo(
                 .fillMaxWidth()
         ) {
             TextField(
-                value = scheduleData.title.value,
-                onValueChange = { text ->
-                    if (!text.contains('\t') && !text.contains('\n')) {
-                        scheduleData.title.value = text
-                    }
-                },
-                placeholder = {
-                    Text(text = "URL")
-                },
-                colors = textFieldColors,
-                modifier = itemModifier,
-                singleLine = true
-            )
-            TextField(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(140.dp)
                     .background(lightGrayColor),
                 value = scheduleData.comment.value,
                 onValueChange = { text ->
-                    if((text.length.toDouble() / 26) <= 4)
+                    if((text.length.toDouble() / 26) <= 4 && !text.contains('\t') && !text.contains('\n'))
                         scheduleData.comment.value = text
                 },
                 placeholder = {
@@ -590,7 +720,7 @@ fun Memo(
                 maxLines = 5,
             )
         }
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(12.dp))
 
     }
 }
@@ -603,9 +733,10 @@ fun preview(){
         title = remember { mutableStateOf("") },
         scheduledLocation = remember {
             ScheduleLocation(
-                mutableStateOf(""),
-                mutableDoubleStateOf(0.0),
-                mutableDoubleStateOf(0.0)
+                "",
+                address = "",
+                0.0,
+                0.0
             )
         },
         isWholeDay = remember { mutableStateOf(false) },
@@ -622,7 +753,21 @@ fun preview(){
                     mutableStateOf(false)
             }
         )
-        Memo(scheduleData = scheduleData)
+//            Alert(scheduleData = scheduleData)
+            Memo(scheduleData = scheduleData)
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.N)
+fun resetToMidnight(timeInMillis: Long): Long {
+    val calendar = Calendar.getInstance()
+    calendar.timeInMillis = timeInMillis
+
+    calendar.set(Calendar.HOUR_OF_DAY, 0)
+    calendar.set(Calendar.MINUTE, 0)
+    calendar.set(Calendar.SECOND, 0)
+    calendar.set(Calendar.MILLISECOND, 0)
+
+    return calendar.timeInMillis
 }
