@@ -63,14 +63,14 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
     // ===== 저장되는 데이터 목록 =====
     // Departure TextField, Destination TextField에 사용할 변수: 문자열(String)
     var departureValue by remember { mutableStateOf("") }
-    var destinationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) } // HomeScreen에서 받아온 값이 기존에 들어온다.
+    var destinationValue by remember { mutableStateOf("") }
 
     // Departure TextField, Destination TextField에 사용할 변수: 좌표값(LatLng)
     var departureLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
     var destinationLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}
     
-    // 검색 키워드를 저장하는 변수
-    var locationValue by remember { mutableStateOf("") }
+    // 검색 키워드를 저장하는 변수 // HomeScreen에서 받아온 값이 기존에 들어온다.
+    var locationValue by remember { mutableStateOf(if (_destinationValue=="아무것도 전달되지 않았음") "" else _destinationValue) }
     
     // 검색을 한 시간 정보를 담는 변수
     var searchingTime by remember { mutableStateOf(0L) }
