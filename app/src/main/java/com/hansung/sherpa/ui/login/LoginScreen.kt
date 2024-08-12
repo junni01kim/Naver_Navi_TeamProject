@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.login
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -98,7 +99,7 @@ fun CaregiverArea(navController: NavController) {
 
         TextButton(
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
-            onClick = { login(navController, idValue, passwordValue) },
+            onClick = { if(login(navController, idValue, passwordValue)) return@TextButton },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = Color(0xFF64FCD9),
@@ -130,7 +131,7 @@ fun ProtegeArea(navController: NavController) {
 
         TextButton(
             // TODO: 로그인 정보로 사용자 역할 분기해야 됨
-            onClick = { login(navController, idValue, passwordValue) },
+            onClick = { if(login(navController, idValue, passwordValue)) return@TextButton },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = Color(0xFF64FCD9),
@@ -208,9 +209,14 @@ fun InfomationGroupSample() {
     InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
 }
 
-fun login(navController: NavController, email: String, password: String) {
-    val loginResponse = UserManager().login(email, password)!!
-
-    StaticValue.userInfo = loginResponse
-    navController.navigate("${SherpaScreen.Home.name}")
+fun login(navController: NavController, email: String, password: String) : Boolean {
+    val loginResponse = UserManager().login(email, password)
+    if(loginResponse == null) {
+        Log.d("explain", "login: null 반환")
+        return true
+    }else {
+        StaticValue.userInfo = loginResponse
+        navController.navigate("${SherpaScreen.Home.name}")
+    }
+    return false
 }

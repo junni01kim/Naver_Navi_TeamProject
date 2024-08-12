@@ -75,7 +75,9 @@ class UserManager {
                         .build()
                         .create(LoginService::class.java)
                         .postLoginService(loginRequest).execute()
-                    result = Gson().fromJson(response.body()!!.string(), LoginResponse::class.java)
+                    val save = response.body()?.string()
+                    if(save == null) result = null
+                    else result = Gson().fromJson(save, LoginResponse::class.java)
                 } catch (e:IOException){
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
