@@ -11,6 +11,7 @@ import android.widget.EditText
 import android.widget.ImageButton
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -21,6 +22,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
+import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
@@ -47,19 +52,34 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
     private lateinit var naverMap: NaverMap
 
-    private val LOCATION_PERMISSION_REQUEST_CODE = 1000
     private lateinit var locationSource: FusedLocationSource
-    private lateinit var destinationTextView: EditText // 목적지 textview
-    private lateinit var searchButton: ImageButton // 검색 버튼
     private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
     // 내비게이션 안내 값을 전송하기 위함
     lateinit var navigation:Navigation
 
-    @OptIn(ExperimentalNaverMapApi::class)
+    // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
+    val viewModel: MessageViewModel by viewModels()
+
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        StaticValue.mainActivity = this
+        // FCM SDK 초기화
+        FirebaseApp.initializeApp(this);
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task: Task<String> ->
+                if (!task.isSuccessful) {
+                    Log.w("FCMLog", "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+                val token = task.result
+                Log.d("FCMLog", "Current token: $token")
+
+                StaticValue.FcmToken = token
+            }
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
@@ -69,12 +89,14 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         setContent {
             SherpaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // TODO: 임시로 설정해둠
+
                     // 화면 간 이동에 대한 함수
                     // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Home.name
+                        startDestination = SherpaScreen.Start.name
                     ){
                         composable(route = "${SherpaScreen.Start.name}"){
                             StartScreen(navController, Modifier.padding(innerPadding))
@@ -86,6 +108,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             SignupScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = "${SherpaScreen.Home.name}"){
+                            ExampleAlam(viewModel)
                             HomeScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
