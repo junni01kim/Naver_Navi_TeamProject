@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.signup
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,7 +29,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.user.CreateUserRequest
+import com.hansung.sherpa.user.createuser.CreateUserRequest
 import com.hansung.sherpa.user.UserManager
 import java.sql.Timestamp
 import java.util.Calendar
@@ -134,7 +135,13 @@ fun CaretakerArea(navController: NavController) {
         InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
         InfomationGroup("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroup("상세주소", false) { detailAddressValue = it }
-        InfomationGroup("보호자 이메일", true, "연동하기" ,{/* 보호자 인증 API */}) { caregiverEmail = it }
+        InfomationGroup("보호자 이메일", true, "연동하기" ,{
+            // TODO: 보호자 연동 허가 로직 구현할 것
+            // TODO: ※ (2024-08-12) 지금은 테스트용으로 보호자 승인 없이 DB에서 바로 받아옴. 진행
+
+            caregiverId = UserManager().linkPermission(caregiverEmail)?.data!!
+            caregiverRelation = "연동 로직 구현 시에는 이거도 같이 반환 받아야 함."
+        }) { caregiverEmail = it }
         Text("이용약관1")
         Text("이용약관2")
         Text("이용약관3")
@@ -142,6 +149,11 @@ fun CaretakerArea(navController: NavController) {
         TextButton(
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
             onClick = {
+                if(caregiverId == -1) {
+                    Log.d("explain", "보호자 연동 후 사용할 것")
+                    return@TextButton
+                }
+
                 val createUserRequest = CreateUserRequest(
                     email = emailValue,
                     password = passwordValue,

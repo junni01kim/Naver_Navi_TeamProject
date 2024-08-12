@@ -1,4 +1,4 @@
-package com.hansung.sherpa.user
+package com.hansung.sherpa.user.createuser
 
 import com.google.gson.annotations.SerializedName
 import java.sql.Timestamp
