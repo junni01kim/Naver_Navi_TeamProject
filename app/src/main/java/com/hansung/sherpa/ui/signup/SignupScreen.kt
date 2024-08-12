@@ -128,6 +128,7 @@ fun CaretakerArea(navController: NavController) {
     var caregiverRelation by remember { mutableStateOf("보호자") }
 
     Column {
+        // TODO: 값 전송 시 공백 제거할 것
         InfomationGroup("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
         InfomationGroup("비밀번호", false) { passwordValue = it }
         InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }

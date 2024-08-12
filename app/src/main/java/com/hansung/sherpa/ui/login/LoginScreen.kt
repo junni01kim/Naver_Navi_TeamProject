@@ -41,14 +41,9 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
         Text(text = "Login Screen")
         Spacer(modifier = Modifier.height(50.dp))
 
-        // 보호자 입력란
-        Text("보호자 로그인 입력란")
-        CaregiverArea(navController)
-        Spacer(modifier = Modifier.height(50.dp))
-
-        // 사용자 입력란
-        Text("사용자 로그인 입력란")
-        ProtegeArea(navController)
+        // 입력란
+        Text("로그인 입력란")
+        LoginArea(navController)
         Spacer(modifier = Modifier.height(50.dp))
 
         // 비밀번호 찾기, 회원가입 이동
@@ -89,7 +84,7 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
  * 보호자 로그인 구성품
  */
 @Composable
-fun CaregiverArea(navController: NavController) {
+fun LoginArea(navController: NavController) {
     var idValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
 
@@ -98,39 +93,8 @@ fun CaregiverArea(navController: NavController) {
         InfomationGroup("비밀번호", false) {passwordValue = it}
 
         TextButton(
-            // TODO: 로그인 정보로 보호자 역할 분기해야 됨
-            onClick = { if(login(navController, idValue, passwordValue)) return@TextButton },
-            colors= ButtonColors(
-                contentColor = Color.Black,
-                containerColor = Color(0xFF64FCD9),
-                disabledContentColor = Color.Black,
-                disabledContainerColor =  Color(0xFF64FCD9)
-            ),
-            modifier = Modifier.width(200.dp)
-        ){
-            Text(
-                text = "로그인",
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-/**
- * 사용자 로그인 구성품
- */
-@Composable
-fun ProtegeArea(navController: NavController) {
-
-    var idValue by remember { mutableStateOf("") }
-    var passwordValue by remember { mutableStateOf("") }
-
-    Column {
-        InfomationGroup("아이디", false) {idValue = it}
-        InfomationGroup("비밀번호", false) {passwordValue = it}
-
-        TextButton(
-            // TODO: 로그인 정보로 사용자 역할 분기해야 됨
+            // TODO: 로그인 정보로 계정 역할 분기해야 됨
+            // TODO: 값 전송 시 공백 제거할 것
             onClick = { if(login(navController, idValue, passwordValue)) return@TextButton },
             colors= ButtonColors(
                 contentColor = Color.Black,
