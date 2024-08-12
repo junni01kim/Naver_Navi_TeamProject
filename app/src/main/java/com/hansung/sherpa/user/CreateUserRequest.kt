@@ -1,7 +1,7 @@
 package com.hansung.sherpa.user
 
 import com.google.gson.annotations.SerializedName
-import java.security.Timestamp
+import java.sql.Timestamp
 
 class CreateUserRequest (
     @SerializedName("email") val email: String,
@@ -15,18 +15,4 @@ class CreateUserRequest (
     @SerializedName("caregiverRelation") val caregiverRelation: String = "지정안함",
     @SerializedName("createAt") val createdAt: Timestamp,
     @SerializedName("updateAt") val updatedAt: Timestamp,
-) {
-    fun getMap():Map<String, String> = mapOf(
-            "email" to email,
-            "password" to password,
-            "name" to name,
-            "telNum" to telNum,
-            "address" to address,
-            "detailAddress" to detailAddress,
-            "fcmToken" to fcmToken,
-            "caregiverId" to caregiverId.toString(),
-            "caregiverRelation" to caregiverRelation,
-            "createdAt" to createdAt.toString(),
-            "updatedAt" to updatedAt.toString()
-        )
-}
+)

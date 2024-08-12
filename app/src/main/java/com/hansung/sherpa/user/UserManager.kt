@@ -16,11 +16,11 @@ class UserManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://localhost:8080/api/v1/user/")
+                        .baseUrl("http://13.209.212.166:8080/api/v1/user/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(CreateUserService::class.java)
-                        .getLoginService(request.getMap()).execute()
+                        .postLoginService(request).execute()
                     result = Gson().fromJson(response.body()!!.string(), CreateUserResponse::class.java)
                 } catch(e:IOException){
                     Log.d("explain", "onFailure: 실패")
@@ -28,6 +28,7 @@ class UserManager {
                 }
             }
         }
+        Log.d("FCMLog", "create 함수 실행 성공 ${result?.code}")
         return result
     }
 }

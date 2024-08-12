@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.kapt")
+    id("com.google.gms.google-services")
 }
 
 val clientId = getLocalPropertyKey("CLIENT_ID")
@@ -161,4 +162,8 @@ dependencies {
 
     implementation ("com.github.commandiron:WheelPickerCompose:1.1.11")
     implementation ("com.jakewharton.threetenabp:threetenabp:1.3.0")
+
+    // firebase 의존성
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-messaging:23.2.1")
 }
