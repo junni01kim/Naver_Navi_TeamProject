@@ -1,10 +1,8 @@
 package com.hansung.sherpa
 
-import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.Navigation
-import com.hansung.sherpa.user.login.LoginResponse
-import com.naver.maps.map.NaverMap
+import com.hansung.sherpa.user.login.Data
 
 class StaticValue {
     companion object{
@@ -12,6 +10,6 @@ class StaticValue {
         lateinit var mainActivity: MainActivity
         lateinit var FcmToken: String
         lateinit var transportRoute: TransportRoute
-        lateinit var userInfo: LoginResponse
+        lateinit var userInfo: Data
     }
 }

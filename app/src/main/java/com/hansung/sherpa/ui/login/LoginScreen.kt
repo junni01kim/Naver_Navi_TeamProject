@@ -210,12 +210,14 @@ fun InfomationGroupSample() {
 }
 
 fun login(navController: NavController, email: String, password: String) : Boolean {
-    val loginResponse = UserManager().login(email, password)
-    if(loginResponse == null) {
+    // TODO: Response Data 클래스 이름 바꿀것
+    val loginResponse = UserManager().login(email, password)!!
+    val data = loginResponse.data!!
+    if(data.userId == 0 || data.userId == null) {
         Log.d("explain", "login: null 반환")
         return true
-    }else {
-        StaticValue.userInfo = loginResponse
+    } else {
+        StaticValue.userInfo = data
         navController.navigate("${SherpaScreen.Home.name}")
     }
     return false

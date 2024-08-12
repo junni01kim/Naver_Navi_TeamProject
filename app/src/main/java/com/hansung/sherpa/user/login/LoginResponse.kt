@@ -2,12 +2,17 @@ package com.hansung.sherpa.user.login
 
 import java.sql.Timestamp
 
+data class LoginResponse(
+    val code: Int? = null,
+    val `data`: Data? = null,
+    val message: String? = null
+)
 
-data class LoginResponse (
-    val userId:String? = null,
+data class Data (
+    val userId:Int? = null,
     val name:String? = null,
     val telNum:String? = null,
-    val role:Role1? = null,
+    val role1:String? = null,
     val userSetting:UserSetting? = null,
     val userAccount:UserAccount? = null,
 )
@@ -19,7 +24,7 @@ enum class Role1 {
 }
 
 data class UserSetting (
-    val userSettingId: String? = null,
+    val userSettingId: Int? = null,
     val voiceGuide: Boolean? = null,
     val alertRoute: Boolean? = null,
     val alertDanger: Boolean? = null,
@@ -33,8 +38,8 @@ data class UserAccount (
     val password: String? = null,
     val passwordSalt: String? = null,
     val hashAlgorithmId: String? = null,
-    val createdAt: Timestamp? = null,
-    val updatedAt: Timestamp? = null,
+    val createdAt: String? = null,
+    val updatedAt: String? = null,
     val address: String? = null,
     val detailAddress: String? = null
 )
