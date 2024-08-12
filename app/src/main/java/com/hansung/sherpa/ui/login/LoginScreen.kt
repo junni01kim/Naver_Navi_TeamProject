@@ -28,7 +28,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.ui.signup.InfomationGroupSample
+import com.hansung.sherpa.user.UserManager
 
 @Composable
 fun LoginScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier) {
@@ -96,7 +98,7 @@ fun CaregiverArea(navController: NavController) {
 
         TextButton(
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
-            onClick = {navController.navigate("${SherpaScreen.Home.name}")},
+            onClick = { login(navController, idValue, passwordValue) },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = Color(0xFF64FCD9),
@@ -128,7 +130,7 @@ fun ProtegeArea(navController: NavController) {
 
         TextButton(
             // TODO: 로그인 정보로 사용자 역할 분기해야 됨
-            onClick = {navController.navigate("${SherpaScreen.Home.name}")},
+            onClick = { login(navController, idValue, passwordValue) },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = Color(0xFF64FCD9),
@@ -204,4 +206,11 @@ fun InfomationGroupSample() {
     InfomationGroup("비밀번호", false) { passwordValue = it }
     InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
     InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
+}
+
+fun login(navController: NavController, email: String, password: String) {
+    val loginResponse = UserManager().login(email, password)!!
+
+    StaticValue.userInfo = loginResponse
+    navController.navigate("${SherpaScreen.Home.name}")
 }
