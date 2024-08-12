@@ -48,6 +48,7 @@ class UserManager {
                         .build()
                         .create(LinkPermissionService::class.java)
                         .getLinkPermissionService(caregiverEmail).execute()
+                    //TODO: 잘못된 Email로 요청할 때 에러처리 해야한다.
                     result = Gson().fromJson(response.body()!!.string(), LinkPermissionResponse::class.java)
                 } catch(e:IOException){
                     Log.d("explain", "onFailure: 실패")
