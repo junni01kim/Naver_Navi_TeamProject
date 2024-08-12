@@ -4,11 +4,11 @@ import java.sql.Timestamp
 
 data class LoginResponse(
     val code: Int? = null,
-    val `data`: Data? = null,
+    val `data`: UserInfomation? = null,
     val message: String? = null
 )
 
-data class Data (
+data class UserInfomation (
     val userId:Int? = null,
     val name:String? = null,
     val telNum:String? = null,
