@@ -161,6 +161,7 @@ fun ScheduleColumn(
     scheduleData: ScheduleData,
     onDelete : (ScheduleData) -> Unit
 ){
+    val openDialogCustom = remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(true) }
     var showEditSheet by remember { mutableStateOf(false) }
     val textStyle = androidx.compose.ui.text.TextStyle(
@@ -173,6 +174,19 @@ fun ScheduleColumn(
             vertical = 8.dp
         )
         .fillMaxHeight()
+
+    if(openDialogCustom.value){
+        ScheduleDeleteDialog(openDialogCustom = openDialogCustom){ onDeleteClick ->
+            when(onDeleteClick) {
+                true -> {
+                    state = false
+                    onDelete(scheduleData)
+                }
+                false -> { }
+            }
+        }
+    }
+
     if (state){
         Row(
             modifier = Modifier
@@ -187,9 +201,7 @@ fun ScheduleColumn(
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = {
-                            // TODO: 삭제 Dialog 띄워야함
-                            onDelete(scheduleData)
-                            state = false
+                            openDialogCustom.value = true
                         },
                         onTap = {
                             showEditSheet = true
@@ -209,7 +221,7 @@ fun ScheduleColumn(
                             fontWeight = FontWeight.Bold
                         )
                     false -> {
-                        val simpleDateFormat = SimpleDateFormat("hh:mm")
+                        val simpleDateFormat = SimpleDateFormat("HH:mm")
                         val startTime = simpleDateFormat
                             .format(scheduleData.startDateTime.longValue)
                         val endTime = simpleDateFormat
