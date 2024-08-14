@@ -53,17 +53,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
+import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
+
+data class PreferenceItemData(val title : String, val screenOption : PreferenceScreenOption)
 
 class PreferenceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PreferenceScreen { screenName ->
-                when(screenName){
-                    "캘린더 설정" -> {
+            PreferenceScreen { screenOption ->
+                when(screenOption){
+                    PreferenceScreenOption.USER -> {
+                        val intent = Intent(this, UserSettingActivity::class.java)
+                        startActivity(intent)
+                    }
+//                    PreferenceScreenOption.CAREGIVER -> TODO()
+//                    PreferenceScreenOption.EMERGENCY -> TODO()
+                    PreferenceScreenOption.CALENDAR -> {
                         val intent = Intent(this, CalendarActivity::class.java)
                         startActivity(intent)
                     }
+//                    PreferenceScreenOption.NOTIFICATION -> TODO()
+//                    PreferenceScreenOption.NOTICEBOARD -> TODO()
+//                    PreferenceScreenOption.CALL_INQUIRY -> TODO()
+//                    PreferenceScreenOption.EMAIL_INQUIRY -> TODO()
+//                    PreferenceScreenOption.APP_INFORMATION -> TODO()
+//                    PreferenceScreenOption.PRIVACY_POLICY -> TODO()
+                    else -> {/* TODO: 임시 */}
                 }
             }
         }
@@ -74,7 +91,7 @@ class PreferenceActivity : ComponentActivity() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PreferenceScreen(
-    callback : (String) -> Unit
+    callback : (PreferenceScreenOption) -> Unit
 ){
     Scaffold (
         topBar = {
@@ -116,25 +133,39 @@ fun PreferenceScreen(
 
 @Composable
 fun PreferenceItems(
-    callback : (String) -> Unit
+    callback : (PreferenceScreenOption) -> Unit
 ){
     LazyColumn{
         item {
             Divider(text = "사용자")
-            PreferenceItem(text = "사용자 설정", icon = Icons.Default.AccountCircle, color = Color.LightGray, callback)
-            PreferenceItem(text = "보호자 연동", icon = Icons.Default.Face, color = Color(100,200,190), callback)
-            PreferenceItem(text = "긴급 연락처", icon = Icons.Default.FavoriteBorder, color = Color(88,190,230), callback)
-            PreferenceItem(text = "캘린더 설정", icon = Icons.Default.DateRange, color = Color(255,180,180), callback)
-            PreferenceItem(text = "알림 설정", icon = Icons.Default.Notifications, color = Color(255,200,100), callback)
-            Divider(text = "고객지원")
-            PreferenceItem(text = "공지사항", icon = Icons.Default.Info, color = Color(15,27,63), callback)
-            PreferenceItem(text = "전화 문의하기", icon = Icons.Default.Call, color = Color(177,224,177), callback)
-            PreferenceItem(text = "이메일 문의하기", icon = Icons.Default.Email, color = Color(137,210,235), callback)
-            Divider(text = "서비스 정보")
-            PreferenceItem(text = "업데이트 정보", icon = Icons.Default.Refresh, color = Color.Gray, callback)
-            PreferenceItem(text = "개인정보 취급 방침", icon = Icons.Default.Person, color = Color.Black, callback)
-        }
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "사용자 설정", screenOption = PreferenceScreenOption.USER),
+                    icon = Icons.Default.AccountCircle, color = Color.LightGray, callback)
 
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "보호자 연동", screenOption = PreferenceScreenOption.CAREGIVER),
+                icon = Icons.Default.Face, color = Color(100,200,190), callback)
+
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "긴급 연락처", screenOption = PreferenceScreenOption.EMERGENCY),
+                icon = Icons.Default.FavoriteBorder, color = Color(88,190,230), callback)
+
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "캘린더 설정", screenOption = PreferenceScreenOption.CALENDAR),
+                icon = Icons.Default.DateRange, color = Color(255,180,180), callback)
+
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "알림 설정", screenOption = PreferenceScreenOption.NOTIFICATION),
+                icon = Icons.Default.Notifications, color = Color(255,200,100), callback)
+
+            Divider(text = "고객지원")
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "공지사항", screenOption = PreferenceScreenOption.NOTICEBOARD),
+                icon = Icons.Default.Info, color = Color(15,27,63), callback)
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "전화 문의하기", screenOption = PreferenceScreenOption.CALL_INQUIRY),
+                icon = Icons.Default.Call, color = Color(177,224,177), callback)
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "이메일 문의하기", screenOption = PreferenceScreenOption.EMAIL_INQUIRY),
+                icon = Icons.Default.Email, color = Color(137,210,235), callback)
+            Divider(text = "서비스 정보")
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "업데이트 정보", screenOption = PreferenceScreenOption.APP_INFORMATION),
+                icon = Icons.Default.Refresh, color = Color.Gray, callback)
+            PreferenceItem(preferenceItemData = PreferenceItemData(title = "개인정보 취급 방침", screenOption = PreferenceScreenOption.PRIVACY_POLICY),
+                icon = Icons.Default.Person, color = Color.Black, callback)
+        }
     }
 }
 
@@ -160,10 +191,10 @@ fun Divider(text : String){
 
 @Composable
 fun PreferenceItem(
-    text : String,
+    preferenceItemData: PreferenceItemData,
     icon : ImageVector,
     color : Color,
-    callback : (String) -> Unit
+    callback : (PreferenceScreenOption) -> Unit
 ){
     val interactionSource = remember { MutableInteractionSource() }
     Box(
@@ -171,7 +202,7 @@ fun PreferenceItem(
             .fillMaxWidth()
             .background(Color.White)
             .clickable(
-                onClick = { callback(text) },
+                onClick = { callback(preferenceItemData.screenOption) },
                 indication = rememberRipple(bounded = true),
                 interactionSource = interactionSource
             )
@@ -201,7 +232,7 @@ fun PreferenceItem(
             )
             Spacer(modifier = Modifier.width(8.dp)) // Image와 Text 사이에 공간 추가
             Text(
-                text = text,
+                text = preferenceItemData.title,
                 style = TextStyle(
                     color = Color.DarkGray,
                     fontWeight = FontWeight.Bold,
@@ -226,5 +257,5 @@ fun PreferenceItem(
 @Preview
 @Composable
 fun PreviewPreferenceScreen(){
-    PreferenceActivity()
+    PreferenceScreen(){}
 }

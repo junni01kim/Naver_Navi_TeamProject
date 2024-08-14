@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.preference
+package com.hansung.sherpa.ui.preference.calendar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -44,12 +44,9 @@ fun CustomDialogUI(
     openDialogCustom: MutableState<Boolean>,
     onDelete : (Boolean) -> Unit
 ){
-
     val lightGrayColor = Color(229,226,234)
     Card(
-        //shape = MaterialTheme.shapes.medium,
         shape = RoundedCornerShape(10.dp),
-        // modifier = modifier.size(280.dp, 240.dp)
         modifier = Modifier.padding(10.dp,5.dp,10.dp,10.dp),
         elevation = CardDefaults.elevatedCardElevation(8.dp)
     ) {
