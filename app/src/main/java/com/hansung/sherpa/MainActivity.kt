@@ -1,5 +1,6 @@
 package com.hansung.sherpa
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.graphics.PointF
@@ -16,24 +17,31 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.FCM.MessageViewModel
+import com.hansung.sherpa.FCM.PermissionDialog
+import com.hansung.sherpa.FCM.RationaleDialog
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
-import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.login.LoginScreen
+import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.signup.SignupScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
@@ -43,7 +51,6 @@ import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
@@ -87,6 +94,9 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         locationSource = GpsLocationSource.createInstance(this)
 
         setContent {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                RequestNotificationPermissionDialog()
+            }
             SherpaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // TODO: 임시로 설정해둠
@@ -123,6 +133,18 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @OptIn(ExperimentalPermissionsApi::class)
+    @Composable
+    fun RequestNotificationPermissionDialog() {
+        val permissionState = rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+
+        if (!permissionState.status.isGranted) {
+            if (permissionState.status.shouldShowRationale) RationaleDialog()
+            else PermissionDialog { permissionState.launchPermissionRequest() }
         }
     }
 

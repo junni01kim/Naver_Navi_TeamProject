@@ -1,14 +1,21 @@
 package com.hansung.sherpa.FCM
 
-import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
+import android.os.Build
 import android.util.Log
-import androidx.lifecycle.ViewModel
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.hansung.sherpa.MainActivity
+import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlin.random.Random
 
 class SherpaFirebaseMessagingService : FirebaseMessagingService() {
     private lateinit var viewModel: MessageViewModel
@@ -29,18 +36,54 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
     /**
      * 메세지가 들어오는 공간
      */
-    override fun onMessageReceived(message: RemoteMessage) {
-        Log.d("FCMLod", "뭔가 전송됨")
+    override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        Log.d("FCMLog", "뭔가 전송됨")
 
         // notification
-        if(message.notification != null) { //포그라운드
-            branch(message.notification?.title!!, message.notification?.body!!)
+        if(remoteMessage.notification != null) { //포그라운드
+            branch(remoteMessage.notification?.title!!, remoteMessage.notification?.body!!)
         }
 
         // data
-        if (message.data.isNotEmpty()) { //백그라운드
-            message.data["title"]?.let { branch(it, message.data["body"]!!) }
+        if (remoteMessage.data.isNotEmpty()) { //백그라운드
+            remoteMessage.data["title"]?.let { branch(it, remoteMessage.data["body"]!!) }
         }
+
+        remoteMessage.notification?.let { message ->
+            sendNotification(message)
+        }
+    }
+
+    private val random = Random
+    companion object {
+        const val CHANNEL_NAME = "FCM notification channel"
+    }
+    private fun sendNotification(message: RemoteMessage.Notification) {
+        val intent = Intent(this, MainActivity::class.java).apply {
+            addFlags(FLAG_ACTIVITY_CLEAR_TOP)
+        }
+
+        val pendingIntent = PendingIntent.getActivity(
+            this, 0, intent, FLAG_IMMUTABLE
+        )
+
+        val channelId = this.getString(R.string.default_notification_channel_id)
+
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+            .setContentTitle(message.title)
+            .setContentText(message.body)
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setAutoCancel(true)
+            .setContentIntent(pendingIntent)
+
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(channelId, CHANNEL_NAME, NotificationManager.IMPORTANCE_DEFAULT)
+            manager.createNotificationChannel(channel)
+        }
+
+        manager.notify(random.nextInt(), notificationBuilder.build())
     }
 
     /**

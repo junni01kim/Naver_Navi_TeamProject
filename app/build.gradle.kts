@@ -163,7 +163,9 @@ dependencies {
     implementation ("com.github.commandiron:WheelPickerCompose:1.1.11")
     implementation ("com.jakewharton.threetenabp:threetenabp:1.3.0")
 
-    // firebase 의존성
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
-    implementation("com.google.firebase:firebase-messaging:23.2.1")
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
+    implementation("androidx.work:work-runtime:2.9.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 }
