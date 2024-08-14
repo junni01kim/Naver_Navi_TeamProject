@@ -39,7 +39,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -76,6 +79,8 @@ class PreferenceActivity : ComponentActivity() {
 fun PreferenceScreen(
     callback : (String) -> Unit
 ){
+    var selectedItem by remember { mutableStateOf<String?>(null) }
+    var title by remember { mutableStateOf("설정") }
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
@@ -86,7 +91,7 @@ fun PreferenceScreen(
 
                 title = {
                     Text(
-                        text = "설정",
+                        text = title,
                         style = TextStyle(
                             fontFamily = FontFamily.Cursive,
                             fontSize = 18.sp,
@@ -94,7 +99,10 @@ fun PreferenceScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = {
+                        title = "설정"
+                        selectedItem = null
+                    }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "뒤로가기")
@@ -109,7 +117,20 @@ fun PreferenceScreen(
                 .padding(innerPadding),
             color = Color.White
         ) {
-            PreferenceItems(callback)
+            // selectedItem의 값에 따라 다른 Composable을 표시
+            when (selectedItem) {
+                "알림 설정" -> {
+                    AlarmSettingsScreen()
+                    title = "알림"
+                }
+                else -> PreferenceItems { item ->
+                    if (item == "알림 설정") {
+                        selectedItem = item
+                    } else {
+                        callback(item)
+                    }
+                }
+            }
         }
     }
 }
