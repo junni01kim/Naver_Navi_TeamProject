@@ -2,7 +2,10 @@ package com.hansung.sherpa
 
 import android.Manifest
 import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PointF
 import android.location.Location
 import android.os.Build
@@ -66,7 +69,15 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
     lateinit var navigation:Navigation
 
     // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
-    val viewModel: MessageViewModel by viewModels()
+    private val viewModel: MessageViewModel by viewModels()
+
+    private val messageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val title = intent?.getStringExtra("title") ?: ""
+            val body = intent?.getStringExtra("body") ?: ""
+            viewModel.onMessageReceived(title, body)
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -88,6 +99,9 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                 StaticValue.FcmToken = token
             }
 
+        // BroadcastReceiver 등록
+        registerReceiver(messageReceiver, IntentFilter("FCM_MESSAGE"), RECEIVER_NOT_EXPORTED)
+
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
 
@@ -106,18 +120,18 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Start.name
+                        startDestination = SherpaScreen.Home.name
                     ){
-                        composable(route = "${SherpaScreen.Start.name}"){
+                        composable(route = SherpaScreen.Start.name){
                             StartScreen(navController, Modifier.padding(innerPadding))
                         }
-                        composable(route = "${SherpaScreen.Login.name}"){
+                        composable(route = SherpaScreen.Login.name){
                             LoginScreen(navController, Modifier.padding(innerPadding))
                         }
-                        composable(route = "${SherpaScreen.SignUp.name}") {
+                        composable(route = SherpaScreen.SignUp.name) {
                             SignupScreen(navController, Modifier.padding(innerPadding))
                         }
-                        composable(route = "${SherpaScreen.Home.name}"){
+                        composable(route = SherpaScreen.Home.name){
                             ExampleAlam(viewModel)
                             HomeScreen(navController, Modifier.padding(innerPadding))
                         }
@@ -127,7 +141,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             val destinationValue = it.arguments?.getString("destinationValue")!!
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
-                        composable(route = "${SherpaScreen.SpecificRoute.name}"){
+                        composable(route = SherpaScreen.SpecificRoute.name){
                             SpecificRouteScreen(StaticValue.transportRoute)
                         }
                     }
@@ -246,5 +260,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(messageReceiver)
     }
 }

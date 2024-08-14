@@ -1,16 +1,19 @@
 package com.hansung.sherpa
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.livedata.observeAsState
 import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.dialog.SherpaDialog
 
 @Composable
-fun ExampleAlam(messageViewModel: MessageViewModel = viewModel()) {
-    val title by messageViewModel.title.collectAsState()
-    val body by messageViewModel.body.collectAsState()
+fun ExampleAlam(messageViewModel: MessageViewModel) {
+    val showDialog by messageViewModel.showDialog.observeAsState(false)
+    val title by messageViewModel.title.observeAsState("")
+    val body by messageViewModel.body.observeAsState("")
+
     // 포스트 맨 "알림" 앞에 달고 전송하면 바뀔거임
-    SherpaDialog(title, listOf(body), "확인") { /* TODO: 확인 버튼 눌릴 시 수행할 동작 */ }
+    if(showDialog) {
+        SherpaDialog(title, listOf(body), "확인", onConfirmation = { messageViewModel.onDialogDismiss()})
+    }
 }

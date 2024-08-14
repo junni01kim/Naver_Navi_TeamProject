@@ -18,40 +18,31 @@ import com.hansung.sherpa.StaticValue
 import kotlin.random.Random
 
 class SherpaFirebaseMessagingService : FirebaseMessagingService() {
-    private lateinit var viewModel: MessageViewModel
 
     override fun onCreate() {
         super.onCreate()
-        // ApplicationContext를 사용하여 ViewModel을 초기화
-        viewModel = ViewModelProvider(StaticValue.mainActivity).get(MessageViewModel::class.java)
     }
 
     /**
      * FCM token이 만료되어 재발급이 되는 경우에 해당 메서드를 통해 새로운 token을 받게 된다.
      */
     override fun onNewToken(token: String){
-        Log.d("FCMLog", "Refreshed token: "+token);
+        Log.d("FCMLog", "Refreshed token: $token");
     }
 
     /**
      * 메세지가 들어오는 공간
      */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
-        Log.d("FCMLog", "뭔가 전송됨")
-
-        // notification
-        if(remoteMessage.notification != null) { //포그라운드
-            branch(remoteMessage.notification?.title!!, remoteMessage.notification?.body!!)
-        }
-
-        // data
-        if (remoteMessage.data.isNotEmpty()) { //백그라운드
-            remoteMessage.data["title"]?.let { branch(it, remoteMessage.data["body"]!!) }
-        }
+        Log.d("FCMLog", "onMessageReceived")
 
         remoteMessage.notification?.let { message ->
+            // 앱 푸시 알림
             sendNotification(message)
+            // 다이얼로그
+            createMessageViewModel(message)
         }
+
     }
 
     private val random = Random
@@ -86,26 +77,17 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
         manager.notify(random.nextInt(), notificationBuilder.build())
     }
 
-    /**
-     * 분기를 위한 함수
-     * ※ 토큰 방식과 토픽 방식 같이 사용하지 못해서, title 머리를 토픽으로 사용하면 좋을 것 같아서 만듦
-     */
-    private fun branch(head: String, body: String) {
-        Log.d("FCMLog", "branch 메서드: 수신 완료")
+    private fun createMessageViewModel(message: RemoteMessage.Notification) {
 
-        Log.d("FCMLog", "$head, $body")
-        val parts = head.split("/")
-        val topic = parts[0]
-        val title = parts[1]
+        Log.d("FCMLog", "Message received: ${message.title} ${message.body}")
 
-        when(topic) {
-            "알림" -> viewModel.updateValue(title, body)
-            "예시" -> Log.d("FCMLog","FCM: title(${title}) body(${body})")
-            "일정" -> Log.d("FCMLog","FCM: 일정 객체 ${body}")
-            "예약경로" -> Log.d("FCMLog", "FCM: 경로 안내 객체 ${body}")
-            "로그인" -> Log.d("FCMLog", "FCM: 로그인 성공 ${body}")
-            "긴급 연락처" -> Log.d("FCMLog", "FCM: 긴급 연락처 받기 ${body}")
-            else -> Log.d("FCMLog", "FCM: message 형식 오류")
-        }
+        val title = message.title ?: "제목 없음"
+        val body = message.body ?: "내용 없음"
+        val intent = Intent("FCM_MESSAGE")
+        intent.putExtra("title", title)
+        intent.putExtra("body", body)
+
+        // MainActivity로 전송
+        sendBroadcast(intent)
     }
 }
