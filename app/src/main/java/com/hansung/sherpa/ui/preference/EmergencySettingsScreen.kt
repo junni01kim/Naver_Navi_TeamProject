@@ -110,7 +110,6 @@ fun EmergencySettingsScreen() {
 
         // 버튼 누를 시 전화하기 + 이동하기
         item {
-            Spacer(modifier = Modifier.height(2.dp))
             Row(
                 modifier = Modifier.fillMaxWidth()
                     .background(Color.White),
@@ -118,6 +117,7 @@ fun EmergencySettingsScreen() {
                 Text("추가하기")
                 Spacer(modifier = Modifier.width(10.dp))
             }
+            Spacer(modifier = Modifier.height(2.dp))
         }
     }
 }

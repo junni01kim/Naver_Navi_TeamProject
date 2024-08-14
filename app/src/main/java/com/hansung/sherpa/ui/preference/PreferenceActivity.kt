@@ -123,10 +123,18 @@ fun PreferenceScreen(
                     EmergencySettingsScreen()
                     title = "긴급 연락처"
                 }
+                "알림 설정" -> {
+                    //AlarmSettingsScreen()
+                    title = "알림"
+                }
                 else -> PreferenceItems { item ->
                     if (item == "알림 설정") {
                         selectedItem = item
-                    } else {
+                    }
+                    else if(item == "긴급 연락처"){
+                        selectedItem = item
+                    }
+                    else {
                         callback(item)
                     }
                 }
