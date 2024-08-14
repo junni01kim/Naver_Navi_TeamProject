@@ -8,9 +8,9 @@
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@drawable/splash_screen"
+        android:icon="@drawable/appicon_dog"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/splash_screen"
+        android:roundIcon="@drawable/appicon_dog"
         android:supportsRtl="true"
         android:theme="@style/Theme.Sherpa"
         tools:targetApi="31">
@@ -20,6 +20,14 @@
 
         <activity
             android:name="com.hansung.sherpa.ui.preference.PreferenceActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".ui.preference.updateinformation.UpdateInfoActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name=".ui.preference.policyinformation.PolicyInfoActivity"
             android:exported="true">
         </activity>
         <activity

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "338681595305",
+    "project_id": "sherpa-72b5a",
+    "storage_bucket": "sherpa-72b5a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:338681595305:android:93e3347eede998c17630b8",
+        "android_client_info": {
+          "package_name": "com.hansung.sherpa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOk3knY9l6zPBDBz9z6F3BlBJwKj3P-gQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

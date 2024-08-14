@@ -53,6 +53,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hansung.sherpa.ui.preference.policyinformation.PolicyInfoActivity
+import com.hansung.sherpa.ui.preference.updateinformation.UpdateInfoActivity
 
 class PreferenceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -62,6 +64,14 @@ class PreferenceActivity : ComponentActivity() {
                 when(screenName){
                     "캘린더 설정" -> {
                         val intent = Intent(this, CalendarActivity::class.java)
+                        startActivity(intent)
+                    }
+                    "업데이트 정보"->{
+                        val intent = Intent(this, UpdateInfoActivity::class.java)
+                        startActivity(intent)
+                    }
+                    "개인정보 취급 방침"->{
+                        val intent = Intent(this, PolicyInfoActivity::class.java)
                         startActivity(intent)
                     }
                 }
