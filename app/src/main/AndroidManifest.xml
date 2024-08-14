@@ -23,7 +23,11 @@
             android:exported="true">
         </activity>
         <activity
-            android:name="com.hansung.sherpa.ui.preference.CalendarActivity"
+            android:name="com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity"
+            android:exported="true">
+        </activity>
+        <activity
+            android:name="com.hansung.sherpa.ui.preference.calendar.CalendarActivity"
             android:exported="true">
         </activity>
         <activity
