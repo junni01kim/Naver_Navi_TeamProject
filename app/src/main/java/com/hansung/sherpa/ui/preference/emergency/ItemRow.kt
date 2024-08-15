@@ -1,6 +1,5 @@
 package com.hansung.sherpa.ui.preference.emergency
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Row
