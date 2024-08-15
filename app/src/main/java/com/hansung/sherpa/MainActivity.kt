@@ -11,8 +11,6 @@ import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.EditText
-import android.widget.ImageButton
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -45,6 +43,8 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.login.LoginScreen
 import com.hansung.sherpa.ui.searchscreen.SearchScreen
+import com.hansung.sherpa.ui.preference.CalendarActivity
+import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.signup.SignupScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
@@ -143,6 +143,16 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
                             SpecificRouteScreen(StaticValue.transportRoute)
+                        }
+                        composable(route = SherpaScreen.Preference.name){
+                            PreferenceScreen { screenName ->
+                                when(screenName){
+                                    "캘린더 설정" -> {
+                                        val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
