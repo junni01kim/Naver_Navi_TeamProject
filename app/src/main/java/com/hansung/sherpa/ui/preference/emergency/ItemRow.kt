@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -53,16 +54,16 @@ fun ItemRow(name:String?, address:String?, telNum:String?, deleteItem: () -> Uni
         )
         Text(
             text = address ?: "None",
-            modifier = Modifier.width(185.dp),
+            modifier = Modifier.width(175.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = telNum ?: "None",
-            modifier = Modifier.width(95.dp),
+            modifier = Modifier.width(120.dp),
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            textAlign = TextAlign.End
         )
     }
 }

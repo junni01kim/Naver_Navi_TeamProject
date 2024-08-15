@@ -1,6 +1,7 @@
 package com.hansung.sherpa.ui.preference.emergency
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,19 +25,27 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import com.hansung.sherpa.ui.theme.PurpleGrey40
 
 // 상준이 CustomDialogUI 가져다 만듦
 @Composable
-fun CancelDialogUI(
+fun DeleteDialogUI(
     name:String?, address:String?, telNum:String?,
     onDismissRequest: () -> Unit,
-    onDelete : () -> Unit
+    onDeleteRequest : () -> Unit
 ){
     val lightGrayColor = Color(229,226,234)
     Box(
         modifier = Modifier
-            .fillMaxSize(),
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.5f))
+            .zIndex(1f)
+            .clickable(enabled = false, onClick = {})
+    )
+    Box(
+        modifier = Modifier
+            .fillMaxSize().zIndex(2f),
         contentAlignment = Alignment.Center
     ) {
         Card(
@@ -94,7 +103,7 @@ fun CancelDialogUI(
                         )
                     }
                     androidx.compose.material3.TextButton(
-                        onClick = { onDelete() }
+                        onClick = { onDeleteRequest() }
                     ) {
                         Text(
                             "삭제",

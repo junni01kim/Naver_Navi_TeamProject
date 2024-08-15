@@ -1,7 +1,5 @@
 package com.hansung.sherpa.ui.preference.emergency
 
-
-
 // TODO: 해당 클래스들 디벨롭에 머지 후 삭제하기
 data class Emergency (
     val emergencyId: Int,

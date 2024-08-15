@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -21,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,10 +43,13 @@ import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.ui.preference.Divider
 import com.hansung.sherpa.ui.theme.PurpleGrey40
 
+// TODO: 주변 화면 터치 잠금 기능
 @Composable
 fun EmergencySettingsScreen() {
     var deleteDialogExpand by remember{mutableStateOf(false)}
     var emrgInfoExpand by remember{mutableStateOf(false)}
+    var createDialogExpand by remember{mutableStateOf(false)}
+    val selectItem = remember { mutableStateOf<Emergency?>(null) }
 
     var emrgName by remember{mutableStateOf("")}
     var emrgAddress by remember{mutableStateOf("")}
@@ -68,14 +73,10 @@ fun EmergencySettingsScreen() {
     val caregiverUserRelation = UserRelation(11, 1, 2, "보호자")
 
     // TODO: 서버에서 긴급 연락처 리스트 가져오기
-    var emrgList by remember{
-        mutableStateOf(
-            mutableListOf(
-                Emergency(11, 1, "y", "병원", "02-760-0000", "성북구 삼선교로"),
-                Emergency(12, 1, "y", "김상준", "010-9570-5249", "용산"),
-                Emergency(13, 1, "y", "이준희", "010-2916-2027", "홍대")
-            )
-        )
+    var emrgList = remember { mutableStateListOf(
+        Emergency(11, 1, "y", "병원", "02-760-0000", "성북구 삼선교로"),
+        Emergency(12, 1, "y", "김상준", "010-9570-5249", "용산"),
+        Emergency(13, 1, "y", "이준희", "010-2916-2027", "홍대"))
     }
 
     Box(
@@ -91,22 +92,27 @@ fun EmergencySettingsScreen() {
             )
         }
         if(deleteDialogExpand) {
-            CancelDialogUI(
+            DeleteDialogUI(
                 name = emrgName,
                 address = emrgAddress,
                 telNum = emrgTelNum,
                 onDismissRequest = { deleteDialogExpand = false },
-                onDelete = {
+                onDeleteRequest = {
                     /**
                      *  TODO: 1. 삭제 API 연결
                      *  TODO: 2. 긴급 연락처 정보 불러오기
                      */
-                    /**
-                     *  TODO: 1. 삭제 API 연결
-                     *  TODO: 2. 긴급 연락처 정보 불러오기
-                     */
-                    emrgList.removeAt(1)
+                    emrgList.remove(selectItem.value)
                     deleteDialogExpand = false
+                }
+            )
+        }
+        if(createDialogExpand){
+            CreateDialog(
+                onCloseRequest = { createDialogExpand = !createDialogExpand },
+                updateRequest = {
+                    // TODO: 긴급 연락처 정보 불러오기
+                    emrgList.add(it)
                 }
             )
         }
@@ -135,6 +141,7 @@ fun EmergencySettingsScreen() {
                     address = it.address,
                     telNum = it.telNum,
                     deleteItem = {
+                        selectItem.value = it
                         emrgName = it.name
                         emrgAddress = it.address
                         emrgTelNum = it.telNum
@@ -156,9 +163,7 @@ fun EmergencySettingsScreen() {
                         .background(Color.White)
                         .padding(vertical = 5.dp)
                         .clickable(onClick = {
-                            // TODO: 1. 긴급 연락처 정보 작성 모달 띄우기
-                            // TODO: 2. 모달에서 긴급 연락처 정보 추가 API 연결하기
-                            // TODO: 3. 긴급 연락처 정보 불러오기
+                            createDialogExpand = true
                         }),
                     horizontalArrangement = Arrangement.End,
                 ) {

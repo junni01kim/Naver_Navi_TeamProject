@@ -29,6 +29,9 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.login.LoginScreen
+import com.hansung.sherpa.ui.preference.CalendarActivity
+import com.hansung.sherpa.ui.preference.PreferenceActivity
+import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.signup.SignupScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
@@ -74,7 +77,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Home.name
+                        startDestination = SherpaScreen.Preference.name
                     ){
                         composable(route = "${SherpaScreen.Start.name}"){
                             StartScreen(navController, Modifier.padding(innerPadding))
@@ -96,6 +99,16 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                         }
                         composable(route = "${SherpaScreen.SpecificRoute.name}"){
                             SpecificRouteScreen(StaticValue.transportRoute)
+                        }
+                        composable(route = SherpaScreen.Preference.name){
+                            PreferenceScreen { screenName ->
+                                when(screenName){
+                                    "캘린더 설정" -> {
+                                        val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
