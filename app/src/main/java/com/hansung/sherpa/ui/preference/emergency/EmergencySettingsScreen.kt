@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.preference.emergency
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -49,11 +50,7 @@ fun EmergencySettingsScreen() {
     var deleteDialogExpand by remember{mutableStateOf(false)}
     var emrgInfoExpand by remember{mutableStateOf(false)}
     var createDialogExpand by remember{mutableStateOf(false)}
-    val selectItem = remember { mutableStateOf<Emergency?>(null) }
-
-    var emrgName by remember{mutableStateOf("")}
-    var emrgAddress by remember{mutableStateOf("")}
-    var emrgTelNum by remember{mutableStateOf("")}
+    var clickedIndex by remember{mutableStateOf(-1)}
 
     // TODO: 서버에서 보호자 연락처 리스트 가져오기 ※ getUser1으로 가져오면 나머지(setting, account) 다 가져와 진다.
     val caregiverUserAccount = UserAccount(
@@ -84,8 +81,8 @@ fun EmergencySettingsScreen() {
     ) {
         if (emrgInfoExpand) {
             SherpaDialog(
-                title = emrgName,
-                message = listOf("주소: ${emrgAddress}", "연락처: ${emrgTelNum}"),
+                title = emrgList[clickedIndex].name,
+                message = listOf("주소: ${emrgList[clickedIndex].address}", "연락처: ${emrgList[clickedIndex].telNum}"),
                 confirmButtonText = "확인",
                 onDismissRequest = { emrgInfoExpand = false },
                 onConfirmation = { emrgInfoExpand = false }
@@ -93,16 +90,16 @@ fun EmergencySettingsScreen() {
         }
         if(deleteDialogExpand) {
             DeleteDialogUI(
-                name = emrgName,
-                address = emrgAddress,
-                telNum = emrgTelNum,
+                name = emrgList[clickedIndex].name,
+                address = emrgList[clickedIndex].address,
+                telNum = emrgList[clickedIndex].telNum,
                 onDismissRequest = { deleteDialogExpand = false },
                 onDeleteRequest = {
                     /**
                      *  TODO: 1. 삭제 API 연결
                      *  TODO: 2. 긴급 연락처 정보 불러오기
                      */
-                    emrgList.remove(selectItem.value)
+                    emrgList.removeAt(clickedIndex)
                     deleteDialogExpand = false
                 }
             )
@@ -135,22 +132,17 @@ fun EmergencySettingsScreen() {
             }
             item{ Divider("긴급 연락처") }
 
-            items(emrgList) {
+            itemsIndexed(emrgList) { index, it ->
                 ItemRow(
                     name = it.name,
                     address = it.address,
                     telNum = it.telNum,
                     deleteItem = {
-                        selectItem.value = it
-                        emrgName = it.name
-                        emrgAddress = it.address
-                        emrgTelNum = it.telNum
+                        clickedIndex = index
                         deleteDialogExpand = !deleteDialogExpand
                     },
                     openItemInfo = {
-                        emrgName = it.name
-                        emrgAddress = it.address
-                        emrgTelNum = it.telNum
+                        clickedIndex = index
                         emrgInfoExpand = !emrgInfoExpand
                     }
                 )
