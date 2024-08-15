@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.kapt")
+    id("com.google.gms.google-services")
 }
 
 val clientId = getLocalPropertyKey("CLIENT_ID")
@@ -89,6 +90,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.filament.android)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -161,4 +163,10 @@ dependencies {
 
     implementation ("com.github.commandiron:WheelPickerCompose:1.1.11")
     implementation ("com.jakewharton.threetenabp:threetenabp:1.3.0")
+
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
+    implementation("androidx.work:work-runtime:2.9.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 }

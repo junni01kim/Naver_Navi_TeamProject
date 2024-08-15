@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.signup
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,22 +28,27 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
+import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.user.createuser.CreateUserRequest
+import com.hansung.sherpa.user.UserManager
+import java.sql.Timestamp
+import java.util.Calendar
 
 @Composable
 fun SignupScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier){
     LazyColumn(modifier = Modifier.fillMaxSize().background(Color.White)){
         item{
-            Text(text = "Login Screen")
+            Text(text = "Signup Screen")
             Spacer(modifier = Modifier.height(50.dp))
 
             // 보호자 입력란
-            Text("보호자 로그인 입력란")
+            Text("보호자 회원가입 입력란")
             CaregiverArea(navController)
             Spacer(modifier = Modifier.height(50.dp))
 
             // 사용자 입력란
-            Text("사용자 로그인 입력란")
-            ProtegeArea(navController)
+            Text("사용자 회원가입 입력란")
+            CaretakerArea(navController)
             Spacer(modifier = Modifier.height(50.dp))
         }
     }
@@ -53,7 +59,7 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
  */
 @Composable
 fun CaregiverArea(navController: NavController){
-    var idValue by remember { mutableStateOf("") }
+    var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     var confirmPasswordValue by remember { mutableStateOf("") }
     var userNameValue by remember { mutableStateOf("") }
@@ -62,7 +68,7 @@ fun CaregiverArea(navController: NavController){
     var detailAddressValue by remember { mutableStateOf("") }
 
     Column {
-        InfomationGroup("아이디", true, "중복검사", {/*중복검사 API*/}) { idValue = it }
+        InfomationGroup("아이디", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
         InfomationGroup("비밀번호", false) { passwordValue = it }
         InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
         InfomationGroup("이름", false) { userNameValue = it }
@@ -75,7 +81,20 @@ fun CaregiverArea(navController: NavController){
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
-            onClick = {navController.navigate("${SherpaScreen.Home.name}")},
+            onClick = {
+                val createUserRequest = CreateUserRequest(
+                    email = emailValue,
+                    password = passwordValue,
+                    name = userNameValue,
+                    telNum = telValue,
+                    address = addressValue,
+                    detailAddress = detailAddressValue,
+                    fcmToken = StaticValue.FcmToken,
+                    createdAt = Timestamp(Calendar.getInstance().timeInMillis),
+                    updatedAt = Timestamp(Calendar.getInstance().timeInMillis)
+                )
+                signup(navController, createUserRequest)
+            },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = Color(0xFF64FCD9),
@@ -96,32 +115,61 @@ fun CaregiverArea(navController: NavController){
  * 사용자 회원가입 구성품
  */
 @Composable
-fun ProtegeArea(navController: NavController) {
-    var idValue by remember { mutableStateOf("") }
+fun CaretakerArea(navController: NavController) {
+    var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     var confirmPasswordValue by remember { mutableStateOf("") }
     var userNameValue by remember { mutableStateOf("") }
     var telValue by remember { mutableStateOf("") }
     var addressValue by remember { mutableStateOf("") }
     var detailAddressValue by remember { mutableStateOf("") }
-    var caregiverId by remember { mutableStateOf("") }
+    var caregiverId by remember { mutableStateOf(-1) }
+    var caregiverEmail by remember { mutableStateOf("-1") }
+    var caregiverRelation by remember { mutableStateOf("보호자") }
 
     Column {
-        InfomationGroup("아이디", true, "중복검사", {/*중복검사 API*/}) { idValue = it }
+        // TODO: 값 전송 시 공백 제거할 것
+        InfomationGroup("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
         InfomationGroup("비밀번호", false) { passwordValue = it }
         InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
         InfomationGroup("이름", false) { userNameValue = it }
         InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
         InfomationGroup("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroup("상세주소", false) { detailAddressValue = it }
-        InfomationGroup("보호자 아이디", true, "연동하기" ,{/* 보호자 인증 API */}) { caregiverId = it }
+        InfomationGroup("보호자 이메일", true, "연동하기" ,{
+            // TODO: 보호자 연동 허가 로직 구현할 것
+            // TODO: ※ (2024-08-12) 지금은 테스트용으로 보호자 승인 없이 DB에서 바로 받아옴. 진행
+
+            caregiverId = UserManager().linkPermission(caregiverEmail)?.data!!
+            caregiverRelation = "연동 로직 구현 시에는 이거도 같이 반환 받아야 함."
+        }) { caregiverEmail = it }
         Text("이용약관1")
         Text("이용약관2")
         Text("이용약관3")
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
-            onClick = {navController.navigate("${SherpaScreen.Home.name}")},
+            onClick = {
+                if(caregiverId == -1) {
+                    Log.d("explain", "보호자 연동 후 사용할 것")
+                    return@TextButton
+                }
+
+                val createUserRequest = CreateUserRequest(
+                    email = emailValue,
+                    password = passwordValue,
+                    name = userNameValue,
+                    telNum = telValue,
+                    address = addressValue,
+                    detailAddress = detailAddressValue,
+                    fcmToken = StaticValue.FcmToken,
+                    caregiverId = caregiverId,
+                    caregiverRelation = caregiverRelation,
+                    createdAt = Timestamp(Calendar.getInstance().timeInMillis),
+                    updatedAt = Timestamp(Calendar.getInstance().timeInMillis)
+                )
+                signup(navController, createUserRequest)
+            },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = Color(0xFF64FCD9),
@@ -193,4 +241,9 @@ fun InfomationGroupSample() {
     InfomationGroup("비밀번호", false) { passwordValue = it }
     InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
     InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
+}
+
+fun signup(navController: NavController, createUserRequest: CreateUserRequest) {
+    UserManager().create(createUserRequest)
+    navController.navigate("${SherpaScreen.Login.name}")
 }

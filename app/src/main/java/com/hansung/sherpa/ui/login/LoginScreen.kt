@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.login
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,7 +29,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.ui.signup.InfomationGroupSample
+import com.hansung.sherpa.user.UserManager
 
 @Composable
 fun LoginScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier) {
@@ -38,14 +41,9 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
         Text(text = "Login Screen")
         Spacer(modifier = Modifier.height(50.dp))
 
-        // 보호자 입력란
-        Text("보호자 로그인 입력란")
-        CaregiverArea(navController)
-        Spacer(modifier = Modifier.height(50.dp))
-
-        // 사용자 입력란
-        Text("사용자 로그인 입력란")
-        ProtegeArea(navController)
+        // 입력란
+        Text("로그인 입력란")
+        LoginArea(navController)
         Spacer(modifier = Modifier.height(50.dp))
 
         // 비밀번호 찾기, 회원가입 이동
@@ -86,7 +84,7 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
  * 보호자 로그인 구성품
  */
 @Composable
-fun CaregiverArea(navController: NavController) {
+fun LoginArea(navController: NavController) {
     var idValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
 
@@ -95,40 +93,9 @@ fun CaregiverArea(navController: NavController) {
         InfomationGroup("비밀번호", false) {passwordValue = it}
 
         TextButton(
-            // TODO: 로그인 정보로 보호자 역할 분기해야 됨
-            onClick = {navController.navigate("${SherpaScreen.Home.name}")},
-            colors= ButtonColors(
-                contentColor = Color.Black,
-                containerColor = Color(0xFF64FCD9),
-                disabledContentColor = Color.Black,
-                disabledContainerColor =  Color(0xFF64FCD9)
-            ),
-            modifier = Modifier.width(200.dp)
-        ){
-            Text(
-                text = "로그인",
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-/**
- * 사용자 로그인 구성품
- */
-@Composable
-fun ProtegeArea(navController: NavController) {
-
-    var idValue by remember { mutableStateOf("") }
-    var passwordValue by remember { mutableStateOf("") }
-
-    Column {
-        InfomationGroup("아이디", false) {idValue = it}
-        InfomationGroup("비밀번호", false) {passwordValue = it}
-
-        TextButton(
-            // TODO: 로그인 정보로 사용자 역할 분기해야 됨
-            onClick = {navController.navigate("${SherpaScreen.Home.name}")},
+            // TODO: 로그인 정보로 계정 역할 분기해야 됨
+            // TODO: 값 전송 시 공백 제거할 것
+            onClick = { if(login(navController, idValue, passwordValue)) return@TextButton },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = Color(0xFF64FCD9),
@@ -204,4 +171,18 @@ fun InfomationGroupSample() {
     InfomationGroup("비밀번호", false) { passwordValue = it }
     InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
     InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
+}
+
+fun login(navController: NavController, email: String, password: String) : Boolean {
+    // TODO: Response Data 클래스 이름 바꿀것
+    val loginResponse = UserManager().login(email, password)!!
+    val data = loginResponse.data!!
+    if(data.userId == 0 || data.userId == null) {
+        Log.d("explain", "login: null 반환")
+        return true
+    } else {
+        StaticValue.userInfo = data
+        navController.navigate("${SherpaScreen.Home.name}")
+    }
+    return false
 }
