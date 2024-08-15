@@ -15,6 +15,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,13 +29,20 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import com.hansung.sherpa.ui.theme.PurpleGrey40
 
-// 상준이 CustomDialogUI 가져다 만듦
+/**
+ * 긴급 연락처 삭제에 이용할 다이얼로그
+ *
+ * @param name 긴급 연락처 이름
+ * @param onCloseRequest 화면을 닫을 때 이용하는 람다 함수. 상태 Hoisting에 이용한다.
+ * @param onDeleteRequest 긴급 연락처 삭제에 이용할 람다 함수. ※ API를 이용할 때 필요없어 질 함수이다.
+ */
 @Composable
 fun DeleteDialogUI(
-    name:String?, address:String?, telNum:String?,
-    onDismissRequest: () -> Unit,
+    name:String?,
+    onCloseRequest: () -> Unit,
     onDeleteRequest : () -> Unit
 ){
+    // 긴급 연락처 추가 Dialog (김상준 팀원 코드 인용)
     val lightGrayColor = Color(229,226,234)
     Box(
         modifier = Modifier
@@ -57,6 +65,10 @@ fun DeleteDialogUI(
                 Modifier.background(Color.White)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+                    /**
+                     * 제목(title)
+                     *
+                     */
                     Text(
                         text = "긴급 연락처 삭제",
                         textAlign = TextAlign.Center,
@@ -72,6 +84,11 @@ fun DeleteDialogUI(
                         overflow = TextOverflow.Ellipsis
                     )
                     Spacer(modifier = Modifier.padding(8.dp))
+                    /**
+                     * 내용(body)
+                     *
+                     * 하단에 삭제할 긴급 연락처의 name이 나타난다.
+                     */
                     Text(
                         text = "연락처를 삭제 하시겠습니까?\n ${name}",
                         textAlign = TextAlign.Center,
@@ -83,7 +100,7 @@ fun DeleteDialogUI(
 
                     Spacer(modifier = Modifier.padding(4.dp))
                 }
-                //.......................................................................
+
                 Row(
                     Modifier
                         .fillMaxWidth()
@@ -92,9 +109,10 @@ fun DeleteDialogUI(
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
 
-                    androidx.compose.material3.TextButton(
-                        onClick = { onDismissRequest() }
+                    TextButton(
+                        onClick = { onCloseRequest() }
                     ) {
+                        // 긴급 연락처 삭제 취소 버튼
                         Text(
                             "취소",
                             fontWeight = FontWeight.Bold,
@@ -102,9 +120,10 @@ fun DeleteDialogUI(
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }
-                    androidx.compose.material3.TextButton(
+                    TextButton(
                         onClick = { onDeleteRequest() }
                     ) {
+                        // 긴급 연락처 삭제 버튼
                         Text(
                             "삭제",
                             fontWeight = FontWeight.ExtraBold,

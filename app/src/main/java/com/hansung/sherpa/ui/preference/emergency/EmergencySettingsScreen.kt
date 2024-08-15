@@ -114,14 +114,12 @@ fun EmergencySettingsScreen() {
 
         /**
          * 긴급 연락처 삭제 다이얼로그
-         *
+         * Emergency Table의 name이 Unique하므로 name을 통해 삭제 예정
          */
         if(deleteDialogExpand) {
             DeleteDialogUI(
                 name = emrgList[clickedIndex].name,
-                address = emrgList[clickedIndex].address,
-                telNum = emrgList[clickedIndex].telNum,
-                onDismissRequest = { deleteDialogExpand = false },
+                onCloseRequest = { deleteDialogExpand = false },
                 onDeleteRequest = {
                     // TODO: 1. 긴급 연락처 삭제 API 연결
                     // TODO: 2. 긴급 연락처 정보 불러오기
