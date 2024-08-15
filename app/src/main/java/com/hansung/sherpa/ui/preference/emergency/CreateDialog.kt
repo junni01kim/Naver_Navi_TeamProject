@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,20 +39,30 @@ import androidx.compose.ui.zIndex
 import com.hansung.sherpa.ui.preference.LocationBottomSheet
 import com.hansung.sherpa.ui.theme.PurpleGrey40
 
+/**
+ * 긴급 연락처 추가에 이용할 다이얼로그
+ *
+ * @param onCloseRequest 화면을 닫을 때 이용하는 람다 함수. 상태 Hoisting에 이용한다.
+ * @param createRequest 긴급 연락처 추가에 이용할 람다 함수. ※ API를 이용할 때 필요없어 질 함수이다.
+ */
 @Composable
 fun CreateDialog(
     onCloseRequest: () -> Unit,
-    updateRequest: (Emergency) -> Unit
+    createRequest: (Emergency) -> Unit
 ) {
+    // TextField 작성 시 이용할 변수
     var name by remember { mutableStateOf("") }
     var telNum by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
+
+    // 지역 검색 API에 이용할 하단 시트 UI (김상준 팀원 코드 이용)
     val locationSheetState = remember { mutableStateOf(false) }
 
+    // 필수 항목을 작성하지 않고, 추가 버튼을 누를 시 포커스를 옮기기 위한 변수 
     val nameFocusRequester = remember { FocusRequester() }
     val telNumFocusRequester = remember { FocusRequester() }
-
-    val lightGrayColor = Color(229,226,234)
+    
+    // 다이얼로그 작성 시 주변화면을 어둡게하고, 터치가 불가능하게 하기 위한 코드
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -59,6 +70,9 @@ fun CreateDialog(
             .zIndex(1f)
             .clickable(enabled = false, onClick = {})
     )
+
+    // 긴급 연락처 추가 Dialog (김상준 팀원 코드 인용)
+    val lightGrayColor = Color(229,226,234)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -74,6 +88,10 @@ fun CreateDialog(
                 Modifier.background(Color.White)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
+                    /**
+                     * 제목(title)
+                     *
+                     */
                     Text(
                         text = "긴급 연락처 추가",
                         textAlign = TextAlign.Center,
@@ -90,6 +108,11 @@ fun CreateDialog(
                     )
                     Spacer(modifier = Modifier.padding(8.dp))
 
+                    /**
+                     * 내용(body)
+                     *
+                     * 이름, 연락처를 제외한 내용은 User1 정보와 서버DB에서 가져온다.
+                     */
                     InputTextField("이름", name, nameFocusRequester){ name = it }
                     InputTextField("연락처", telNum, telNumFocusRequester){ telNum = it }
 
@@ -121,7 +144,7 @@ fun CreateDialog(
                             )
                         }
                     }
-                    // ----- ----------- -----
+                    // -----------------------
 
                     Spacer(modifier = Modifier.padding(4.dp))
                 }
@@ -133,7 +156,8 @@ fun CreateDialog(
                         .background(lightGrayColor),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    androidx.compose.material3.TextButton(
+                    // 긴급 연락처 추가 취소 버튼
+                    TextButton(
                         onClick = { onCloseRequest() }
                     ) {
                         Text(
@@ -143,7 +167,9 @@ fun CreateDialog(
                             modifier = Modifier.padding(top = 5.dp, bottom = 5.dp)
                         )
                     }
-                    androidx.compose.material3.TextButton(
+
+                    // 긴급 연락처 추가 버튼
+                    TextButton(
                         onClick = {
                             // 모든 값이 설정되었는지 확인 (※ 우선 주소는 필수 아님 설정) TODO: 서식 확인 예외처리
                             if(name == "") {
@@ -159,7 +185,7 @@ fun CreateDialog(
 
                             // TODO: DB 내용 불러오는 함수지만 일단 임시 정보 가져오는 것으로 작업
                             // TODO: DB 내용 불러오는 이유는 안정성을 위함
-                            updateRequest(Emergency(100, 1, "y", name, telNum, address))
+                            createRequest(Emergency(100, 1, "y", name, telNum, address))
 
                             onCloseRequest()
                         }
@@ -175,6 +201,7 @@ fun CreateDialog(
             }
         }
 
+        // 긴급 연락처의 주소를 지정하기 위한 영역
         if(locationSheetState.value) {
             LocationBottomSheet(locationSheetState) {
                 address = it.address.toString()
@@ -183,12 +210,14 @@ fun CreateDialog(
     }
 }
 
-@Preview
-@Composable
-fun CreateDialogPreview() {
-    EmergencySettingsScreen()
-}
-
+/**
+ * 항목 추가 및 디자인 모듈화
+ *
+ * @param title 제목
+ * @param text textField에 작성되는 내용
+ * @param focusRequester textField focus
+ * @param onValueChange textField onValueChange
+ */
 @Composable
 fun InputTextField(title:String, text:String, focusRequester: FocusRequester, onValueChange: (String) -> Unit) {
     Row(
@@ -212,10 +241,17 @@ fun InputTextField(title:String, text:String, focusRequester: FocusRequester, on
                     textAlign = TextAlign.Center
                 )
             )
+            // BasicTextField만 쓰니까 허전한거 같아서, TextField 영역에 밑줄 추가.
             Box(modifier = Modifier
                 .background(Color.LightGray)
                 .fillMaxWidth()
                 .height(1.dp))
         }
     }
+}
+
+@Preview
+@Composable
+fun CreateDialogPreview() {
+    EmergencySettingsScreen()
 }

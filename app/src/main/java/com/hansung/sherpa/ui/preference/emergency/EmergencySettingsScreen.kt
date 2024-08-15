@@ -104,7 +104,7 @@ fun EmergencySettingsScreen() {
         if(createDialogExpand){
             CreateDialog(
                 onCloseRequest = { createDialogExpand = !createDialogExpand },
-                updateRequest = {
+                createRequest = {
                     // TODO: 1. 긴급 연락처 추가 API 연결
                     emrgList.add(it) // 임시 추가 로직 삭제처리 할 것
                     // TODO: 2. 긴급 연락처 정보 불러오기
