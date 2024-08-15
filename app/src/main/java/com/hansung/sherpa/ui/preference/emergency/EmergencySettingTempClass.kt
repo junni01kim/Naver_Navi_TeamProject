@@ -1,6 +1,6 @@
 package com.hansung.sherpa.ui.preference.emergency
 
-// TODO: 해당 클래스들 디벨롭에 머지 후 삭제하기
+// TODO: ※ API 작성 후 삭제할 것
 data class Emergency (
     val emergencyId: Int,
     val userId: Int,
@@ -10,6 +10,7 @@ data class Emergency (
     val address: String
 )
 
+// TODO: 해당 클래스들 디벨롭 머지 후 삭제하기
 data class User1 (
     val userId:Int? = null,
     val name:String? = null,

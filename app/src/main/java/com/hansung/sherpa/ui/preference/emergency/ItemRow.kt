@@ -19,8 +19,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
+/**
+ * 설정 창 긴급 연락처 리스트 항목
+ *
+ * @param name 이름
+ * @param address 주소
+ * @param telNum 전화번호
+ * @param deleteItem 삭제를 위한 람다함수 (상태 Hoisting)
+ * @param showItem 정보 열람을 위한 람다함수 (상태 Hoisting)
+ */
 @Composable
-fun ItemRow(name:String?, address:String?, telNum:String?, deleteItem: () -> Unit, openItemInfo: () -> Unit) {
+fun ItemRow(name:String?, address:String?, telNum:String?, deleteItem: () -> Unit, showItem: () -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
@@ -35,23 +44,26 @@ fun ItemRow(name:String?, address:String?, telNum:String?, deleteItem: () -> Uni
                     strokeWidth
                 )
             }
+            // LongPress: 긴급 연락처 삭제, onTap: 긴급 연락처 정보 열람
             .pointerInput(Unit) {
                 detectTapGestures(
                     onLongPress = {
                         deleteItem()
                     },
                     onTap = {
-                        openItemInfo()
+                        showItem()
                     }
                 )
             }
             .padding(horizontal = 12.dp, vertical = 12.dp)) {
+        // 긴급 연락처 이름
         Text(
             text = name ?: "None",
             modifier = Modifier.width(80.dp),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
+        // 긴급 연락처 주소
         Text(
             text = address ?: "None",
             modifier = Modifier.width(175.dp),
@@ -59,6 +71,7 @@ fun ItemRow(name:String?, address:String?, telNum:String?, deleteItem: () -> Uni
             overflow = TextOverflow.Ellipsis
         )
         Spacer(modifier = Modifier.weight(1f))
+        // 긴급 연락처 전화번호
         Text(
             text = telNum ?: "None",
             modifier = Modifier.width(120.dp),
