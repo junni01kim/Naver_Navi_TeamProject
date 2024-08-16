@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hansung.sherpa.ui.preference.carousel
+package com.hansung.sherpa.ui.preference.caregiver.carousel
 
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import kotlin.math.max

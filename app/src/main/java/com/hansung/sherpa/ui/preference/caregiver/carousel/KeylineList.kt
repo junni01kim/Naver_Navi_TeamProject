@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hansung.sherpa.ui.preference.carousel
+package com.hansung.sherpa.ui.preference.caregiver.carousel
 
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach

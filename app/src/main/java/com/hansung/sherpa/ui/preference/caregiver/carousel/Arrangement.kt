@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hansung.sherpa.ui.preference.carousel
+package com.hansung.sherpa.ui.preference.caregiver.carousel
 
 import kotlin.math.abs
 import kotlin.math.max

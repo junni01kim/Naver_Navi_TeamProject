@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hansung.sherpa.ui.preference.carousel
+package com.hansung.sherpa.ui.preference.caregiver.carousel
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.AnimationSpec
@@ -35,7 +35,6 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue

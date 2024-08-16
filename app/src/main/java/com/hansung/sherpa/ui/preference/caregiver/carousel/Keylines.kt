@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.hansung.sherpa.ui.preference.carousel
+package com.hansung.sherpa.ui.preference.caregiver.carousel
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.unit.Density

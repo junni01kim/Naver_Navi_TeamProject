@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.preference
+package com.hansung.sherpa.ui.preference.caregiver
 
 import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
@@ -56,35 +56,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
-import com.hansung.sherpa.ui.preference.carousel.MultiBrowseCarousel
-import com.hansung.sherpa.ui.preference.carousel.rememberCarouselState
+import com.hansung.sherpa.ui.preference.caregiver.carousel.MultiBrowseCarousel
+import com.hansung.sherpa.ui.preference.caregiver.carousel.rememberCarouselState
 
 data class CarouselItem(
     val id: Int,
     @DrawableRes val imageResId: Int,
-    @StringRes val contentDescriptionResId: Int
+    @StringRes val contentDescriptionResId: Int,
+    val name: String = "",
+    val email: String = "",
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AccountSyncScreen() {
-    val openAlertDialog = remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
+fun CaregiverSyncScreen() {
+    var searchQuery by remember { mutableStateOf("") }
 
+    // sample data 값
     val items =
         listOf(
-            CarouselItem(0, R.drawable._1, R.string.float_icon_1),
-            CarouselItem(1, R.drawable._2, R.string.float_icon_2),
-            CarouselItem(2, R.drawable._3, R.string.float_icon_3),
-            CarouselItem(3, R.drawable._4, R.string.float_icon_4),
-            CarouselItem(4, R.drawable._5, R.string.float_icon_5),
-            CarouselItem(5, R.drawable._6, R.string.float_icon_5),
-            CarouselItem(6, R.drawable._7, R.string.float_icon_5),
-            CarouselItem(7, R.drawable._8, R.string.float_icon_5),
+            CarouselItem(0, R.drawable._1, R.string.float_icon_1, "홍길동", "abcd1234@gmail.com"),
+            CarouselItem(1, R.drawable._2, R.string.float_icon_2, "홍김동", "abcd12345@gmail.com"),
+            CarouselItem(2, R.drawable._3, R.string.float_icon_3, "홍길돌", "abcd1233@gmail.com"),
+            CarouselItem(3, R.drawable._4, R.string.float_icon_4, "홀길돌", "abcd1222@gmail.com"),
+            CarouselItem(4, R.drawable._5, R.string.float_icon_5, "홈길동", "aaad1234@gmail.com"),
+            CarouselItem(5, R.drawable._6, R.string.float_icon_5, "홍길동동", "accbd1234@gmail.com"),
+            CarouselItem(6, R.drawable._7, R.string.float_icon_5, "홍동길", "abcd14@gmail.com"),
+            CarouselItem(7, R.drawable._8, R.string.float_icon_5, "길동홍", "abdd1212@gmail.com"),
         )
 
     // 클릭한 항목의 상태를 저장하기 위한 상태 변수
@@ -93,6 +96,12 @@ fun AccountSyncScreen() {
     // 클릭한 항목이 있을 때 모달을 표시
     if (selectedItem != null) {
         ItemDetailDialog(item = selectedItem!!, onDismiss = { selectedItem = null })
+    }
+
+    // 검색 필터
+    val filteredItems = items.filter { item ->
+        item.name.contains(searchQuery, ignoreCase = true) ||
+                item.email.contains(searchQuery, ignoreCase = true)
     }
 
     Column(modifier = Modifier
@@ -109,7 +118,10 @@ fun AccountSyncScreen() {
         ) {
             Surface(shape = RoundedCornerShape(20.dp)) {
                 SearchBar(
-                    onSearch = { query -> println("Search query: $query") }
+                    onSearch = {
+                        query -> println("Search query: $query")
+                        searchQuery = query
+                    }
                 )
             }
         }
@@ -126,42 +138,44 @@ fun AccountSyncScreen() {
             orientation = Orientation.Vertical,
             contentPadding = PaddingValues(vertical = 6.dp),
         ) { i ->
-            val item = items[i]
-            Box(
-                modifier = Modifier
-                    .width(250.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable{ selectedItem = item }
-            ) {
-                Image(
-                    painter = painterResource(id = item.imageResId),
-                    contentDescription = stringResource(item.contentDescriptionResId),
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .fillMaxSize()
-                )
-
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter) // Align content at the bottom center of the image
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "홍길동${i}",
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        style = TextStyle(
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+            if (i < filteredItems.size) {
+                val item = filteredItems[i]
+                    Box(
+                        modifier = Modifier
+                            .width(250.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable{ selectedItem = item }
+                    ) {
+                        Image(
+                            painter = painterResource(id = item.imageResId),
+                            contentDescription = stringResource(item.contentDescriptionResId),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxSize()
                         )
-                    )
-                    Text(
-                        text = "${i}jjjj***@gmail.com",
-                        style = TextStyle(
-                            color = Color.White
-                        ),
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = item.name,
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                style = TextStyle(
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            )
+                            Text(
+                                text = item.email,
+                                style = TextStyle(
+                                    color = Color.White
+                                ),
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                        }
                 }
             }
         }
@@ -172,7 +186,7 @@ fun AccountSyncScreen() {
 fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
-        title = { Text("Item Details") },
+        title = { Text("보호자 연동", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
         text = {
             Box(
                 modifier = Modifier
@@ -193,7 +207,7 @@ fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "홍길동",
+                        text = item.name,
                         modifier = Modifier.align(Alignment.CenterHorizontally),
                         style = TextStyle(
                             fontSize = 20.sp,
@@ -202,7 +216,7 @@ fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
                         )
                     )
                     Text(
-                        text = "jjjj***@gmail.com",
+                        text = item.email,
                         style = TextStyle(
                             color = Color.White
                         ),
@@ -213,7 +227,7 @@ fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
         },
         confirmButton = {
             Button(onClick = { onDismiss() }) {
-                Text("Close")
+                Text("요청하기")
             }
         }
     )
@@ -223,16 +237,14 @@ fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
 @Composable
 fun SearchBar(
     modifier: Modifier = Modifier,
-    placeholderText: String = "Search...",
+    placeholderText: String = "이름이나 이메일을 입력하세요.",
     onSearch: (String) -> Unit
 ) {
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
 
-    // Create an interaction source for handling hover state
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
 
-    // Animate background color based on hover state
     val backgroundColor by animateColorAsState(
         targetValue = if (isHovered) Color(0xFFEFEFEF) else MaterialTheme.colorScheme.background,
         label = ""
@@ -302,9 +314,10 @@ fun SearchBar(
 @Preview
 @Composable
 fun PreviewAccountSyncScreen() {
-    AccountSyncScreen()
+    CaregiverSyncScreen()
 }
 
+@Preview
 @Composable
 fun SearchBarPreview() {
     MaterialTheme(
