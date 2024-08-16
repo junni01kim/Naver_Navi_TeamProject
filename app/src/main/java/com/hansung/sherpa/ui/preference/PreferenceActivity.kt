@@ -57,6 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.ui.preference.caregiver.CaregiverSyncScreen
+import com.hansung.sherpa.ui.preference.emergency.EmergencySettingsScreen
 
 class PreferenceActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -112,7 +113,7 @@ fun PreferenceScreen(
             )
         },
     ){
-    innerPadding ->
+            innerPadding ->
         Surface(
             modifier = Modifier
                 .padding(innerPadding),
@@ -120,6 +121,10 @@ fun PreferenceScreen(
         ) {
             // selectedItem의 값에 따라 다른 Composable을 표시
             when (selectedItem) {
+                "긴급 연락처" -> {
+                    EmergencySettingsScreen()
+                    title = "긴급 연락처"
+                }
                 "알림 설정" -> {
                     AlarmSettingsScreen()
                     title = "알림"
@@ -130,6 +135,9 @@ fun PreferenceScreen(
                 }
                 else -> PreferenceItems { item ->
                     if (item == "알림 설정") {
+                        selectedItem = item
+                    }
+                    else if(item == "긴급 연락처"){
                         selectedItem = item
                     }
                     if (item == "보호자 연동") {
@@ -202,7 +210,7 @@ fun PreferenceItem(
             .background(Color.White)
             .clickable(
                 onClick = { callback(text) },
-                indication = ripple(bounded = true),
+                indication = rememberRipple(bounded = true),
                 interactionSource = interactionSource
             )
     ){
