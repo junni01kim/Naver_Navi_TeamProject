@@ -35,6 +35,7 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,6 +43,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
@@ -182,7 +184,7 @@ fun UncontainedCarousel(
     val density = LocalDensity.current
     Carousel(
         state = state,
-        orientation = Orientation.Horizontal,
+        orientation = orientation,
         keylineList = { availableSpace, itemSpacingPx ->
             with(density) {
                 uncontainedKeylineList(
@@ -332,7 +334,7 @@ internal fun Carousel(
                     strategy = { pageSize.strategy },
                     carouselItemInfo = carouselItemInfo,
                     clipShape = clipShape
-                )
+                ).clip(clipShape)
             ) {
                 scope.content(page)
             }

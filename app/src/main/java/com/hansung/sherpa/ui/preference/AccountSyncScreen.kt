@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
@@ -29,8 +30,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,12 +46,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -70,12 +74,8 @@ data class CarouselItem(
 fun AccountSyncScreen() {
     val openAlertDialog = remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf(TextFieldValue("")) }
-    var items by remember { mutableStateOf(
-        listOf("Item 1", "Item 2", "Item 3", "Item 4", "Item 5"
-            , "Item 6", "Item 7", "Item 8", "Item 9", "Item 10"
-        )) }
 
-    val itemss =
+    val items =
         listOf(
             CarouselItem(0, R.drawable._1, R.string.float_icon_1),
             CarouselItem(1, R.drawable._2, R.string.float_icon_2),
@@ -87,10 +87,19 @@ fun AccountSyncScreen() {
             CarouselItem(7, R.drawable._8, R.string.float_icon_5),
         )
 
-    var currentIndex by remember { mutableStateOf(0) }
+    // 클릭한 항목의 상태를 저장하기 위한 상태 변수
+    var selectedItem by remember { mutableStateOf<CarouselItem?>(null) }
+
+    // 클릭한 항목이 있을 때 모달을 표시
+    if (selectedItem != null) {
+        ItemDetailDialog(item = selectedItem!!, onDismiss = { selectedItem = null })
+    }
+
     Column(modifier = Modifier
         .fillMaxSize()
-        .padding(16.dp)) {
+        .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         MaterialTheme(
             colorScheme = lightColorScheme(
                 primary = Color(0xFF6200EE),
@@ -107,88 +116,107 @@ fun AccountSyncScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Carousel
-        // Carousel
-        /*LazyColumn(
+        MultiBrowseCarousel(
+            state = rememberCarouselState { items.count() },
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .animateContentSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            itemsIndexed(items) { index, item ->
-                var itemOffset by remember { mutableStateOf(0f) }
-                val density = LocalDensity.current
-                val itemHeight = with(density) { itemOffset.toDp() }
-
-                // 크기를 애니메이션으로 변경
-                val size by animateDpAsState(
-                    targetValue = when (index) {
-                        0 -> 250.dp  // Large
-                        1 -> 200.dp  // Medium
-                        2, 3 -> 100.dp  // Small
-                        else -> 0.dp
-                    },
-                    animationSpec = tween(durationMillis = 300), label = ""
+                .width(300.dp)
+                .fillMaxHeight(),
+            itemSpacing = 8.dp,
+            preferredItemWidth = 250.dp,
+            orientation = Orientation.Vertical,
+            contentPadding = PaddingValues(vertical = 6.dp),
+        ) { i ->
+            val item = items[i]
+            Box(
+                modifier = Modifier
+                    .width(250.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .clickable{ selectedItem = item }
+            ) {
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = stringResource(item.contentDescriptionResId),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
                 )
 
-                Box(
+                Column(
                     modifier = Modifier
-                        .onGloballyPositioned { coordinates ->
-                            itemOffset = coordinates.positionInParent().y
-                        }
-                        .height(size)
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
+                        .align(Alignment.BottomCenter) // Align content at the bottom center of the image
+                        .padding(16.dp)
                 ) {
-                    CarouselItem(size, item)
+                    Text(
+                        text = "홍길동${i}",
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    )
+                    Text(
+                        text = "${i}jjjj***@gmail.com",
+                        style = TextStyle(
+                            color = Color.White
+                        ),
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
             }
-        }*/
-
-        MultiBrowseCarousel(
-            state = rememberCarouselState { itemss.count() },
-            modifier = Modifier.width(412.dp).fillMaxHeight(),
-            preferredItemWidth = 186.dp,
-            itemSpacing = 8.dp,
-            contentPadding = PaddingValues(vertical = 16.dp),
-            orientation = Orientation.Vertical
-        ) { i ->
-            val item = itemss[i]
-            Image(
-                modifier = Modifier.height(205.dp).maskClip(MaterialTheme.shapes.extraLarge),
-                painter = painterResource(id = item.imageResId),
-                contentDescription = stringResource(item.contentDescriptionResId),
-                contentScale = ContentScale.Crop
-            )
         }
     }
 }
 
-
 @Composable
-fun CarouselItem(height: androidx.compose.ui.unit.Dp, item: String) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(height),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-    ) {
-        Box(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = item,
-                style = MaterialTheme.typography.headlineMedium.copy(fontSize = 24.sp),
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
+fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Item Details") },
+        text = {
+            Box(
+                modifier = Modifier
+                    .width(350.dp).height(200.dp)
+                    .clip(RoundedCornerShape(16.dp))
+            ) {
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = stringResource(item.contentDescriptionResId),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                )
+
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter) // Align content at the bottom center of the image
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "홍길동",
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        style = TextStyle(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    )
+                    Text(
+                        text = "jjjj***@gmail.com",
+                        style = TextStyle(
+                            color = Color.White
+                        ),
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            Button(onClick = { onDismiss() }) {
+                Text("Close")
+            }
         }
-    }
-}
-
-@Preview
-@Composable
-fun PreviewAccountSyncScreen() {
-    AccountSyncScreen()
+    )
 }
 
 @SuppressLint("RememberReturnType")
@@ -206,7 +234,8 @@ fun SearchBar(
 
     // Animate background color based on hover state
     val backgroundColor by animateColorAsState(
-        targetValue = if (isHovered) Color(0xFFEFEFEF) else MaterialTheme.colorScheme.background
+        targetValue = if (isHovered) Color(0xFFEFEFEF) else MaterialTheme.colorScheme.background,
+        label = ""
     )
 
     TextField(
@@ -271,6 +300,11 @@ fun SearchBar(
 }
 
 @Preview
+@Composable
+fun PreviewAccountSyncScreen() {
+    AccountSyncScreen()
+}
+
 @Composable
 fun SearchBarPreview() {
     MaterialTheme(
