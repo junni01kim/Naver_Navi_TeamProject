@@ -175,10 +175,17 @@ fun LoginArea(navController: NavController) {
         TextButton(
             // TODO: 로그인 정보로 계정 역할 분기해야 됨
             // TODO: 값 전송 시 공백 제거할 것
-            onClick = { if(login(navController, idValue, passwordValue)) {
-                Toast.makeText(context,"로그인 실패!\n아이디 비밀번호를 확인해 주세요", Toast.LENGTH_SHORT).show()
-                return@TextButton
-            } },
+            onClick = {
+                if(isValidId(idValue)){
+                    Toast.makeText(context,"로그인 실패!\n아이디 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                }
+                if(isValidId(passwordValue)){
+                    Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                }
+                if(login(navController, idValue, passwordValue)) {
+                    Toast.makeText(context,"로그인 실패!\n아이디 비밀번호를 확인해주세요", Toast.LENGTH_SHORT).show()
+                    return@TextButton
+                } },
             colors= ButtonColors(
                 contentColor = Color.Black,
                 containerColor = SherpaColor,
@@ -264,6 +271,11 @@ fun login(navController: NavController, email: String, password: String) : Boole
         navController.navigate("${SherpaScreen.Home.name}")
     }
     return false
+}
+
+fun isValidId(id: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{3,15}$".toRegex()
+    return regex.matches(id)
 }
 
 @Composable
