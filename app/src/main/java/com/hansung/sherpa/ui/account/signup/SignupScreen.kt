@@ -184,11 +184,12 @@ fun CaregiverArea(navController: NavController){
             fontSize = 20.sp,
             style = TextStyle(SherpaColor)
         )
-        InfomationGroup("아이디", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
-        InfomationGroup("비밀번호") { passwordValue = it }
-        InfomationGroup("비밀번호\n확인") { confirmPasswordValue = it }
+
+        InfomationGroup("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it.trim() }
+        InfomationGroup("비밀번호") { passwordValue = it.trim() }
+        InfomationGroup("비밀번호\n확인") { confirmPasswordValue = it.trim() }
         InfomationGroup("이름") { userNameValue = it }
-        InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
+        InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it.trim() }
         InfomationGroup("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroup("상세주소") { detailAddressValue = it }
 
@@ -229,14 +230,23 @@ fun CaregiverArea(navController: NavController){
             }
         )
 
-
-
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
-            // TODO: 로그인 정보로 보호자 역할 분기해야 됨
             onClick = {
                 if(!allChecked){
                     Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT).show()
+                    return@TextButton
+                }
+
+                if(!isValidId(emailValue)){
+                    Toast.makeText(context,"로그인 실패!\n이메일 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                }
+                if(!isValidId(passwordValue)){
+                    Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                }
+
+                if(passwordValue != confirmPasswordValue){
+                    Toast.makeText(context, "비밀번호가 다릅니다.", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
 
@@ -301,12 +311,12 @@ fun CaretakerArea(navController: NavController) {
             fontSize = 20.sp,
             style = TextStyle(SherpaColor)
         )
-        // TODO: 값 전송 시 공백 제거할 것
-        InfomationGroupDarkMode("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
-        InfomationGroupDarkMode("비밀번호", false) { passwordValue = it }
-        InfomationGroupDarkMode("비밀번호\n확인", false) { confirmPasswordValue = it }
+
+        InfomationGroupDarkMode("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it.trim() }
+        InfomationGroupDarkMode("비밀번호", false) { passwordValue = it.trim() }
+        InfomationGroupDarkMode("비밀번호\n확인", false) { confirmPasswordValue = it.trim() }
         InfomationGroupDarkMode("이름", false) { userNameValue = it }
-        InfomationGroupDarkMode("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
+        InfomationGroupDarkMode("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it.trim() }
         InfomationGroupDarkMode("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroupDarkMode("상세주소", false) { detailAddressValue = it }
         InfomationGroupDarkMode("보호자\n이메일", true, "연동하기" ,{
@@ -315,7 +325,7 @@ fun CaretakerArea(navController: NavController) {
 
             caregiverId = UserManager().linkPermission(caregiverEmail)?.data!!
             caregiverRelation = "연동 로직 구현 시에는 이거도 같이 반환 받아야 함."
-        }) { caregiverEmail = it }
+        }) { caregiverEmail = it.trim() }
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -366,8 +376,20 @@ fun CaretakerArea(navController: NavController) {
                     return@TextButton
                 }
 
+                if(!isValidId(emailValue)){
+                    Toast.makeText(context,"로그인 실패!\n이메일 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                }
+                if(!isValidId(passwordValue)){
+                    Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                }
+
+                if(passwordValue != confirmPasswordValue){
+                    Toast.makeText(context, "비밀번호가 다릅니다.", Toast.LENGTH_SHORT).show()
+                    return@TextButton
+                }
+
                 if(caregiverId == -1) {
-                    Log.d("explain", "보호자 연동 후 사용할 것")
+                    Toast.makeText(context, "보호자 연동 후 사용할 것", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
 
@@ -400,6 +422,11 @@ fun CaretakerArea(navController: NavController) {
             )
         }
     }
+}
+
+fun isValidId(id: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}$".toRegex()
+    return regex.matches(id)
 }
 
 fun signup(navController: NavController, createUserRequest: CreateUserRequest) {

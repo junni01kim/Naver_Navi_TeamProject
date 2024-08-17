@@ -43,6 +43,7 @@ import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.account.module.InfomationGroup
+import com.hansung.sherpa.ui.account.signup.isValidId
 import com.hansung.sherpa.user.UserManager
 
 @Composable
@@ -160,7 +161,7 @@ fun LoginArea(navController: NavController) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ) {
-        InfomationGroup("아이디", false) {idValue = it.trim()}
+        InfomationGroup("이메일", false) {idValue = it.trim()}
         InfomationGroup("비밀번호", false) {passwordValue = it.trim()}
 
         TextButton(
@@ -203,11 +204,6 @@ fun login(navController: NavController, email: String, password: String) : Boole
         navController.navigate("${SherpaScreen.Home.name}")
     }
     return false
-}
-
-fun isValidId(id: String): Boolean {
-    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{3,15}$".toRegex()
-    return regex.matches(id)
 }
 
 @Composable
