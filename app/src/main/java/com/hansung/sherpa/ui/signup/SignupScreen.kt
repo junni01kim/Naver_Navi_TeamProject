@@ -253,12 +253,6 @@ fun CaretakerArea(navController: NavController) {
     }
 }
 
-@Composable
-@Preview
-fun SignupPreview() {
-    SignupScreen()
-}
-
 /**
  * 나중에 로그인 만드실 분 생각해서 모듈화해둠 알아서 변경해서 쓸 것
  *
@@ -324,20 +318,13 @@ fun InfomationGroup(titleText:String, buttonToggle:Boolean = false, buttonText:S
     }
 }
 
-@Composable
-fun InfomationGroupSample() {
-    var idValue by remember { mutableStateOf("") }
-    var passwordValue by remember { mutableStateOf("") }
-    var confirmPasswordValue by remember { mutableStateOf("") }
-    var telValue by remember { mutableStateOf("") }
-
-    InfomationGroup("아이디", true, "중복검사", {/*중복검사 API*/}) { idValue = it }
-    InfomationGroup("비밀번호", false) { passwordValue = it }
-    InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
-    InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
-}
-
 fun signup(navController: NavController, createUserRequest: CreateUserRequest) {
     UserManager().create(createUserRequest)
     navController.navigate("${SherpaScreen.Login.name}")
+}
+
+@Composable
+@Preview
+fun SignupPreview() {
+    SignupScreen()
 }

@@ -47,7 +47,7 @@ import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.R
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.ui.signup.InfomationGroupSample
+import com.hansung.sherpa.ui.signup.InfomationGroup
 import com.hansung.sherpa.user.UserManager
 
 val SherpaColor = Color(0xFF64FCD9)
@@ -81,7 +81,7 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(40.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             TitleArea()
             LoginArea(navController)
@@ -198,64 +198,6 @@ fun LoginArea(navController: NavController) {
             )
         }
     }
-}
-
-/**
- * 나중에 로그인 만드실 분 생각해서 모듈화해둠 알아서 변경해서 쓸 것
- *
- * @param titleText
- * @param buttonToggle
- * @param buttonText 버튼에 들어갈 텍스트 ex) (아이디) 중복검사
- * @param modifier Row modifier와 연결 되어있다. 혹시 설정하고 싶으면 하시오.
- * @param buttonClick 람다함수. buttonToggle을 true로 설정했을 때 사용하면 된다. 버튼 눌렀을 때 필요한 동작 하면됨
- * @param update 연결시켜둔 문자열에 최종적으로 값이 들어감.
- *
- * @sample InfomationGroupSample
- */
-@Composable
-fun InfomationGroup(titleText:String, buttonToggle:Boolean, buttonText:String = "", buttonClick: (String) -> Unit = {}, modifier:Modifier = Modifier, update: (String) -> Unit) {
-    var value by remember { mutableStateOf("")}
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Text(
-            text = titleText,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(50.dp),
-            fontSize = 15.sp,
-            fontFamily = bmHanna,
-        )
-        Spacer(modifier = Modifier.width(20.dp))
-        OutlinedTextField(
-            value = value,
-            onValueChange = {
-                value = it
-                update(value)
-            },
-            modifier = Modifier.size(200.dp, 50.dp),
-            shape = RoundedCornerShape(15.dp)
-        )
-        Spacer(modifier = Modifier.width(10.dp))
-        if(buttonToggle){
-            Button(onClick = { buttonClick(value) }) {
-                Text(buttonText)
-            }
-        }
-    }
-}
-
-@Composable
-fun InfomationGroupSample() {
-    var idValue by remember { mutableStateOf("") }
-    var passwordValue by remember { mutableStateOf("") }
-    var confirmPasswordValue by remember { mutableStateOf("") }
-    var telValue by remember { mutableStateOf("") }
-
-    InfomationGroup("아이디", true, "중복검사", {/*중복검사 API*/}) { idValue = it }
-    InfomationGroup("비밀번호", false) { passwordValue = it }
-    InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
-    InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
 }
 
 fun login(navController: NavController, email: String, password: String) : Boolean {
