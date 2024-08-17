@@ -2,18 +2,27 @@ package com.hansung.sherpa.ui.login
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,32 +30,81 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.hansung.sherpa.R
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.ui.signup.InfomationGroupSample
 import com.hansung.sherpa.user.UserManager
 
+val SherpaColor = Color(0xFF64FCD9)
+val bmHanna = FontFamily(Font(R.font.bm_hanna_pro, FontWeight.Bold))
+
 @Composable
 fun LoginScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier) {
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .background(Color.White)) {
-        Text(text = "Login Screen")
-        Spacer(modifier = Modifier.height(50.dp))
+    Box(
+        modifier = Modifier
+        .background(Color.White)
+        .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ){
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom
+        ){
+            Box(
+                modifier = Modifier.fillMaxWidth().height(500.dp).clip(RoundedCornerShape(0.dp,0.dp,800.dp,800.dp)).background(SherpaColor)
+            )
+            Box(
+                modifier = Modifier.fillMaxWidth().height(500.dp).background(Color.White)
+            )
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            TitleArea()
+            LoginArea(navController)
+            FindAccountArea(navController)
+        }
+    }
+}
 
-        // 입력란
-        Text("로그인 입력란")
-        LoginArea(navController)
-        Spacer(modifier = Modifier.height(50.dp))
+@Composable
+fun TitleArea() {
+    Row(verticalAlignment = Alignment.CenterVertically){
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = "디자인을 위한 사람 아이콘",
+            modifier = Modifier.size(60.dp,60.dp)
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Text(
+            text = "로그인",
+            fontSize = 40.sp,
+            fontFamily = bmHanna
+        )
+    }
+}
 
-        // 비밀번호 찾기, 회원가입 이동
+@Composable
+fun FindAccountArea(navController: NavController) {
+    // 비밀번호 찾기, 회원가입 이동
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         TextButton(
             onClick = {},
             colors= ButtonColors(
@@ -59,7 +117,9 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
         ){
             Text(
                 text = "아이디/비밀번호를 잃어버리셨나요?",
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontFamily = bmHanna,
+                style = TextStyle(textDecoration = TextDecoration.Underline)
             )
         }
         TextButton(
@@ -74,7 +134,9 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
         ){
             Text(
                 text = "계정이 없으신가요?",
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontFamily = bmHanna,
+                style = TextStyle(textDecoration = TextDecoration.Underline)
             )
         }
     }
@@ -88,7 +150,11 @@ fun LoginArea(navController: NavController) {
     var idValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
 
-    Column {
+    Column(
+        modifier = Modifier.clip(RoundedCornerShape(20.dp)).background(Color.White).padding(20.dp, 60.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(30.dp)
+    ) {
         InfomationGroup("아이디", false) {idValue = it}
         InfomationGroup("비밀번호", false) {passwordValue = it}
 
@@ -98,24 +164,18 @@ fun LoginArea(navController: NavController) {
             onClick = { if(login(navController, idValue, passwordValue)) return@TextButton },
             colors= ButtonColors(
                 contentColor = Color.Black,
-                containerColor = Color(0xFF64FCD9),
+                containerColor = SherpaColor,
                 disabledContentColor = Color.Black,
-                disabledContainerColor =  Color(0xFF64FCD9)
+                disabledContainerColor =  SherpaColor
             ),
             modifier = Modifier.width(200.dp)
         ){
             Text(
                 text = "로그인",
-                fontWeight = FontWeight.Bold
+                fontFamily = bmHanna
             )
         }
     }
-}
-
-@Composable
-@Preview
-fun LoginPreview() {
-    LoginScreen()
 }
 
 /**
@@ -139,17 +199,20 @@ fun InfomationGroup(titleText:String, buttonToggle:Boolean, buttonText:String = 
     ){
         Text(
             text = titleText,
-            fontSize = 10.sp,
-            modifier = Modifier.width(50.dp)
+            textAlign = TextAlign.Center,
+            modifier = Modifier.width(50.dp),
+            fontSize = 15.sp,
+            fontFamily = bmHanna,
         )
-        Spacer(modifier = Modifier.width(5.dp))
-        TextField(
+        Spacer(modifier = Modifier.width(20.dp))
+        OutlinedTextField(
             value = value,
             onValueChange = {
                 value = it
                 update(value)
             },
-            modifier = Modifier.width(200.dp)
+            modifier = Modifier.size(200.dp, 50.dp),
+            shape = RoundedCornerShape(15.dp)
         )
         Spacer(modifier = Modifier.width(10.dp))
         if(buttonToggle){
@@ -174,7 +237,6 @@ fun InfomationGroupSample() {
 }
 
 fun login(navController: NavController, email: String, password: String) : Boolean {
-    // TODO: Response Data 클래스 이름 바꿀것
     val loginResponse = UserManager().login(email, password)!!
     val data = loginResponse.data!!
     if(data.userId == 0 || data.userId == null) {
@@ -185,4 +247,10 @@ fun login(navController: NavController, email: String, password: String) : Boole
         navController.navigate("${SherpaScreen.Home.name}")
     }
     return false
+}
+
+@Composable
+@Preview
+fun LoginPreview() {
+    LoginScreen()
 }
