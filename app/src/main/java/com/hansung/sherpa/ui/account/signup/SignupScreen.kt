@@ -236,7 +236,7 @@ fun CaregiverArea(navController: NavController){
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
             onClick = {
                 if(!allChecked){
-                    Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
 
@@ -362,7 +362,7 @@ fun CaretakerArea(navController: NavController) {
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
             onClick = {
                 if(!allChecked){
-                    Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT)
+                    Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
 
