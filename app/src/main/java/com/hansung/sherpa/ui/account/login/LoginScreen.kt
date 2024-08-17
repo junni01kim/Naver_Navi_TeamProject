@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.login
+package com.hansung.sherpa.ui.account.login
 
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -17,10 +17,8 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -34,24 +32,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.hansung.sherpa.R
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.ui.signup.InfomationGroup
+import com.hansung.sherpa.sherpares.BmHanna
+import com.hansung.sherpa.sherpares.SherpaColor
+import com.hansung.sherpa.ui.account.module.InfomationGroup
 import com.hansung.sherpa.user.UserManager
-
-val SherpaColor = Color(0xFF64FCD9)
-val bmHanna = FontFamily(Font(R.font.bm_hanna_pro, FontWeight.Bold))
 
 @Composable
 fun LoginScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier) {
@@ -102,7 +94,7 @@ fun TitleArea() {
         Text(
             text = "로그인",
             fontSize = 40.sp,
-            fontFamily = bmHanna
+            fontFamily = BmHanna
         )
     }
 }
@@ -126,7 +118,7 @@ fun FindAccountArea(navController: NavController) {
             Text(
                 text = "아이디/비밀번호를 잃어버리셨나요?",
                 fontSize = 18.sp,
-                fontFamily = bmHanna,
+                fontFamily = BmHanna,
                 style = TextStyle(textDecoration = TextDecoration.Underline)
             )
         }
@@ -143,7 +135,7 @@ fun FindAccountArea(navController: NavController) {
             Text(
                 text = "계정이 없으신가요?",
                 fontSize = 18.sp,
-                fontFamily = bmHanna,
+                fontFamily = BmHanna,
                 style = TextStyle(textDecoration = TextDecoration.Underline)
             )
         }
@@ -194,7 +186,7 @@ fun LoginArea(navController: NavController) {
         ){
             Text(
                 text = "로그인",
-                fontFamily = bmHanna
+                fontFamily = BmHanna
             )
         }
     }

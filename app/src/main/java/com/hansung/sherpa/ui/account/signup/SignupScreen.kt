@@ -1,8 +1,9 @@
-package com.hansung.sherpa.ui.signup
+package com.hansung.sherpa.ui.account.signup
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,13 +17,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -33,34 +31,38 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.ui.login.SherpaColor
-import com.hansung.sherpa.ui.login.bmHanna
+import com.hansung.sherpa.sherpares.BmHanna
+import com.hansung.sherpa.sherpares.SherpaButtonColor
+import com.hansung.sherpa.sherpares.SherpaColor
+import com.hansung.sherpa.ui.account.module.InfomationGroup
+import com.hansung.sherpa.ui.account.module.InfomationGroupDarkMode
+import com.hansung.sherpa.ui.account.module.ViewTOS
+import com.hansung.sherpa.ui.account.module.rowWidth
 import com.hansung.sherpa.user.createuser.CreateUserRequest
 import com.hansung.sherpa.user.UserManager
 import java.sql.Timestamp
 import java.util.Calendar
 
-
-
 @Composable
 fun SignupScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier){
+    var careToggle by remember { mutableStateOf(false) }
     Box(
         modifier = Modifier
             .background(Color.White)
             .fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -70,7 +72,8 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(500.dp)
-                    .clip(RoundedCornerShape(0.dp, 0.dp, 800.dp, 800.dp))
+                    .rotate(180f)
+                    .clip(RoundedCornerShape(800.dp, 800.dp))
                     .background(SherpaColor)
             )
             Box(
@@ -84,13 +87,49 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
             verticalArrangement = Arrangement.spacedBy(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Spacer(modifier = Modifier.height(50.dp))
             TitleArea()
 
             // 보호자 입력란
-            CaregiverArea(navController)
-
-            // 사용자 입력란
-            //CaretakerArea(navController)
+            Column {
+                Row(
+                    modifier = Modifier.width(rowWidth+20.dp),
+                    horizontalArrangement = Arrangement.End
+                ){
+                    Box(modifier = Modifier
+                        .size(70.dp, 20.dp)
+                        .clip(RoundedCornerShape(100, 100))
+                        .background(Color.White)
+                        .clickable {
+                            careToggle = false
+                        },
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            text = "보호자",
+                            color = Color.Black,
+                            fontFamily = BmHanna
+                        )
+                    }
+                    Box(modifier = Modifier
+                        .size(70.dp, 20.dp)
+                        .clip(RoundedCornerShape(100, 100))
+                        .background(Color.Black)
+                        .clickable {
+                            careToggle = true
+                        },
+                        contentAlignment = Alignment.Center
+                    ){
+                        Text(
+                            text = "사용자",
+                            fontFamily = BmHanna,
+                            color = Color.White
+                        )
+                    }
+                }
+                if (careToggle) CaretakerArea(navController)
+                else CaregiverArea(navController)
+            }
         }
     }
 }
@@ -107,7 +146,7 @@ fun TitleArea() {
         Text(
             text = "회원가입",
             fontSize = 40.sp,
-            fontFamily = bmHanna
+            fontFamily = BmHanna
         )
     }
 }
@@ -117,6 +156,8 @@ fun TitleArea() {
  */
 @Composable
 fun CaregiverArea(navController: NavController){
+    val context = LocalContext.current
+
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     var confirmPasswordValue by remember { mutableStateOf("") }
@@ -124,6 +165,10 @@ fun CaregiverArea(navController: NavController){
     var telValue by remember { mutableStateOf("") }
     var addressValue by remember { mutableStateOf("") }
     var detailAddressValue by remember { mutableStateOf("") }
+
+    var tosChecked by remember { mutableStateOf(false) }
+    var marketingChecked by remember { mutableStateOf(false) }
+    var allChecked by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -135,24 +180,66 @@ fun CaregiverArea(navController: NavController){
     ) {
         Text(
             text ="정보 입력",
-            fontFamily = bmHanna,
+            fontFamily = BmHanna,
             fontSize = 20.sp,
             style = TextStyle(SherpaColor)
         )
         InfomationGroup("아이디", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
         InfomationGroup("비밀번호") { passwordValue = it }
-        InfomationGroup("비밀번호 확인") { confirmPasswordValue = it }
+        InfomationGroup("비밀번호\n확인") { confirmPasswordValue = it }
         InfomationGroup("이름") { userNameValue = it }
         InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
         InfomationGroup("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroup("상세주소") { detailAddressValue = it }
-        Text("이용약관1")
-        Text("이용약관2")
-        Text("이용약관3")
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        ViewTOS(
+            tosText = "이용약관에 동의합니다.",
+            checked = tosChecked,
+            modifier = Modifier
+                .width(250.dp)
+                .wrapContentHeight(),
+            onCheckedChange = {
+                tosChecked = it
+                allChecked = if(tosChecked && marketingChecked) true else false
+            }
+        )
+        ViewTOS(
+            tosText = "마케팅에 동의합니다.",
+            checked = marketingChecked,
+            modifier = Modifier
+                .width(250.dp)
+                .wrapContentHeight(),
+            onCheckedChange = {
+                marketingChecked = it
+                allChecked = if(tosChecked && marketingChecked) true else false
+            }
+        )
+        ViewTOS(
+            tosText = "해당 약관에 모두 동의합니다.",
+            checked = allChecked,
+            modifier = Modifier
+                .width(250.dp)
+                .wrapContentHeight(),
+            onCheckedChange = {
+                allChecked = it
+                tosChecked = it
+                marketingChecked = it
+            }
+        )
+
+
+
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
             onClick = {
+                if(!allChecked){
+                    Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT)
+                    return@TextButton
+                }
+
                 val createUserRequest = CreateUserRequest(
                     email = emailValue,
                     password = passwordValue,
@@ -166,17 +253,13 @@ fun CaregiverArea(navController: NavController){
                 )
                 signup(navController, createUserRequest)
             },
-            colors= ButtonColors(
-                contentColor = Color.Black,
-                containerColor = SherpaColor,
-                disabledContentColor = Color.Black,
-                disabledContainerColor =  SherpaColor
-            ),
+            colors= SherpaButtonColor,
             modifier = Modifier.width(200.dp)
         ){
             Text(
                 text = "확인",
-                fontWeight = FontWeight.Bold
+                fontSize = 15.sp,
+                fontFamily = BmHanna
             )
         }
     }
@@ -187,6 +270,8 @@ fun CaregiverArea(navController: NavController){
  */
 @Composable
 fun CaretakerArea(navController: NavController) {
+    val context = LocalContext.current
+
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     var confirmPasswordValue by remember { mutableStateOf("") }
@@ -198,29 +283,89 @@ fun CaretakerArea(navController: NavController) {
     var caregiverEmail by remember { mutableStateOf("-1") }
     var caregiverRelation by remember { mutableStateOf("보호자") }
 
-    Column {
+    var tosChecked by remember { mutableStateOf(false) }
+    var marketingChecked by remember { mutableStateOf(false) }
+    var allChecked by remember { mutableStateOf(false) }
+
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Color.Black)
+            .padding(20.dp, 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text(
+            text ="정보 입력",
+            fontFamily = BmHanna,
+            fontSize = 20.sp,
+            style = TextStyle(SherpaColor)
+        )
         // TODO: 값 전송 시 공백 제거할 것
-        InfomationGroup("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
-        InfomationGroup("비밀번호", false) { passwordValue = it }
-        InfomationGroup("비밀번호 확인", false) { confirmPasswordValue = it }
-        InfomationGroup("이름", false) { userNameValue = it }
-        InfomationGroup("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
-        InfomationGroup("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
-        InfomationGroup("상세주소", false) { detailAddressValue = it }
-        InfomationGroup("보호자 이메일", true, "연동하기" ,{
+        InfomationGroupDarkMode("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it }
+        InfomationGroupDarkMode("비밀번호", false) { passwordValue = it }
+        InfomationGroupDarkMode("비밀번호\n확인", false) { confirmPasswordValue = it }
+        InfomationGroupDarkMode("이름", false) { userNameValue = it }
+        InfomationGroupDarkMode("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it }
+        InfomationGroupDarkMode("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
+        InfomationGroupDarkMode("상세주소", false) { detailAddressValue = it }
+        InfomationGroupDarkMode("보호자\n이메일", true, "연동하기" ,{
             // TODO: 보호자 연동 허가 로직 구현할 것
             // TODO: ※ (2024-08-12) 지금은 테스트용으로 보호자 승인 없이 DB에서 바로 받아옴. 진행
 
             caregiverId = UserManager().linkPermission(caregiverEmail)?.data!!
             caregiverRelation = "연동 로직 구현 시에는 이거도 같이 반환 받아야 함."
         }) { caregiverEmail = it }
-        Text("이용약관1")
-        Text("이용약관2")
-        Text("이용약관3")
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        ViewTOS(
+            tosText = "이용약관에 동의합니다.",
+            checked = tosChecked,
+            modifier = Modifier
+                .width(250.dp)
+                .wrapContentHeight(),
+            textColor = Color.White,
+            onCheckedChange = {
+                tosChecked = it
+                allChecked = if(tosChecked && marketingChecked) true else false
+            }
+        )
+        ViewTOS(
+            tosText = "마케팅에 동의합니다.",
+            checked = marketingChecked,
+            modifier = Modifier
+                .width(250.dp)
+                .wrapContentHeight(),
+            textColor = Color.White,
+            onCheckedChange = {
+                marketingChecked = it
+                allChecked = if(tosChecked && marketingChecked) true else false
+            }
+        )
+        ViewTOS(
+            tosText = "해당 약관에 모두 동의합니다.",
+            checked = allChecked,
+            modifier = Modifier
+                .width(250.dp)
+                .wrapContentHeight(),
+            textColor = Color.White,
+            onCheckedChange = {
+                allChecked = it
+                tosChecked = it
+                marketingChecked = it
+            }
+        )
+
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             // TODO: 로그인 정보로 보호자 역할 분기해야 됨
             onClick = {
+                if(!allChecked){
+                    Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT)
+                    return@TextButton
+                }
+
                 if(caregiverId == -1) {
                     Log.d("explain", "보호자 연동 후 사용할 것")
                     return@TextButton
@@ -254,87 +399,6 @@ fun CaretakerArea(navController: NavController) {
                 fontWeight = FontWeight.Bold
             )
         }
-    }
-}
-
-/**
- * 나중에 로그인 만드실 분 생각해서 모듈화해둠 알아서 변경해서 쓸 것
- *
- * @param titleText
- * @param buttonToggle
- * @param buttonText 버튼에 들어갈 텍스트 ex) (아이디) 중복검사
- * @param modifier Row modifier와 연결 되어있다. 혹시 설정하고 싶으면 하시오.
- * @param buttonClick 람다함수. buttonToggle을 true로 설정했을 때 사용하면 된다. 버튼 눌렀을 때 필요한 동작 하면됨
- * @param update 연결시켜둔 문자열에 최종적으로 값이 들어감.
- *
- * @sample InfomationGroupSample
- */
-@Composable
-fun InfomationGroup(titleText:String, buttonToggle:Boolean = false, buttonText:String = "", buttonClick: (String) -> Unit = {}, modifier:Modifier = Modifier, update: (String) -> Unit) {
-    val rowWidth = 250.dp
-    val titleTextWidth = 60.dp
-    val buttonWidth = 50.dp
-    val spacerWidth = 10.dp
-
-    var value by remember { mutableStateOf("")}
-
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Text(
-            text = titleText,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.width(titleTextWidth),
-            fontSize = 15.sp,
-            fontFamily = bmHanna,
-        )
-        Spacer(modifier = Modifier.width(spacerWidth))
-        SignupTextField(
-            value = value,
-            onValueChange = {
-                value = it
-                update(value)
-            },
-            modifier = Modifier.size(
-                if(buttonToggle) rowWidth - titleTextWidth - buttonWidth - spacerWidth
-                else rowWidth - titleTextWidth, 30.dp
-            )
-        )
-        if(buttonToggle){
-            Spacer(modifier = Modifier.width(spacerWidth))
-            TextButton(
-                onClick = { buttonClick(value) },
-                modifier = Modifier.size(buttonWidth, 30.dp),
-                colors = ButtonColors(
-                    contentColor = Color.Black,
-                    containerColor = SherpaColor,
-                    disabledContentColor = Color.Black,
-                    disabledContainerColor =  SherpaColor
-                )
-            ) {
-                Text(
-                    text = buttonText,
-                    fontSize = 7.sp,
-                    textAlign = TextAlign.Center
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun SignupTextField(value:String, onValueChange: (String) -> Unit, modifier: Modifier) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier.border(1.dp,Color.Black, RoundedCornerShape(10.dp))
-    ){
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            singleLine = true,
-            modifier = modifier.wrapContentHeight().padding(horizontal = 10.dp)
-        )
     }
 }
 
