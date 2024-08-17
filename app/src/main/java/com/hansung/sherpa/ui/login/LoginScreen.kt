@@ -1,6 +1,5 @@
 package com.hansung.sherpa.ui.login
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -174,7 +173,6 @@ fun LoginArea(navController: NavController) {
 
         TextButton(
             // TODO: 로그인 정보로 계정 역할 분기해야 됨
-            // TODO: 값 전송 시 공백 제거할 것
             onClick = {
                 if(isValidId(idValue)){
                     Toast.makeText(context,"로그인 실패!\n아이디 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
