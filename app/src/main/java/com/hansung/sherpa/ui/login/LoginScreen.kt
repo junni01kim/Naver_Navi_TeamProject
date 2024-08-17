@@ -81,7 +81,7 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
         }
         Column(
             verticalArrangement = Arrangement.spacedBy(40.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             TitleArea()
             LoginArea(navController)
