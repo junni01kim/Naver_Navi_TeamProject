@@ -10,6 +10,9 @@ import com.hansung.sherpa.user.linkpermission.LinkPermissionService
 import com.hansung.sherpa.user.login.LoginRequest
 import com.hansung.sherpa.user.login.LoginResponse
 import com.hansung.sherpa.user.login.LoginService
+import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
+import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
+import com.hansung.sherpa.user.updateFcm.UpdateFcmService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -84,5 +87,26 @@ class UserManager {
         }
         Log.d("FCMLog", "login 함수 실행 성공 ${result?.data?.userId}")
         return result
+    }
+
+    fun updateFcm() {
+        val updateFcmRequest = UpdateFcmRequest()
+        var result: UpdateFcmResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl("http://13.209.212.166:8080/api/v1/fcm1/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UpdateFcmService::class.java)
+                        .patchUpdateFcmService(updateFcmRequest).execute()
+                    result = Gson().fromJson(response.body()!!.string(), UpdateFcmResponse::class.java)
+                } catch (e:IOException){
+                    Log.d("explain", "onFailure: 실패")
+                    Log.d("explain", "message: ${e.message}")
+                }
+            }
+        }
     }
 }

@@ -244,6 +244,7 @@ fun login(navController: NavController, email: String, password: String) : Boole
         return true
     } else {
         StaticValue.userInfo = data
+        UserManager().updateFcm()
         navController.navigate("${SherpaScreen.Home.name}")
     }
     return false
