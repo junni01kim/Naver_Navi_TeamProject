@@ -210,7 +210,7 @@ fun PreferenceItem(
             .background(Color.White)
             .clickable(
                 onClick = { callback(text) },
-                indication = rememberRipple(bounded = true),
+                indication = ripple(bounded = true),
                 interactionSource = interactionSource
             )
     ){
