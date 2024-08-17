@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
@@ -325,15 +326,14 @@ fun InfomationGroup(titleText:String, buttonToggle:Boolean = false, buttonText:S
 @Composable
 fun SignupTextField(value:String, onValueChange: (String) -> Unit, modifier: Modifier) {
     Box(
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
+        modifier = modifier.border(1.dp,Color.Black, RoundedCornerShape(10.dp))
     ){
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            modifier = modifier
-        )
-        Box(
-            modifier = modifier.border(1.dp,Color.Black, RoundedCornerShape(10.dp))
+            singleLine = true,
+            modifier = modifier.wrapContentHeight().padding(horizontal = 10.dp)
         )
     }
 }
