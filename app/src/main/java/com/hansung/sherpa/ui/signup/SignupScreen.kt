@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.signup
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
@@ -37,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
@@ -286,7 +289,7 @@ fun InfomationGroup(titleText:String, buttonToggle:Boolean = false, buttonText:S
             fontFamily = bmHanna,
         )
         Spacer(modifier = Modifier.width(spacerWidth))
-        OutlinedTextField(
+        SignupTextField(
             value = value,
             onValueChange = {
                 value = it
@@ -294,15 +297,14 @@ fun InfomationGroup(titleText:String, buttonToggle:Boolean = false, buttonText:S
             },
             modifier = Modifier.size(
                 if(buttonToggle) rowWidth - titleTextWidth - buttonWidth - spacerWidth
-                else rowWidth - titleTextWidth, 50.dp
-            ),
-            shape = RoundedCornerShape(15.dp)
+                else rowWidth - titleTextWidth, 30.dp
+            )
         )
         if(buttonToggle){
             Spacer(modifier = Modifier.width(spacerWidth))
             TextButton(
                 onClick = { buttonClick(value) },
-                modifier = Modifier.size(buttonWidth, 50.dp),
+                modifier = Modifier.size(buttonWidth, 30.dp),
                 colors = ButtonColors(
                     contentColor = Color.Black,
                     containerColor = SherpaColor,
@@ -311,10 +313,28 @@ fun InfomationGroup(titleText:String, buttonToggle:Boolean = false, buttonText:S
                 )
             ) {
                 Text(
-                    text = buttonText
+                    text = buttonText,
+                    fontSize = 7.sp,
+                    textAlign = TextAlign.Center
                 )
             }
         }
+    }
+}
+
+@Composable
+fun SignupTextField(value:String, onValueChange: (String) -> Unit, modifier: Modifier) {
+    Box(
+        contentAlignment = Alignment.Center
+    ){
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier
+        )
+        Box(
+            modifier = modifier.border(1.dp,Color.Black, RoundedCornerShape(10.dp))
+        )
     }
 }
 
