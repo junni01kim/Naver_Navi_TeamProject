@@ -167,12 +167,12 @@ fun LoginArea(navController: NavController) {
         TextButton(
             // TODO: 로그인 정보로 계정 역할 분기해야 됨
             onClick = {
-                if(!isValidId(idValue)){
+                /*if(!isValidId(idValue)){
                     Toast.makeText(context,"로그인 실패!\n아이디 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
                 }
                 if(!isValidId(passwordValue)){
                     Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
-                }
+                }*/
                 if(login(navController, idValue, passwordValue)) {
                     Toast.makeText(context,"로그인 실패!\n아이디 비밀번호를 확인해주세요", Toast.LENGTH_SHORT).show()
                     return@TextButton
@@ -194,7 +194,8 @@ fun LoginArea(navController: NavController) {
 }
 
 fun login(navController: NavController, email: String, password: String) : Boolean {
-    val loginResponse = UserManager().login(email, password)!!
+    val loginResponse = UserManager().login(email, password)
+    if(loginResponse == null) return true
     val data = loginResponse.data!!
     if(data.userId == 0 || data.userId == null) {
         return true
