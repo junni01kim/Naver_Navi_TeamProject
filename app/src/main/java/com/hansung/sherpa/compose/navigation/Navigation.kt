@@ -40,6 +40,23 @@ class Navigation {
             Log.e("MAPPER", e.toString())
         }
 
+        transportRouteList?.mapIndexed { index, transportRoute ->
+            // [API] 각 경로에 대한 보행자 경로 리턴
+            val pedestrianRouteList = TM.requestCoordinateForRoute(
+                startLatLng, endLatLng, ODsayTransitRouteResponse.result?.path?.get(index)
+            )
+            Log.i("API", pedestrianRouteList.toString())
+    
+            // [MAPPING] 선택한 경로에 대한 데이터를 사용할 클래스 객체에 넣어준다.
+            try {
+                RouteFilterMapper().mappingPedestrianRouteToTransportRoute(
+                    transportRouteList[index], pedestrianRouteList)
+                Log.i("MAPPER", transportRoute.toString())
+            } catch (e : Exception) {
+                Log.e("MAPPER", e.toString())
+            }
+        }
+
         return transportRouteList!!
     }
 

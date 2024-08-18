@@ -54,7 +54,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
-import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 
 data class PreferenceItemData(val title : String, val screenOption : PreferenceScreenOption)
 
@@ -166,6 +165,7 @@ fun PreferenceItems(
             PreferenceItem(preferenceItemData = PreferenceItemData(title = "개인정보 취급 방침", screenOption = PreferenceScreenOption.PRIVACY_POLICY),
                 icon = Icons.Default.Person, color = Color.Black, callback)
         }
+
     }
 }
 
@@ -203,7 +203,7 @@ fun PreferenceItem(
             .background(Color.White)
             .clickable(
                 onClick = { callback(preferenceItemData.screenOption) },
-                indication = rememberRipple(bounded = true),
+                indication = ripple(bounded = true),
                 interactionSource = interactionSource
             )
     ){

@@ -113,7 +113,6 @@ fun CalendarScreen(
             scheduleDataList.clear()
     }
 
-
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
