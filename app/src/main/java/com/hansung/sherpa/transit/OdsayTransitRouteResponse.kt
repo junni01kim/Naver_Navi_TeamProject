@@ -78,7 +78,7 @@ data class ODsayInfo(
     val payment: Int,
     val busTransitCount: Int,
     val subwayTransitCount: Int,
-    val mapObj: String?,
+    val mapObj: String,
     val firstStartStation: String,
     val firstStartStationKor: String,
     val firstStartStationJpnKata: String,
