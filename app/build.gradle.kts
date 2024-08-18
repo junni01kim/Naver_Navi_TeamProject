@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.kapt")
+    id("com.google.gms.google-services")
 }
 
 val clientId = getLocalPropertyKey("CLIENT_ID")
@@ -11,6 +13,7 @@ val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
 val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
 val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
 val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
+val openDataPotalKey = getLocalPropertyKey("OPEN_DATA_POTAL_KEY")
 
 android {
 
@@ -30,6 +33,7 @@ android {
         buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
+        buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
         manifestPlaceholders["CLIENT_ID"] = clientId
 
         vectorDrawables {
@@ -67,6 +71,9 @@ android {
     }
     packaging {
         resources {
+            merges += "META-INF/spring.*"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/notice.txt"
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
@@ -83,6 +90,7 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.filament.android)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -138,4 +146,28 @@ dependencies {
     implementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+
+    // for Barchart in Routes UI
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // MapStruct dependencies
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor)
+
+    // spring-context
+    implementation(libs.spring.context)
+
+    // for Extendable View
+    implementation("com.github.skydoves:expandablelayout:1.0.7")
+
+    implementation ("com.github.commandiron:WheelPickerCompose:1.1.11")
+    implementation ("com.jakewharton.threetenabp:threetenabp:1.3.0")
+
+    // for FCM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
+    implementation("androidx.work:work-runtime:2.9.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
 }

@@ -1,5 +1,7 @@
 package com.hansung.sherpa.searchlocation
 
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -8,6 +10,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+
 
 /**
  * Search API 응답 처리 후 콜백 인터페이스
@@ -31,10 +34,14 @@ class SearchLocation {
         .addInterceptor(HeaderInterceptor())
         .build()
 
+    private val gson: Gson = GsonBuilder()
+        .registerTypeAdapter(SearchLocationResponse::class.java, SearchLocationDeserializer())
+        .create()
+
     private val retrofitService = Retrofit.Builder()
             .baseUrl("https://openapi.naver.com")
             .client(interceptor)
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
             .create(SearchLocationService::class.java)
 
@@ -56,9 +63,7 @@ class SearchLocation {
                     response: Response<SearchLocationResponse>
                 ) {
                     if(response.isSuccessful){
-                        response.body().let {
-                            searchLoactionCallBack.onSuccess(it)
-                        }
+                        searchLoactionCallBack.onSuccess(response.body())
                     }
                 }
                 override fun onFailure(call: Call<SearchLocationResponse>, t: Throwable) {

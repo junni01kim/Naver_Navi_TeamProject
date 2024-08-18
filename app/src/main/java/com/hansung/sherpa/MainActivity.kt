@@ -1,27 +1,53 @@
 package com.hansung.sherpa
 
+import android.Manifest
+import android.app.Activity
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.PointF
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.ImageButton
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
+import com.google.android.gms.tasks.Task
+import com.google.firebase.FirebaseApp
+import com.google.firebase.messaging.FirebaseMessaging
+import com.hansung.sherpa.FCM.MessageViewModel
+import com.hansung.sherpa.FCM.PermissionDialog
+import com.hansung.sherpa.FCM.RationaleDialog
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
-import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
+import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
+import com.hansung.sherpa.ui.account.login.LoginScreen
+import com.hansung.sherpa.ui.searchscreen.SearchScreen
+import com.hansung.sherpa.ui.preference.CalendarActivity
+import com.hansung.sherpa.ui.preference.PreferenceScreen
+import com.hansung.sherpa.ui.account.signup.SignupScreen
+import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
+import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
@@ -36,17 +62,45 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
     private lateinit var naverMap: NaverMap
 
-    private val LOCATION_PERMISSION_REQUEST_CODE = 1000
     private lateinit var locationSource: FusedLocationSource
-    private lateinit var destinationTextView: EditText // 목적지 textview
-    private lateinit var searchButton: ImageButton // 검색 버튼
     private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
     // 내비게이션 안내 값을 전송하기 위함
     lateinit var navigation:Navigation
 
+    // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
+    private val viewModel: MessageViewModel by viewModels()
+
+    private val messageReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val title = intent?.getStringExtra("title") ?: ""
+            val body = intent?.getStringExtra("body") ?: ""
+            viewModel.onMessageReceived(title, body)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        StaticValue.mainActivity = this
+        // FCM SDK 초기화
+        FirebaseApp.initializeApp(this);
+
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task: Task<String> ->
+                if (!task.isSuccessful) {
+                    Log.w("FCMLog", "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+                val token = task.result
+                Log.d("FCMLog", "Current token: $token")
+
+                StaticValue.FcmToken = token
+            }
+
+        // BroadcastReceiver 등록
+        registerReceiver(messageReceiver, IntentFilter("FCM_MESSAGE"), RECEIVER_NOT_EXPORTED)
 
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
@@ -54,24 +108,67 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         locationSource = GpsLocationSource.createInstance(this)
 
         setContent {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                RequestNotificationPermissionDialog()
+            }
             SherpaTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // TODO: 임시로 설정해둠
+
                     // 화면 간 이동에 대한 함수
                     // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Home.name
+                        startDestination = SherpaScreen.Start.name
                     ){
+                        composable(route = SherpaScreen.Start.name){
+                            StartScreen(navController, Modifier.padding(innerPadding))
+                        }
+                        composable(route = SherpaScreen.Login.name){
+                            LoginScreen(navController, Modifier.padding(innerPadding))
+                        }
+                        composable(route = SherpaScreen.SignUp.name) {
+                            SignupScreen(navController, Modifier.padding(innerPadding))
+                        }
                         composable(route = SherpaScreen.Home.name){
+                            ExampleAlam(viewModel)
                             HomeScreen(navController, Modifier.padding(innerPadding))
                         }
-                        composable(route = SherpaScreen.Search.name){
-                            SearchScreen(navController, Modifier.padding(innerPadding))
+                        composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
+                            arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
+                        ){
+                            val destinationValue = it.arguments?.getString("destinationValue")!!
+                            SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
+                        }
+                        composable(route = SherpaScreen.SpecificRoute.name){
+                            SpecificRouteScreen(StaticValue.transportRoute)
+                        }
+                        composable(route = SherpaScreen.Preference.name){
+                            PreferenceScreen { screenName ->
+                                when(screenName){
+                                    "캘린더 설정" -> {
+                                        val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @OptIn(ExperimentalPermissionsApi::class)
+    @Composable
+    fun RequestNotificationPermissionDialog() {
+        val permissionState = rememberPermissionState(permission = Manifest.permission.POST_NOTIFICATIONS)
+
+        if (!permissionState.status.isGranted) {
+            if (permissionState.status.shouldShowRationale) RationaleDialog()
+            else PermissionDialog { permissionState.launchPermissionRequest() }
         }
     }
 
@@ -103,19 +200,17 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         StaticValue.navigation = navigation
         // ---------- 여기까지 ----------
 
-        // 검색 버튼 클릭 리스너 (출발지, 도착지 검색시 경로 그리기)
-        searchButton.setOnClickListener {
-            //navigation.getTransitRoutes(startKeyword, endKeyword) // 프로젝트 1 진행 샘플 코드
-            navigation.getTransitRoutes("", "")
-        }
-
         // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
         val i = object : MyOnLocationChangeListener {
             override fun callback(location: Location) {
                 val nowLocation = LatLng(location.latitude, location.longitude)
-
-                if (routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
-                    navigation.redrawRoute(nowLocation, navigation.tempEndLatLng)
+                navigation.tempStartLatLng = nowLocation
+                Log.d("nowsection",""+routeControl.nowSection)
+                if (routeControl.route.isNotEmpty() && routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
+                    var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
+                    var toLatLng = routeControl.route[shortestRouteIndex]
+                    routeControl.delRouteToIndex(shortestRouteIndex)
+                    navigation.redrawRoute(nowLocation, toLatLng)
                 }
             }
         }
@@ -159,5 +254,26 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
             return
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    // ---------- 수정예정 ----------
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                1 -> { // RouteList Activity 문제점 좀 있음
+                    val startKeyword = data?.getStringExtra("startKeyword")!!
+                    val endKeyword = data.getStringExtra("endKeyword")!!
+                    Log.d("explain", "$startKeyword is $endKeyword")
+                    navigation.getTransitRoutes(startKeyword, endKeyword)
+                }
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(messageReceiver)
     }
 }

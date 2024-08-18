@@ -31,14 +31,14 @@ class FlipperEvent{
         destinationTextView.text = destinationText
         setTextViewStyle(destinationTextView)
 
-        val vFlipper: ViewFlipper = c.findViewById(R.id.v_flipper)
-        vFlipper.addView(locationTextView)
-        vFlipper.addView(destinationTextView)
-
-        vFlipper.inAnimation = AnimationUtils.loadAnimation(c, inAnimationRes)
-        vFlipper.outAnimation = AnimationUtils.loadAnimation(c, outAnimationRes)
-        vFlipper.flipInterval = 4000
-        vFlipper.isAutoStart = true
+//        val vFlipper: ViewFlipper = c.findViewById(R.id.v_flipper)
+//        vFlipper.addView(locationTextView)
+//        vFlipper.addView(destinationTextView)
+//
+//        vFlipper.inAnimation = AnimationUtils.loadAnimation(c, inAnimationRes)
+//        vFlipper.outAnimation = AnimationUtils.loadAnimation(c, outAnimationRes)
+//        vFlipper.flipInterval = 4000
+//        vFlipper.isAutoStart = true
     }
 
     private fun setTextViewStyle(t: TextView) {
