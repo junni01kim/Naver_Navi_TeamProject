@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Tag
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -282,7 +282,7 @@ fun UserName(){
             .size(80.dp)
             .clickable(
                 onClick = { state.value = true },
-                indication = rememberRipple(bounded = true),
+                indication = ripple(bounded = true),
                 interactionSource = interactionSource
             )
     ){
@@ -364,7 +364,7 @@ fun Password(){
             .size(80.dp)
             .clickable(
                 onClick = { changePasswordSheetState.value = true },
-                indication = rememberRipple(bounded = true),
+                indication = ripple(bounded = true),
                 interactionSource = interactionSource
             )
     ){
@@ -437,7 +437,7 @@ fun Contacts() {
             .size(80.dp)
             .clickable(
                 onClick = { changEmailSheetState.value = true },
-                indication = rememberRipple(bounded = true),
+                indication = ripple(bounded = true),
                 interactionSource = interactionSource
             )
     ){
@@ -504,7 +504,7 @@ fun Logout(){
             .size(80.dp)
             .clickable(
                 onClick = { },
-                indication = rememberRipple(bounded = true),
+                indication = ripple(bounded = true),
                 interactionSource = interactionSource
             )
     ){

@@ -10,5 +10,6 @@ enum class PreferenceScreenOption {
     CALL_INQUIRY,
     EMAIL_INQUIRY,
     APP_INFORMATION,
-    PRIVACY_POLICY
+    PRIVACY_POLICY,
+    EXIT
 }

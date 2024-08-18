@@ -29,7 +29,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -38,6 +37,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -54,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
+import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 
 data class PreferenceItemData(val title : String, val screenOption : PreferenceScreenOption)
 
@@ -79,7 +80,7 @@ class PreferenceActivity : ComponentActivity() {
 //                    PreferenceScreenOption.EMAIL_INQUIRY -> TODO()
 //                    PreferenceScreenOption.APP_INFORMATION -> TODO()
 //                    PreferenceScreenOption.PRIVACY_POLICY -> TODO()
-                    else -> {/* TODO: 임시 */}
+                    else -> { finish() }
                 }
             }
         }
@@ -110,7 +111,7 @@ fun PreferenceScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { callback(PreferenceScreenOption.EXIT) }) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "뒤로가기")
