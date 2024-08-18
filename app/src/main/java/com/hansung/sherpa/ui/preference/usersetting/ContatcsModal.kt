@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PasswordModal(
+fun ContactsModal(
     state : MutableState<Boolean>
 ){
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -58,17 +58,17 @@ fun PasswordModal(
         onDismissRequest = { state.value = false },
         dragHandle = {},
         modifier = Modifier
-            .fillMaxHeight(0.965f),
+            .fillMaxHeight(0.8f),
     ) {
         Column {
-            PasswordModalHeader(state)
-            PasswordField(state)
+            ContactsModalHeader(state)
+            ContactField(state)
         }
     }
 }
 
 @Composable
-fun PasswordModalHeader(
+fun ContactsModalHeader(
     state : MutableState<Boolean>
 ){
     val textStyle : TextStyle = TextStyle(
@@ -91,7 +91,7 @@ fun PasswordModalHeader(
                 )
         ) {
             Text(
-                text = "비밀번호 변경",
+                text = "연락처 정보",
                 modifier = Modifier
                     .padding(top = (12).dp)
                     .align(Alignment.TopCenter),
@@ -113,32 +113,24 @@ fun PasswordModalHeader(
 }
 
 @Composable
-fun PasswordField(
+fun ContactField(
     state : MutableState<Boolean>
 ){
     val lightGrayColor = Color(229,226,234)
     val originalPasswordInput = remember { mutableStateOf("") }
-    var originalPasswordVisible by remember { mutableStateOf(false) }
-    var newPasswordVisible by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
     val newPasswordText = remember { mutableStateOf("") }
-    val newPasswordCheckText = remember { mutableStateOf("") }
     val interactionSource = remember { MutableInteractionSource() }
-    val nEqualOriginalPasswordToast = Toast.makeText(LocalContext.current, "현재 비밀번호가 맞지 않습니다.", Toast.LENGTH_SHORT)
-    val nEqualNewPasswordToast = Toast.makeText(LocalContext.current, "새 비밀번호가 다릅니다", Toast.LENGTH_SHORT)
-    val nValidPasswordToast = Toast.makeText(LocalContext.current, "비밀번호 형식이 맞지 않습니다.", Toast.LENGTH_SHORT)
+    val nEqualPasswordToast = Toast.makeText(LocalContext.current, "현재 비밀번호가 맞지 않습니다.", Toast.LENGTH_SHORT)
 
     val onClickChangeButton : () -> Unit = {
         val originalPassword = ""
         // TODO: 원본 비밀번호 가져오기
         when {
-            !originalPassword.equals(originalPasswordInput) ->
-                nEqualOriginalPasswordToast.show()
-            !newPasswordText.equals(newPasswordCheckText) ->
-                nEqualNewPasswordToast.show()
             !isValidPassword(newPasswordText.value) ->
-                nValidPasswordToast.show()
+                nEqualPasswordToast.show()
             else -> state.value = false
-             // TODO: 비밀번호 변경
+            // TODO: 비밀번호 변경
         }
     }
 
@@ -146,7 +138,7 @@ fun PasswordField(
         Modifier.padding(horizontal = 20.dp)
     )
     {
-        Text(text = "현재 비밀번호")
+        Text(text = "이메일")
         Spacer(modifier = Modifier.padding(4.dp))
         Row(
             modifier = Modifier
@@ -162,22 +154,10 @@ fun PasswordField(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("현재 비밀번호") },
                 singleLine = true,
-                placeholder = { Text("현재 비밀번호") },
-                visualTransformation = if (originalPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                placeholder = { Text("team.sherpa@github.com") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val image = if (originalPasswordVisible)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
 
-                    val description = if (originalPasswordVisible) "Hide password" else "Show password"
-
-                    IconButton(onClick = {originalPasswordVisible = !originalPasswordVisible}){
-                        Icon(imageVector = image, description)
-                    }
-                },
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
@@ -194,7 +174,7 @@ fun PasswordField(
         Modifier.padding(horizontal = 20.dp)
     )
     {
-        Text(text = "새 비밀번호")
+        Text(text = "비밀번호")
         Spacer(modifier = Modifier.padding(4.dp))
         Row(
             modifier = Modifier
@@ -210,59 +190,18 @@ fun PasswordField(
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("새 비밀번호") },
                 singleLine = true,
-                placeholder = { Text("새 비밀번호") },
-                visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                placeholder = { Text("비밀번호 입력") },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {
-                    val image = if (newPasswordVisible)
+                    val image = if (passwordVisible)
                         Icons.Filled.Visibility
                     else Icons.Filled.VisibilityOff
 
-                    val description = if (newPasswordVisible) "Hide password" else "Show password"
+                    val description = if (passwordVisible) "Hide password" else "Show password"
 
-                    IconButton(onClick = {newPasswordVisible = !newPasswordVisible}){
-                        Icon(imageVector = image, description)
-                    }
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent,
-                    unfocusedContainerColor = lightGrayColor,
-                    focusedContainerColor = lightGrayColor,
-                ),
-            )
-        }
-        Spacer(modifier = Modifier.padding(2.dp))
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(12.dp))
-                .background(lightGrayColor)
-                .fillMaxWidth()
-        ) {
-            TextField(
-                value = newPasswordCheckText.value,
-                onValueChange = { newText ->
-                    if (!newText.contains('\t') && !newText.contains('\n')) {
-                        newPasswordCheckText.value = newText
-                    }
-                },
-                modifier = Modifier.fillMaxWidth(),
-                label = { Text("새 비밀번호 확인") },
-                singleLine = true,
-                placeholder = { Text("새 비밀번호 확인") },
-                visualTransformation = if (newPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val image = if (newPasswordVisible)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
-
-                    val description = if (newPasswordVisible) "Hide password" else "Show password"
-
-                    IconButton(onClick = {newPasswordVisible = !newPasswordVisible}){
+                    IconButton(onClick = {passwordVisible = !passwordVisible}){
                         Icon(imageVector = image, description)
                     }
                 },
@@ -290,7 +229,7 @@ fun PasswordField(
             horizontalArrangement = Arrangement.Center
         ){
             Text(
-                text = "비밀번호 변경",
+                text = "이메일 변경",
                 style = TextStyle(
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -300,20 +239,16 @@ fun PasswordField(
     }
 }
 
-fun isValidPassword(password : String) : Boolean {
-    val passwordRegex = "^(?=.*[a-zA-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$".toRegex()
-    return passwordRegex.matches(password)
-}
-
 @Composable
 @Preview
-fun PasswordPreview(){
+fun ContactsPreview(){
     val state = remember {
         mutableStateOf(false)
     }
     Column {
-        PasswordModalHeader(state)
-        PasswordField(state)
+        ContactsModalHeader(state)
+        ContactField(state)
     }
 }
+
 

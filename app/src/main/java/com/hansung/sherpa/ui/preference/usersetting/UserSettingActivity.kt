@@ -24,7 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.ContactPage
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Logout
@@ -128,9 +128,9 @@ fun UserSetting(
         item {
             ProfileImage(onClickState)
             UserAccount()
+            Contacts()
             UserName()
             Password()
-            Contacts()
             Logout()
         }
     }
@@ -206,16 +206,10 @@ fun ProfileImage(
 
 @Composable
 fun UserAccount(){
-    val interactionSource = remember { MutableInteractionSource() }
     Box(
         modifier = Modifier
             .fillMaxSize()
             .size(80.dp)
-            .clickable(
-                onClick = { },
-                indication = rememberRipple(bounded = true),
-                interactionSource = interactionSource
-            )
     ){
         Row(
             modifier = Modifier
@@ -270,12 +264,6 @@ fun UserAccount(){
                     modifier = Modifier
                 )
             }
-            Image(
-                imageVector = Icons.Default.KeyboardArrowRight,
-                contentDescription = "",
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-            )
         }
     }
 }
@@ -283,12 +271,17 @@ fun UserAccount(){
 @Composable
 fun UserName(){
     val interactionSource = remember { MutableInteractionSource() }
+    val state = remember { mutableStateOf(false) }
+
+    if(state.value)
+        NameDialog(openDialogCustom = state)
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .size(80.dp)
             .clickable(
-                onClick = { },
+                onClick = { state.value = true },
                 indication = rememberRipple(bounded = true),
                 interactionSource = interactionSource
             )
@@ -362,9 +355,7 @@ fun Password(){
     val interactionSource = remember { MutableInteractionSource() }
 
     if(changePasswordSheetState.value) {
-        PasswordModal{ isSaved ->
-            
-        }
+        PasswordModal(changePasswordSheetState)
     }
 
     Box(
@@ -433,13 +424,19 @@ fun Password(){
 
 @Composable
 fun Contacts() {
+    val changEmailSheetState = remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
+
+    if(changEmailSheetState.value) {
+        ContactsModal(changEmailSheetState)
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .size(80.dp)
             .clickable(
-                onClick = { },
+                onClick = { changEmailSheetState.value = true },
                 indication = rememberRipple(bounded = true),
                 interactionSource = interactionSource
             )
@@ -466,7 +463,7 @@ fun Contacts() {
                 .padding(vertical = 12.dp, horizontal = 24.dp)
         ) {
             Image(
-                imageVector = Icons.Default.ContactPage,
+                imageVector = Icons.Default.Email,
                 contentDescription = "",
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
@@ -480,7 +477,7 @@ fun Contacts() {
                     .weight(1f)
             ) {
                 Text(
-                    text = "연락처 정보",
+                    text = "이메일 변경",
                     style = TextStyle(
                         color = Color.DarkGray,
                         fontWeight = FontWeight.Bold,
