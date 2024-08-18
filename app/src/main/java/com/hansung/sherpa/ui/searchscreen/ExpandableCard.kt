@@ -46,6 +46,7 @@ import com.hansung.sherpa.compose.busarrivalinfo.ArrivalInfoManager
 import com.hansung.sherpa.compose.chart.Chart
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
+import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SubPath
 import com.hansung.sherpa.itemsetting.SubwayLane
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
@@ -138,10 +139,12 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
              * Card가 확장된 경우 나타난다.
              */
             if (expandedState) {
-                route.subPath.forEachIndexed{ index, it ->
-                    ExpandItem(it, timerFlag){
-                        StaticValue.transportRoute = route
-                        navController.navigate("${SherpaScreen.SpecificRoute.name}")
+                Column(modifier = Modifier.clickable {
+                    StaticValue.transportRoute = route
+                    navController.navigate("${SherpaScreen.SpecificRoute.name}")
+                }) {
+                    route.subPath.forEachIndexed { index, it ->
+                        ExpandItem(it, timerFlag)
                     }
                 }
             }
@@ -160,11 +163,8 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
  * ※ Preview는 SearchScreen에서 실행할 것
  */
 @Composable
-fun ExpandItem(subPath: SubPath, timerFlag:Boolean, onclick: () -> Unit) {
-    Row(modifier = Modifier.padding(5.dp)
-        .clickable {
-            onclick()
-                   },
+fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
+    Row(modifier = Modifier.padding(5.dp),
         verticalAlignment = Alignment.CenterVertically){
         /**
          * Starting Area Text
@@ -256,7 +256,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean, onclick: () -> Unit) {
                 if(subPath.trafficType != 3)
                     ArrivalInfoManager().getODsayArrivalInfoList(
                         ODsayArrivalInfoRequest(stationID = stationID,routeIDs = routeID)
-                    )?.result?.real?.get(0)?.arrival1?.arrivalSec?:-1
+                    )?.result?.real?.get(0)?.arrival1?.arrivalSec?:-2
                 else -1
         }
 
@@ -294,7 +294,7 @@ fun getStationLaneName(subPath: SubPath): Pair<String,String>{
         1 -> {
             val subway = subPath.sectionInfo as SubwaySectionInfo
             val subwayLane = subway.lane[0] as SubwayLane
-            stationName = "${subPath.sectionInfo.startName} 역"
+            stationName = "${subway.startName} 역"
             laneName = "${subwayLane.name}호선"
         }
 
@@ -303,13 +303,14 @@ fun getStationLaneName(subPath: SubPath): Pair<String,String>{
         2 -> {
             val bus = subPath.sectionInfo as BusSectionInfo
             val busLane = bus.lane[0] as BusLane
-            stationName = "${subPath.sectionInfo.startName}"
+            stationName = "${bus.startName}"
             laneName = "${busLane.busNo}번"
         }
-        // 도보 TODO: (2024-08-06) 출발지 정보가 아직 없다. 업데이트 필요
+        // 도보
         3 -> {
-            stationName = "Null"
-            laneName = "도보"
+            val pedestrian = subPath.sectionInfo as PedestrianSectionInfo
+            stationName = pedestrian.startName?:"${Math.round(pedestrian.distance?:-1.0)}m 이동"
+            laneName = pedestrian.endName?:"도보"
         }
     }
     return Pair(stationName!!, laneName!!)
@@ -340,7 +341,7 @@ fun typeOfIcon(trafficType: Int) =
  * @return 시간에 대한 서식 ex) "n분", "n시간 m분", "Null"(예외처리)
  */
 fun hourOfMinute(minute:Int) =
-    if(minute == 0) "Null"
+    if(minute == 0) "대기"
     else if(minute > 60) "${minute/60}시간 ${minute%60}분"
     else if(minute % 60 == 0) "${minute/60}시간"
     else "${minute%60}분"
@@ -353,7 +354,8 @@ fun hourOfMinute(minute:Int) =
  * @return 시간에 대한 서식 ex) "n분 뒤 도착", "곧 도착", "도착 정보 없음"(예외 처리)
  */
 fun minuteOfSecond(second:Int) =
-    if(second == -1) "도착 정보 없음"
+    if(second == -1) ""
+    else if(second == -2) "도착 정보 없음"
     else if(second >= 60) "${second/60}분 뒤 도착"
     else "곧 도착"
 
