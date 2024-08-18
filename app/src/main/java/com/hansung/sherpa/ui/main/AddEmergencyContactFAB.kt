@@ -54,33 +54,7 @@ fun AddEmergencyContactFAB() {
     }
 
     if (openAlertDialog) {
-        AddEmergencyContactPopup { openAlertDialog = false }
-    }
-}
-
-@Composable
-fun AddEmergencyContactPopup(onDismissRequest: () -> Unit) {
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            modifier = Modifier
-                .width(800.dp)
-                .height(300.dp)
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                AddEmergencyContactTitle()
-                AddEmergencyContactContents()
-                AddEmergencyContactButtons(onDismissRequest)
-            }
-        }
+        AddEmergencyScreen()
     }
 }
 
@@ -229,16 +203,19 @@ fun AddEmergencyContactContents() {
 }
 
 @Composable
-fun AddEmergencyContactButtons(onDismissRequest: () -> Unit) {
+fun AddEmergencyContactButtons(onDismissRequest: () -> Unit = {}) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        TextButton(onClick = { /*TODO*/ }) {
-            Text("추가", color = Color.Blue, style = ConfirmTextStyle)
-        }
-        TextButton(onClick = onDismissRequest) {
-            Text("취소", color = Color.Red, style = ConfirmTextStyle)
+        FilledTonalButton(onClick = {  }, enabled = false) {
+            Text("추가하기")
         }
     }
+}
+
+@Preview
+@Composable
+fun PreviewAddEmergencyContactButtons() {
+    AddEmergencyContactButtons()
 }
