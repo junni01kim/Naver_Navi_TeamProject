@@ -26,7 +26,8 @@ class RouteFilterMapper {
 
         val list = mutableListOf<TransportRoute>()
 
-        for (path in transitResponse.result.path) {
+        transitResponse.result.path.forEachIndexed { idx, path ->
+            var transportIndex = -1;
             val oDsayInfo = path.info
             val oDsayPath = path.subPath
 
@@ -36,11 +37,12 @@ class RouteFilterMapper {
                 transferCount   = oDsayInfo.busTransitCount + oDsayInfo.subwayTransitCount,
                 totalWalk       = oDsayInfo.totalWalk
             )
-            val subPathList: List<SubPath> = oDsayPath.mapIndexed { index, it ->
+            val subPathList: List<SubPath> = oDsayPath.mapIndexed { _, it ->
+                if(isTransport(it.trafficType)) transportIndex++
                 SubPath(
                     trafficType     = it.trafficType,
                     sectionInfo     = castSectionInfo(it.trafficType, it),
-                    sectionRoute    = castSectionRoute(it.trafficType, graphicResponseList[index])
+                    sectionRoute    = castSectionRoute(it.trafficType, graphicResponseList[idx], transportIndex)
                 )
             }
 
@@ -108,11 +110,22 @@ class RouteFilterMapper {
         }
     }
 
-    private fun castSectionRoute(trafficType: Int, response: RouteGraphicResponse): SectionRoute {
+    private fun isTransport(trafficType: Int): Boolean {
+        return when (trafficType) {
+            TrafficType.SUBWAY.value, TrafficType.BUS.value ->
+                true
+            TrafficType.WALK.value ->
+                false
+            else ->
+                false
+        }
+    }
+
+    private fun castSectionRoute(trafficType: Int, response: RouteGraphicResponse, transportIndex: Int): SectionRoute {
         return when (trafficType) {
             TrafficType.SUBWAY.value, TrafficType.BUS.value ->
                 SectionRoute(routeList = response
-                    .result!!.lane?.get(0)!!.section?.get(0)?.graphPos!!
+                    .result!!.lane?.get(transportIndex)!!.section?.get(0)?.graphPos!!
                     .map { value -> LatLng(value.y!!, value.x!!) }.toMutableList()
                 )
 
