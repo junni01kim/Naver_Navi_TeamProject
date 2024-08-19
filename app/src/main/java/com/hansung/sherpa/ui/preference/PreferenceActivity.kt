@@ -54,6 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
+import com.hansung.sherpa.ui.preference.emergency.EmergencySettingsActivity
 import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 
 data class PreferenceItemData(val title : String, val screenOption : PreferenceScreenOption)
@@ -69,7 +70,10 @@ class PreferenceActivity : ComponentActivity() {
                         startActivity(intent)
                     }
 //                    PreferenceScreenOption.CAREGIVER -> TODO()
-//                    PreferenceScreenOption.EMERGENCY -> TODO()
+                    PreferenceScreenOption.EMERGENCY -> {
+                        val intent = Intent(this, EmergencySettingsActivity::class.java)
+                        startActivity(intent)
+                    }
                     PreferenceScreenOption.CALENDAR -> {
                         val intent = Intent(this, CalendarActivity::class.java)
                         startActivity(intent)

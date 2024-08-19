@@ -21,6 +21,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.R
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.compose.navigation.Navigation
 import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.itemsetting.TransportRoute
@@ -59,7 +61,7 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  * ※ Preview는 SearchScreen에서 실행할 것
  */
 @Composable
-fun SearchArea(navController: NavController, _destinationValue: String, update: (List<TransportRoute>, Long) -> Unit) {
+fun SearchArea(navController: NavController, _destinationValue: String, dialogToggle: MutableState<Boolean>, update: (List<TransportRoute>, Long) -> Unit) {
     // ===== 저장되는 데이터 목록 =====
     // Departure TextField, Destination TextField에 사용할 변수: 문자열(String)
     var departureValue by remember { mutableStateOf("") }
@@ -213,6 +215,12 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
                                 destinationFocusRequester.requestFocus()
                                 return@IconButton
                             }
+
+                            if(StaticValue.userInfo.role1 == "CARETAKER" && !StaticValue.searchPermission) {
+                                dialogToggle.value = true
+                                return@IconButton
+                            }
+
                             /**
                              * 출발지와 목적지에 대한 경로를 요청하는 함수
                              *
@@ -239,6 +247,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, update: 
                             departureLatLng = LatLng(-1.0,-1.0)
                             destinationValue = ""
                             destinationLatLng = LatLng(-1.0,-1.0)
+                            StaticValue.searchPermission = false
                         }) {
                         /**
                          * Search Icon
