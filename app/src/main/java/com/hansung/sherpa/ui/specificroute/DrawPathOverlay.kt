@@ -36,12 +36,6 @@ fun DrawPathOverlay(transportRoute: TransportRoute) {
                 color = Color.Black,
                 outlineColor = Color.Transparent
             )
-            var index = 0
-            for(ll in subPath.sectionRoute.routeList) {
-                Marker(MarkerState(position = ll), captionAligns = arrayOf(
-                    Align.Top) , captionText = index.toString())
-                index++
-            }
         }
     }
 }
