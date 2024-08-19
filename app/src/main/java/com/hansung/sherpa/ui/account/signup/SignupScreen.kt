@@ -322,10 +322,19 @@ fun CaretakerArea(navController: NavController) {
         InfomationGroupDarkMode("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroupDarkMode("상세주소", false) { detailAddressValue = it }
         InfomationGroupDarkMode("보호자\n이메일", true, "연동하기" ,{
-            // TODO: 보호자 연동 허가 로직 구현할 것
             // TODO: ※ (2024-08-12) 지금은 테스트용으로 보호자 승인 없이 DB에서 바로 받아옴. 진행
 
-            caregiverId = UserManager().linkPermission(caregiverEmail)?.data!!
+            val caregiverUserResponse = UserManager().linkPermission(caregiverEmail)
+
+            if(caregiverUserResponse?.code == 404) {
+                Toast.makeText(context, "일치하는 보호자 아이디가 없습니다.", Toast.LENGTH_SHORT).show()
+                return@InfomationGroupDarkMode
+            }
+
+            // TODO: 여기에 보호자 연동 허가 로직 구현할 것
+
+            caregiverId = caregiverUserResponse?.data!!
+
             caregiverRelation = "연동 로직 구현 시에는 이거도 같이 반환 받아야 함."
         }) { caregiverEmail = it.trim() }
 
