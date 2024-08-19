@@ -239,11 +239,11 @@ fun CaregiverArea(navController: NavController){
                 }
 
                 if(!isValidId(emailValue)){
-                    Toast.makeText(context,"로그인 실패!\n이메일 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,"로그인 실패!\n이메일 서식을 확인해주세요\n8~20 글자로 가능합니다.", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
                 if(!isValidId(passwordValue)){
-                    Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요\n8~20 글자로 가능합니다.", Toast.LENGTH_SHORT).show()
                     return@TextButton
                 }
 
