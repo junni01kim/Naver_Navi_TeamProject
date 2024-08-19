@@ -69,7 +69,6 @@ class PreferenceActivity : ComponentActivity() {
                         val intent = Intent(this, UserSettingActivity::class.java)
                         startActivity(intent)
                     }
-//                    PreferenceScreenOption.CAREGIVER -> TODO()
                     PreferenceScreenOption.EMERGENCY -> {
                         val intent = Intent(this, EmergencySettingsActivity::class.java)
                         startActivity(intent)
@@ -78,7 +77,6 @@ class PreferenceActivity : ComponentActivity() {
                         val intent = Intent(this, CalendarActivity::class.java)
                         startActivity(intent)
                     }
-//                    PreferenceScreenOption.NOTIFICATION -> TODO()
 //                    PreferenceScreenOption.NOTICEBOARD -> TODO()
 //                    PreferenceScreenOption.CALL_INQUIRY -> TODO()
 //                    PreferenceScreenOption.EMAIL_INQUIRY -> TODO()

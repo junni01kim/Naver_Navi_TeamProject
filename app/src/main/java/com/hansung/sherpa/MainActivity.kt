@@ -43,9 +43,11 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
+import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
 import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
+import com.hansung.sherpa.ui.preference.caregiver.CaregiverSyncActivity
 import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
@@ -150,6 +152,14 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                 when(screenName){
                                     PreferenceScreenOption.CALENDAR -> {
                                         val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.CAREGIVER -> {
+                                        val intent = Intent(this@MainActivity, CaregiverSyncActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.NOTIFICATION -> {
+                                        val intent = Intent(this@MainActivity, AlarmSettingsActivity::class.java)
                                         startActivity(intent)
                                     }
                                     else -> { } // TODO: 처리
