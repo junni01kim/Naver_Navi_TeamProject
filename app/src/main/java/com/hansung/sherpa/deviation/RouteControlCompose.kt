@@ -53,9 +53,11 @@ class RouteControlCompose {
      * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
      */
     fun initializeRoute() {
+        val transportRoute = StaticValue.transportRoute
         nowSection = 0
-        from = Utmk.valueOf(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]) // 바꿔야됨
-        to = Utmk.valueOf(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1])
+        nowSubpath = 0
+        from = Utmk.valueOf(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]) // 바꿔야됨
+        to = Utmk.valueOf(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1])
         froms = findIntersectionPoints(from)
         tos = findIntersectionPoints(to)
     }
@@ -67,15 +69,16 @@ class RouteControlCompose {
      * @return to의 도착지 좌표 8m 이내에 진입할 시 true
      */
     fun detectNextSection(location:LatLng):Boolean {
+        val transportRoute = StaticValue.transportRoute
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
 
         // 거리를 탐색할 섹션 목적지 좌표
         val destination =
             if(lastSection)
-                StaticValue.transportRoute.subPath[nowSection+1].sectionRoute.routeList[0]
+                transportRoute.subPath[nowSection+1].sectionRoute.routeList[0]
             else
-                StaticValue.transportRoute.subPath[nowSection].sectionRoute.routeList[nowSubpath+1]
+                transportRoute.subPath[nowSection].sectionRoute.routeList[nowSubpath+1]
 
         // 내 위치에서 목적지까지의 거리
         val distance = location.distanceTo(destination)
@@ -83,14 +86,15 @@ class RouteControlCompose {
         // 섹션 목적지 도달
         if(distance <= outRouteDistance) {
             // 도착한 경우
-            if(nowSubpath + 1 == StaticValue.transportRoute.subPath.size
-                && nowSection + 1 == StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList.size){
+            if(nowSubpath + 1 == transportRoute.subPath.size
+                && nowSection + 1 == transportRoute.subPath[nowSubpath].sectionRoute.routeList.size){
                 Log.d("explain", "도착지 도착")
                 return true
             }
 
             // 다음 섹션 이동
             if(lastSection){
+                Log.d("explain", "섹션 이동")
                 nowSection = 0
                 nowSubpath++
             } else nowSection++
@@ -98,10 +102,10 @@ class RouteControlCompose {
             val lastlastSection = isNextSubpath()
 
             // 섹션 값 재설정
-            from = Utmk.valueOf(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
+            from = Utmk.valueOf(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
             to = Utmk.valueOf(
-                if(lastlastSection) StaticValue.transportRoute.subPath[nowSubpath+1].sectionRoute.routeList[0]
-                else StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]
+                if(lastlastSection) transportRoute.subPath[nowSubpath+1].sectionRoute.routeList[0]
+                else transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]
             )
 
             // 섹션 영역 재설정
@@ -113,7 +117,8 @@ class RouteControlCompose {
     }
 
     fun isNextSubpath():Boolean {
-        if( nowSection + 1 >= StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList.size) return true
+        val transportRoute = StaticValue.transportRoute
+        if( nowSection + 1 >= transportRoute.subPath[nowSubpath].sectionRoute.routeList.size) return true
         else return false
     }
 
@@ -231,8 +236,9 @@ class RouteControlCompose {
         while(detectNextSection(location)){ continue }
         // TODO: 도착했는지 판단해야한다.
 
+        val transportRoute = StaticValue.transportRoute
         // 출발지와 내 위치의 거리를 판단한다.
-        val distance = location.distanceTo(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
+        val distance = location.distanceTo(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
 
         // 출발지와 도착지 간의 점과 직선거리가 올바른지 판단한다.
         val user = Utmk.valueOf(location)
