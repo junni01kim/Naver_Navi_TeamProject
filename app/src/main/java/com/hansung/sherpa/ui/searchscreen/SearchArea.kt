@@ -216,10 +216,10 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
                                 return@IconButton
                             }
 
-                            if(StaticValue.userInfo.role1 == "CARETAKER" && !StaticValue.searchPermission) {
-                                dialogToggle.value = true
-                                return@IconButton
-                            }
+//                            if(StaticValue.userInfo.role1 == "CARETAKER" && !StaticValue.searchPermission) {
+//                                dialogToggle.value = true
+//                                return@IconButton
+//                            }
 
                             /**
                              * 출발지와 목적지에 대한 경로를 요청하는 함수

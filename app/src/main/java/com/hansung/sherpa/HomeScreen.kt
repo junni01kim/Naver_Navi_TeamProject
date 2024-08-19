@@ -164,7 +164,8 @@ fun HomeScreen(
                     }
                 }
 
-                if(StaticValue.userInfo.role1 == "CARETAKER"){ ExtendedFABContainer() }
+                //if(StaticValue.userInfo.role1 == "CARETAKER"){ ExtendedFABContainer() }
+                ExtendedFABContainer()
             }
         }
     }

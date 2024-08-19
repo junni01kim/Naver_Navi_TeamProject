@@ -36,8 +36,6 @@ import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
 import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.gps.GPSDatas
-import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
@@ -110,7 +108,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
 
-        locationSource = GpsLocationSource.createInstance(this)
+
 
         setContent {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -125,7 +123,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Preference.name
+                        startDestination = SherpaScreen.Home.name
                     ){
                         composable(route = SherpaScreen.Start.name){
                             StartScreen(navController, Modifier.padding(innerPadding))
@@ -216,7 +214,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
         // 검색 필요 클래스 초기화
         val routeControl = RouteControl() // 사용자 위치 확인
-        val gpsData = GPSDatas(this) // gps 위치
+
         navigation = Navigation() // 경로 그리기 & 탐색
         navigation.naverMap = naverMap
         navigation.mainActivity = this
