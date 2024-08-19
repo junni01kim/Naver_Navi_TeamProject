@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.preference
+package com.hansung.sherpa.ui.preference.calendar
 
 data class ScheduleResponse(
     var title: String,

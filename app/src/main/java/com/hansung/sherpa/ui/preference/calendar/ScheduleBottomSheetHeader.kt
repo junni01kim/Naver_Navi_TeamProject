@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.preference
+package com.hansung.sherpa.ui.preference.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

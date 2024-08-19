@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.hansung.sherpa.ui.preference.LocationBottomSheet
+import com.hansung.sherpa.ui.preference.calendar.LocationBottomSheet
 import com.hansung.sherpa.ui.theme.PurpleGrey40
 
 /**

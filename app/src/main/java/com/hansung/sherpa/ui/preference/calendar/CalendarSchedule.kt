@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.preference
+package com.hansung.sherpa.ui.preference.calendar
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -275,7 +275,8 @@ fun ScheduleColumn(
             ScheduleBottomSheet(
                 closeBottomSheet = closeBottomSheet,
                 scheduleData = cloneScheduleData(scheduleData = scheduleData) ,
-                scheduleModalSheetOption = ScheduleModalSheetOption.EDIT)
+                scheduleModalSheetOption = ScheduleModalSheetOption.EDIT
+            )
         }
     }
 }
