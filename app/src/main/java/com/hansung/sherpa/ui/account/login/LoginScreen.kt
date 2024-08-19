@@ -165,14 +165,13 @@ fun LoginArea(navController: NavController) {
         InfomationGroup("비밀번호", false) {passwordValue = it.trim()}
 
         TextButton(
-            // TODO: 로그인 정보로 계정 역할 분기해야 됨
             onClick = {
-                /*if(!isValidId(idValue)){
+                if(!isValidId(idValue)){
                     Toast.makeText(context,"로그인 실패!\n아이디 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
                 }
                 if(!isValidId(passwordValue)){
                     Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
-                }*/
+                }
                 if(login(navController, idValue, passwordValue)) {
                     Toast.makeText(context,"로그인 실패!\n아이디 비밀번호를 확인해주세요", Toast.LENGTH_SHORT).show()
                     return@TextButton
