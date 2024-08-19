@@ -11,5 +11,6 @@ class StaticValue {
         lateinit var FcmToken: String
         lateinit var transportRoute: TransportRoute
         lateinit var userInfo: UserInfomation
+        var searchPermission = false
     }
 }

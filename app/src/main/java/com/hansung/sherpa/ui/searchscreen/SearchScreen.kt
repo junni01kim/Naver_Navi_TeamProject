@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
 
 /**
@@ -38,13 +39,28 @@ fun SearchScreen(
     // 경로를 요청한 시간을 저장하기 위한 변수이다. State Hoisting을 이용해 값을 통일하기 위해 해당 위치에 저장
     var searchingTime by remember { mutableStateOf( System.currentTimeMillis() )}
 
+    var dialogToggle = remember { mutableStateOf(false) }
+
+    if(dialogToggle.value){
+        SherpaDialog(
+            title = "승인요청",
+            message = listOf("보호자에게\n경로를 요청하시겠습니까?"),
+            confirmButtonText = "요청",
+            dismissButtonText = "취소"
+        ) {
+            // TODO: 보호자에게 조회 권한 요청 보내기
+            // TODO: 나중에 인증받으면 StaticValue.searchPermission을 true로 할 것
+
+            dialogToggle.value = false
+        }
+    }
     Column(modifier = Modifier
         .fillMaxSize()
         .background(Color.LightGray),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
         // 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
-        SearchArea(navController, destinationValue){ childRouteList, childSearchingTime ->
+        SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
             routeList = childRouteList
             searchingTime = childSearchingTime
         }

@@ -136,7 +136,8 @@ fun HomeScreen(
                     )
                 }
             }
-            ExtendedFABContainer()
+
+            if(StaticValue.userInfo.role1 == "CARETAKER"){ ExtendedFABContainer() }
         }
     }
 }
@@ -208,7 +209,8 @@ fun HomePreview(){
                     )
                 }
             }
-            ExtendedFABContainer()
+
+            if(StaticValue.userInfo.role1 == "CARETAKER"){ ExtendedFABContainer() }
         }
     }
 }
