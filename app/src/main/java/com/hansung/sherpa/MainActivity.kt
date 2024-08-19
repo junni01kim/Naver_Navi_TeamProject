@@ -48,6 +48,8 @@ import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
 import com.hansung.sherpa.ui.preference.caregiver.CaregiverSyncActivity
+import com.hansung.sherpa.ui.preference.emergency.EmergencySettingsActivity
+import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
@@ -123,7 +125,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Preference.name
+                        startDestination = SherpaScreen.Start.name
                     ){
                         composable(route = SherpaScreen.Start.name){
                             StartScreen(navController, Modifier.padding(innerPadding))
@@ -152,6 +154,14 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                 when(screenName){
                                     PreferenceScreenOption.CALENDAR -> {
                                         val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.USER -> {
+                                        val intent = Intent(this@MainActivity, UserSettingActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.EMERGENCY -> {
+                                        val intent = Intent(this@MainActivity, EmergencySettingsActivity::class.java)
                                         startActivity(intent)
                                     }
                                     PreferenceScreenOption.CAREGIVER -> {
