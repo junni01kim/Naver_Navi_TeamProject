@@ -156,6 +156,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                 }
                             }
                         }
+                        composable(route = SherpaScreen.CALENDAR.name){
+                            val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                            startActivity(intent)
+                        }
                     }
                 }
             }
