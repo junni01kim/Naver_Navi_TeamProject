@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Preference.name
+                        startDestination = SherpaScreen.Start.name
                     ){
                         composable(route = SherpaScreen.Start.name){
                             StartScreen(navController, Modifier.padding(innerPadding))
@@ -155,6 +155,10 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                     else -> { } // TODO: 처리
                                 }
                             }
+                        }
+                        composable(route = SherpaScreen.CALENDAR.name){
+                            val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                            startActivity(intent)
                         }
                     }
                 }
