@@ -253,5 +253,5 @@ fun InputTextField(title:String, text:String, focusRequester: FocusRequester, on
 @Preview
 @Composable
 fun CreateDialogPreview() {
-    EmergencySettingsScreen()
+    EmergencySettingsScreen({})
 }
