@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.preference
+package com.hansung.sherpa.ui.preference.calendar
 
 import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState

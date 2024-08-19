@@ -1,5 +1,6 @@
 package com.hansung.sherpa.itemsetting
 
+import android.util.Log
 import com.hansung.sherpa.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.ODsaySubPath
 import com.hansung.sherpa.transit.ODsayTransitRouteResponse
@@ -159,16 +160,18 @@ class RouteFilterMapper {
                 TrafficType.WALK.value -> {
                     if (it.sectionInfo is PedestrianSectionInfo) {
                         it.sectionInfo.contents =
-                            pedestrianResponseList[0].features
+                            pedestrianResponseList[index].features
                                 ?.map { feat -> feat.properties.description }
                                 ?.toMutableList()!!
                     }
 
-                    pedestrianResponseList[0].features?.forEach { feat ->
+                    pedestrianResponseList[index].features?.forEach { feat ->
                         feat.geometry.coordinates.forEach { coordinate ->
                             it.sectionRoute.routeList.add(
-                                LatLng(coordinate[0], coordinate[1])
+                                LatLng(coordinate[1], coordinate[0])
                             )
+                            Log.i("MAPPER","routeList: ${it.sectionRoute.routeList}")
+                            Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
                         }
                     }
                     index++

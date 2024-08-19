@@ -1,4 +1,4 @@
-package com.hansung.sherpa.ui.preference
+package com.hansung.sherpa.ui.preference.calendar
 
 //import org.threeten.bp.DayOfWeek
 //import org.threeten.bp.LocalDate
