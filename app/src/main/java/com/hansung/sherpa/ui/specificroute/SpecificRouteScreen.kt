@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.specificroute
 
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
@@ -27,13 +28,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.deviation.RouteControlCompose
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.naver.maps.geometry.LatLng
@@ -56,6 +59,7 @@ enum class DragValue { Start, Center, End }
 @OptIn(ExperimentalFoundationApi::class, ExperimentalNaverMapApi::class)
 @Composable
 fun SpecificRouteScreen(response:TransportRoute){
+    val context = LocalContext.current
 
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
@@ -86,12 +90,16 @@ fun SpecificRouteScreen(response:TransportRoute){
     if(dialogToggle.value) {
         SherpaDialog(title = "안내 시작", message = listOf("사용자 경로 안내를\n시작하시겠습니까?"), confirmButtonText = "안내", dismissButtonText = "취소") {
             // TODO: 사용자에게 경로값 전송
-            //StaticValue.transportRoute
+            //StaticValue.transportRoute 이걸로
             dialogToggle.value = false
         }
     }
+
+    val routeControl by remember { mutableStateOf(RouteControlCompose()) }
+    routeControl.initializeRoute()
     
-    val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+    var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+
     NaverMap(
         locationSource = rememberFusedLocationSource(isCompassEnabled = true),
         properties = MapProperties(
@@ -100,7 +108,13 @@ fun SpecificRouteScreen(response:TransportRoute){
         uiSettings = MapUiSettings(
             isLocationButtonEnabled = true,
         ),
-        onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }
+        onLocationChange = {
+            myPos = LatLng(it.latitude, it.longitude)
+            routeControl.detectOutRoute(myPos)
+            if (routeControl.detectOutRoute(myPos)) {
+                Toast.makeText(context, "경로를 이탈하였습니다.", Toast.LENGTH_SHORT).show()
+            }
+        }
     ){
         DrawPathOverlay(response)
     }

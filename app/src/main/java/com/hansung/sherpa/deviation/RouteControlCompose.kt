@@ -1,40 +1,20 @@
 package com.hansung.sherpa.deviation
 
-import android.content.Context
-import android.content.res.Resources
-import android.graphics.Color
-import android.view.Gravity
-import android.view.LayoutInflater
+import android.util.Log
 import android.widget.Toast
-import androidx.databinding.DataBindingUtil
-import com.hansung.sherpa.R
-import com.hansung.sherpa.databinding.AlertBinding
+import com.hansung.sherpa.StaticValue
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
-import com.naver.maps.map.overlay.PathOverlay
 import kotlin.collections.*
 import kotlin.math.acos
 import kotlin.math.pow
 import kotlin.math.sqrt
 
 /**
- *  경로를 그리는 인접한 두 좌표와 현재 위치를 정의하는 클래스
- *
- *  @property Start 구간의 시작 좌표
- *  @property End 구간의 끝 좌표
- *  @property CurrLocation 현재 사용자의 좌표
- */
-data class Section(
-    var Start: LatLng,
-    var End: LatLng,
-    var CurrLocation: LatLng
-)
-
-/**
  * @property route 그려질 경로 좌표 리스트
  * @property navigation RouteControl을 생성한 Navigation 객체
  */
-class RouteControl {
+class RouteControlCompose {
 
 //    경로 이탈 : 8m
 //    경로 구간 확인 : 동적
@@ -45,9 +25,11 @@ class RouteControl {
      * @param nowSection route에서 지금 이동하고 있는 경로
      * @param outRouteDistance 이탈 되었다고 판단 할 거리
      */
-    var route : MutableList<LatLng> = mutableListOf()
-    var nowSection = 0
-    val outRouteDistance = 162.7
+    var nowSection = 0 // 이름 짧게 하기
+    var nowSubpath = 0
+    val outRouteDistance = 20.0
+
+
 
     /**
      * ※ from, to는 연산을 요구하기 보다 코드를 짧게 유지하기 위해 만든 함수이다. 변수로 만들지 않아도 이용 가능하다. ※
@@ -66,19 +48,14 @@ class RouteControl {
     lateinit var froms:Pair<Utmk, Utmk>
     lateinit var tos: Pair<Utmk, Utmk>
 
-    //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것(SRPA-96: 경로 이탈을 확인하기 위해 우선 남겨둠) ----------
-    /*val polygonOverlay = PolygonOverlay()
-    val circle = CircleOverlay()*/
-    //---------- <김명준> 여기까지 ----------
-
     /**
      * 새로운 경로가 발생할 때 기존 값을 초기화 하고 새로운 값들로 변경하는 함수
      * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
      */
     fun initializeRoute() {
         nowSection = 0
-        from = Utmk.valueOf(route[nowSection])
-        to = Utmk.valueOf(route[nowSection+1])
+        from = Utmk.valueOf(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]) // 바꿔야됨
+        to = Utmk.valueOf(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1])
         froms = findIntersectionPoints(from)
         tos = findIntersectionPoints(to)
     }
@@ -90,60 +67,54 @@ class RouteControl {
      * @return to의 도착지 좌표 8m 이내에 진입할 시 true
      */
     fun detectNextSection(location:LatLng):Boolean {
+        // subPath의 마지막 구간인지 미리 탐색
+        val lastSection = isNextSubpath()
+
         // 거리를 탐색할 섹션 목적지 좌표
-        val destination = route[nowSection+1]
+        val destination =
+            if(lastSection)
+                StaticValue.transportRoute.subPath[nowSection+1].sectionRoute.routeList[0]
+            else
+                StaticValue.transportRoute.subPath[nowSection].sectionRoute.routeList[nowSubpath+1]
 
         // 내 위치에서 목적지까지의 거리
         val distance = location.distanceTo(destination)
 
         // 섹션 목적지 도달
         if(distance <= outRouteDistance) {
-            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것(SRPA-96: 경로 이탈을 확인하기 위해 우선 남겨둠) ----------
-            /*polygonOverlay.map = null
-            circle.map = null*/
-            //---------- <김명준> 여기까지 ----------
-
-            if(nowSection>=route.size-2){
+            // 도착한 경우
+            if(nowSubpath + 1 == StaticValue.transportRoute.subPath.size
+                && nowSection + 1 == StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList.size){
+                Log.d("explain", "도착지 도착")
                 return true
             }
 
             // 다음 섹션 이동
-            nowSection++
+            if(lastSection){
+                nowSection = 0
+                nowSubpath++
+            } else nowSection++
+
+            val lastlastSection = isNextSubpath()
 
             // 섹션 값 재설정
-            from = Utmk.valueOf(route[nowSection])
-            to = Utmk.valueOf(route[nowSection+1])
+            from = Utmk.valueOf(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
+            to = Utmk.valueOf(
+                if(lastlastSection) StaticValue.transportRoute.subPath[nowSubpath+1].sectionRoute.routeList[0]
+                else StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]
+            )
 
             // 섹션 영역 재설정
             froms = findIntersectionPoints(from)
             tos = findIntersectionPoints(to)
-
-            //---------- <김명준> develop 브랜치 올라갈 시 삭제할 것(SRPA-96: 경로 이탈을 확인하기 위해 우선 남겨둠) ----------
-            /*val coords = mutableListOf(
-                froms.first.toLatLng(),
-                froms.second.toLatLng(),
-                tos.second.toLatLng(),
-                tos.first.toLatLng()
-            )
-
-            polygonOverlay.coords = coords
-            polygonOverlay.outlineWidth = 5
-            polygonOverlay.outlineColor = Color.RED
-            polygonOverlay.color = Color.TRANSPARENT
-
-            polygonOverlay.coords = coords
-            polygonOverlay.map = StaticValue.naverMap
-
-            circle.center = LatLng(from.toLatLng().latitude, from.toLatLng().longitude)
-            circle.outlineWidth = 5
-            circle.outlineColor = Color.RED
-            circle.color = Color.TRANSPARENT
-            circle.radius = 10.0
-            circle.map = StaticValue.naverMap*/
-            //---------- <김명준> 여기까지 ----------
             return true
         }
         return false
+    }
+
+    fun isNextSubpath():Boolean {
+        if( nowSection + 1 >= StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList.size) return true
+        else return false
     }
 
     /**
@@ -258,9 +229,10 @@ class RouteControl {
      */
     fun detectOutRoute(location:LatLng):Boolean{
         while(detectNextSection(location)){ continue }
+        // TODO: 도착했는지 판단해야한다.
 
         // 출발지와 내 위치의 거리를 판단한다.
-        val distance = location.distanceTo(route[nowSection])
+        val distance = location.distanceTo(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
 
         // 출발지와 도착지 간의 점과 직선거리가 올바른지 판단한다.
         val user = Utmk.valueOf(location)
@@ -268,63 +240,4 @@ class RouteControl {
 
         return distance > outRouteDistance+2 && !inArea
     }
-
-    fun findShortestIndex(location:LatLng):Int{
-        var dist=1000000000.0
-
-        var tmp:Double //확인된 거리
-        var tmpIndex:Int=nowSection// 가장 짧은 거리에 있는 좌표의 값
-
-        for(i in nowSection until route.size){
-            tmp = location.distanceTo(route[i])
-            if(tmp<dist){
-                dist = tmp
-                tmpIndex = i
-            }
-        }
-
-        return tmpIndex
-    }
-
-    fun delRouteToIndex(index:Int){
-        for(i in 0 .. index){
-            route.removeAt(0)
-        }
-    }
-
-    fun addPedestrianRoute(pedestrianRoute:MutableList<LatLng>){
-        nowSection=0
-        route.addAll(0,pedestrianRoute)
-    }
-
-    /**
-     *  전체 경로 중 벡터 좌표 사이 구간의 사용자 이동 경로를 설정하는 함수
-     *
-     *  @param section 시작, 끝 벡터 좌표, 현재 사용자 위치를 가져옴
-     *  @return PathOverlay
-     */
-    fun drawProgressLine(section: Section): PathOverlay {
-        return PathOverlay().also {
-            it.coords = listOf(section.Start, section.CurrLocation)
-            it.width = 10
-            it.passedColor = Color.YELLOW
-            it.progress = 1.0
-        }
-    }
-
-    object AlterToast {
-        fun createToast(context: Context): Toast? {
-            val inflater = LayoutInflater.from(context)
-            val binding: AlertBinding = DataBindingUtil.inflate(inflater, R.layout.alert, null, false)
-
-            return Toast(context).apply {
-                setGravity(Gravity.BOTTOM or Gravity.CENTER, 0, 16.toPx())
-                duration = Toast.LENGTH_SHORT
-                view = binding.root
-            }
-        }
-
-        private fun Int.toPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
-    }
-
 }
