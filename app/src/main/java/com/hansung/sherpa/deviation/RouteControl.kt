@@ -280,6 +280,7 @@ class RouteControl {
             if(tmp<dist){
                 dist = tmp
                 tmpIndex = i
+
             }
         }
 

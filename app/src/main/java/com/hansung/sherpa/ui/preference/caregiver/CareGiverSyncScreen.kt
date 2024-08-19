@@ -1,7 +1,12 @@
 package com.hansung.sherpa.ui.preference.caregiver
 
 import android.annotation.SuppressLint
+import android.os.Build
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -61,8 +66,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
+import com.hansung.sherpa.ui.preference.TopAppBarScreen
 import com.hansung.sherpa.ui.preference.caregiver.carousel.MultiBrowseCarousel
 import com.hansung.sherpa.ui.preference.caregiver.carousel.rememberCarouselState
+import com.jakewharton.threetenabp.AndroidThreeTen
 
 data class CarouselItem(
     val id: Int,
@@ -71,6 +78,19 @@ data class CarouselItem(
     val name: String = "",
     val email: String = "",
 )
+
+class CaregiverSyncActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AndroidThreeTen.init(this);
+        setContent {
+            TopAppBarScreen(
+                { finish() }, { CaregiverSyncScreen() }
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

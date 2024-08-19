@@ -36,14 +36,20 @@ import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
 import com.hansung.sherpa.deviation.RouteControl
+import com.hansung.sherpa.gps.GPSDatas
+import com.hansung.sherpa.gps.GpsLocationSource
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
+import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
 import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
+import com.hansung.sherpa.ui.preference.caregiver.CaregiverSyncActivity
+import com.hansung.sherpa.ui.preference.emergency.EmergencySettingsActivity
+import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
@@ -104,7 +110,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
 
-        //locationSource = GpsLocationSource.createInstance(this)
+        locationSource = GpsLocationSource.createInstance(this)
 
         setContent {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -119,7 +125,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                     val navController = rememberNavController()
                     NavHost(
                         navController = navController,
-                        startDestination = SherpaScreen.Home.name
+                        startDestination = SherpaScreen.Preference.name
                     ){
                         composable(route = SherpaScreen.Start.name){
                             StartScreen(navController, Modifier.padding(innerPadding))
@@ -150,9 +156,29 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                         val intent = Intent(this@MainActivity, CalendarActivity::class.java)
                                         startActivity(intent)
                                     }
+                                    PreferenceScreenOption.USER -> {
+                                        val intent = Intent(this@MainActivity, UserSettingActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.EMERGENCY -> {
+                                        val intent = Intent(this@MainActivity, EmergencySettingsActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.CAREGIVER -> {
+                                        val intent = Intent(this@MainActivity, CaregiverSyncActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.NOTIFICATION -> {
+                                        val intent = Intent(this@MainActivity, AlarmSettingsActivity::class.java)
+                                        startActivity(intent)
+                                    }
                                     else -> { } // TODO: 처리
                                 }
                             }
+                        }
+                        composable(route = SherpaScreen.CALENDAR.name){
+                            val intent = Intent(this@MainActivity, CalendarActivity::class.java)
+                            startActivity(intent)
                         }
                     }
                 }
@@ -190,7 +216,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
         // 검색 필요 클래스 초기화
         val routeControl = RouteControl() // 사용자 위치 확인
-
+        val gpsData = GPSDatas(this) // gps 위치
         navigation = Navigation() // 경로 그리기 & 탐색
         navigation.naverMap = naverMap
         navigation.mainActivity = this

@@ -11,5 +11,6 @@ enum class SherpaScreen {
     Start,
     Login,
     SignUp,
-    Preference
+    Preference,
+    CALENDAR
 }
