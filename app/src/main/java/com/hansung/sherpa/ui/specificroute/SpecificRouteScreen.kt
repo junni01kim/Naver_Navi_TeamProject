@@ -1,8 +1,8 @@
 package com.hansung.sherpa.ui.specificroute
 
-
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
@@ -89,7 +89,7 @@ fun SpecificRouteScreen(response:TransportRoute){
     }
     
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
-    val coordParts = remember { setCoordParts(response) }
+    var coordParts = remember { setCoordParts(response) }
     val colorParts = setColerParts(response)
     val routeControl = RouteControl(coordParts)
 
@@ -120,36 +120,39 @@ fun SpecificRouteScreen(response:TransportRoute){
             val nowSubPath = routeControl.nowSubpath
 
             // 경로를 이탈을 했을 경우에 실행
-            if (routeControl.detectOutRoute(myPos)) {
-                if(response.subPath[nowSubPath].trafficType == 3) {
-                    //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
+            when(routeControl.detectOutRoute(myPos)) {
+                1 -> {
+                    if(response.subPath[nowSubPath].trafficType == 3) {
+                        Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
-                    Log.d("explain", "\n경로이탈: 경로 다시 그려져야 됨")
-                    Log.d("explain", "목표 좌표: ${coordParts[nowSubPath][routeControl.nowSection]}\n")
+                        val lastSectionIndex = coordParts[nowSubPath].lastIndex
+                        val toLatLng = coordParts[nowSubPath][lastSectionIndex]
 
-                    val lastSectionIndex = coordParts[nowSubPath].lastIndex
-                    val toLatLng = coordParts[nowSubPath][lastSectionIndex]
+                        val pedestrianRouteRequest = PedestrianRouteRequest(
+                            startX = myPos.longitude.toFloat(),
+                            startY = myPos.latitude.toFloat(),
+                            endX = toLatLng.longitude.toFloat(),
+                            endY = toLatLng.latitude.toFloat()
+                        )
 
-                    val pedestrianRouteRequest = PedestrianRouteRequest(
-                        startX = myPos.longitude.toFloat(),
-                        startY = myPos.latitude.toFloat(),
-                        endX = toLatLng.longitude.toFloat(),
-                        endY = toLatLng.latitude.toFloat()
-                    )
+                        val pedestrianResponse = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
 
-                    val pedestrianResponse = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
+                        val newTransportRoute = RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
+                        coordParts[nowSubPath] = newTransportRoute
 
-                    val newTransportRoute = RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
-                    coordParts[nowSubPath] = newTransportRoute
+                        routeControl.nowSection = 0
 
-                    routeControl.nowSection = 0
-
-                    // TODO: 해야할 추가 로직
+                        // TODO: 해야할 추가 로직
 //                  routeControl.delRouteToIndex(shortestRouteIndex)
 //                  navigation.redrawRoute(nowLocation, toLatLng)
+                    }
+                    else {
+                        Log.d("explain","경로이탈: 경로 안내 종료")
+                    }
                 }
-                else {
-                    Log.d("explain","경로이탈: 경로 안내 종료")
+                -1 -> {
+                    // TODO: 경로 안내 로직
+                    Toast.makeText(context, "목적지에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

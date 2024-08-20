@@ -1,6 +1,5 @@
 package com.hansung.sherpa.deviation
 
-import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.hansung.sherpa.StaticValue
 import com.naver.maps.geometry.LatLng
@@ -18,19 +17,17 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
 
 //    경로 이탈 : 8m
 //    경로 구간 확인 : 동적
-//    GPS 업데이트 시간 : 1.3s
 
     /**
      * @param route 이동할 네비게이션 경로
      * @param nowSection route에서 지금 이동하고 있는 경로
      * @param outRouteDistance 이탈 되었다고 판단 할 거리
      */
-    var nowSection = 0 // 이름 짧게 하기
+    var nowSection = 0
     var nowSubpath = 0
     val outRouteDistance = 60.0
 
     /**
-     * ※ from, to는 연산을 요구하기 보다 코드를 짧게 유지하기 위해 만든 함수이다. 변수로 만들지 않아도 이용 가능하다. ※
      * @param from 섹션의 시작점. 항상 route[nowSection]
      * @param to 섹션의 도착점. 항상 route[nowSection+1]
      */
@@ -47,19 +44,10 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
     lateinit var tos: Pair<Utmk, Utmk>
 
     /**
-     * StaticValue에서 참조. 변수 명을 줄이기 위한 변수
-     * (call by reference로 변동 됨)
-     */
-    //val subPath = StaticValue.transportRoute.subPath
-
-    /**
      * 새로운 경로가 발생할 때 기존 값을 초기화 하고 새로운 값들로 변경하는 함수
      * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
      */
     fun initializeRoute() {
-        nowSection = 0
-        nowSubpath = 0
-
         from = Utmk.valueOf(coordParts[nowSubpath][nowSection])
         to = Utmk.valueOf(coordParts[nowSubpath][nowSection+1])
 
@@ -72,8 +60,11 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
      *
      * @param location 현재 내 위치
      * @return to의 도착지 좌표 8m 이내에 진입할 시 true
+     * -1. 최종 목적지 도착
+     * 0. 해당 섹션 미통과
+     * 1. 해당 섹션 통과
      */
-    fun detectNextSection(location:LatLng):Boolean {
+    fun detectNextSection(location:LatLng):Int {
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
 
@@ -91,22 +82,16 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
         if(distance <= outRouteDistance) {
             // 목적지에 도착한 경우 lastSubPath, lastSection
             if(nowSubpath + 1 == coordParts.size && lastSection){
-                Log.d("explain", "목적지 도착")
-                return true
+                // TODO: 아직 잘되는지는 모르겠음
+                return -1
             }
 
             // 다음 섹션 이동
             if(lastSection){
                 nowSection = 0
                 nowSubpath++
-                Log.d("explain", "-nowSubpath 증가-\n" +
-                        "현재 내 SubPath: ${nowSubpath}\n" +
-                        "이동해야 하는 좌표: ${coordParts[nowSubpath][nowSection]}")
             } else {
                 nowSection++
-                Log.d("explain", "-nowSection 증가-\n" +
-                        "현재 내 Section: ${nowSection}\n" +
-                        "이동해야 하는 좌표: ${coordParts[nowSubpath][nowSection]}")
             }
 
             val lastlastSection = isNextSubpath()
@@ -121,9 +106,9 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
             // 섹션 영역 재설정
             froms = findIntersectionPoints(from)
             tos = findIntersectionPoints(to)
-            return true
+            return 1
         }
-        return false
+        return 0
     }
 
     fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
@@ -210,6 +195,7 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
 
     /**
      * 출발지와 도착지 간의 점과 직선 사이의 거리가 8m 이하인지 확인한다.
+     *
      * @param location 내 위치
      * @return 섹션 출발지와 목적지로부터 수직으로 8m 안에 존재한다면 true
      */
@@ -235,12 +221,21 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
 
     /**
      * 사용자가 주어진 경로에서 이탈되었는지 판단하는 함수
+     *
      * @param location 내 위치 좌표
-     * @return 출발지점에서 반경 n+2미터, 직선 과의 거리 n미터에서 이탈되었다면 true
+     * @return
+     * -1. 경로 종료
+     * 0. 출발지점에서 반경 n+2미터 안 or 직선 과의 거리 n미터에서 내부
+     * 1. 출발지점에서 반경 n+2미터 밖 or 직선 과의 거리 n미터에서 외부
      */
-    fun detectOutRoute(location:LatLng):Boolean{
-        while(detectNextSection(location)){ continue }
-        // TODO: 도착했는지 판단해야한다.
+    fun detectOutRoute(location:LatLng):Int{
+        while(true){
+            when(detectNextSection(location)){
+                1 -> continue
+                -1 -> return -1 // 도착한 경우
+                0 -> break
+            }
+        }
 
         val transportRoute = StaticValue.transportRoute
         // 출발지와 내 위치의 거리를 판단한다.
@@ -250,9 +245,15 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
         val user = Utmk.valueOf(location)
         val inArea = isInArea(user)
 
-        return distance > outRouteDistance+2 && !inArea
+        return if(distance > outRouteDistance+2 && !inArea) 1 else 0
     }
 
+    /**
+     * 사용자와 가장 가까운 section의 index를 알려주는 함수
+     *
+     * @param location 현재 내 위치
+     * @return 현재 SubPath의 section 중 location과 가장 가까운 section의 Index
+     */
     fun findShortestIndex(location:LatLng):Int{
         var dist=1000000000.0
 
