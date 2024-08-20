@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hansung.sherpa.deviation.RouteControlCompose
+import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.naver.maps.geometry.LatLng
@@ -95,7 +95,7 @@ fun SpecificRouteScreen(response:TransportRoute){
         }
     }
 
-    val routeControl by remember { mutableStateOf(RouteControlCompose()) }
+    val routeControl by remember { mutableStateOf(RouteControl()) }
     routeControl.initializeRoute()
     
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }

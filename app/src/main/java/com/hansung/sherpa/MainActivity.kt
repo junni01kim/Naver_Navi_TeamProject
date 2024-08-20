@@ -35,7 +35,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
-import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.navigation.OnLocationChangeManager
@@ -56,12 +55,11 @@ import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
-import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
-class MainActivity : ComponentActivity(), OnMapReadyCallback {
+class MainActivity : ComponentActivity() {
 
     private lateinit var naverMap: NaverMap
 
@@ -194,54 +192,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
             if (permissionState.status.shouldShowRationale) RationaleDialog()
             else PermissionDialog { permissionState.launchPermissionRequest() }
         }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.R)
-    override fun onMapReady(p0: NaverMap) {
-        this.naverMap = p0
-
-        // LocationOverlay 설정
-        val locationOverlay = naverMap.locationOverlay
-        locationOverlay.icon = markerIcon
-        locationOverlay.isVisible = true
-
-        //좌측하단 Tracking Mode 변환 버튼
-        naverMap.uiSettings.isLocationButtonEnabled = true
-        naverMap.locationSource = locationSource
-
-        // 움직이는 사용자 마커 따라 그리기
-        onChangeUserMarker()
-
-        // 검색 필요 클래스 초기화
-        val routeControl = RouteControl() // 사용자 위치 확인
-
-        navigation = Navigation() // 경로 그리기 & 탐색
-        navigation.naverMap = naverMap
-        navigation.mainActivity = this
-        navigation.routeControl = routeControl
-
-        // ---------- 삭제할 것 ----------
-        StaticValue.navigation = navigation
-        // ---------- 여기까지 ----------
-
-        // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
-        val i = object : MyOnLocationChangeListener {
-            override fun callback(location: Location) {
-                val nowLocation = LatLng(location.latitude, location.longitude)
-                navigation.tempStartLatLng = nowLocation
-                Log.d("nowsection",""+routeControl.nowSection)
-                if (routeControl.route.isNotEmpty() && routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
-                    var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
-                    var toLatLng = routeControl.route[shortestRouteIndex]
-                    routeControl.delRouteToIndex(shortestRouteIndex)
-                    navigation.redrawRoute(nowLocation, toLatLng)
-                }
-            }
-        }
-
-        val OLCM = OnLocationChangeManager
-        OLCM.naverMap = naverMap
-        OLCM.addMyOnLocationChangeListener(i)
     }
 
     // 사용자 마커 표시

@@ -27,7 +27,7 @@ class Navigation {
     private var pathOverlayList:MutableList<PathOverlay> = mutableListOf()
     lateinit var naverMap: NaverMap
     lateinit var mainActivity: MainActivity
-    lateinit var routeControl: RouteControl
+    //lateinit var routeControl: RouteControl
 
     // 반드시 지울 것!! 좌표 찾기 대신 넣는 임시 값
     // [개발]: 시작, 도착 좌표
@@ -56,30 +56,6 @@ class Navigation {
         val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
 
         return transitRoutes
-    }
-
-    // 이전 경로 탐색 코드
-    fun getTransitRoutesBefore(start: String, end: String){
-        // 검색어 기반 좌표 검색
-        /**
-         * 미완성이라 주석처리
-         * val SL = SearchLocation()
-         * startLatLng = SL.searchLatLng(start)
-         * endLatLng = SL.searchLatLng(end)
-        **/
-        
-        // 좌표 기반 경로 검색
-        routeRequest = setRouteRequest(tempStartLatLng, tempEndLatLng)
-        val transitRouteResponse = TransitManager(mainActivity).getTmapTransitRoutes(routeRequest)
-        val transitRoutes = Convert().convertToRouteMutableLists(transitRouteResponse)
-        val transitRoute = transitRoutes[0]
-        
-        // 경로 그리기
-        drawRoute(transitRoute)
-
-        // 기타
-        routeControl.route = Convert().convertLegRouteToLatLng(transitRoute)
-        routeControl.initializeRoute()
     }
 
     // 경로 요청 값 만들기
@@ -175,8 +151,6 @@ class Navigation {
 
         // 경로 그리기
         drawPedestrianRoute(pedestrianRoute)
-
-        routeControl.addPedestrianRoute(pedestrianRoute)
     }
 
     private fun drawPedestrianRoute(pedestrianRoute:MutableList<LatLng>){
