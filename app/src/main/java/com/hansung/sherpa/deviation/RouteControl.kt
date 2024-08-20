@@ -13,7 +13,10 @@ import kotlin.math.sqrt
  * @property route 그려질 경로 좌표 리스트
  * @property navigation RouteControl을 생성한 Navigation 객체
  */
-class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
+class RouteControl(
+    val coordParts: SnapshotStateList<MutableList<LatLng>>,
+    val passedRoute: SnapshotStateList<Double>
+) {
 
 //    경로 이탈 : 8m
 //    경로 구간 확인 : 동적
@@ -88,10 +91,12 @@ class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
 
             // 다음 섹션 이동
             if(lastSection){
+                passedRoute[nowSubpath] = 1.0
                 nowSection = 0
                 nowSubpath++
             } else {
                 nowSection++
+                passedRoute[nowSubpath] = nowSection.toDouble()/coordParts[nowSubpath].size.toDouble()
             }
 
             val lastlastSection = isNextSubpath()

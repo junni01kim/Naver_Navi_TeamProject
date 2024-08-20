@@ -29,6 +29,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -89,9 +90,10 @@ fun SpecificRouteScreen(response:TransportRoute){
     }
     
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
-    var coordParts = remember { setCoordParts(response) }
+    val coordParts = remember { setCoordParts(response) }
     val colorParts = setColerParts(response)
-    val routeControl = RouteControl(coordParts)
+    val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
+    val routeControl = RouteControl(coordParts, passedRoute)
 
     val dialogToggle = remember { mutableStateOf(true) }
     if(dialogToggle.value) {
@@ -141,6 +143,7 @@ fun SpecificRouteScreen(response:TransportRoute){
                         coordParts[nowSubPath] = newTransportRoute
 
                         routeControl.nowSection = 0
+                        passedRoute[nowSubPath] = 0.0
 
                         // TODO: 해야할 추가 로직
 //                  routeControl.delRouteToIndex(shortestRouteIndex)
@@ -157,7 +160,7 @@ fun SpecificRouteScreen(response:TransportRoute){
             }
         }
     ){
-        DrawPathOverlay(coordParts, colorParts)
+        DrawPathOverlay(coordParts, colorParts, passedRoute)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
