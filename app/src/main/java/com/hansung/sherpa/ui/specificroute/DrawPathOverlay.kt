@@ -1,14 +1,19 @@
 package com.hansung.sherpa.ui.specificroute
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.compose.chart.typeOfColor
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.naver.maps.map.compose.Align
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.compose.ColorPart
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
-import com.naver.maps.map.compose.Marker
-import com.naver.maps.map.compose.MarkerState
+import com.naver.maps.map.compose.MultipartPathOverlay
 import com.naver.maps.map.compose.PathOverlay
 
 /**
@@ -19,23 +24,34 @@ import com.naver.maps.map.compose.PathOverlay
  */
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun DrawPathOverlay(transportRoute: TransportRoute) {
-    for(subPath in transportRoute.subPath){
-        if(subPath.trafficType != 3) {
-            PathOverlay(
-                coords = subPath.sectionRoute.routeList,
-                width = 5.dp,
-                color = typeOfColor(subPath),
-                outlineColor = Color.Transparent
-            )
-        }
-        if(subPath.trafficType == 3) {
-            PathOverlay(
-                coords = subPath.sectionRoute.routeList,
-                width = 5.dp,
-                color = Color.Black,
-                outlineColor = Color.Transparent
-            )
-        }
+fun DrawPathOverlay() {
+    val transportRoute = StaticValue.transportRoute
+    val rememberCoordParts by remember { mutableStateOf(transportRoute) }
+
+    val coordParts = mutableListOf<MutableList<LatLng>>()
+    val colorParts = mutableListOf<ColorPart>()
+
+    for(subPath in transportRoute.subPath) {
+        coordParts.add(subPath.sectionRoute.routeList)
+        colorParts.add(ColorPart(
+            color = typeOfColor(subPath),
+            outlineColor = Color.Transparent,
+            passedColor = Color.Transparent,
+            passedOutlineColor = Color.Transparent
+        ))
     }
+
+    MultipartPathOverlay(
+        coordParts = setCoordParts(rememberCoordParts),
+        colorParts = colorParts,
+        width = 5.dp,
+    )
+}
+
+fun setCoordParts(transportRoute: TransportRoute): MutableList<MutableList<LatLng>> {
+    val coordParts = mutableListOf<MutableList<LatLng>>()
+
+    for(subPath in transportRoute.subPath) coordParts.add(subPath.sectionRoute.routeList)
+
+    return coordParts
 }

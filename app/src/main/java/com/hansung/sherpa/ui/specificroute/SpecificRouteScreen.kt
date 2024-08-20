@@ -119,16 +119,19 @@ fun SpecificRouteScreen(response:TransportRoute){
             val nowSubpath = routeControl.nowSubpath
             val nowSection = routeControl.nowSection
             if (routeControl.detectOutRoute(myPos)) {
-                if(StaticValue.transportRoute.subPath[nowSubpath].trafficType == 3) {
+                if(response.subPath[nowSubpath].trafficType == 3) {
                     //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
                     //or
-                    Log.d("explain", "경로 재설정 전 다음 좌표: ${StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
+                    Log.d("explain", "경로 재설정 전 다음 좌표: ${response.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
                     val shortestRouteIndex = routeControl.findShortestIndex(myPos)
                     Log.d("explain", "가장 가까운 인덱스: ${shortestRouteIndex}")
 
-                    val toLatLng =
-                        StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
+                    val lastSectionIndex = response.subPath[nowSubpath].sectionRoute.routeList.lastIndex
+                    val toLatLng = response.subPath[nowSubpath].sectionRoute.routeList[lastSectionIndex]
+
+                    //val toLatLng = response.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
+
 
                     val pedestrianRouteRequest = PedestrianRouteRequest(
                         startX = myPos.longitude.toFloat(),
@@ -139,12 +142,14 @@ fun SpecificRouteScreen(response:TransportRoute){
 
                     val pedestrianResponse = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
                     StaticValue.transportRoute = RouteFilterMapper().mappingOnePedestrianRoute(
-                        StaticValue.transportRoute,
+                        response,
                         nowSubpath,
                         pedestrianResponse
                     )
                     routeControl.nowSection = 0
-                    Log.d("explain", "경로 재설정 후 다음 좌표: ${StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
+                    Log.d("explain", "경로 재설정 후 이동해야하는 좌표: ${response.subPath[nowSubpath].sectionRoute.routeList[nowSection]}\n" +
+                            "long:${response.subPath[nowSubpath].sectionRoute.routeList[nowSection].longitude}\n" +
+                            "lati:${response.subPath[nowSubpath].sectionRoute.routeList[nowSection].latitude}")
 //                  routeControl.delRouteToIndex(shortestRouteIndex)
 //                  navigation.redrawRoute(nowLocation, toLatLng)
                 }
@@ -154,7 +159,7 @@ fun SpecificRouteScreen(response:TransportRoute){
             }
         }
     ){
-        DrawPathOverlay(response)
+        DrawPathOverlay()
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
