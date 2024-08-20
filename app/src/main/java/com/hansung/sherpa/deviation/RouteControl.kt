@@ -49,15 +49,22 @@ class RouteControl {
     lateinit var tos: Pair<Utmk, Utmk>
 
     /**
+     * StaticValue에서 참조. 변수 명을 줄이기 위한 변수
+     * (call by reference로 변동 됨)
+     */
+    val subPath = StaticValue.transportRoute.subPath
+
+    /**
      * 새로운 경로가 발생할 때 기존 값을 초기화 하고 새로운 값들로 변경하는 함수
      * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
      */
     fun initializeRoute() {
-        val transportRoute = StaticValue.transportRoute
         nowSection = 0
         nowSubpath = 0
-        from = Utmk.valueOf(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]) // 바꿔야됨
-        to = Utmk.valueOf(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1])
+
+        from = Utmk.valueOf(subPath[nowSubpath].sectionRoute.routeList[nowSection])
+        to = Utmk.valueOf(subPath[nowSubpath].sectionRoute.routeList[nowSection+1])
+
         froms = findIntersectionPoints(from)
         tos = findIntersectionPoints(to)
     }
@@ -69,26 +76,24 @@ class RouteControl {
      * @return to의 도착지 좌표 8m 이내에 진입할 시 true
      */
     fun detectNextSection(location:LatLng):Boolean {
-        val transportRoute = StaticValue.transportRoute
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
 
         // 거리를 탐색할 섹션 목적지 좌표
         val destination =
             if(lastSection)
-                transportRoute.subPath[nowSection+1].sectionRoute.routeList[0]
+                subPath[nowSection+1].sectionRoute.routeList[0]
             else
-                transportRoute.subPath[nowSection].sectionRoute.routeList[nowSubpath+1]
+                subPath[nowSection].sectionRoute.routeList[nowSubpath+1]
 
         // 내 위치에서 목적지까지의 거리
         val distance = location.distanceTo(destination)
 
         // 섹션 목적지 도달
         if(distance <= outRouteDistance) {
-            // 도착한 경우
-            if(nowSubpath + 1 == transportRoute.subPath.size
-                && nowSection + 1 == transportRoute.subPath[nowSubpath].sectionRoute.routeList.size){
-                Log.d("explain", "도착지 도착")
+            // 목적지에 도착한 경우 lastSubPath, lastSection
+            if(nowSubpath + 1 == subPath.size && lastSection){
+                Log.d("explain", "목적지 도착")
                 return true
             }
 
@@ -97,22 +102,22 @@ class RouteControl {
                 nowSection = 0
                 nowSubpath++
                 Log.d("explain", "-다음 SubPath-\n" +
-                        "SubPath:${nowSubpath},Section${nowSection}\n" +
-                        "SubpathSize:${transportRoute.subPath.size},SectionSize:${transportRoute.subPath[nowSubpath].sectionRoute.routeList.size}")
+                        "SubPathSize:${subPath.size}, SectionSize:${subPath[nowSubpath].sectionRoute.routeList.size}\n" +
+                        "SubPath:${nowSubpath}, Section${nowSection}")
             } else {
                 nowSection++
                 Log.d("explain", "-다음 Section-\n" +
-                        "SubPath:${nowSubpath},Section${nowSection}\n" +
-                        "SubpathSize:${transportRoute.subPath.size},SectionSize:${transportRoute.subPath[nowSubpath].sectionRoute.routeList.size}")
+                        "SubpathSize:${subPath.size}, SectionSize:${subPath[nowSubpath].sectionRoute.routeList.size}\n" +
+                        "SubPath:${nowSubpath}, Section${nowSection}")
             }
 
             val lastlastSection = isNextSubpath()
 
             // 섹션 값 재설정
-            from = Utmk.valueOf(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
+            from = Utmk.valueOf(subPath[nowSubpath].sectionRoute.routeList[nowSection])
             to = Utmk.valueOf(
-                if(lastlastSection) transportRoute.subPath[nowSubpath+1].sectionRoute.routeList[0]
-                else transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection]
+                if(lastlastSection) subPath[nowSubpath+1].sectionRoute.routeList[0]
+                else subPath[nowSubpath].sectionRoute.routeList[nowSection+1]
             )
 
             // 섹션 영역 재설정
@@ -123,11 +128,7 @@ class RouteControl {
         return false
     }
 
-    fun isNextSubpath():Boolean {
-        val transportRoute = StaticValue.transportRoute
-        if( nowSection + 1 >= transportRoute.subPath[nowSubpath].sectionRoute.routeList.size) return true
-        else return false
-    }
+    fun isNextSubpath() = nowSection + 1 >= subPath[nowSubpath].sectionRoute.routeList.size
 
     /**
      * 원과 직선의 교점을 구하는 함수

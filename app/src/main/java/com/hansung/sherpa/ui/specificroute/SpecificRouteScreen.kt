@@ -125,6 +125,7 @@ fun SpecificRouteScreen(response:TransportRoute){
                     //or
                     Log.d("explain", "경로 재설정 전 다음 좌표: ${StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
                     val shortestRouteIndex = routeControl.findShortestIndex(myPos)
+                    Log.d("explain", "가장 가까운 인덱스: ${shortestRouteIndex}")
 
                     val toLatLng =
                         StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
