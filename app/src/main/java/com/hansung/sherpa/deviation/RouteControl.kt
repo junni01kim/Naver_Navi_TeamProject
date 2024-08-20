@@ -1,9 +1,8 @@
 package com.hansung.sherpa.deviation
 
 import android.util.Log
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.itemsetting.SubPath
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import kotlin.collections.*
@@ -15,7 +14,7 @@ import kotlin.math.sqrt
  * @property route 그려질 경로 좌표 리스트
  * @property navigation RouteControl을 생성한 Navigation 객체
  */
-class RouteControl {
+class RouteControl(val coordParts: SnapshotStateList<MutableList<LatLng>>) {
 
 //    경로 이탈 : 8m
 //    경로 구간 확인 : 동적
@@ -28,9 +27,7 @@ class RouteControl {
      */
     var nowSection = 0 // 이름 짧게 하기
     var nowSubpath = 0
-    val outRouteDistance = 20.0
-
-
+    val outRouteDistance = 60.0
 
     /**
      * ※ from, to는 연산을 요구하기 보다 코드를 짧게 유지하기 위해 만든 함수이다. 변수로 만들지 않아도 이용 가능하다. ※
@@ -53,18 +50,18 @@ class RouteControl {
      * StaticValue에서 참조. 변수 명을 줄이기 위한 변수
      * (call by reference로 변동 됨)
      */
-    val subPath = StaticValue.transportRoute.subPath
+    //val subPath = StaticValue.transportRoute.subPath
 
     /**
      * 새로운 경로가 발생할 때 기존 값을 초기화 하고 새로운 값들로 변경하는 함수
      * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
      */
     fun initializeRoute() {
-        nowSection = 1
+        nowSection = 0
         nowSubpath = 0
 
-        from = Utmk.valueOf(subPath[nowSubpath].sectionRoute.routeList[nowSection])
-        to = Utmk.valueOf(subPath[nowSubpath].sectionRoute.routeList[nowSection+1])
+        from = Utmk.valueOf(coordParts[nowSubpath][nowSection])
+        to = Utmk.valueOf(coordParts[nowSubpath][nowSection+1])
 
         froms = findIntersectionPoints(from)
         tos = findIntersectionPoints(to)
@@ -83,9 +80,9 @@ class RouteControl {
         // 거리를 탐색할 섹션 목적지 좌표
         val destination =
             if(lastSection)
-                subPath[nowSection+1].sectionRoute.routeList[0]
+                coordParts[nowSubpath+1][0]
             else
-                subPath[nowSection].sectionRoute.routeList[nowSubpath+1]
+                coordParts[nowSubpath][nowSection+1]
 
         // 내 위치에서 목적지까지의 거리
         val distance = location.distanceTo(destination)
@@ -93,32 +90,32 @@ class RouteControl {
         // 섹션 목적지 도달
         if(distance <= outRouteDistance) {
             // 목적지에 도착한 경우 lastSubPath, lastSection
-            if(nowSubpath + 1 == subPath.size && lastSection){
+            if(nowSubpath + 1 == coordParts.size && lastSection){
                 Log.d("explain", "목적지 도착")
                 return true
             }
 
             // 다음 섹션 이동
             if(lastSection){
-                nowSection = 1
+                nowSection = 0
                 nowSubpath++
                 Log.d("explain", "-nowSubpath 증가-\n" +
-                        "SubPathSize:${subPath.size}, SectionSize:${subPath[nowSubpath].sectionRoute.routeList.size}\n" +
-                        "SubPath:${nowSubpath}, Section${nowSection}")
+                        "현재 내 SubPath: ${nowSubpath}\n" +
+                        "이동해야 하는 좌표: ${coordParts[nowSubpath][nowSection]}")
             } else {
                 nowSection++
                 Log.d("explain", "-nowSection 증가-\n" +
-                        "SubpathSize:${subPath.size}, SectionSize:${subPath[nowSubpath].sectionRoute.routeList.size}\n" +
-                        "SubPath:${nowSubpath}, Section${nowSection}")
+                        "현재 내 Section: ${nowSection}\n" +
+                        "이동해야 하는 좌표: ${coordParts[nowSubpath][nowSection]}")
             }
 
             val lastlastSection = isNextSubpath()
 
             // 섹션 값 재설정
-            from = Utmk.valueOf(subPath[nowSubpath].sectionRoute.routeList[nowSection])
+            from = Utmk.valueOf(coordParts[nowSubpath][nowSection])
             to = Utmk.valueOf(
-                if(lastlastSection) subPath[nowSubpath+1].sectionRoute.routeList[0]
-                else subPath[nowSubpath].sectionRoute.routeList[nowSection+1]
+                if(lastlastSection) coordParts[nowSubpath+1][0]
+                else coordParts[nowSubpath][nowSection+1]
             )
 
             // 섹션 영역 재설정
@@ -129,7 +126,7 @@ class RouteControl {
         return false
     }
 
-    fun isNextSubpath() = nowSection + 1 >= subPath[nowSubpath].sectionRoute.routeList.size
+    fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
 
     /**
      * 원과 직선의 교점을 구하는 함수

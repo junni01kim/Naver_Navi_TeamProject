@@ -3,7 +3,6 @@ package com.hansung.sherpa.ui.specificroute
 
 import android.os.Build
 import android.util.Log
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
@@ -25,10 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,7 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.dialog.SherpaDialog
@@ -93,9 +89,9 @@ fun SpecificRouteScreen(response:TransportRoute){
     }
     
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
-    val coordParts = remember { mutableStateOf(setCoordParts(response)) }
-    val colorParts = remember { mutableStateOf(setColerParts(response)) }
-    val routeControl = RouteControl()
+    val coordParts = remember { setCoordParts(response) }
+    val colorParts = setColerParts(response)
+    val routeControl = RouteControl(coordParts)
 
     val dialogToggle = remember { mutableStateOf(true) }
     if(dialogToggle.value) {
@@ -119,19 +115,20 @@ fun SpecificRouteScreen(response:TransportRoute){
         ),
         onLocationChange = {
             myPos = LatLng(it.latitude, it.longitude)
+
             routeControl.detectOutRoute(myPos)
-            val nowSubpath = routeControl.nowSubpath
-            val nowSection = routeControl.nowSection
+            val nowSubPath = routeControl.nowSubpath
 
             // 경로를 이탈을 했을 경우에 실행
             if (routeControl.detectOutRoute(myPos)) {
-                if(response.subPath[nowSubpath].trafficType == 3) {
+                if(response.subPath[nowSubPath].trafficType == 3) {
                     //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
-                    Log.d("explain", "경로이탈: 경로 다시 그려져야 됨")
+                    Log.d("explain", "\n경로이탈: 경로 다시 그려져야 됨")
+                    Log.d("explain", "목표 좌표: ${coordParts[nowSubPath][routeControl.nowSection]}\n")
 
-                    val lastSectionIndex = coordParts.value[nowSubpath].lastIndex
-                    val toLatLng = coordParts.value[nowSubpath][lastSectionIndex]
+                    val lastSectionIndex = coordParts[nowSubPath].lastIndex
+                    val toLatLng = coordParts[nowSubPath][lastSectionIndex]
 
                     val pedestrianRouteRequest = PedestrianRouteRequest(
                         startX = myPos.longitude.toFloat(),
@@ -143,7 +140,7 @@ fun SpecificRouteScreen(response:TransportRoute){
                     val pedestrianResponse = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
 
                     val newTransportRoute = RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
-                    coordParts.value[nowSubpath] = newTransportRoute
+                    coordParts[nowSubPath] = newTransportRoute
 
                     routeControl.nowSection = 0
 
