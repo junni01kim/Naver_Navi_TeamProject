@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.specificroute
 
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.exponentialDecay
@@ -116,30 +117,38 @@ fun SpecificRouteScreen(response:TransportRoute){
             myPos = LatLng(it.latitude, it.longitude)
             routeControl.detectOutRoute(myPos)
             val nowSubpath = routeControl.nowSubpath
+            val nowSection = routeControl.nowSection
             if (routeControl.detectOutRoute(myPos)) {
                 if(StaticValue.transportRoute.subPath[nowSubpath].trafficType == 3) {
-                    Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
+                    //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
                     //or
+                    Log.d("explain", "경로 재설정 전 다음 좌표: ${StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
                     val shortestRouteIndex = routeControl.findShortestIndex(myPos)
+
                     val toLatLng =
                         StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
+
                     val pedestrianRouteRequest = PedestrianRouteRequest(
                         startX = myPos.longitude.toFloat(),
                         startY = myPos.latitude.toFloat(),
                         endX = toLatLng.longitude.toFloat(),
                         endY = toLatLng.latitude.toFloat()
                     )
-                    val response = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
-                    RouteFilterMapper().mappingOnePedestrianRoute(
+
+                    val pedestrianResponse = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
+                    StaticValue.transportRoute = RouteFilterMapper().mappingOnePedestrianRoute(
                         StaticValue.transportRoute,
                         nowSubpath,
-                        response
+                        pedestrianResponse
                     )
                     routeControl.nowSection = 0
-
+                    Log.d("explain", "경로 재설정 후 다음 좌표: ${StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
 //                  routeControl.delRouteToIndex(shortestRouteIndex)
 //                  navigation.redrawRoute(nowLocation, toLatLng)
+                }
+                else {
+                    Log.d("explain","경로이탈: 경로 안내 종료")
                 }
             }
         }

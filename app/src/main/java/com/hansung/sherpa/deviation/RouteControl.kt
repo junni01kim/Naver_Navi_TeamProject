@@ -94,10 +94,17 @@ class RouteControl {
 
             // 다음 섹션 이동
             if(lastSection){
-                Log.d("explain", "섹션 이동")
                 nowSection = 0
                 nowSubpath++
-            } else nowSection++
+                Log.d("explain", "-다음 SubPath-\n" +
+                        "SubPath:${nowSubpath},Section${nowSection}\n" +
+                        "SubpathSize:${transportRoute.subPath.size},SectionSize:${transportRoute.subPath[nowSubpath].sectionRoute.routeList.size}")
+            } else {
+                nowSection++
+                Log.d("explain", "-다음 Section-\n" +
+                        "SubPath:${nowSubpath},Section${nowSection}\n" +
+                        "SubpathSize:${transportRoute.subPath.size},SectionSize:${transportRoute.subPath[nowSubpath].sectionRoute.routeList.size}")
+            }
 
             val lastlastSection = isNextSubpath()
 

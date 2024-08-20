@@ -186,7 +186,8 @@ class RouteFilterMapper {
 
     fun mappingOnePedestrianRoute(
         transportRoute: TransportRoute, nowSubPath:Int, pedstrianResponse: PedestrianResponse
-    ){
+    ): TransportRoute{
+        transportRoute.subPath[nowSubPath].sectionRoute.routeList.clear()
         pedstrianResponse.features?.forEach { feat ->
             feat.geometry.coordinates.forEach { coordinate ->
                 transportRoute.subPath[nowSubPath].sectionRoute.routeList.add(
@@ -196,5 +197,6 @@ class RouteFilterMapper {
                 Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
             }
         }
+        return transportRoute
     }
 }
