@@ -245,4 +245,22 @@ class RouteControl {
 
         return distance > outRouteDistance+2 && !inArea
     }
+
+//    fun findShortestIndex(location:LatLng):Int{
+//        var dist=1000000000.0
+//
+//        var tmp:Double //확인된 거리
+//        var tmpIndex:Int=nowSection// 가장 짧은 거리에 있는 좌표의 값
+//
+//        for(i in nowSection until route.size){
+//            tmp = location.distanceTo(route[i])
+//            if(tmp<dist){
+//                dist = tmp
+//                tmpIndex = i
+//
+//            }
+//        }
+//
+//        return tmpIndex
+//    }
 }

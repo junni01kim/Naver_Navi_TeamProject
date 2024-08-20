@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
@@ -111,8 +112,22 @@ fun SpecificRouteScreen(response:TransportRoute){
         onLocationChange = {
             myPos = LatLng(it.latitude, it.longitude)
             routeControl.detectOutRoute(myPos)
-            if (routeControl.detectOutRoute(myPos)) {
-                Toast.makeText(context, "경로를 이탈하였습니다.", Toast.LENGTH_SHORT).show()
+            val nowSubpath = routeControl.nowSubpath
+            if (routeControl.detectOutRoute(myPos) && StaticValue.transportRoute.subPath[nowSubpath].trafficType == 3) {
+                Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
+                // 경로 요청
+                // 경로 재설정
+                
+                //or
+                
+                // 가장 가까운 경로 찾기
+                // 그 좌표까지
+                // redrawRoute해서 경로 다시 그리기
+
+//                var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
+//                var toLatLng = routeControl.route[shortestRouteIndex]
+//                routeControl.delRouteToIndex(shortestRouteIndex)
+//                navigation.redrawRoute(nowLocation, toLatLng)
             }
         }
     ){
