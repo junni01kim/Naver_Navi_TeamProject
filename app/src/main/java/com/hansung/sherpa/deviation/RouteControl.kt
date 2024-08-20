@@ -2,6 +2,7 @@ package com.hansung.sherpa.deviation
 
 import android.util.Log
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.itemsetting.SubPath
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import kotlin.collections.*
@@ -246,21 +247,20 @@ class RouteControl {
         return distance > outRouteDistance+2 && !inArea
     }
 
-//    fun findShortestIndex(location:LatLng):Int{
-//        var dist=1000000000.0
-//
-//        var tmp:Double //확인된 거리
-//        var tmpIndex:Int=nowSection// 가장 짧은 거리에 있는 좌표의 값
-//
-//        for(i in nowSection until route.size){
-//            tmp = location.distanceTo(route[i])
-//            if(tmp<dist){
-//                dist = tmp
-//                tmpIndex = i
-//
-//            }
-//        }
-//
-//        return tmpIndex
-//    }
+    fun findShortestIndex(location:LatLng):Int{
+        var dist=1000000000.0
+
+        var tmp:Double //확인된 거리
+        var tmpIndex:Int=nowSection// 가장 짧은 거리에 있는 좌표의 값
+
+        for(i in nowSection until StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList.size){
+            tmp = location.distanceTo(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[i])
+            if(tmp<dist){
+                dist = tmp
+                tmpIndex = i
+            }
+        }
+
+        return tmpIndex
+    }
 }

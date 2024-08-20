@@ -183,4 +183,10 @@ class RouteFilterMapper {
 
         return transportRoute
     }
+
+    fun mappingOnePedestrianRoute(
+        transportRoute: TransportRoute, nowSubPath:Int, pedstrianResponse: PedestrianResponse
+    ){
+
+    }
 }

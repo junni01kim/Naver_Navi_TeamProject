@@ -37,9 +37,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
@@ -119,13 +121,15 @@ fun SpecificRouteScreen(response:TransportRoute){
                 // 경로 재설정
                 
                 //or
-                
-                // 가장 가까운 경로 찾기
-                // 그 좌표까지
-                // redrawRoute해서 경로 다시 그리기
-
-//                var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
-//                var toLatLng = routeControl.route[shortestRouteIndex]
+                val shortestRouteIndex = routeControl.findShortestIndex(myPos)
+                val toLatLng = StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
+                val pedestrianRouteRequest = PedestrianRouteRequest(
+                    startX = myPos.longitude.toFloat(),
+                    startY = myPos.latitude.toFloat(),
+                    endX = toLatLng.longitude.toFloat(),
+                    endY = toLatLng.latitude.toFloat()
+                )
+                val response = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
 //                routeControl.delRouteToIndex(shortestRouteIndex)
 //                navigation.redrawRoute(nowLocation, toLatLng)
             }
