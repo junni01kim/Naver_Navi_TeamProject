@@ -10,5 +10,7 @@ enum class SherpaScreen {
     SpecificRoute,
     Start,
     Login,
-    SignUp
+    SignUp,
+    Preference,
+    CALENDAR
 }

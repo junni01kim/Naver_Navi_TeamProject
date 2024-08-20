@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
@@ -63,7 +64,7 @@ enum class DragValue { Start, Center, End }
 @Composable
 fun SpecificRouteScreen(response:TransportRoute){
 
-    val totalTime by remember { mutableIntStateOf(response?.info?.totalTime ?: 0) }
+    val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
@@ -86,13 +87,22 @@ fun SpecificRouteScreen(response:TransportRoute){
             confirmValueChange = { true }
         )
     }
-
+    
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
+    val dialogToggle = remember { mutableStateOf(true) }
+    if(dialogToggle.value) {
+        SherpaDialog(title = "안내 시작", message = listOf("사용자 경로 안내를\n시작하시겠습니까?"), confirmButtonText = "안내", dismissButtonText = "취소") {
+            // TODO: 사용자에게 경로값 전송
+            //StaticValue.transportRoute
+            dialogToggle.value = false
+        }
+    }
+    
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
     NaverMap(
         locationSource = rememberFusedLocationSource(isCompassEnabled = true),
         properties = MapProperties(
-            locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.None,
+            locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
         ),
         uiSettings = MapUiSettings(
             isLocationButtonEnabled = true,
@@ -120,10 +130,8 @@ fun SpecificRouteScreen(response:TransportRoute){
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if(response!=null) {
-                    SpecificPreview(response!!) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
-                    SpecificList(response!!) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
-                }
+                SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
+                SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
             }
         },
         // 해당 부분은 초기 높이임 (화면 비율에 따라 계산 필요)

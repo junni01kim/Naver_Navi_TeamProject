@@ -211,8 +211,7 @@ class Convert {
     // ShortWalkResponse 데이터 클래스를 PedestrianResponse로 변환하는 함수 TODO 임시로 바꿔줌
     fun convertToPedestrianResponse(shortWalkResponse: ShortWalkResponse): PedestrianResponse {
         // Convert Routes to Feature
-        val features = shortWalkResponse.routes.flatMap { route ->
-            route.legs.flatMap { leg ->
+        val features = shortWalkResponse.routes[0].legs.flatMap { leg ->
                 leg.steps.mapIndexed { index, step ->
                     PedestrianResponse.Feature(
                         geometry = PedestrianResponse.Feature.Geometry(
@@ -239,14 +238,13 @@ class Convert {
                             pointType = "", // Example value, adjust as needed
                             roadType = 0, // Example value, adjust as needed
                             time = step.duration?.toInt() ?: 0,
-                            totalDistance = route.distance?.toInt() ?: 0,
-                            totalTime = route.duration?.toInt() ?: 0,
+                            totalDistance = leg.distance?.toInt() ?: 0,
+                            totalTime = leg.duration?.toInt() ?: 0,
                             turnType = 0
                         ),
                         type = "Feature"
                     )
                 }
-            }
         }
         // Create PedestrianResponse
         return PedestrianResponse(

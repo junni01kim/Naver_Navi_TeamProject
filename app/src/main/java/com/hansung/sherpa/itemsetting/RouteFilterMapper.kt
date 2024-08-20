@@ -1,5 +1,6 @@
 package com.hansung.sherpa.itemsetting
 
+import android.util.Log
 import com.hansung.sherpa.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.ODsaySubPath
 import com.hansung.sherpa.transit.ODsayTransitRouteResponse
@@ -26,7 +27,8 @@ class RouteFilterMapper {
 
         val list = mutableListOf<TransportRoute>()
 
-        for (path in transitResponse.result.path) {
+        transitResponse.result.path.forEachIndexed { idx, path ->
+            var transportIndex = -1;
             val oDsayInfo = path.info
             val oDsayPath = path.subPath
 
@@ -36,11 +38,12 @@ class RouteFilterMapper {
                 transferCount   = oDsayInfo.busTransitCount + oDsayInfo.subwayTransitCount,
                 totalWalk       = oDsayInfo.totalWalk
             )
-            val subPathList: List<SubPath> = oDsayPath.mapIndexed { index, it ->
+            val subPathList: List<SubPath> = oDsayPath.mapIndexed { _, it ->
+                if(isTransport(it.trafficType)) transportIndex++
                 SubPath(
                     trafficType     = it.trafficType,
                     sectionInfo     = castSectionInfo(it.trafficType, it),
-                    sectionRoute    = castSectionRoute(it.trafficType, graphicResponseList[index])
+                    sectionRoute    = castSectionRoute(it.trafficType, graphicResponseList[idx], transportIndex)
                 )
             }
 
@@ -108,11 +111,22 @@ class RouteFilterMapper {
         }
     }
 
-    private fun castSectionRoute(trafficType: Int, response: RouteGraphicResponse): SectionRoute {
+    private fun isTransport(trafficType: Int): Boolean {
+        return when (trafficType) {
+            TrafficType.SUBWAY.value, TrafficType.BUS.value ->
+                true
+            TrafficType.WALK.value ->
+                false
+            else ->
+                false
+        }
+    }
+
+    private fun castSectionRoute(trafficType: Int, response: RouteGraphicResponse, transportIndex: Int): SectionRoute {
         return when (trafficType) {
             TrafficType.SUBWAY.value, TrafficType.BUS.value ->
                 SectionRoute(routeList = response
-                    .result!!.lane?.get(0)!!.section?.get(0)?.graphPos!!
+                    .result!!.lane?.get(transportIndex)!!.section?.get(0)?.graphPos!!
                     .map { value -> LatLng(value.y!!, value.x!!) }.toMutableList()
                 )
 
@@ -146,16 +160,18 @@ class RouteFilterMapper {
                 TrafficType.WALK.value -> {
                     if (it.sectionInfo is PedestrianSectionInfo) {
                         it.sectionInfo.contents =
-                            pedestrianResponseList[0].features
+                            pedestrianResponseList[index].features
                                 ?.map { feat -> feat.properties.description }
                                 ?.toMutableList()!!
                     }
 
-                    pedestrianResponseList[0].features?.forEach { feat ->
+                    pedestrianResponseList[index].features?.forEach { feat ->
                         feat.geometry.coordinates.forEach { coordinate ->
                             it.sectionRoute.routeList.add(
-                                LatLng(coordinate[0], coordinate[1])
+                                LatLng(coordinate[1], coordinate[0])
                             )
+                            Log.i("MAPPER","routeList: ${it.sectionRoute.routeList}")
+                            Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
                         }
                     }
                     index++

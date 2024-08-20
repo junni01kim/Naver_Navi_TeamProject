@@ -32,7 +32,14 @@ val buttonColor = Color(0xFF34DFD5)
  * @sample ErrorDialogSample
  */
 @Composable
-fun SherpaDialog(title:String, message:List<String>, confirmButtonText:String, dissmissButtonText:String = "", onDismissRequest: () -> Unit = {}, onConfirmation: () -> Unit) {
+fun SherpaDialog(
+    title:String,
+    message:List<String>,
+    confirmButtonText:String,
+    dismissButtonText:String = "",
+    onDismissRequest: () -> Unit = {},
+    onConfirmation: () -> Unit
+) {
     AlertDialog(
         icon = {},
         onDismissRequest = onDismissRequest,
@@ -64,7 +71,7 @@ fun SherpaDialog(title:String, message:List<String>, confirmButtonText:String, d
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
                 Text(
-                    text = dissmissButtonText,
+                    text = dismissButtonText,
                     fontWeight = FontWeight.Bold,
                     color = buttonColor
                 )
