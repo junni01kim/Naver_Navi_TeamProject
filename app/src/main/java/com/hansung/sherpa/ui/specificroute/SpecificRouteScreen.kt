@@ -95,6 +95,7 @@ fun SpecificRouteScreen(response:TransportRoute){
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     val coordParts = remember { mutableStateOf(setCoordParts(response)) }
     val colorParts = remember { mutableStateOf(setColerParts(response)) }
+    val routeControl = RouteControl()
 
     val dialogToggle = remember { mutableStateOf(true) }
     if(dialogToggle.value) {
@@ -105,11 +106,9 @@ fun SpecificRouteScreen(response:TransportRoute){
         }
     }
 
-    val routeControl by remember { mutableStateOf(RouteControl()) }
     routeControl.initializeRoute()
-    
-    var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
+    var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
     NaverMap(
         locationSource = rememberFusedLocationSource(isCompassEnabled = true),
         properties = MapProperties(
@@ -123,19 +122,24 @@ fun SpecificRouteScreen(response:TransportRoute){
             routeControl.detectOutRoute(myPos)
             val nowSubpath = routeControl.nowSubpath
             val nowSection = routeControl.nowSection
+
+            // 경로를 이탈을 했을 경우에 실행
             if (routeControl.detectOutRoute(myPos)) {
                 if(response.subPath[nowSubpath].trafficType == 3) {
                     //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
-                    //or
-                    Log.d("explain", "경로 재설정 전 다음 좌표: ${response.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
+                    // Log.d("explain", "경로 재설정 전 다음 좌표: ${response.subPath[nowSubpath].sectionRoute.routeList[nowSection+1]}")
+
+                    /*
+                    가장 가까웠던 좌표로 경로안내 하는 로직
                     val shortestRouteIndex = routeControl.findShortestIndex(myPos)
                     Log.d("explain", "가장 가까운 인덱스: ${shortestRouteIndex}")
+                    val toLatLng = response.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
+                     */
 
+                    // 내 위치에서 목적지까지의 경로로 재 갱신
                     val lastSectionIndex = response.subPath[nowSubpath].sectionRoute.routeList.lastIndex
                     val toLatLng = response.subPath[nowSubpath].sectionRoute.routeList[lastSectionIndex]
-
-                    //val toLatLng = response.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
 
 
                     val pedestrianRouteRequest = PedestrianRouteRequest(
@@ -146,15 +150,26 @@ fun SpecificRouteScreen(response:TransportRoute){
                     )
 
                     val pedestrianResponse = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
-                    StaticValue.transportRoute = RouteFilterMapper().mappingOnePedestrianRoute(
+
+                    /*
+                    StativValue로 바로 변경하는 방식
+                    val newTransportRoute = RouteFilterMapper().mappingOnePedestrianRoute(
                         response,
                         nowSubpath,
                         pedestrianResponse
                     )
+                    coordParts.value = setCoordParts(newTransportRoute)
+                    */
+
+                    val newTransportRoute = RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
+                    coordParts.value[nowSubpath] = newTransportRoute
+
                     routeControl.nowSection = 0
-                    Log.d("explain", "경로 재설정 후 이동해야하는 좌표: ${response.subPath[nowSubpath].sectionRoute.routeList[nowSection]}\n" +
-                            "long:${response.subPath[nowSubpath].sectionRoute.routeList[nowSection].longitude}\n" +
-                            "lati:${response.subPath[nowSubpath].sectionRoute.routeList[nowSection].latitude}")
+//                    Log.d("explain", "경로 재설정 후 이동해야하는 좌표: ${response.subPath[nowSubpath].sectionRoute.routeList[nowSection]}\n" +
+//                            "long:${response.subPath[nowSubpath].sectionRoute.routeList[nowSection].longitude}\n" +
+//                            "lati:${response.subPath[nowSubpath].sectionRoute.routeList[nowSection].latitude}")
+
+                    // TODO: 해야할 추가 로직
 //                  routeControl.delRouteToIndex(shortestRouteIndex)
 //                  navigation.redrawRoute(nowLocation, toLatLng)
                 }

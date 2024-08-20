@@ -184,6 +184,9 @@ class RouteFilterMapper {
         return transportRoute
     }
 
+    /**
+     * transportRoute에서 보행자 경로 nowSubPath 부분만 수정하는 함수
+     */
     fun mappingOnePedestrianRoute(
         transportRoute: TransportRoute, nowSubPath:Int, pedstrianResponse: PedestrianResponse
     ): TransportRoute{
@@ -198,5 +201,20 @@ class RouteFilterMapper {
             }
         }
         return transportRoute
+    }
+
+    fun pedstrianResponseToRouteList(pedstrianResponse: PedestrianResponse):MutableList<LatLng> {
+        val mappingValue = mutableListOf<LatLng>()
+
+        pedstrianResponse.features?.forEach { feat ->
+            feat.geometry.coordinates.forEach { coordinate ->
+                mappingValue.add(
+                    LatLng(coordinate[1], coordinate[0])
+                )
+                Log.i("MAPPER","routeList: ${mappingValue}")
+                Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+            }
+        }
+        return mappingValue
     }
 }
