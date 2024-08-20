@@ -187,6 +187,14 @@ class RouteFilterMapper {
     fun mappingOnePedestrianRoute(
         transportRoute: TransportRoute, nowSubPath:Int, pedstrianResponse: PedestrianResponse
     ){
-
+        pedstrianResponse.features?.forEach { feat ->
+            feat.geometry.coordinates.forEach { coordinate ->
+                transportRoute.subPath[nowSubPath].sectionRoute.routeList.add(
+                    LatLng(coordinate[1], coordinate[0])
+                )
+                Log.i("MAPPER","routeList: ${transportRoute.subPath[nowSubPath].sectionRoute.routeList}")
+                Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+            }
+        }
     }
 }

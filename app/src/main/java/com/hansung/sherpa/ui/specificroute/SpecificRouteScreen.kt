@@ -40,6 +40,7 @@ import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
@@ -115,23 +116,31 @@ fun SpecificRouteScreen(response:TransportRoute){
             myPos = LatLng(it.latitude, it.longitude)
             routeControl.detectOutRoute(myPos)
             val nowSubpath = routeControl.nowSubpath
-            if (routeControl.detectOutRoute(myPos) && StaticValue.transportRoute.subPath[nowSubpath].trafficType == 3) {
-                Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
-                // 경로 요청
-                // 경로 재설정
-                
-                //or
-                val shortestRouteIndex = routeControl.findShortestIndex(myPos)
-                val toLatLng = StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
-                val pedestrianRouteRequest = PedestrianRouteRequest(
-                    startX = myPos.longitude.toFloat(),
-                    startY = myPos.latitude.toFloat(),
-                    endX = toLatLng.longitude.toFloat(),
-                    endY = toLatLng.latitude.toFloat()
-                )
-                val response = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
-//                routeControl.delRouteToIndex(shortestRouteIndex)
-//                navigation.redrawRoute(nowLocation, toLatLng)
+            if (routeControl.detectOutRoute(myPos)) {
+                if(StaticValue.transportRoute.subPath[nowSubpath].trafficType == 3) {
+                    Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
+
+                    //or
+                    val shortestRouteIndex = routeControl.findShortestIndex(myPos)
+                    val toLatLng =
+                        StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[shortestRouteIndex]
+                    val pedestrianRouteRequest = PedestrianRouteRequest(
+                        startX = myPos.longitude.toFloat(),
+                        startY = myPos.latitude.toFloat(),
+                        endX = toLatLng.longitude.toFloat(),
+                        endY = toLatLng.latitude.toFloat()
+                    )
+                    val response = TransitManager().getPedestrianRoute(pedestrianRouteRequest)
+                    RouteFilterMapper().mappingOnePedestrianRoute(
+                        StaticValue.transportRoute,
+                        nowSubpath,
+                        response
+                    )
+                    routeControl.nowSection = 0
+
+//                  routeControl.delRouteToIndex(shortestRouteIndex)
+//                  navigation.redrawRoute(nowLocation, toLatLng)
+                }
             }
         }
     ){
