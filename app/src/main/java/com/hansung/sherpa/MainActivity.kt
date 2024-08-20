@@ -35,9 +35,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
-import com.hansung.sherpa.navigation.MyOnLocationChangeListener
 import com.hansung.sherpa.navigation.Navigation
-import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
@@ -51,11 +49,9 @@ import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
-import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
-import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
@@ -194,23 +190,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    // 사용자 마커 표시
-    private fun onChangeUserMarker() {
-        val currMarker = Marker()
-        naverMap.addOnLocationChangeListener { location ->
-            currMarker.map = null
-            setUserMarkerPosition(currMarker, LatLng(location.latitude, location.longitude))
-        }
-    }
-
-    // 사용자 마커 위치 지정하여 재정의
-    private fun setUserMarkerPosition(marker: Marker, latLng: LatLng) {
-        marker.icon = markerIcon
-        marker.position = latLng
-        marker.anchor = PointF(0.5f, 0.5f)
-        marker.map = naverMap
-    }
-
     // 권한 확인
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -228,22 +207,6 @@ class MainActivity : ComponentActivity() {
             return
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    // ---------- 수정예정 ----------
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                1 -> { // RouteList Activity 문제점 좀 있음
-                    val startKeyword = data?.getStringExtra("startKeyword")!!
-                    val endKeyword = data.getStringExtra("endKeyword")!!
-                    Log.d("explain", "$startKeyword is $endKeyword")
-                    navigation.getTransitRoutes(startKeyword, endKeyword)
-                }
-            }
-        }
     }
 
     override fun onDestroy() {
