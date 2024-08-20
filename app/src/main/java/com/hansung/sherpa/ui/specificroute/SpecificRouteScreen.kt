@@ -25,8 +25,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -91,6 +93,9 @@ fun SpecificRouteScreen(response:TransportRoute){
     }
     
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
+    val coordParts = remember { mutableStateOf(setCoordParts(response)) }
+    val colorParts = remember { mutableStateOf(setColerParts(response)) }
+
     val dialogToggle = remember { mutableStateOf(true) }
     if(dialogToggle.value) {
         SherpaDialog(title = "안내 시작", message = listOf("사용자 경로 안내를\n시작하시겠습니까?"), confirmButtonText = "안내", dismissButtonText = "취소") {
@@ -159,7 +164,7 @@ fun SpecificRouteScreen(response:TransportRoute){
             }
         }
     ){
-        DrawPathOverlay()
+        DrawPathOverlay(coordParts, colorParts)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 

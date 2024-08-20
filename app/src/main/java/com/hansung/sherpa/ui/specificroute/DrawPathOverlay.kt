@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.specificroute
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,26 +25,10 @@ import com.naver.maps.map.compose.PathOverlay
  */
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
-fun DrawPathOverlay() {
-    val transportRoute = StaticValue.transportRoute
-    val rememberCoordParts by remember { mutableStateOf(transportRoute) }
-
-    val coordParts = mutableListOf<MutableList<LatLng>>()
-    val colorParts = mutableListOf<ColorPart>()
-
-    for(subPath in transportRoute.subPath) {
-        coordParts.add(subPath.sectionRoute.routeList)
-        colorParts.add(ColorPart(
-            color = typeOfColor(subPath),
-            outlineColor = Color.Transparent,
-            passedColor = Color.Transparent,
-            passedOutlineColor = Color.Transparent
-        ))
-    }
-
+fun DrawPathOverlay(coordParts:MutableState<MutableList<MutableList<LatLng>>>, colorParts: MutableState<MutableList<ColorPart>>) {
     MultipartPathOverlay(
-        coordParts = setCoordParts(rememberCoordParts),
-        colorParts = colorParts,
+        coordParts = coordParts.value,
+        colorParts = colorParts.value,
         width = 5.dp,
     )
 }
@@ -54,4 +39,19 @@ fun setCoordParts(transportRoute: TransportRoute): MutableList<MutableList<LatLn
     for(subPath in transportRoute.subPath) coordParts.add(subPath.sectionRoute.routeList)
 
     return coordParts
+}
+
+fun setColerParts(transportRoute: TransportRoute): MutableList<ColorPart> {
+    val colorParts = mutableListOf<ColorPart>()
+
+    for(subPath in transportRoute.subPath) {
+        colorParts.add(ColorPart(
+            color = typeOfColor(subPath),
+            outlineColor = Color.Transparent,
+            passedColor = Color.Transparent,
+            passedOutlineColor = Color.Transparent
+        ))
+    }
+
+    return colorParts
 }
