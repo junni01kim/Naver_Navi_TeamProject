@@ -60,7 +60,7 @@ class RouteControl {
      * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
      */
     fun initializeRoute() {
-        nowSection = 0
+        nowSection = 1
         nowSubpath = 0
 
         from = Utmk.valueOf(subPath[nowSubpath].sectionRoute.routeList[nowSection])
@@ -100,14 +100,14 @@ class RouteControl {
 
             // 다음 섹션 이동
             if(lastSection){
-                nowSection = 0
+                nowSection = 1
                 nowSubpath++
-                Log.d("explain", "-다음 SubPath-\n" +
+                Log.d("explain", "-nowSubpath 증가-\n" +
                         "SubPathSize:${subPath.size}, SectionSize:${subPath[nowSubpath].sectionRoute.routeList.size}\n" +
                         "SubPath:${nowSubpath}, Section${nowSection}")
             } else {
                 nowSection++
-                Log.d("explain", "-다음 Section-\n" +
+                Log.d("explain", "-nowSection 증가-\n" +
                         "SubpathSize:${subPath.size}, SectionSize:${subPath[nowSubpath].sectionRoute.routeList.size}\n" +
                         "SubPath:${nowSubpath}, Section${nowSection}")
             }
