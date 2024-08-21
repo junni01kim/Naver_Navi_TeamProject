@@ -17,7 +17,7 @@ import kotlin.math.sqrt
  * @param coordParts SpecificRouteScreen에서 경로로 선택 한 좌표들의 묶음
  * @param passedRoute 각 PathOverlay의 진척도를 조정하기 위한 값
  */
-class RouteControl(
+class RouteDivation(
     val coordParts: SnapshotStateList<MutableList<LatLng>>,
     val passedRoute: SnapshotStateList<Double>
 ) {

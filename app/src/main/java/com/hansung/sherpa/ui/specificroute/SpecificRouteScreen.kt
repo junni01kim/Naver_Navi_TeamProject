@@ -4,26 +4,11 @@ package com.hansung.sherpa.ui.specificroute
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
@@ -31,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -42,7 +26,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.compose.transit.TransitManager
-import com.hansung.sherpa.deviation.RouteControl
+import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
@@ -53,7 +37,6 @@ import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
-import kotlinx.coroutines.launch
 
 enum class DragValue { Start, Center, End }
 
@@ -88,7 +71,7 @@ fun SpecificRouteScreen(response:TransportRoute){
     val coordParts = remember { setCoordParts(response) }
     val colorParts = setColerParts(response)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
-    val routeControl = RouteControl(coordParts, passedRoute)
+    val routeDivation = RouteDivation(coordParts, passedRoute)
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
@@ -124,8 +107,8 @@ fun SpecificRouteScreen(response:TransportRoute){
         onLocationChange = {
             myPos = LatLng(it.latitude, it.longitude)
 
-            routeControl.detectOutRoute(myPos)
-            val nowSubPath = routeControl.nowSubpath
+            routeDivation.detectOutRoute(myPos)
+            val nowSubPath = routeDivation.nowSubpath
 
             /**
              * 경로 이탈 시 실행되는 함수
@@ -135,7 +118,7 @@ fun SpecificRouteScreen(response:TransportRoute){
              *           0 인 경우: 정상 이동
              *           1 인 경우: 경로 이탈이 된 경우
              */
-            when(routeControl.detectOutRoute(myPos)) {
+            when(routeDivation.detectOutRoute(myPos)) {
                 1 -> {
                     /**
                      * 도보의 경우 경로가 재설정 된다.
@@ -160,7 +143,7 @@ fun SpecificRouteScreen(response:TransportRoute){
                         val newTransportRoute = RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
                         coordParts[nowSubPath] = newTransportRoute
 
-                        routeControl.nowSection = 0
+                        routeDivation.nowSection = 0
                         passedRoute[nowSubPath] = 0.0
                     }
                     else {
