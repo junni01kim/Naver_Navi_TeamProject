@@ -43,6 +43,8 @@ import com.hansung.sherpa.ui.preference.PreferenceScreenOption
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
 import com.hansung.sherpa.ui.preference.caregiver.CaregiverSyncActivity
 import com.hansung.sherpa.ui.preference.emergency.EmergencySettingsActivity
+import com.hansung.sherpa.ui.preference.policyinformation.PolicyInfoActivity
+import com.hansung.sherpa.ui.preference.updateinformation.UpdateInfoActivity
 import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
@@ -155,6 +157,14 @@ class MainActivity : ComponentActivity() {
                                     }
                                     PreferenceScreenOption.NOTIFICATION -> {
                                         val intent = Intent(this@MainActivity, AlarmSettingsActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.APP_INFORMATION -> {
+                                        val intent = Intent(this@MainActivity, UpdateInfoActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.PRIVACY_POLICY -> {
+                                        val intent = Intent(this@MainActivity, PolicyInfoActivity::class.java)
                                         startActivity(intent)
                                     }
                                     else -> { } // TODO: 처리

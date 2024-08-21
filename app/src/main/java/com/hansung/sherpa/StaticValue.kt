@@ -7,7 +7,7 @@ class StaticValue {
     companion object{
         lateinit var FcmToken: String
         lateinit var transportRoute: TransportRoute
-        lateinit var userInfo: UserInfomation
+        var userInfo: UserInfomation = UserInfomation(role1 = "ADMIN")
         var searchPermission = false
     }
 }

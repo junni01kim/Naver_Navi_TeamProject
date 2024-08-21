@@ -148,6 +148,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material:material-icons-extended:1.6.8")
 
+    //Lottie Animation
+    implementation("com.airbnb.android:lottie-compose:6.5.0")
+
     // for Barchart in Routes UI
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 

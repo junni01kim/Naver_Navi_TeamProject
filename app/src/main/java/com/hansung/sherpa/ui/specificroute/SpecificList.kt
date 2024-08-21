@@ -59,7 +59,7 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  */
 @Composable
 fun SpecificList(showRouteDetails:TransportRoute){
-    val toTransport = 100f // 교통수단의 경우 연결된 선으로 그려야 함
+    val toTransport = 1000f // 교통수단의 경우 연결된 선으로 그려야 함
     val toPedestrian = 10f // 보행자의 경우 점선으로 그려야 함 -> 점선 하나의 선 길이
 
     LazyColumn(
@@ -115,7 +115,7 @@ fun SpecificListItem(
             .background(Color.White)
             .fillMaxWidth()
             .wrapContentHeight()
-            .bottomBorder(strokeWidth = 1.dp, color = if(expanded){ Color.Transparent } else { Color.Black })
+            .bottomBorder(strokeWidth = 1.dp, color = if(expanded){ Color.Transparent } else { Color.LightGray })
             .clickable { expanded = !expanded }
     ) {
         Row(
@@ -137,9 +137,9 @@ fun SpecificListItem(
                             .width(150.dp)
                             .padding(start = 6.dp)
                     ){
-                        Text(text = cuttingString(fromName ?: "정보를 불러올 수 없음"), fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                        Text(text = cuttingString(fromName ?: "정보를 불러올 수 없음"), fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 8.dp))
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -155,7 +155,7 @@ fun SpecificListItem(
                     modifier = Modifier.wrapContentSize(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = cuttingString(toName ?: "정보를 불러올 수 없음"), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(text = cuttingString(toName ?: "정보를 불러올 수 없음"), fontWeight = FontWeight.Bold, fontSize = 22.sp)
                     IconButton(onClick = { expanded = !expanded }) {
                         Icon(
                             imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
@@ -167,7 +167,7 @@ fun SpecificListItem(
         }
     }
     // expand 버튼을 눌렀을 때 보여질 세부 내용들 (어디 앞 우회전, ○○역...)
-    SpecificContents(origin,lineColor, expanded)
+    SpecificContents(origin, lineColor, expanded)
 }
 
 /**
@@ -217,14 +217,14 @@ fun DrawTransitLine(drawType: Float, lineNum:Color){
     Canvas(
         modifier = Modifier
             .width(20.dp)
-            .height(40.dp)
+            .height(60.dp)
             .padding(2.dp)
             .background(Color.White),
         onDraw = {
             drawLine(
                 color = lineNum,
                 start = Offset(10.dp.toPx(), 0.dp.toPx()),
-                end = Offset(10.dp.toPx(), 40.dp.toPx()),
+                end = Offset(10.dp.toPx(), 60.dp.toPx()),
                 strokeWidth = 5.dp.toPx(),
                 cap = StrokeCap.Round,
                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(drawType, 20f), 0f)// 점선 옵션
