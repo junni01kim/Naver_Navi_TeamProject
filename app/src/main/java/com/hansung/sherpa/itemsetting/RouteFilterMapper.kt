@@ -208,8 +208,8 @@ class RouteFilterMapper {
                 transportRoute.subPath[nowSubPath].sectionRoute.routeList.add(
                     LatLng(coordinate[1], coordinate[0])
                 )
-                Log.i("MAPPER","routeList: ${transportRoute.subPath[nowSubPath].sectionRoute.routeList}")
-                Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+                //Log.i("MAPPER","routeList: ${transportRoute.subPath[nowSubPath].sectionRoute.routeList}")
+                //Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
             }
         }
         return transportRoute
@@ -223,8 +223,8 @@ class RouteFilterMapper {
                 mappingValue.add(
                     LatLng(coordinate[1], coordinate[0])
                 )
-                Log.i("MAPPER","routeList: ${mappingValue}")
-                Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+                //Log.i("MAPPER","routeList: ${mappingValue}")
+                //Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
             }
         }
         return mappingValue
