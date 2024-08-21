@@ -15,6 +15,7 @@ class MessageViewModel : ViewModel() {
     private val _body = MutableLiveData("")
     val body: LiveData<String> get() = _body
 
+    // livedata 필드에 업데이트 알리는 함수
     fun updateValue(title: String, body: String) {
         _title.postValue(title)
         _body.postValue(body)

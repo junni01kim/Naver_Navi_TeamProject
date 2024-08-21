@@ -40,6 +40,7 @@ class Navigation {
         }
 
         transportRouteList?.mapIndexed { index, transportRoute ->
+            // API 횟수 제한
             if(index <= API_LIMIT) {
                 // [API] 각 경로에 대한 보행자 경로 리턴
                 val pedestrianRouteList = TM.requestCoordinateForRoute(

@@ -205,11 +205,12 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
+    // TMAP API 요청 값을 ODSay 요청 파라미터로 변환해주는 함수
     fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest{
         return ODsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
     }
 
-    // ShortWalkResponse 데이터 클래스를 PedestrianResponse로 변환하는 함수 TODO 임시로 바꿔줌
+    // ShortWalkResponse 데이터 클래스를 PedestrianResponse로 변환하는 함수
     fun convertToPedestrianResponse(shortWalkResponse: ShortWalkResponse): PedestrianResponse {
         // Convert Routes to Feature
         val features = shortWalkResponse.routes[0].legs.flatMap { leg ->
@@ -222,22 +223,22 @@ class Convert {
                             type = step.geometry?.type ?: ""
                         ),
                         properties = PedestrianResponse.Feature.Properties(
-                            categoryRoadType = 0, // Example value, adjust as needed
-                            description = convertStepFieldsToDescription(step) ?: "",
-                            direction = step.maneuver?.type ?: "",
-                            distance = leg.distance?.toInt() ?: 0,
-                            facilityName = step.name ?: "", // Example value, adjust as needed
-                            facilityType = "", // Example value, adjust as needed
+                            categoryRoadType = 0,
+                            description = convertStepFieldsToDescription(step) ?: "", // step의 필드 값들로 안내 문구 생성
+                            direction = step.maneuver?.type ?: "", // 이동 방향  : right, left ...
+                            distance = leg.distance?.toInt() ?: 0, // 이동 거리 m 단위 (정수)
+                            facilityName = step.name ?: "",
+                            facilityType = "",
                             index = index,
-                            intersectionName = "", // Example value, adjust as needed
-                            lineIndex = 0, // Example value, adjust as needed
+                            intersectionName = "",
+                            lineIndex = 0,
                             name = step.name ?: "",
-                            nearPoiName = "", // Example value, adjust as needed
-                            nearPoiX = "", // Example value, adjust as needed
-                            nearPoiY = "", // Example value, adjust as needed
+                            nearPoiName = "",
+                            nearPoiX = "",
+                            nearPoiY = "",
                             pointIndex = index,
-                            pointType = "", // Example value, adjust as needed
-                            roadType = 0, // Example value, adjust as needed
+                            pointType = "",
+                            roadType = 0,
                             time = step.duration?.toInt() ?: 0,
                             totalDistance = leg.distance?.toInt() ?: 0,
                             totalTime = leg.duration?.toInt() ?: 0,
@@ -247,10 +248,10 @@ class Convert {
                     )
                 }
         }
-        // Create PedestrianResponse
+        
         return PedestrianResponse(
             features = features,
-            type = "FeatureCollection" // Adjust the type as needed
+            type = "FeatureCollection" 
         )
     }
 
@@ -262,8 +263,8 @@ class Convert {
      */
     fun convertStepFieldsToDescription(step: Steps): String {
         val maneuver = step.maneuver
-        val distance = step.distance?.toInt() ?: 0
-        val roadName = step.name ?: "도로"
+        val distance = step.distance?.toInt() ?: 0 // 도보 구간에서 안내시 1개의 step 거리
+        val roadName = step.name ?: "도로" // 주소/지명 이름 (간략화)
 
         val maneuverType = maneuver?.type ?: ""
         val bearingBefore = maneuver?.bearingBefore ?: 0

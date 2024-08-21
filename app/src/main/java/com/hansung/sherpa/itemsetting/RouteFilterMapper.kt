@@ -56,6 +56,13 @@ class RouteFilterMapper {
         return list.toList()
     }
 
+    /**
+     * ODSay 정보를 공통 데이터 TransportRoute의 SectionInfo로 매핑시켜주는 함수
+     *
+     * @param trafficType
+     * @param path
+     * @return
+     */
     private fun castSectionInfo(trafficType: Int, path: ODsaySubPath): SectionInfo {
         return when (trafficType) {
             TrafficType.SUBWAY.value -> SubwaySectionInfo(
@@ -111,6 +118,7 @@ class RouteFilterMapper {
         }
     }
 
+    // 해당 타입이 교통수단인지 확인하는 함수
     private fun isTransport(trafficType: Int): Boolean {
         return when (trafficType) {
             TrafficType.SUBWAY.value, TrafficType.BUS.value ->
@@ -122,6 +130,7 @@ class RouteFilterMapper {
         }
     }
 
+    // ODSay 노선 그래픽 API 데이터를 TransportRoute의 SectionRoute로 매핑시켜주는 함수
     private fun castSectionRoute(trafficType: Int, response: RouteGraphicResponse, transportIndex: Int): SectionRoute {
         return when (trafficType) {
             TrafficType.SUBWAY.value, TrafficType.BUS.value ->
