@@ -106,8 +106,11 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
             IconButton(modifier = Property.Button.modifier,
                 onClick = {
                     val tempString = departureValue
+                    val tempLatLng = departureLatLng
                     departureValue = destinationValue
+                    departureLatLng = destinationLatLng
                     destinationValue = tempString
+                    destinationLatLng = tempLatLng
                 }) {
                 // 버튼에 들어갈 이미지
                 Icon(

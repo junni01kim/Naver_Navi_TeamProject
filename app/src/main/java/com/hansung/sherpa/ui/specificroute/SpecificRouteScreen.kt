@@ -90,22 +90,41 @@ fun SpecificRouteScreen(response:TransportRoute){
     }
     
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
+    /**
+     * @author 김명준
+     *
+     * @property coordParts response에서 routeList만 도출한 값
+     * @property colorParts PathOverlay를 그릴 때 이용할 색상 값 모음
+     * @property passedRoute 이미 이동된 경로를 지우기 위한 진행도 비율
+     * @property routeControl 경로 이탈 알고리즘 객체
+     */
     val coordParts = remember { setCoordParts(response) }
     val colorParts = setColerParts(response)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeControl = RouteControl(coordParts, passedRoute)
 
-    val dialogToggle = remember { mutableStateOf(true) }
-    if(dialogToggle.value) {
-        SherpaDialog(title = "안내 시작", message = listOf("사용자 경로 안내를\n시작하시겠습니까?"), confirmButtonText = "안내", dismissButtonText = "취소") {
+    /**
+     * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
+     *
+     * @property dialogFlag 경로 전송 다이얼로그가 화면에 나올지 말지 판단하는 flag
+     *
+     * TODO: 취소 후 다시 경로를 전송하고 싶을 때, 화면을 띄울 버튼이 필요하다.
+     */
+    val dialogFlag = remember { mutableStateOf(true) }
+    if(dialogFlag.value) {
+        SherpaDialog(title = "안내 시작", message = listOf("사용자 경로 안내를","시작하시겠습니까?"), confirmButtonText = "안내", dismissButtonText = "취소") {
             // TODO: 사용자에게 경로값 전송
             //StaticValue.transportRoute 이걸로
-            dialogToggle.value = false
+            dialogFlag.value = false
         }
     }
 
-    routeControl.initializeRoute()
-
+    /**
+     * 네이버 map 화면
+     *
+     * @property myPos 현재 내 위치를 알려주는 함수
+     * TODO: 의미없는 변수인거 같기도 해서 테스트 후 삭제해도 될 듯
+     */
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
     NaverMap(
         locationSource = rememberFusedLocationSource(isCompassEnabled = true),
@@ -121,11 +140,22 @@ fun SpecificRouteScreen(response:TransportRoute){
             routeControl.detectOutRoute(myPos)
             val nowSubPath = routeControl.nowSubpath
 
-            // 경로를 이탈을 했을 경우에 실행
+            /**
+             * 경로 이탈 시 실행되는 함수
+             *
+             * detectOuteRoute() 반환 값 마다 동작이 다르다.
+             *          -1 인 경우: 경로 안내 종료
+             *           0 인 경우: 정상 이동
+             *           1 인 경우: 경로 이탈이 된 경우
+             */
             when(routeControl.detectOutRoute(myPos)) {
                 1 -> {
+                    /**
+                     * 도보의 경우 경로가 재설정 된다.
+                     * 다른 타입(대중교통)의 경우 대중교통을 잘못 탑승했다고 판단해 경로 안내를 종료하고 다시 요청받도록 한다.
+                     */
                     if(response.subPath[nowSubPath].trafficType == 3) {
-                        Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
+                        //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
                         val lastSectionIndex = coordParts[nowSubPath].lastIndex
                         val toLatLng = coordParts[nowSubPath][lastSectionIndex]
@@ -144,17 +174,13 @@ fun SpecificRouteScreen(response:TransportRoute){
 
                         routeControl.nowSection = 0
                         passedRoute[nowSubPath] = 0.0
-
-                        // TODO: 해야할 추가 로직
-//                  routeControl.delRouteToIndex(shortestRouteIndex)
-//                  navigation.redrawRoute(nowLocation, toLatLng)
                     }
                     else {
-                        Log.d("explain","경로이탈: 경로 안내 종료")
+                        Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT).show()
+                        // TODO: 경로 안내 종료 및 SpecificRouteScreen 나가기
                     }
                 }
                 -1 -> {
-                    // TODO: 경로 안내 로직
                     Toast.makeText(context, "목적지에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
                 }
             }

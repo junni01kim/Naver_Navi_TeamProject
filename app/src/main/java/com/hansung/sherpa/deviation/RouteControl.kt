@@ -29,7 +29,7 @@ class RouteControl(
      */
     var nowSection = 0
     var nowSubpath = 0
-    val outRouteDistance = 30.0
+    val outRouteDistance = 10.0
 
     /**
      * @property from 섹션의 시작점. coordParts[nowSubPath][nowSection]
@@ -99,7 +99,8 @@ class RouteControl(
      *           0. 해당 섹션 미통과
      *           1. 해당 섹션 통과
      */
-    fun detectNextSection(location:LatLng):Int {
+    private fun detectNextSection(location:LatLng):Int {
+        // 해당 section이 nowSubPath의 마지막 section인지 판단하는 함수
         fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
 
         // subPath의 마지막 구간인지 미리 탐색
@@ -117,19 +118,21 @@ class RouteControl(
         if(distance <= outRouteDistance) {
             // 다음 섹션 이동
             if(lastSection){
-                Log.d("explain", "섹션통과: ${nowSection}")
+                Log.i("RouteControl", "섹션통과: ${nowSection}")
                 passedRoute[nowSubpath] = 1.0
                 nowSection = 0
                 nowSubpath++
             } else {
-                Log.d("explain", "환승구간: ${nowSubpath}")
+                Log.i("RouteControl", "환승구간: ${nowSubpath}")
+                //passedRoute[nowSubpath] = nowSection.toDouble()/coordParts[nowSubpath].size.toDouble()
+                calcProcess()
                 nowSection++
-                passedRoute[nowSubpath] = nowSection.toDouble()/coordParts[nowSubpath].size.toDouble()
             }
 
             // 목적지에 도착한 경우 안내 종료
             // (지금은 아님 테스트 중) ※ 'nowSubpath + 1'로 할 시, 하단 섹션 값 재설정이 outOfIndex가 발생한다.
             if(nowSubpath + 1 == coordParts.size && lastSection){
+                Log.i("RouteControl", "목적지 도착")
                 // TODO: 아직 잘되는지는 모르겠음
                 return -1
             }
@@ -150,13 +153,17 @@ class RouteControl(
         return 0
     }
 
+    fun calcProcess() {
+
+    }
+
     /**
      * 출발지와 도착지 간의 점과 직선 사이의 거리가 8m 이하인지 확인한다.
      *
      * @param location 내 위치
      * @return 섹션 출발지와 목적지로부터 수직으로 8m 안에 존재한다면 true
      */
-    fun isInArea(location: Utmk): Boolean {
+    private fun isInArea(location: Utmk): Boolean {
 
         val (leftFrom, rightFrom) = froms
         val (leftTo, rightTo) = tos
@@ -184,7 +191,7 @@ class RouteControl(
      * @param point 원의 중점
      * @return 교점1, 교점2 - Pair() 혹은 val (get1, get2)로 반환 받을 것
      */
-    fun findIntersectionPoints(point:Utmk): Pair<Utmk, Utmk> {
+    private fun findIntersectionPoints(point:Utmk): Pair<Utmk, Utmk> {
         // 교점을 구하는 방정식 Wx^2 + Lx + M = 0
         // 계산 결과 W=m^2+1, L=--2*(a+m*b), M=a^2+b^2-r^2
         // m은 기울기(slope), (a, b)는 원의 중점과 직선이 지나는 한 점(point)
@@ -223,7 +230,7 @@ class RouteControl(
      * @param vector 스칼라 값을 구할 벡터
      * @return 스칼라 값
      */
-    fun toScalar(vector:Utmk) = sqrt(vector.x.pow(2)+vector.y.pow(2))
+    private fun toScalar(vector:Utmk) = sqrt(vector.x.pow(2)+vector.y.pow(2))
 
     /**
      * Utmk 좌표에서 두 벡터의 코사인 값을 구하는 함수
@@ -232,7 +239,7 @@ class RouteControl(
      * @param vector2 두번째 벡터
      * @return 코사인 값
      */
-    fun getCosine(vector1: Utmk, vector2: Utmk) = (vector1.x * vector2.x + vector1.y * vector2.y) / (toScalar(vector1) * toScalar(vector2))
+    private fun getCosine(vector1: Utmk, vector2: Utmk) = (vector1.x * vector2.x + vector1.y * vector2.y) / (toScalar(vector1) * toScalar(vector2))
 
     /**
      * 두 벡터 사이의 각도를 구하는 함수이다.
@@ -242,7 +249,7 @@ class RouteControl(
      * @param vector2 각도를 정하는 벡터
      * @return 두 벡터 사이의 각도
      */
-    fun getTheta(vector1: Utmk, vector2: Utmk): Double {
+    private fun getTheta(vector1: Utmk, vector2: Utmk): Double {
         // 코사인 값 계산
         val cosine = getCosine(vector1, vector2)
         val radian = acos(cosine)
