@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.specificroute
 
 
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -119,12 +120,19 @@ fun SpecificRouteScreen(response:TransportRoute){
              *           1 인 경우: 경로 이탈이 된 경우
              */
             when(routeDivation.detectOutRoute(myPos)) {
+                -1 -> {
+                    Toast.makeText(context, "목적지에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
+                }
+                0 -> {
+                    routeDivation.calcProcess(myPos)
+                }
                 1 -> {
                     /**
                      * 도보의 경우 경로가 재설정 된다.
                      * 다른 타입(대중교통)의 경우 대중교통을 잘못 탑승했다고 판단해 경로 안내를 종료하고 다시 요청받도록 한다.
                      */
                     if(response.subPath[nowSubPath].trafficType == 3) {
+                        Log.d("RouteControl", "경로이탈")
                         // 너무 많이나와서 잠궈 둠
                         //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
@@ -150,9 +158,6 @@ fun SpecificRouteScreen(response:TransportRoute){
                         Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT).show()
                         // TODO: 경로 안내 종료 및 SpecificRouteScreen 나가기
                     }
-                }
-                -1 -> {
-                    Toast.makeText(context, "목적지에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
                 }
             }
         }

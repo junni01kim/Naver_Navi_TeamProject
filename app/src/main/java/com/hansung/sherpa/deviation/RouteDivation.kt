@@ -3,6 +3,7 @@ package com.hansung.sherpa.deviation
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.itemsetting.SubPath
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import kotlin.collections.*
@@ -29,7 +30,8 @@ class RouteDivation(
      */
     var nowSection = 0
     var nowSubpath = 0
-    val outRouteDistance = 10.0
+    val outRouteDistance = 20.0
+    var subPathWholeDistance = 0.0
 
     /**
      * @property from 섹션의 시작점. coordParts[nowSubPath][nowSection]
@@ -102,6 +104,8 @@ class RouteDivation(
     private fun detectNextSection(location:LatLng):Int {
         // 해당 section이 nowSubPath의 마지막 section인지 판단하는 함수
         fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
+        // 해당 subPath의 전체 경로 길이를 구하는 함수
+        fun calcWholeDistance(subPath: List<LatLng>) = (0 until subPath.lastIndex).sumOf { subPath[it].distanceTo(subPath[it + 1]) }
 
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
@@ -118,21 +122,20 @@ class RouteDivation(
         if(distance <= outRouteDistance) {
             // 다음 섹션 이동
             if(lastSection){
-                Log.i("RouteControl", "섹션통과: ${nowSection}")
+                Log.d("RouteControl", "환승구간: ${nowSubpath}")
                 passedRoute[nowSubpath] = 1.0
                 nowSection = 0
                 nowSubpath++
+                subPathWholeDistance = calcWholeDistance(coordParts[nowSubpath])
             } else {
-                Log.i("RouteControl", "환승구간: ${nowSubpath}")
-                //passedRoute[nowSubpath] = nowSection.toDouble()/coordParts[nowSubpath].size.toDouble()
-                calcProcess()
+                Log.d("RouteControl", "섹션통과: ${nowSection}")
                 nowSection++
             }
 
             // 목적지에 도착한 경우 안내 종료
             // (지금은 아님 테스트 중) ※ 'nowSubpath + 1'로 할 시, 하단 섹션 값 재설정이 outOfIndex가 발생한다.
             if(nowSubpath + 1 == coordParts.size && lastSection){
-                Log.i("RouteControl", "목적지 도착")
+                Log.d("RouteControl", "목적지 도착")
                 // TODO: 아직 잘되는지는 모르겠음
                 return -1
             }
@@ -153,8 +156,16 @@ class RouteDivation(
         return 0
     }
 
-    fun calcProcess() {
+    fun calcProcess(myPos:LatLng) {
+        // 내 섹션 이전까지의 거리 합
+        var beforeDistanceSum = 0.0
+        for(i in 0..<nowSection) {
+            beforeDistanceSum += coordParts[nowSubpath][i].distanceTo(coordParts[nowSubpath][i+1])
+        }
+        // 내 섹션 안에서의 이동 거리
+        val nowSectionDistance = coordParts[nowSubpath][nowSection].distanceTo(myPos) + beforeDistanceSum
 
+        passedRoute[nowSubpath] = nowSectionDistance/subPathWholeDistance
     }
 
     /**
