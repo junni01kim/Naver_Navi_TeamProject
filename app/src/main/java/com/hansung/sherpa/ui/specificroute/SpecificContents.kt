@@ -61,7 +61,7 @@ fun SpecificContents(sectionInfo:SectionInfo,lineColor:Color, expand:Boolean){
         modifier = Modifier
             .background(Color.White)
             .border(2.dp, Color.Transparent)
-            .bottomBorder(2.dp, Color.Black)
+            .bottomBorder(2.dp, Color.LightGray)
     ) {
         Box(
             modifier = Modifier

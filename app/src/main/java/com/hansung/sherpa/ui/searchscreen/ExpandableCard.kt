@@ -41,9 +41,9 @@ import androidx.navigation.NavController
 import com.hansung.sherpa.R
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoRequest
-import com.hansung.sherpa.compose.busarrivalinfo.ArrivalInfoManager
-import com.hansung.sherpa.compose.chart.Chart
+import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoRequest
+import com.hansung.sherpa.arrivalinfo.ArrivalInfoManager
+import com.hansung.sherpa.ui.chart.Chart
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo

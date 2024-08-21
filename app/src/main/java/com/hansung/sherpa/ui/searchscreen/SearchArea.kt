@@ -106,8 +106,11 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
             IconButton(modifier = Property.Button.modifier,
                 onClick = {
                     val tempString = departureValue
+                    val tempLatLng = departureLatLng
                     departureValue = destinationValue
+                    departureLatLng = destinationLatLng
                     destinationValue = tempString
+                    destinationLatLng = tempLatLng
                 }) {
                 // 버튼에 들어갈 이미지
                 Icon(
@@ -216,10 +219,10 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
                                 return@IconButton
                             }
 
-                            if(StaticValue.userInfo.role1 == "CARETAKER" && !StaticValue.searchPermission) {
-                                dialogToggle.value = true
-                                return@IconButton
-                            }
+//                            if(StaticValue.userInfo.role1 == "CARETAKER" && !StaticValue.searchPermission) {
+//                                dialogToggle.value = true
+//                                return@IconButton
+//                            }
 
                             /**
                              * 출발지와 목적지에 대한 경로를 요청하는 함수

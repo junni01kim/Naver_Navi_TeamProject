@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hansung.sherpa.compose.chart.Chart
+import com.hansung.sherpa.ui.chart.Chart
 import com.hansung.sherpa.itemsetting.TransportRoute
 import java.time.LocalDateTime
 
@@ -49,10 +49,8 @@ fun SpecificPreview(response: TransportRoute){
         Row(
             verticalAlignment = Alignment.Bottom
         ) {
-            Text(text = "${(totalTime)}", fontSize = 20.sp, fontWeight = FontWeight.Bold) // 전체 걸리는 시간
-            Text(text = "분", fontWeight = FontWeight.Bold)
-            Text(text = "${futureHour}시 ${futureMin}분", modifier = Modifier.padding(start = 16.dp), fontSize = 13.sp) // 전체 걸리는 시간을 통한 도착 예상 시간
-            Text(text = "도착", fontSize = 13.sp)
+            Text(text = "${(totalTime)}분", fontSize = 20.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp)) // 전체 걸리는 시간
+            Text(text = "${futureHour}시 ${futureMin}분 도착", modifier = Modifier.padding(start = 16.dp, bottom = 8.dp), fontSize = 13.sp) // 전체 걸리는 시간을 통한 도착 예상 시간
         }
         Chart(transportRoute = response)// 프로그래스바
     }

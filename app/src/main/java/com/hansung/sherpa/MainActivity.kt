@@ -35,12 +35,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
-import com.hansung.sherpa.deviation.RouteControl
-import com.hansung.sherpa.gps.GPSDatas
-import com.hansung.sherpa.gps.GpsLocationSource
-import com.hansung.sherpa.navigation.MyOnLocationChangeListener
-import com.hansung.sherpa.navigation.Navigation
-import com.hansung.sherpa.navigation.OnLocationChangeManager
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
@@ -49,29 +43,24 @@ import com.hansung.sherpa.ui.preference.PreferenceScreenOption
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
 import com.hansung.sherpa.ui.preference.caregiver.CaregiverSyncActivity
 import com.hansung.sherpa.ui.preference.emergency.EmergencySettingsActivity
+import com.hansung.sherpa.ui.preference.policyinformation.PolicyInfoActivity
+import com.hansung.sherpa.ui.preference.updateinformation.UpdateInfoActivity
 import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
-import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
-import com.naver.maps.map.OnMapReadyCallback
-import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
-class MainActivity : ComponentActivity(), OnMapReadyCallback {
+class MainActivity : ComponentActivity() {
 
     private lateinit var naverMap: NaverMap
 
     private lateinit var locationSource: FusedLocationSource
-    private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
-
-    // 내비게이션 안내 값을 전송하기 위함
-    lateinit var navigation:Navigation
 
     // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
     private val viewModel: MessageViewModel by viewModels()
@@ -87,8 +76,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        StaticValue.mainActivity = this
         // FCM SDK 초기화
         FirebaseApp.initializeApp(this);
 
@@ -110,7 +97,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
 
-        locationSource = GpsLocationSource.createInstance(this)
+
 
         setContent {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -172,6 +159,14 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                         val intent = Intent(this@MainActivity, AlarmSettingsActivity::class.java)
                                         startActivity(intent)
                                     }
+                                    PreferenceScreenOption.APP_INFORMATION -> {
+                                        val intent = Intent(this@MainActivity, UpdateInfoActivity::class.java)
+                                        startActivity(intent)
+                                    }
+                                    PreferenceScreenOption.PRIVACY_POLICY -> {
+                                        val intent = Intent(this@MainActivity, PolicyInfoActivity::class.java)
+                                        startActivity(intent)
+                                    }
                                     else -> { } // TODO: 처리
                                 }
                             }
@@ -198,71 +193,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
-    override fun onMapReady(p0: NaverMap) {
-        this.naverMap = p0
-
-        // LocationOverlay 설정
-        val locationOverlay = naverMap.locationOverlay
-        locationOverlay.icon = markerIcon
-        locationOverlay.isVisible = true
-
-        //좌측하단 Tracking Mode 변환 버튼
-        naverMap.uiSettings.isLocationButtonEnabled = true
-        naverMap.locationSource = locationSource
-
-        // 움직이는 사용자 마커 따라 그리기
-        onChangeUserMarker()
-
-        // 검색 필요 클래스 초기화
-        val routeControl = RouteControl() // 사용자 위치 확인
-        val gpsData = GPSDatas(this) // gps 위치
-        navigation = Navigation() // 경로 그리기 & 탐색
-        navigation.naverMap = naverMap
-        navigation.mainActivity = this
-        navigation.routeControl = routeControl
-
-        // ---------- 삭제할 것 ----------
-        StaticValue.navigation = navigation
-        // ---------- 여기까지 ----------
-
-        // ----- 사용자 위치 변경시 경로 이탈 확인 로직 -----
-        val i = object : MyOnLocationChangeListener {
-            override fun callback(location: Location) {
-                val nowLocation = LatLng(location.latitude, location.longitude)
-                navigation.tempStartLatLng = nowLocation
-                Log.d("nowsection",""+routeControl.nowSection)
-                if (routeControl.route.isNotEmpty() && routeControl.detectOutRoute(nowLocation)) {// 경로이탈 탐지
-                    var shortestRouteIndex = routeControl.findShortestIndex(nowLocation)
-                    var toLatLng = routeControl.route[shortestRouteIndex]
-                    routeControl.delRouteToIndex(shortestRouteIndex)
-                    navigation.redrawRoute(nowLocation, toLatLng)
-                }
-            }
-        }
-
-        val OLCM = OnLocationChangeManager
-        OLCM.naverMap = naverMap
-        OLCM.addMyOnLocationChangeListener(i)
-    }
-
-    // 사용자 마커 표시
-    private fun onChangeUserMarker() {
-        val currMarker = Marker()
-        naverMap.addOnLocationChangeListener { location ->
-            currMarker.map = null
-            setUserMarkerPosition(currMarker, LatLng(location.latitude, location.longitude))
-        }
-    }
-
-    // 사용자 마커 위치 지정하여 재정의
-    private fun setUserMarkerPosition(marker: Marker, latLng: LatLng) {
-        marker.icon = markerIcon
-        marker.position = latLng
-        marker.anchor = PointF(0.5f, 0.5f)
-        marker.map = naverMap
-    }
-
     // 권한 확인
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -280,22 +210,6 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
             return
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    // ---------- 수정예정 ----------
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (resultCode == Activity.RESULT_OK) {
-            when (requestCode) {
-                1 -> { // RouteList Activity 문제점 좀 있음
-                    val startKeyword = data?.getStringExtra("startKeyword")!!
-                    val endKeyword = data.getStringExtra("endKeyword")!!
-                    Log.d("explain", "$startKeyword is $endKeyword")
-                    navigation.getTransitRoutes(startKeyword, endKeyword)
-                }
-            }
-        }
     }
 
     override fun onDestroy() {
