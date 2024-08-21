@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.searchscreen
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +52,8 @@ import com.hansung.sherpa.itemsetting.SubPath
 import com.hansung.sherpa.itemsetting.SubwayLane
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.sherpares.PretendardVariable
+import com.hansung.sherpa.ui.chart.ThickChart
 import java.text.SimpleDateFormat
 
 /**
@@ -65,6 +68,7 @@ import java.text.SimpleDateFormat
  *
  * ※ Preview는 SearchScreen에서 실행할 것
  */
+val lightTextColor = Color(0xFF9E9E9E)
 @Composable
 fun ExpandableCard(navController:NavController ,route: TransportRoute, searchingTime:Long, timerFlag: Boolean) {
     // 확장 정보를 저장하기 위한 변수 TODO: 오류원인 수정 필요
@@ -88,7 +92,8 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(10.dp)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Row(verticalAlignment = Alignment.Top){
                 Row(verticalAlignment = Alignment.Bottom){
@@ -97,14 +102,23 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
                      *
                      * 경로의 전체 소요 시간이 기술된다.
                      */
-                    Text(text = "${hourOfMinute(route.info.totalTime)}소요", fontSize = 25.sp, fontWeight = FontWeight.Bold)
-                    Spacer(modifier = Modifier.width(30.dp))
+                    Text(
+                        text = "${hourOfMinute(route.info.totalTime)}소요",
+                        fontFamily = PretendardVariable,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 30.sp
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
                     /**
                      * Arrival Time Text
                      *
                      * 경로의 도착 시간이 기술된다.
                      */
-                    Text(text = "${SimpleDateFormat("hh:mm").format(searchingTime + route.info.totalTime*60*1000)} 도착" )
+                    Text(
+                        text = "${SimpleDateFormat("hh:mm").format(searchingTime + route.info.totalTime*60*1000)} 도착 예정",
+                        fontFamily = PretendardVariable,
+                        color = lightTextColor
+                    )
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 /**
@@ -112,27 +126,19 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
                  * 
                  * Card의 확장, 축소를 시각적으로 보여주는 버튼
                  */
-                IconButton(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .rotate(rotationState),
-                    onClick = {
-                        expandedState = !expandedState
-                    }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowDropDown,
-                        tint = Property.Icon.tint,
-                        contentDescription = "Drop-Down Arrow"
-                    )
-                }
+                Icon(
+                    modifier = Modifier.rotate(rotationState),
+                    imageVector = Icons.Default.ArrowDropDown,
+                    tint = iconColor,
+                    contentDescription = "Drop-Down Arrow"
+                )
             }
-            Spacer(modifier = Modifier.height(5.dp))
             /**
              * Route Chart
              *
              * 대중교통 경로의 시간을 차트로 안내한다.
              */
-            Chart(route)
+            ThickChart(route)
             /**
              * Expand Card
              *

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -116,6 +117,51 @@ fun Chart(transportRoute: TransportRoute) {
 }
 
 /**
+ * 대중교통의 정보를 요약해서 표현하기 위한 차트이다.
+ * 전체 경로 소요시간 기반으로 비율을 측정한다.
+ *
+ * @param transportRoute 차트를 작성할 전체 경로 정보
+ */
+val searchScreenBackgroundColor = Color(0xFFF2F3F4)
+val textColor = Color(0xFF424242)
+@Composable
+fun ThickChart(transportRoute: TransportRoute) {
+    // 차트 너비
+    val width = 400.dp
+
+    val routeList = transportRoute.subPath
+    val fullTime = transportRoute.info.totalTime
+
+    Box(modifier = Modifier.height(20.dp)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+                .background(searchScreenBackgroundColor)
+        )
+        Row(modifier = Modifier.fillMaxSize()) {
+            routeList.forEachIndexed { index, it ->
+                Box(modifier = Modifier
+                    .width((width.value * it.sectionInfo.sectionTime!! / fullTime).dp)
+                    .fillMaxHeight()
+                    .clip(CircleShape)
+                    .background(typeOfColor(it)),
+                    contentAlignment = Alignment.Center) {
+                    Text(
+                        text = "${it.sectionInfo.sectionTime}분",
+                        modifier = Modifier.align(Alignment.Center),
+                        color = if(it.trafficType == 3) Color(0xFF8B8B8B) else Color.White,
+                        fontSize = 14.sp,
+                        lineHeight = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * 대중교통 종류에 맞는 색상을 반환한다.
  *
  * @param subPath 대중교통
@@ -190,7 +236,7 @@ fun typeOfColor(subPath: SubPath):Color {
             }
         }
         // 도보
-        3 -> color = Color.LightGray
+        3 -> color = searchScreenBackgroundColor
     }
     return color!!
 }

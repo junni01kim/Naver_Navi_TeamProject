@@ -49,7 +49,6 @@ import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.compose.navigation.Navigation
 import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.ui.searchscreen.Property.TextField.height
 
 val searchScreenUiColor = Color.White
 val iconColor = Color(0xFF82878B)

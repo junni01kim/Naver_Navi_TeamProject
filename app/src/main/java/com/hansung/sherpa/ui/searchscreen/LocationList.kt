@@ -4,8 +4,10 @@ import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,12 +20,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.searchlocation.SearchLoactionCallBack
 import com.hansung.sherpa.searchlocation.SearchLocation
 import com.hansung.sherpa.searchlocation.SearchLocationResponse
+import com.hansung.sherpa.sherpares.PretendardVariable
 
 /**
  * 검색 키워드를 통해 장소를 선택하기 위한 영역
@@ -60,24 +66,32 @@ fun LocationList(locationValue:String, update: (String, LatLng) -> Unit) {
      *
      * 선택 시 해당 경로의 이름과 주소를 반환 받는다.
      */
-    LazyColumn(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         items(searchLocationResponse.items){
-            Row(modifier = Modifier.background(Color.White).padding(vertical = 8.dp).clickable {
-                val x = it.mapx?.toDouble()?.div(10000000)?:-1.0 // 경도 (lon)
-                val y = it.mapy?.toDouble()?.div(10000000)?:-1.0 // 위도 (lat)
+            Column(modifier = Modifier
+                .background(Color.White)
+                .fillMaxWidth()
+                .padding(8.dp)
+                .clickable {
+                    val x = it.mapx?.toDouble()?.div(10000000)?:-1.0 // 경도 (lon)
+                    val y = it.mapy?.toDouble()?.div(10000000)?:-1.0 // 위도 (lat)
 
-                update(it.title?:"Null",LatLng(y,x))
+                    update(it.title?:"Null",LatLng(y,x))
 
-                searchLocationResponse = SearchLocationResponse()
-            }){
+                    searchLocationResponse = SearchLocationResponse()
+                }
+            ) {
                 /**
                  * Location Name Text
                  *
                  * 장소의 이름이 나오는 영역
                  */
-                Text(text = it.title!! , maxLines = 1)
-
-                Spacer(modifier = Modifier.weight(1f))
+                Text(text = it.title!!,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = PretendardVariable,
+                    maxLines = 1
+                )
 
                 /**
                  * Address Text
@@ -85,9 +99,18 @@ fun LocationList(locationValue:String, update: (String, LatLng) -> Unit) {
                  * 장소의 주소가 나오는 영역
                  */
                 Text(text = it.address!!,
+                    fontSize = 12.sp,
+                    fontFamily = PretendardVariable,
+                    overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis)
+                )
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun LocationListPreview(){
+    SearchScreen()
 }
