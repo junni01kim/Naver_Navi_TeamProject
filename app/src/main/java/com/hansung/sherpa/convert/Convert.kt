@@ -8,6 +8,7 @@ import com.hansung.sherpa.transit.tmap.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.tmap.TmapTransitRouteResponse
 import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
 import com.hansung.sherpa.transit.osrm.ShortWalkResponse
+import com.hansung.sherpa.transit.osrm.Steps
 import com.naver.maps.geometry.LatLng
 
 /**
@@ -174,7 +175,7 @@ class Convert {
         return searchRouteMutableList
     }
 
-    fun convertPedestrianRouteToLatLng(response: PedestrianResponse, from:LatLng, to:LatLng):MutableList<LatLng>{
+    fun convertPedestrianRouteToLatLng(response:PedestrianResponse, from:LatLng, to:LatLng):MutableList<LatLng>{
         var rres = mutableListOf<LatLng>()
 
         response.features?.forEach {feature->
@@ -204,7 +205,7 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
-    fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest {
+    fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest{
         return ODsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
     }
 
@@ -222,10 +223,10 @@ class Convert {
                         ),
                         properties = PedestrianResponse.Feature.Properties(
                             categoryRoadType = 0, // Example value, adjust as needed
-                            description = step.drivingSide ?: "",
+                            description = convertStepFieldsToDescription(step) ?: "",
                             direction = step.maneuver?.type ?: "",
                             distance = leg.distance?.toInt() ?: 0,
-                            facilityName = "", // Example value, adjust as needed
+                            facilityName = step.name ?: "", // Example value, adjust as needed
                             facilityType = "", // Example value, adjust as needed
                             index = index,
                             intersectionName = "", // Example value, adjust as needed
@@ -251,5 +252,56 @@ class Convert {
             features = features,
             type = "FeatureCollection" // Adjust the type as needed
         )
+    }
+
+    /**
+     * 보행자 안내 문구 만들어 주는 함수
+     *
+     * @param step
+     * @return
+     */
+    fun convertStepFieldsToDescription(step: Steps): String {
+        val maneuver = step.maneuver
+        val distance = step.distance?.toInt() ?: 0
+        val roadName = step.name ?: "도로"
+
+        val maneuverType = maneuver?.type ?: ""
+        val bearingBefore = maneuver?.bearingBefore ?: 0
+        val bearingAfter = maneuver?.bearingAfter ?: 0
+        val modifier = maneuver?.modifier ?: ""
+        val direction = when (modifier) {
+            "uturn" -> "U턴해서 "
+            "sharp right" -> "급하게 우측으로 "
+            "right" -> "우측으로 "
+            "slight right" -> "조금 우측으로 "
+            "straight" -> "직진으로 "
+            "slight left" -> "조금 좌측으로 "
+            "left" -> "좌측으로 "
+            "sharp left" -> "급하게 좌측으로 "
+            else -> ""
+        }
+
+        val directionDescription = when (maneuverType) {
+            "depart" -> "출발지에서 "
+            "arrive" -> "목적지까지 "
+            "merge" -> "도로에 합류하여 "
+            "on ramp" -> "램프를 타고 고속도로로 들어가 "
+            "off ramp" -> "램프를 타고 고속도로에서 나가 "
+            "fork" -> "갈림길에서 "
+            "end of road" -> "도로 끝에서 "
+            "use lane" -> "차선을 이용하여 "
+            "continue" -> "계속 직진해서 "
+            "roundabout turn" -> "회전교차로에서 돌아서 "
+            "notification" -> "[변경 사항]"
+            else -> "현재 위치에서 "
+        }
+
+        val instructionText =  if (distance > 0) {
+            "${directionDescription}${direction}${distance}미터 이동합니다."
+        } else {
+            "${directionDescription}${direction}이동합니다."
+        }
+        Log.i("API", instructionText)
+        return instructionText
     }
 }

@@ -129,6 +129,7 @@ data class Maneuver (
     @SerializedName("bearing_after"  ) var bearingAfter  : Int?              = null,
     @SerializedName("bearing_before" ) var bearingBefore : Int?              = null,
     @SerializedName("location"       ) var location      : ArrayList<Double> = arrayListOf(),
+    @SerializedName("modifier"       ) var modifier      : String?           = null,
     @SerializedName("type"           ) var type          : String?           = null
 
 )
