@@ -1,5 +1,6 @@
 package com.hansung.sherpa.deviation
 
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.hansung.sherpa.StaticValue
 import com.naver.maps.geometry.LatLng
@@ -10,47 +11,49 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 /**
- * @property route 그려질 경로 좌표 리스트
- * @property navigation RouteControl을 생성한 Navigation 객체
+ * 경로 이탈 알고리즘
+ * 사용자가 이동 중 이탈하였는지 판단하는 알고리즘을 묶은 클래스
+ *
+ * @param coordParts SpecificRouteScreen에서 경로로 선택 한 좌표들의 묶음
+ * @param passedRoute 각 PathOverlay의 진척도를 조정하기 위한 값
  */
 class RouteControl(
     val coordParts: SnapshotStateList<MutableList<LatLng>>,
     val passedRoute: SnapshotStateList<Double>
 ) {
-
-//    경로 이탈 : 8m
-//    경로 구간 확인 : 동적
-
     /**
-     * @param route 이동할 네비게이션 경로
-     * @param nowSection route에서 지금 이동하고 있는 경로
-     * @param outRouteDistance 이탈 되었다고 판단 할 거리
+     * @property nowSection coordParts에서 목표로 향하고 있는 구간(section)
+     * @property nowSubpath coordParts에서 이동하고 있는 수단 ※ subPath 수가 이동수단 개수이다.
+     *
+     * @property outRouteDistance 이탈 되었다고 판단 할 거리 (단위: 미터'm')
      */
     var nowSection = 0
     var nowSubpath = 0
-    val outRouteDistance = 60.0
+    val outRouteDistance = 30.0
 
     /**
-     * @param from 섹션의 시작점. 항상 route[nowSection]
-     * @param to 섹션의 도착점. 항상 route[nowSection+1]
+     * @property from 섹션의 시작점. coordParts[nowSubPath][nowSection]
+     * @property to 섹션의 도착점. coordParts[nowSubPath][nowSection+1]
+     *                              or coordParts[nowSubPath+1][0] ※ subPath가 바뀌는 경우
      */
-    lateinit var from: Utmk
-    lateinit var to: Utmk
+    var from = Utmk(0.0,0.0)
+    var to = Utmk(0.0,0.0)
 
     /**
      * 실질적인 이탈 영역의 범위
+     * from과 to를 기준으로 사각형 꼭짓점을 의미한다.
      *
-     * @param froms 섹션의 시작점에서의 이탈 영역
-     * @param tos 섹션의 시작점에서의 이탈 영역
+     * @property froms 섹션의 시작점에서의 이탈 영역
+     * @property tos 섹션의 시작점에서의 이탈 영역
      */
-    lateinit var froms:Pair<Utmk, Utmk>
-    lateinit var tos: Pair<Utmk, Utmk>
+    var froms = Pair(Utmk(0.0,0.0), Utmk(0.0,0.0))
+    var tos = Pair(Utmk(0.0,0.0), Utmk(0.0,0.0))
 
     /**
-     * 새로운 경로가 발생할 때 기존 값을 초기화 하고 새로운 값들로 변경하는 함수
-     * 함수가 호출되기 전 (새로운) route가 존재해야 한다.
+     * RouteControl 생성 시 coordParts를 기반으로 생성해준다.
+     * ※ compose로 넘어오면서 SpecificRouteScreen(m)이 하나의 경로만 받아오므로, 생성자로 초기화
      */
-    fun initializeRoute() {
+    init {
         from = Utmk.valueOf(coordParts[nowSubpath][nowSection])
         to = Utmk.valueOf(coordParts[nowSubpath][nowSection+1])
 
@@ -59,46 +62,79 @@ class RouteControl(
     }
 
     /**
+     * 사용자가 주어진 경로에서 이탈되었는지 판단하는 함수
+     *
+     * @param location 내 위치 좌표
+     * @return
+     * -1. 경로 종료
+     * 0. 출발지점에서 반경 n+2미터 안 or 직선 과의 거리 n미터에서 내부
+     * 1. 출발지점에서 반경 n+2미터 밖 or 직선 과의 거리 n미터에서 외부
+     */
+    fun detectOutRoute(location:LatLng):Int{
+        while(true){
+            when(detectNextSection(location)){
+                1 -> continue
+                -1 -> return -1 // 도착한 경우
+                0 -> break
+            }
+        }
+
+        val transportRoute = StaticValue.transportRoute
+        // 출발지와 내 위치의 거리를 판단한다.
+        val distance = location.distanceTo(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
+
+        // 출발지와 도착지 간의 점과 직선거리가 올바른지 판단한다.
+        val user = Utmk.valueOf(location)
+        val inArea = isInArea(user)
+
+        return if(distance > outRouteDistance+2 && !inArea) 1 else 0
+    }
+
+    /**
      * 현재 섹션을 다음 섹션으로 이동할지 판단하는 함수
      *
      * @param location 현재 내 위치
-     * @return to의 도착지 좌표 8m 이내에 진입할 시 true
-     * -1. 최종 목적지 도착
-     * 0. 해당 섹션 미통과
-     * 1. 해당 섹션 통과
+     * @return to의 도착지 좌표 outRouteDistance 이내에 진입할 시 true
+     *          -1. 최종 목적지 도착
+     *           0. 해당 섹션 미통과
+     *           1. 해당 섹션 통과
      */
     fun detectNextSection(location:LatLng):Int {
+        fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
+
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
 
-        // 거리를 탐색할 섹션 목적지 좌표
+        // 거리를 탐색할 섹션 목적지 좌표 (마지막 섹션이면, 다음 경로는 다음 subPath의 첫번째 section)
         val destination =
-            if(lastSection)
-                coordParts[nowSubpath+1][0]
-            else
-                coordParts[nowSubpath][nowSection+1]
+            if(lastSection) coordParts[nowSubpath+1][0]
+            else coordParts[nowSubpath][nowSection+1]
 
-        // 내 위치에서 목적지까지의 거리
+        // 내 위치에서 목적지(해당 section)까지의 거리
         val distance = location.distanceTo(destination)
 
         // 섹션 목적지 도달
         if(distance <= outRouteDistance) {
-            // 목적지에 도착한 경우 lastSubPath, lastSection
+            // 다음 섹션 이동
+            if(lastSection){
+                Log.d("explain", "섹션통과: ${nowSection}")
+                passedRoute[nowSubpath] = 1.0
+                nowSection = 0
+                nowSubpath++
+            } else {
+                Log.d("explain", "환승구간: ${nowSubpath}")
+                nowSection++
+                passedRoute[nowSubpath] = nowSection.toDouble()/coordParts[nowSubpath].size.toDouble()
+            }
+
+            // 목적지에 도착한 경우 안내 종료
+            // (지금은 아님 테스트 중) ※ 'nowSubpath + 1'로 할 시, 하단 섹션 값 재설정이 outOfIndex가 발생한다.
             if(nowSubpath + 1 == coordParts.size && lastSection){
                 // TODO: 아직 잘되는지는 모르겠음
                 return -1
             }
 
-            // 다음 섹션 이동
-            if(lastSection){
-                passedRoute[nowSubpath] = 1.0
-                nowSection = 0
-                nowSubpath++
-            } else {
-                nowSection++
-                passedRoute[nowSubpath] = nowSection.toDouble()/coordParts[nowSubpath].size.toDouble()
-            }
-
+            // 다음 section이 subPath 마지막 구간인지 미리 탐색
             val lastlastSection = isNextSubpath()
 
             // 섹션 값 재설정
@@ -107,8 +143,6 @@ class RouteControl(
                 if(lastlastSection) coordParts[nowSubpath+1][0]
                 else coordParts[nowSubpath][nowSection+1]
             )
-
-            // 섹션 영역 재설정
             froms = findIntersectionPoints(from)
             tos = findIntersectionPoints(to)
             return 1
@@ -116,7 +150,31 @@ class RouteControl(
         return 0
     }
 
-    fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
+    /**
+     * 출발지와 도착지 간의 점과 직선 사이의 거리가 8m 이하인지 확인한다.
+     *
+     * @param location 내 위치
+     * @return 섹션 출발지와 목적지로부터 수직으로 8m 안에 존재한다면 true
+     */
+    fun isInArea(location: Utmk): Boolean {
+
+        val (leftFrom, rightFrom) = froms
+        val (leftTo, rightTo) = tos
+
+        val vector1 = Utmk(leftFrom.x - rightFrom.x, leftFrom.y - rightFrom.y)
+        val vector2 = Utmk(rightTo.x - rightFrom.x, rightTo.y - rightFrom.y)
+        val locationVector = Utmk(location.x - rightFrom.x, location.y - rightFrom.y)
+
+        val cosine = getCosine(vector1, locationVector)
+
+        val x = toScalar(locationVector) * cosine
+        val y = toScalar(locationVector) * sqrt(1-cosine.pow(2)) // sqrt(1-cosine.pow(2)) = 사인값
+
+        val angle = getTheta(vector1,locationVector)
+
+        return x in 0.0..outRouteDistance*2 && y in 0.0..toScalar(vector2) // 직사각형 내부에 내 위치가 존재
+                && angle in 0.0..90.0 // 내 위치의 각이 90보다 작아야 함
+    }
 
     /**
      * 원과 직선의 교점을 구하는 함수
@@ -196,61 +254,6 @@ class RouteControl(
         if(direction > 0) theta = 360-theta
 
         return theta
-    }
-
-    /**
-     * 출발지와 도착지 간의 점과 직선 사이의 거리가 8m 이하인지 확인한다.
-     *
-     * @param location 내 위치
-     * @return 섹션 출발지와 목적지로부터 수직으로 8m 안에 존재한다면 true
-     */
-    fun isInArea(location: Utmk): Boolean {
-
-        val (leftFrom, rightFrom) = froms
-        val (leftTo, rightTo) = tos
-
-        val vector1 = Utmk(leftFrom.x - rightFrom.x, leftFrom.y - rightFrom.y)
-        val vector2 = Utmk(rightTo.x - rightFrom.x, rightTo.y - rightFrom.y)
-        val locationVector = Utmk(location.x - rightFrom.x, location.y - rightFrom.y)
-
-        val cosine = getCosine(vector1, locationVector)
-
-        val x = toScalar(locationVector) * cosine
-        val y = toScalar(locationVector) * sqrt(1-cosine.pow(2)) // sqrt(1-cosine.pow(2)) = 사인값
-
-        val angle = getTheta(vector1,locationVector)
-
-        return x in 0.0..outRouteDistance*2 && y in 0.0..toScalar(vector2) // 직사각형 내부에 내 위치가 존재
-                && angle in 0.0..90.0 // 내 위치의 각이 90보다 작아야 함
-    }
-
-    /**
-     * 사용자가 주어진 경로에서 이탈되었는지 판단하는 함수
-     *
-     * @param location 내 위치 좌표
-     * @return
-     * -1. 경로 종료
-     * 0. 출발지점에서 반경 n+2미터 안 or 직선 과의 거리 n미터에서 내부
-     * 1. 출발지점에서 반경 n+2미터 밖 or 직선 과의 거리 n미터에서 외부
-     */
-    fun detectOutRoute(location:LatLng):Int{
-        while(true){
-            when(detectNextSection(location)){
-                1 -> continue
-                -1 -> return -1 // 도착한 경우
-                0 -> break
-            }
-        }
-
-        val transportRoute = StaticValue.transportRoute
-        // 출발지와 내 위치의 거리를 판단한다.
-        val distance = location.distanceTo(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
-
-        // 출발지와 도착지 간의 점과 직선거리가 올바른지 판단한다.
-        val user = Utmk.valueOf(location)
-        val inArea = isInArea(user)
-
-        return if(distance > outRouteDistance+2 && !inArea) 1 else 0
     }
 
     /**
