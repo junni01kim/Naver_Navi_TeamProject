@@ -152,7 +152,8 @@ class RouteFilterMapper {
 
     // 선택한 TransPortRoute에 보행자 데이터 추가
     fun mappingPedestrianRouteToTransportRoute(
-        transportRoute: TransportRoute, pedestrianResponseList: List<PedestrianResponse>
+        transportRoute: TransportRoute, pedestrianResponseList: List<PedestrianResponse>,
+        depart: String = "", destination: String = ""
     ): TransportRoute {
         var index = 0
         transportRoute.subPath.forEach {
@@ -163,6 +164,17 @@ class RouteFilterMapper {
                             pedestrianResponseList[index].features
                                 ?.map { feat -> feat.properties.description }
                                 ?.toMutableList()!!
+                        val features = pedestrianResponseList[index].features
+                        if (features != null) {
+                            val size = features.size
+                            features.forEachIndexed {
+                                    fIndex, _ ->
+                                it.sectionInfo.startName = features[0].properties.facilityName ?: ""
+                                it.sectionInfo.endName = features[size-1].properties.facilityName ?: ""
+                                if(fIndex == 0) it.sectionInfo.startName = depart
+                                if(fIndex == size-1) it.sectionInfo.endName = destination
+                            }
+                        }
                     }
 
                     pedestrianResponseList[index].features?.forEach { feat ->
@@ -170,8 +182,8 @@ class RouteFilterMapper {
                             it.sectionRoute.routeList.add(
                                 LatLng(coordinate[1], coordinate[0])
                             )
-                            Log.i("MAPPER","routeList: ${it.sectionRoute.routeList}")
-                            Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+                            //Log.i("MAPPER","routeList: ${it.sectionRoute.routeList}")
+                            //Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
                         }
                     }
                     index++

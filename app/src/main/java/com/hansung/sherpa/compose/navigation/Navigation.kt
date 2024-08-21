@@ -19,7 +19,7 @@ class Navigation {
      * getDetailTransitRoutes 참조해서 제작
      *
      */
-    fun getDetailTransitRoutes(startLatLng: LatLng, endLatLng: LatLng): List<TransportRoute> {
+    fun getDetailTransitRoutes(startLatLng: LatLng, endLatLng: LatLng, depart: String = "", destination: String = ""): List<TransportRoute> {
         val TM = TransitManager()
 
         // [API] 대중교통+도보 길찾기
@@ -51,7 +51,7 @@ class Navigation {
                 // [MAPPING] 선택한 경로에 대한 데이터를 사용할 클래스 객체에 넣어준다.
                 try {
                     RouteFilterMapper().mappingPedestrianRouteToTransportRoute(
-                        transportRouteList[index], pedestrianRouteList)
+                        transportRouteList[index], pedestrianRouteList, depart, destination)
                     Log.i("MAPPER", transportRoute.toString())
                 } catch (e : Exception) {
                     Log.e("MAPPER", e.toString())

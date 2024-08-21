@@ -222,7 +222,7 @@ class Navigation {
      * - API
      * - MAPPER
      */
-    fun getDetailTransitRoutes(start: String, end: String) {
+    fun getDetailTransitRoutes(start: String, end: String, depart: String = "", destination: String = "") {
         val isMapStruct: Boolean = false // MapStruct 라이브러리 사용여부
         val TM = TransitManager(mainActivity)
 
@@ -268,7 +268,7 @@ class Navigation {
         // [MAPPING] 선택한 경로에 대한 데이터를 사용할 클래스 객체에 넣어준다.
         if (!isMapStruct) {
             try {
-                val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList)
+                val transportRoute = RouteFilterMapper().mappingPedestrianRouteToTransportRoute(transportRouteList!![selectedIndex], pedestrianRouteList, depart, destination)
                 Log.i("MAPPER", transportRoute.toString())
             } catch (e : Exception) {
                 Log.e("MAPPER", e.toString())

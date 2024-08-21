@@ -230,7 +230,8 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
                             val transportRoutes =
                                 Navigation().getDetailTransitRoutes(
                                     com.naver.maps.geometry.LatLng(departureLatLng.latitude,departureLatLng.longitude),
-                                    com.naver.maps.geometry.LatLng(destinationLatLng.latitude,destinationLatLng.longitude))
+                                    com.naver.maps.geometry.LatLng(destinationLatLng.latitude,destinationLatLng.longitude),
+                                    departureValue, destinationValue)
 
                             /**
                              * 검색시간을 요청하는 함수.
