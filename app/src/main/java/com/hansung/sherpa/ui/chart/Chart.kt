@@ -1,4 +1,4 @@
-package com.hansung.sherpa.compose.chart
+package com.hansung.sherpa.ui.chart
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

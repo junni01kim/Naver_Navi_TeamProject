@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hansung.sherpa.compose.chart.Chart
+import com.hansung.sherpa.ui.chart.Chart
 import com.hansung.sherpa.itemsetting.TransportRoute
 import java.time.LocalDateTime
 

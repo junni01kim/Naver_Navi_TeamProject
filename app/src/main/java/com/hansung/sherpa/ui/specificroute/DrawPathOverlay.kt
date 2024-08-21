@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.hansung.sherpa.compose.chart.typeOfColor
+import com.hansung.sherpa.ui.chart.typeOfColor
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
