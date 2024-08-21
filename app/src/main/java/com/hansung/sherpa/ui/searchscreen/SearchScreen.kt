@@ -27,6 +27,7 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  *
  * @param navController 홈화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
  */
+val searchScreenBackgroundColor = Color(0xFFF2F3F4)
 @Composable
 fun SearchScreen(
     navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
@@ -56,11 +57,15 @@ fun SearchScreen(
     }
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color.LightGray),
+        .background(searchScreenBackgroundColor),
         verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // 검색 항목을 구현한 Composable
         // 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
-        SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
+//        SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
+//            routeList = childRouteList
+//            searchingTime = childSearchingTime
+//        }
+        SearchArea2(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
             routeList = childRouteList
             searchingTime = childSearchingTime
         }
