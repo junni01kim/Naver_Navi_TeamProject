@@ -1,10 +1,10 @@
 package com.hansung.sherpa.itemsetting
 
 import android.util.Log
-import com.hansung.sherpa.routegraphic.RouteGraphicResponse
-import com.hansung.sherpa.transit.ODsaySubPath
-import com.hansung.sherpa.transit.ODsayTransitRouteResponse
-import com.hansung.sherpa.transit.PedestrianResponse
+import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
+import com.hansung.sherpa.transit.odsay.ODsaySubPath
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteResponse
+import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
 import com.naver.maps.geometry.LatLng
 
 class RouteFilterMapper {
@@ -182,5 +182,39 @@ class RouteFilterMapper {
         }
 
         return transportRoute
+    }
+
+    /**
+     * transportRoute에서 보행자 경로 nowSubPath 부분만 수정하는 함수
+     */
+    fun mappingOnePedestrianRoute(
+        transportRoute: TransportRoute, nowSubPath:Int, pedstrianResponse: PedestrianResponse
+    ): TransportRoute{
+        transportRoute.subPath[nowSubPath].sectionRoute.routeList.clear()
+        pedstrianResponse.features?.forEach { feat ->
+            feat.geometry.coordinates.forEach { coordinate ->
+                transportRoute.subPath[nowSubPath].sectionRoute.routeList.add(
+                    LatLng(coordinate[1], coordinate[0])
+                )
+                Log.i("MAPPER","routeList: ${transportRoute.subPath[nowSubPath].sectionRoute.routeList}")
+                Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+            }
+        }
+        return transportRoute
+    }
+
+    fun pedstrianResponseToRouteList(pedstrianResponse: PedestrianResponse):MutableList<LatLng> {
+        val mappingValue = mutableListOf<LatLng>()
+
+        pedstrianResponse.features?.forEach { feat ->
+            feat.geometry.coordinates.forEach { coordinate ->
+                mappingValue.add(
+                    LatLng(coordinate[1], coordinate[0])
+                )
+                Log.i("MAPPER","routeList: ${mappingValue}")
+                Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+            }
+        }
+        return mappingValue
     }
 }
