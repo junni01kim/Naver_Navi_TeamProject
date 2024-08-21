@@ -3,9 +3,11 @@ package com.hansung.sherpa.ui.searchscreen
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -45,10 +47,13 @@ fun RouteListArea(navController: NavHostController, routeList:List<TransportRout
      *
      * 이동할 수 있는 전체 대중교통 리스트가 나온다.
      */
+    //var expandedState by remember { mutableStateOf(false) }
+    val expandedStateList = remember { mutableStateListOf<Boolean>()}
+    routeList.forEach { expandedStateList.add(false) }
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        items(routeList){
-            ExpandableCard(navController, it, searchingTime, timerFlag)
+        itemsIndexed(routeList){ index, it ->
+            ExpandableCard(navController, it, searchingTime, timerFlag, expandedStateList, index)
         }
     }
 }

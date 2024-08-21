@@ -28,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -56,6 +57,7 @@ import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sherpares.PretendardVariable
 import com.hansung.sherpa.ui.chart.ThickChart
+import com.hansung.sherpa.ui.chart.typeOfColor
 import java.text.SimpleDateFormat
 
 /**
@@ -73,13 +75,11 @@ import java.text.SimpleDateFormat
 val lightTextColor = Color(0xFF9E9E9E)
 val stripeColor = Color(0xFFD7D7D7)
 @Composable
-fun ExpandableCard(navController:NavController ,route: TransportRoute, searchingTime:Long, timerFlag: Boolean) {
-    // 확장 정보를 저장하기 위한 변수 TODO: 오류원인 수정 필요
-    var expandedState by remember { mutableStateOf(false) }
+fun ExpandableCard(navController:NavController, route: TransportRoute, searchingTime:Long, timerFlag: Boolean, expandedStateList:SnapshotStateList<Boolean>, index:Int) {
 
     // 확장 시 화살표 방향을 돌리기 위함
     val rotationState by animateFloatAsState(
-        targetValue = if (expandedState) 180f else 0f
+        targetValue = if (expandedStateList[index]) 180f else 0f
     )
 
     Card(
@@ -88,7 +88,7 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
         shape = RoundedCornerShape(0.dp),
         colors = CardColors(Color.White, Color.DarkGray, Color.White, Color.DarkGray),
         onClick = {
-            expandedState = !expandedState
+            expandedStateList[index] = !expandedStateList[index]
         }
     ) {
         Column(
@@ -147,7 +147,7 @@ fun ExpandableCard(navController:NavController ,route: TransportRoute, searching
              *
              * Card가 확장된 경우 나타난다.
              */
-            if (expandedState) {
+            if (expandedStateList[index]) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.clickable {
@@ -193,17 +193,17 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
          * ※ Text 너비는 하드코딩
          */
         val (stationName,laneName) = getStationLaneName(subPath)
+        val transportColor = if(subPath.trafficType != 3) typeOfColor(subPath) else Color.Black
         Text(
             text = stationName,
-            modifier = Modifier.widthIn(max = 130.dp).align(Alignment.CenterStart),
+            modifier = Modifier.widthIn(max = 115.dp).align(Alignment.CenterStart),
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
 
         Row(
-            modifier = Modifier.align(Alignment.Center),
-            verticalAlignment = Alignment.Bottom,
+            modifier = Modifier.align(Alignment.BottomCenter),
             horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             /**
@@ -213,7 +213,8 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
              */
             Icon(
                 imageVector = typeOfIcon(subPath.trafficType),
-                contentDescription = "Default Icon: 'X'(Close)"
+                contentDescription = "Default Icon: 'X'(Close)",
+                tint = transportColor
             )
 
             /**
@@ -225,7 +226,8 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
             Text(
                 text = laneName,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                color = transportColor
             )
 
             /**
@@ -277,8 +279,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
                 text = minuteOfSecond(waitingTime),
                 fontSize = 8.sp,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.align(Alignment.Bottom)
+                overflow = TextOverflow.Ellipsis
             )
         }
         /**
