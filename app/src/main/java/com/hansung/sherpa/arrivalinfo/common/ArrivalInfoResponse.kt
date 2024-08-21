@@ -1,4 +1,4 @@
-package com.hansung.sherpa.arrivalinfo
+package com.hansung.sherpa.arrivalinfo.common
 
 /**
  * '정류소별특정노선버스 도착예정정보 목록조회' 최상단 반환 클래스
@@ -17,7 +17,7 @@ data class ArrivalInfoResponse(
  * @param body 실질적인 정보
  */
 data class Response(
-    val header:Header? = null,
+    val header: Header? = null,
     val body: Body? = null
 )
 
@@ -41,7 +41,7 @@ data class Header(
  * @param totalCount 데이터 총 개수
  */
 data class Body(
-    val items:Items? = null,
+    val items: Items? = null,
     val numOfRows:Int? = null,
     val pageNo:Int? = null,
     val totalCount:Int? = null

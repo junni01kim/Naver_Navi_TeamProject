@@ -2,6 +2,12 @@ package com.hansung.sherpa.arrivalinfo
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hansung.sherpa.arrivalinfo.common.ArrivalInfoRequest
+import com.hansung.sherpa.arrivalinfo.common.ArrivalInfoResponse
+import com.hansung.sherpa.arrivalinfo.common.ArrivalInfoService
+import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoRequest
+import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoResponse
+import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -48,7 +54,7 @@ class ArrivalInfoManager {
                         .build()
                         .create(ODsayArrivalInfoService::class.java)
                         .getODsayArrivalInfoService(request.getMap()).execute()
-                    result = Gson().fromJson(response.body()!!.string(),ODsayArrivalInfoResponse::class.java)
+                    result = Gson().fromJson(response.body()!!.string(), ODsayArrivalInfoResponse::class.java)
                 } catch(e:IOException){
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
