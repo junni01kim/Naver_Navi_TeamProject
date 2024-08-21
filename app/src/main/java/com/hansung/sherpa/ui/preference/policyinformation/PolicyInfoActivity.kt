@@ -54,7 +54,7 @@ fun PolicyComposable(finish:()->Unit){
         Text(text = "여기에 정보 처리 방침 작성", fontSize = 32.sp)
 
         Button(onClick = { finish() },
-            modifier = Modifier.padding(32.dp),
+            modifier = Modifier.padding(24.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xff071520))
         ){
             Text(text = "설정창으로 돌아가기", fontSize = 24.sp, color = Color.White)

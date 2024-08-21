@@ -56,9 +56,8 @@ enum class DragValue { Start, Center, End }
  *
  * (해당 Composable에서 UI조합 시작함)
  */
-
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalFoundationApi::class, ExperimentalNaverMapApi::class,
+@OptIn(ExperimentalNaverMapApi::class,
     ExperimentalMaterial3Api::class
 )
 @Composable
@@ -69,24 +68,6 @@ fun SpecificRouteScreen(response:TransportRoute){
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
     val screenSizePx = with(density) {screenHeightSizeDp.toPx()} // 화면 밀도에 따른 화면 크기 PxSize
-    val anchors = remember {
-        DraggableAnchors{
-            DragValue.Start at 0f
-            DragValue.End at 300f
-        }
-    }
-
-    val state = remember {
-        AnchoredDraggableState(
-            initialValue = DragValue.Start,
-            anchors = anchors,  // 생성자에 anchors 전달
-            positionalThreshold = { distance: Float -> distance * 0.1f },
-            velocityThreshold = { with(density) { 10.dp.toPx() } },
-            snapAnimationSpec = tween(),  // snapAnimationSpec로 지정
-            decayAnimationSpec = exponentialDecay(),  // decayAnimationSpec 추가
-            confirmValueChange = { true }
-        )
-    }
     
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     val dialogToggle = remember { mutableStateOf(true) }
@@ -134,8 +115,8 @@ fun SpecificRouteScreen(response:TransportRoute){
                 SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
             }
         },
-        // 해당 부분은 초기 높이임 (화면 비율에 따라 계산 필요)
-        sheetPeekHeight = 70.dp
+        // 해당 부분은 초기 높이임
+        sheetPeekHeight = 85.dp
     ) {
 
     }
@@ -146,7 +127,5 @@ fun SpecificRouteScreen(response:TransportRoute){
 @Preview(showBackground = true)
 @Composable
 fun SpecificRoutePreview(){
-
-
     //SpecificRouteScreen()
 }
