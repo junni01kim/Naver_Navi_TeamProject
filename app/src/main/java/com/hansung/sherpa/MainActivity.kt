@@ -74,8 +74,6 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        StaticValue.mainActivity = this
         // FCM SDK 초기화
         FirebaseApp.initializeApp(this);
 
