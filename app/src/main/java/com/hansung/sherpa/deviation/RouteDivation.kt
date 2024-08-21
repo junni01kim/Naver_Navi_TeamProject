@@ -3,7 +3,6 @@ package com.hansung.sherpa.deviation
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.itemsetting.SubPath
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import kotlin.collections.*
@@ -104,8 +103,6 @@ class RouteDivation(
     private fun detectNextSection(location:LatLng):Int {
         // 해당 section이 nowSubPath의 마지막 section인지 판단하는 함수
         fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
-        // 해당 subPath의 전체 경로 길이를 구하는 함수
-        fun calcWholeDistance(subPath: List<LatLng>) = (0 until subPath.lastIndex).sumOf { subPath[it].distanceTo(subPath[it + 1]) }
 
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
@@ -126,7 +123,7 @@ class RouteDivation(
                 passedRoute[nowSubpath] = 1.0
                 nowSection = 0
                 nowSubpath++
-                subPathWholeDistance = calcWholeDistance(coordParts[nowSubpath])
+                renewWholeDistance(coordParts[nowSubpath])
             } else {
                 Log.d("RouteControl", "섹션통과: ${nowSection}")
                 nowSection++
@@ -156,7 +153,11 @@ class RouteDivation(
         return 0
     }
 
-    fun calcProcess(myPos:LatLng) {
+    /**
+     * 현재 진행도(이동한 거리)를 갱신하는 함수
+     * @param myPos 현재 내 위치
+     */
+    fun renewProcess(myPos:LatLng) {
         // 내 섹션 이전까지의 거리 합
         var beforeDistanceSum = 0.0
         for(i in 0..<nowSection) {
@@ -167,6 +168,13 @@ class RouteDivation(
 
         passedRoute[nowSubpath] = nowSectionDistance/subPathWholeDistance
     }
+
+    /**
+     * 해당 subPath의 전체 경로 길이를 갱신하는 함수
+     * 
+     * @param subPath 한 이동수단의 전체 경로
+     */
+    fun renewWholeDistance(subPath: List<LatLng>) { subPathWholeDistance = (0 until subPath.lastIndex).sumOf { subPath[it].distanceTo(subPath[it + 1]) } }
 
     /**
      * 출발지와 도착지 간의 점과 직선 사이의 거리가 8m 이하인지 확인한다.

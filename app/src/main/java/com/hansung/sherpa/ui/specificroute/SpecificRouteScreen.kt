@@ -124,7 +124,7 @@ fun SpecificRouteScreen(response:TransportRoute){
                     Toast.makeText(context, "목적지에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
                 }
                 0 -> {
-                    routeDivation.calcProcess(myPos)
+                    routeDivation.renewProcess(myPos)
                 }
                 1 -> {
                     /**
@@ -151,8 +151,10 @@ fun SpecificRouteScreen(response:TransportRoute){
                         val newTransportRoute = RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
                         coordParts[nowSubPath] = newTransportRoute
 
+                        // 경로 재 요청으로 기존 진행 값 초기화
                         routeDivation.nowSection = 0
                         passedRoute[nowSubPath] = 0.0
+                        routeDivation.renewWholeDistance(coordParts[nowSubPath])
                     }
                     else {
                         Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT).show()
