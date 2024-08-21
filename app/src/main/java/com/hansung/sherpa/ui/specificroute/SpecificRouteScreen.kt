@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.specificroute
 
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
@@ -68,13 +69,13 @@ enum class DragValue { Start, Center, End }
 )
 @Composable
 fun SpecificRouteScreen(response:TransportRoute){
-
+    val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
     val screenSizePx = with(density) {screenHeightSizeDp.toPx()} // 화면 밀도에 따른 화면 크기 PxSize
-    
+
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     /**
      * @author 김명준
@@ -141,6 +142,7 @@ fun SpecificRouteScreen(response:TransportRoute){
                      * 다른 타입(대중교통)의 경우 대중교통을 잘못 탑승했다고 판단해 경로 안내를 종료하고 다시 요청받도록 한다.
                      */
                     if(response.subPath[nowSubPath].trafficType == 3) {
+                        // 너무 많이나와서 잠궈 둠
                         //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
 
                         val lastSectionIndex = coordParts[nowSubPath].lastIndex
