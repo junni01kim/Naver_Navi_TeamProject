@@ -170,8 +170,8 @@ class RouteFilterMapper {
                             it.sectionRoute.routeList.add(
                                 LatLng(coordinate[1], coordinate[0])
                             )
-                            Log.i("MAPPER","routeList: ${it.sectionRoute.routeList}")
-                            Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+                            //Log.i("MAPPER","routeList: ${it.sectionRoute.routeList}")
+                            //Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
                         }
                     }
                     index++

@@ -54,7 +54,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.ui.preference.calendar.CalendarActivity
-import com.hansung.sherpa.ui.preference.emergency.EmergencySettingsActivity
+import com.hansung.sherpa.ui.preference.policyinformation.PolicyInfoActivity
+import com.hansung.sherpa.ui.preference.updateinformation.UpdateInfoActivity
 import com.hansung.sherpa.ui.preference.usersetting.UserSettingActivity
 
 data class PreferenceItemData(val title : String, val screenOption : PreferenceScreenOption)
@@ -76,8 +77,6 @@ class PreferenceActivity : ComponentActivity() {
 //                    PreferenceScreenOption.NOTICEBOARD -> TODO()
 //                    PreferenceScreenOption.CALL_INQUIRY -> TODO()
 //                    PreferenceScreenOption.EMAIL_INQUIRY -> TODO()
-//                    PreferenceScreenOption.APP_INFORMATION -> TODO()
-//                    PreferenceScreenOption.PRIVACY_POLICY -> TODO()
                     else -> { finish() }
                 }
             }

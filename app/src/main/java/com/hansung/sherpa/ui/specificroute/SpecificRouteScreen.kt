@@ -20,13 +20,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults.cardColors
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
@@ -42,6 +46,7 @@ import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
+import kotlinx.coroutines.launch
 
 enum class DragValue { Start, Center, End }
 
@@ -51,9 +56,10 @@ enum class DragValue { Start, Center, End }
  *
  * (해당 Composable에서 UI조합 시작함)
  */
-
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalFoundationApi::class, ExperimentalNaverMapApi::class)
+@OptIn(ExperimentalNaverMapApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun SpecificRouteScreen(response:TransportRoute){
 
@@ -62,24 +68,6 @@ fun SpecificRouteScreen(response:TransportRoute){
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
     val screenSizePx = with(density) {screenHeightSizeDp.toPx()} // 화면 밀도에 따른 화면 크기 PxSize
-    val anchors = remember {
-        DraggableAnchors{
-            DragValue.Start at 0f
-            DragValue.End at 300f
-        }
-    }
-
-    val state = remember {
-        AnchoredDraggableState(
-            initialValue = DragValue.Start,
-            anchors = anchors,  // 생성자에 anchors 전달
-            positionalThreshold = { distance: Float -> distance * 0.1f },
-            velocityThreshold = { with(density) { 10.dp.toPx() } },
-            snapAnimationSpec = tween(),  // snapAnimationSpec로 지정
-            decayAnimationSpec = exponentialDecay(),  // decayAnimationSpec 추가
-            confirmValueChange = { true }
-        )
-    }
     
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     val dialogToggle = remember { mutableStateOf(true) }
@@ -106,26 +94,19 @@ fun SpecificRouteScreen(response:TransportRoute){
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Bottom
-    ) {
-        Spacer(modifier = Modifier
-            .heightIn(min = screenHeightSizeDp - 305.dp, max = screenHeightSizeDp - 305.dp + 227.dp)
-            .height(screenHeightSizeDp - 305.dp + state.requireOffset().dp))
+    val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(305.dp)
-                .background(Color.Transparent)
-                .anchoredDraggable(state, Orientation.Vertical),
-            colors = cardColors(
-                containerColor = Color.White  // 카드의 배경 색상 설정
-            ),
-            shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp, bottomStart = 0.dp, bottomEnd = 0.dp),
-            border = BorderStroke(2.dp, Color.LightGray)
-        ){
+    BottomSheetScaffold(
+        sheetDragHandle = {},
+        sheetContainerColor = Color.White,
+        scaffoldState = bottomSheetScaffoldState,
+        sheetShape = RoundedCornerShape(
+            bottomStart = 0.dp,
+            bottomEnd = 0.dp,
+            topStart = 20.dp,
+            topEnd = 20.dp
+        ),
+        sheetContent = {
             Column(
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxWidth()
@@ -133,7 +114,11 @@ fun SpecificRouteScreen(response:TransportRoute){
                 SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
                 SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
             }
-        }
+        },
+        // 해당 부분은 초기 높이임
+        sheetPeekHeight = 85.dp
+    ) {
+
     }
 }
 
@@ -142,6 +127,5 @@ fun SpecificRouteScreen(response:TransportRoute){
 @Preview(showBackground = true)
 @Composable
 fun SpecificRoutePreview(){
-
     //SpecificRouteScreen()
 }
