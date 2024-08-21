@@ -65,7 +65,7 @@ fun SearchScreen(
 //            routeList = childRouteList
 //            searchingTime = childSearchingTime
 //        }
-        SearchArea2(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
+        SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
             routeList = childRouteList
             searchingTime = childSearchingTime
         }
