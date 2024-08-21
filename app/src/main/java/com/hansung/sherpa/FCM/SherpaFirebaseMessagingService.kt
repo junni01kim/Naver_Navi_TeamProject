@@ -49,6 +49,7 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
     companion object {
         const val CHANNEL_NAME = "FCM notification channel"
     }
+    // 푸시 알림 채널을 빌드하는 함수
     private fun sendNotification(message: RemoteMessage.Notification) {
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(FLAG_ACTIVITY_CLEAR_TOP)
@@ -77,6 +78,7 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
         manager.notify(random.nextInt(), notificationBuilder.build())
     }
 
+    // 알림 채널을 만드는 함수
     private fun createMessageViewModel(message: RemoteMessage.Notification) {
 
         Log.d("FCMLog", "Message received: ${message.title} ${message.body}")

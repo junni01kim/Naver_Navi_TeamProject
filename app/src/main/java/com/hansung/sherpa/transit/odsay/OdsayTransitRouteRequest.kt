@@ -3,16 +3,21 @@ package com.hansung.sherpa.transit.odsay
 import com.google.gson.annotations.SerializedName
 
 /**
- * Odsay 대중교통 길찾기 v1.8
- * https://api.odsay.com/v1/api/searchPubTransPathT
+ * ODSay 대중교통 길찾기 API 요청 class
  *
- * @param startX 출발지 좌표(경도) WGS84
- * @param startY 출발지 좌표(위도) WGS84
- * @param endX 도착지 좌표(경도) WGS84
- * @param endY 도착지 좌표(위도) WGS84
- * @param lang 응답 언어 선택 (국문 : 0, 영문 : 1)
- * @param format 출력포맷 (json, xml)
- * @param count 최대 응답 결과 개수 (1~10)
+ * @property apiKey
+ * @property SX 출발지 x좌표(경도)
+ * @property SY 출발지 y좌표(위도)
+ * @property EX 도착지 x좌표(경도)
+ * @property EY 도착지 y좌표(위도)
+ * @property OPT 경로검색결과 정렬방식
+ * - 0 :추천경로
+ * - 1 : 타입별정렬
+ * @property SearchType 도시간 이동/도시내 이동을 선택한다.
+ * @property SearchPathType 도시 내 경로수단을 지정한다.
+ * - 0 : 모두 default
+ * - 1 : 지하철
+ * - 2 : 버스
  */
 data class ODsayTransitRouteRequest(
     @SerializedName("apiKey") val apiKey: String,
