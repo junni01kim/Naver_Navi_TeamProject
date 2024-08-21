@@ -1,6 +1,6 @@
 package com.hansung.sherpa.itemsetting
 
-import com.hansung.sherpa.routegraphic.GraphPos
+import com.hansung.sherpa.transit.routegraphic.GraphPos
 import com.hansung.sherpa.transit.odsay.ODsayInfo
 import com.hansung.sherpa.transit.odsay.ODsayLane
 import com.hansung.sherpa.transit.odsay.ODsayPath

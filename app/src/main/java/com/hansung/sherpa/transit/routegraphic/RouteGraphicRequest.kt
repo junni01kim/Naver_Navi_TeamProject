@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.routegraphic
 
 import com.google.gson.annotations.SerializedName
 import com.hansung.sherpa.BuildConfig

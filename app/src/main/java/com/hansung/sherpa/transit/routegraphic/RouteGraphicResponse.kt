@@ -1,4 +1,4 @@
-package com.hansung.sherpa.routegraphic
+package com.hansung.sherpa.transit.routegraphic
 
 /**
  * ODsay '노선 그래픽 데이터 검색' 최상단 반환 클래스

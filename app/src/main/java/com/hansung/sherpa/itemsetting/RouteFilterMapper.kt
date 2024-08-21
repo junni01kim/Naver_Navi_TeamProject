@@ -1,7 +1,7 @@
 package com.hansung.sherpa.itemsetting
 
 import android.util.Log
-import com.hansung.sherpa.routegraphic.RouteGraphicResponse
+import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.odsay.ODsaySubPath
 import com.hansung.sherpa.transit.odsay.ODsayTransitRouteResponse
 import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
