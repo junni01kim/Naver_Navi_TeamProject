@@ -35,7 +35,6 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
-import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
@@ -60,10 +59,6 @@ class MainActivity : ComponentActivity() {
     private lateinit var naverMap: NaverMap
 
     private lateinit var locationSource: FusedLocationSource
-    private val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
-
-    // 내비게이션 안내 값을 전송하기 위함
-    lateinit var navigation:Navigation
 
     // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
     private val viewModel: MessageViewModel by viewModels()
