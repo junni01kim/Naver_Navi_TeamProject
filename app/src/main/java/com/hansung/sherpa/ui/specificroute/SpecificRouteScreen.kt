@@ -1,7 +1,6 @@
 package com.hansung.sherpa.ui.specificroute
 
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.exponentialDecay
@@ -42,7 +41,7 @@ import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.transit.PedestrianRouteRequest
+import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties

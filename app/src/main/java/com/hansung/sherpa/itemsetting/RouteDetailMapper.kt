@@ -1,11 +1,11 @@
 package com.hansung.sherpa.itemsetting
 
 import com.hansung.sherpa.routegraphic.GraphPos
-import com.hansung.sherpa.transit.ODsayInfo
-import com.hansung.sherpa.transit.ODsayLane
-import com.hansung.sherpa.transit.ODsayPath
-import com.hansung.sherpa.transit.ODsayStations
-import com.hansung.sherpa.transit.ODsaySubPath
+import com.hansung.sherpa.transit.odsay.ODsayInfo
+import com.hansung.sherpa.transit.odsay.ODsayLane
+import com.hansung.sherpa.transit.odsay.ODsayPath
+import com.hansung.sherpa.transit.odsay.ODsayStations
+import com.hansung.sherpa.transit.odsay.ODsaySubPath
 import com.naver.maps.geometry.LatLng
 import org.mapstruct.IterableMapping
 import org.mapstruct.Mapper

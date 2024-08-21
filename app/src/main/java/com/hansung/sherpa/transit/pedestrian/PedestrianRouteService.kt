@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.pedestrian
 
 import okhttp3.ResponseBody
 import retrofit2.Call

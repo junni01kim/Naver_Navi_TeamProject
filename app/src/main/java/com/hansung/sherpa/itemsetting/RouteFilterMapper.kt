@@ -2,9 +2,9 @@ package com.hansung.sherpa.itemsetting
 
 import android.util.Log
 import com.hansung.sherpa.routegraphic.RouteGraphicResponse
-import com.hansung.sherpa.transit.ODsaySubPath
-import com.hansung.sherpa.transit.ODsayTransitRouteResponse
-import com.hansung.sherpa.transit.PedestrianResponse
+import com.hansung.sherpa.transit.odsay.ODsaySubPath
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteResponse
+import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
 import com.naver.maps.geometry.LatLng
 
 class RouteFilterMapper {

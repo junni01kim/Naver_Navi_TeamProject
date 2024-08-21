@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.pedestrian
 
 data class PedestrianResponse(
     val features: List<Feature>?=null,

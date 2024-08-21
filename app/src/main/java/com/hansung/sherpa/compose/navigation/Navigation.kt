@@ -1,14 +1,12 @@
 package com.hansung.sherpa.compose.navigation
 
 import android.util.Log
-import androidx.compose.runtime.Composable
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.compose.transit.TransitManager
-import com.hansung.sherpa.transit.ODsayTransitRouteRequest
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteRequest
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.compose.PathOverlay
 
 /**
  * SearchScreen을 위한 임시 클래스 변형 -2024-08-03

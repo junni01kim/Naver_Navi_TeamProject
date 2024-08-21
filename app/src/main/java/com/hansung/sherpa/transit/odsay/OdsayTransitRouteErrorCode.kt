@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.odsay
 
 data class ODsayTransitRouteErrorCode(
     val error: ODsayError

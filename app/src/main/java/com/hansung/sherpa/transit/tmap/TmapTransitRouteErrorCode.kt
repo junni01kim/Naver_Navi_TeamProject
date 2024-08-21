@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.tmap
 
 data class TmapTransitErrorCode(
     val result: Result? = null

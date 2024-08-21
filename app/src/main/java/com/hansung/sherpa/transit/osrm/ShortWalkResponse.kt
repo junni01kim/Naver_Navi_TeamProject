@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.osrm
 
 import com.google.gson.annotations.SerializedName
 
@@ -32,7 +32,7 @@ data class ShortWalkResponse (
     @SerializedName("message"      ) var message : String? = null,
     @SerializedName("data_version" ) var dataVersion : String? = null,
 
-)
+    )
 
 /**
  * TODO

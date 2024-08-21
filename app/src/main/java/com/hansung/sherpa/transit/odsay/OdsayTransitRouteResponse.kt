@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.odsay
 
 /**
  * 도시 내 길찾기

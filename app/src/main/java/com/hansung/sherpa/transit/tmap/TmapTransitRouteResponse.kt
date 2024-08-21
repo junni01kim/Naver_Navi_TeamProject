@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.tmap
 
 data class TmapTransitRouteResponse(
     val metaData: MetaData? = null

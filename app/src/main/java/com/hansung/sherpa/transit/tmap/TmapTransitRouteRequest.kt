@@ -1,4 +1,4 @@
-package com.hansung.sherpa.transit
+package com.hansung.sherpa.transit.tmap
 
 import com.google.gson.annotations.SerializedName
 

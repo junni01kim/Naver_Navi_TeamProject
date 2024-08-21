@@ -2,12 +2,12 @@ package com.hansung.sherpa.convert
 
 import android.util.Log
 import com.hansung.sherpa.BuildConfig
-import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.ODsayTransitRouteRequest
-import com.hansung.sherpa.transit.TmapTransitRouteRequest
-import com.hansung.sherpa.transit.TmapTransitRouteResponse
-import com.hansung.sherpa.transit.PedestrianResponse
-import com.hansung.sherpa.transit.ShortWalkResponse
+import com.hansung.sherpa.transit.tmap.Leg
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteRequest
+import com.hansung.sherpa.transit.tmap.TmapTransitRouteRequest
+import com.hansung.sherpa.transit.tmap.TmapTransitRouteResponse
+import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
+import com.hansung.sherpa.transit.osrm.ShortWalkResponse
 import com.naver.maps.geometry.LatLng
 
 /**
@@ -174,7 +174,7 @@ class Convert {
         return searchRouteMutableList
     }
 
-    fun convertPedestrianRouteToLatLng(response:PedestrianResponse, from:LatLng, to:LatLng):MutableList<LatLng>{
+    fun convertPedestrianRouteToLatLng(response: PedestrianResponse, from:LatLng, to:LatLng):MutableList<LatLng>{
         var rres = mutableListOf<LatLng>()
 
         response.features?.forEach {feature->
@@ -204,7 +204,7 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
-    fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest{
+    fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest {
         return ODsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
     }
 
