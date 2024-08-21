@@ -37,6 +37,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -94,7 +96,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
     val destinationFocusRequester = FocusRequester()
 
     // locationValue에 저장된 정보가 어느 TextField의 키워드인지 구분하는 Flag (false면 출발지 true이면 목적지)
-    var type by remember{mutableStateOf(false)}
+    var type by remember{mutableStateOf(true)}
 
     // 아이템 간격 모듈화: dp
     val rowMargin = 20.dp
@@ -139,6 +141,8 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
                         onDone = {
                             locationValue = departureValue
                             type = false
+
+                            departureFocusRequester.freeFocus()
                         })
                     Spacer(modifier = Modifier.width(middleSpace))
                     /**
@@ -257,6 +261,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
 
 @Composable
 fun SherpaTextField(value:String, onValueChange: (String) -> Unit, placeholderText: String, focusRequester: FocusRequester, onDone: KeyboardActionScope.() -> Unit) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     TextField(
         value = value,
         onValueChange = { onValueChange(it) },
@@ -282,7 +287,10 @@ fun SherpaTextField(value:String, onValueChange: (String) -> Unit, placeholderTe
         ),
         singleLine = true,
         placeholder = { Text(placeholderText, fontSize = 13.sp) },
-        keyboardActions = KeyboardActions(onDone = onDone)
+        keyboardActions = KeyboardActions(onDone = {
+            onDone()
+            keyboardController?.hide()
+        })
     )
 }
 

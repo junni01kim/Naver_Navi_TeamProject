@@ -46,7 +46,7 @@ fun RouteListArea(navController: NavHostController, routeList:List<TransportRout
      * 이동할 수 있는 전체 대중교통 리스트가 나온다.
      */
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        verticalArrangement = Arrangement.spacedBy(4.dp)) {
         items(routeList){
             ExpandableCard(navController, it, searchingTime, timerFlag)
         }
