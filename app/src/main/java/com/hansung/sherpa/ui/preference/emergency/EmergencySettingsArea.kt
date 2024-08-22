@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.dialog.SherpaDialog
@@ -93,10 +94,6 @@ fun EmergencySettingsArea(
          * 긴급 연락처 조회 다이얼로그
          *
          */
-        /**
-         * 긴급 연락처 조회 다이얼로그
-         *
-         */
         if (emrgInfoExpand) {
             // clickedIndex가 -1이라는 뜻은 보호자 연락처가 클릭되었다는 뜻이다.
             SherpaDialog(
@@ -115,10 +112,6 @@ fun EmergencySettingsArea(
                 }
             )
         }
-        /**
-         * 긴급 연락처 추가 다이얼로그
-         *
-         */
         /**
          * 긴급 연락처 추가 다이얼로그
          *
@@ -150,11 +143,6 @@ fun EmergencySettingsArea(
          * 긴급 연락처 삭제 다이얼로그
          * Emergency Table의 name이 Unique하므로 name을 통해 삭제 예정
          */
-
-        /**
-         * 긴급 연락처 삭제 다이얼로그
-         * Emergency Table의 name이 Unique하므로 name을 통해 삭제 예정
-         */
         if(deleteDialogExpand) {
             val context = LocalContext.current
             DeleteDialogUI(
@@ -172,11 +160,6 @@ fun EmergencySettingsArea(
                 }
             )
         }
-
-        /**
-         * 보호자와 긴급 연락처의 리스트를 보여 주는 영역
-         *
-         */
 
         /**
          * 보호자와 긴급 연락처의 리스트를 보여 주는 영역
@@ -201,21 +184,6 @@ fun EmergencySettingsArea(
              * 긴급 연락처에 관한 정보가 작성된 영역
              *
              */
-
-            /**
-             * 긴급 연락처에 관한 정보가 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처에 관한 정보가 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처에 관한 정보가 작성된 영역
-             *
-             */
             item{ Divider("긴급 연락처") }
             // Emergency 클래스의 이름(name) 주소(address) 전화번호(telNum)가 나타난다.
             itemsIndexed(emrgList) { index, it ->
@@ -233,21 +201,6 @@ fun EmergencySettingsArea(
                     }
                 )
             }
-
-            /**
-             * 긴급 연락처 추가 버튼이 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처 추가 버튼이 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처 추가 버튼이 작성된 영역
-             *
-             */
 
             /**
              * 긴급 연락처 추가 버튼이 작성된 영역

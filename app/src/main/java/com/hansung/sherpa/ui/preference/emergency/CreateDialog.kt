@@ -253,5 +253,15 @@ fun InputTextField(title:String, text:String, focusRequester: FocusRequester, on
 @Preview
 @Composable
 fun CreateDialogPreview() {
-    EmergencySettingsScreen({})
+    var name1 = ""
+    var telNum1 = ""
+    var address1 = ""
+    CreateDialog(
+        onCloseRequest = {},
+        createRequest = { name, telNum, address ->
+            name1 = name
+            telNum1 = telNum
+            address1 = address
+        }
+    )
 }
