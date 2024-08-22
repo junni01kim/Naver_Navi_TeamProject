@@ -196,6 +196,7 @@ fun login(navController: NavController, email: String, password: String) : Boole
     val loginResponse = UserManager().login(email, password)
 
     if(loginResponse.code == 200) {
+        UserManager().updateFcm()
         StaticValue.userInfo = loginResponse.data!!
         navController.navigate("${SherpaScreen.Home.name}")
     }

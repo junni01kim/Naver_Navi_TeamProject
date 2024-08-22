@@ -97,10 +97,21 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
                 )
                 showDialog(true)
             }
-            else if(caregiverUserResponse.code == 404) {
+            else if(caregiverUserResponse.code == 201){
                 sherpaDialog.value.setParm(
                     title = "연동 실패",
                     message =listOf("일치하는 보호자 아이디가 없습니다."),
+                    confirmButtonText = "확인",
+                    onConfirmation = { showDialog(false) },
+                    onDismissRequest = { showDialog(false) }
+                )
+                showDialog(true)
+                return@InfomationGroupDarkMode
+            }
+            else if(caregiverUserResponse.code == 404) {
+                sherpaDialog.value.setParm(
+                    title = "전송 실패",
+                    message =listOf("다시 한번 전송해주세요."),
                     confirmButtonText = "확인",
                     onConfirmation = { showDialog(false) },
                     onDismissRequest = { showDialog(false) }

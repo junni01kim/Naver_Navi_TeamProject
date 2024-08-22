@@ -235,4 +235,5 @@ class UserManager {
         Log.i("API Log: Success", "updateFcm 함수 실행 성공 ${result?.message}")
     }
 
+
 }
