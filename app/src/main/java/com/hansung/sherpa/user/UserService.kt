@@ -1,7 +1,5 @@
 package com.hansung.sherpa.user
 
-import com.hansung.sherpa.user.createuser.CreateUserRequest
-import com.hansung.sherpa.user.login.LoginRequest
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body

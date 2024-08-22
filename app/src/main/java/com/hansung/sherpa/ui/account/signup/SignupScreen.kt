@@ -50,7 +50,7 @@ import com.hansung.sherpa.ui.account.module.InfomationGroup
 import com.hansung.sherpa.ui.account.module.InfomationGroupDarkMode
 import com.hansung.sherpa.ui.account.module.ViewTOS
 import com.hansung.sherpa.ui.account.module.rowWidth
-import com.hansung.sherpa.user.createuser.CreateUserRequest
+import com.hansung.sherpa.user.CreateUserRequest
 import com.hansung.sherpa.user.UserManager
 import java.sql.Timestamp
 import java.util.Calendar

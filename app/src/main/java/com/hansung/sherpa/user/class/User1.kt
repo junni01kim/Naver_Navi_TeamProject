@@ -1,18 +1,12 @@
-package com.hansung.sherpa.user.login
-
-data class UserResponse(
-    val code: Int? = null,
-    val `data`: User1? = null,
-    val message: String? = null
-)
+package com.hansung.sherpa.user.`class`
 
 data class User1 (
     val userId:Int? = null,
     val name:String? = null,
     val telNum:String? = null,
     val role1:String? = null,
-    val userSetting:UserSetting? = null,
-    val userAccount:UserAccount? = null,
+    val userSetting: UserSetting? = null,
+    val userAccount: UserAccount? = null,
 )
 
 enum class Role1 {

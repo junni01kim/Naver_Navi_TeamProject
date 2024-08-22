@@ -2,14 +2,8 @@ package com.hansung.sherpa.user
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.user.createuser.CreateUserRequest
-import com.hansung.sherpa.user.createuser.CreateUserResponse
-import com.hansung.sherpa.user.linkpermission.LinkPermissionResponse
-import com.hansung.sherpa.user.login.LoginRequest
-import com.hansung.sherpa.user.login.User1
-import com.hansung.sherpa.user.login.UserResponse
-import com.hansung.sherpa.user.relation.Relation
-import com.hansung.sherpa.user.relation.RelationResponse
+import com.hansung.sherpa.user.`class`.Relation
+import com.hansung.sherpa.user.`class`.User1
 import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
 import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
 import com.hansung.sherpa.user.updateFcm.UpdateFcmService
