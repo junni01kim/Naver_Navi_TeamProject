@@ -2,6 +2,7 @@ package com.hansung.sherpa.user
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
 import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
 import com.hansung.sherpa.user.updateFcm.UpdateFcmService
