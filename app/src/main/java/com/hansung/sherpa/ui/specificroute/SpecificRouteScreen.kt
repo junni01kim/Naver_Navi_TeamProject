@@ -145,7 +145,7 @@ fun SpecificRouteScreen(response:TransportRoute){
             //if(false) {
                 when (routeDivation.detectOutRoute(myPos)) {
                     -1 -> {
-                        Toast.makeText(context, "목적지에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "목적지 인근에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
                         for (i in passedRoute.indices) {
                             passedRoute[i] = 1.0
                         }
