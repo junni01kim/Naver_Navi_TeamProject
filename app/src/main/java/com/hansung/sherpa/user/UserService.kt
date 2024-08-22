@@ -30,7 +30,7 @@ interface UserService {
      * 보호자 인증을 요청하는 API
      */
     @GET("getLinkPermission/{caregiverEmail}")
-    fun getLinkPermissionService(@Body body: String): Call<ResponseBody>
+    fun getLinkPermissionService(@Path("caregiverEmail") body: String): Call<ResponseBody>
 
     /**
      * 사용자와 보호자의 관계를 얻는 API
