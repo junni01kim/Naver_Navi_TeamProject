@@ -90,18 +90,7 @@ fun HomeScreen(
     }
 
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures {
-                    // 드로어가 열려있고 드로어 시트 바깥을 클릭했을 때 닫기
-                    if (drawerState.isOpen) {
-                        scope.launch { drawerState.close() }
-                    }
-                }
-            }
-    ) {
+
         CustomNavigationDrawer(
             navController = navController,
             drawerState = drawerState,
@@ -189,7 +178,6 @@ fun HomeScreen(
                 }
             }
         }
-    }
 
 }
 

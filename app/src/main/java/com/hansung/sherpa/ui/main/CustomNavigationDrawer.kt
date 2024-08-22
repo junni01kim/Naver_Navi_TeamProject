@@ -39,35 +39,46 @@ fun CustomNavigationDrawer(
     scope: CoroutineScope = rememberCoroutineScope(),
     content: @Composable () -> Unit = {},
 ) {
-
-    ModalNavigationDrawer(
-        modifier = modifier,
-        drawerState = drawerState,
-        gesturesEnabled = false,
-        drawerContent = {
-            ModalDrawerSheet(
-                modifier = Modifier.fillMaxWidth(0.6F)
-            ) {
-                Text("메뉴 이동하기", modifier = Modifier.padding(16.dp))
-                Divider("")
-                NavigationDrawerItem(
-                    label = { Text(text = "캘린더") },
-                    selected = false,
-                    icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = "캘린더 아이콘") },
-                    onClick = { navController.navigate(SherpaScreen.CALENDAR.name) }
-                )
-                NavigationDrawerItem(
-                    label = { Text(text = "설정") },
-                    selected = false,
-                    icon = { Icon(Icons.Filled.Settings, contentDescription = "설정 아이콘") },
-                    onClick = { navController.navigate(SherpaScreen.Preference.name) }
-                )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    // 드로어가 열려있고 드로어 시트 바깥을 클릭했을 때 닫기
+                    if (drawerState.isOpen) {
+                        scope.launch { drawerState.close() }
+                    }
+                }
             }
-        }
     ) {
-        content()
+        ModalNavigationDrawer(
+            modifier = modifier,
+            drawerState = drawerState,
+            gesturesEnabled = false,
+            drawerContent = {
+                ModalDrawerSheet(
+                    modifier = Modifier.fillMaxWidth(0.6F)
+                ) {
+                    Text("메뉴 이동하기", modifier = Modifier.padding(16.dp))
+                    Divider("")
+                    NavigationDrawerItem(
+                        label = { Text(text = "캘린더") },
+                        selected = false,
+                        icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = "캘린더 아이콘") },
+                        onClick = { navController.navigate(SherpaScreen.CALENDAR.name) }
+                    )
+                    NavigationDrawerItem(
+                        label = { Text(text = "설정") },
+                        selected = false,
+                        icon = { Icon(Icons.Filled.Settings, contentDescription = "설정 아이콘") },
+                        onClick = { navController.navigate(SherpaScreen.Preference.name) }
+                    )
+                }
+            }
+        ) {
+            content()
+        }
     }
-
 }
 
 @Preview
