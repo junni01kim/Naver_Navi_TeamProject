@@ -2,6 +2,7 @@ package com.hansung.sherpa.emergency
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hansung.sherpa.user.UserResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -30,22 +31,22 @@ class EmergencyManager {
 
                     //반환 실패에 대한 에러처리
                     if(jsonString == "response is null"){
-                        result = EmergencyResponse(404, "'response.body()' is null")
                         Log.e("API Log: response(Null)", "insertEmergency: "+result?.message)
+                        result = EmergencyResponse(404, "'response.body()' is null")
                     }
                     else {
+                        Log.i("API Log: Success", "insertEmergency 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             EmergencyResponse::class.java
                         )
                     }
                 } catch(e: IOException){
-                    // IO 예외처리
                     Log.e("API Log: IOException", "insertEmergency: ${e.message}(e.message)")
+                    result = EmergencyResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
-        Log.i("API Log: Success", "insertEmergency 함수 실행 성공 ${result?.message}")
         return result?:EmergencyResponse(500, "에러 원인을 찾을 수 없음", null)
     }
 
@@ -67,22 +68,22 @@ class EmergencyManager {
 
                     //반환 실패에 대한 에러처리
                     if(jsonString == "response is null"){
-                        result = DeleteEmergencyResponse(404, "'response.body()' is null")
                         Log.e("API Log: response(Null)", "deleteEmergency: "+result?.message)
+                        result = DeleteEmergencyResponse(404, "'response.body()' is null")
                     }
                     else {
+                        Log.i("API Log: Success", "deleteEmergency 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             DeleteEmergencyResponse::class.java
                         )
                     }
                 } catch(e: IOException){
-                    // IO 예외처리
                     Log.e("API Log: IOException", "deleteEmergency: ${e.message}(e.message)")
+                    result = DeleteEmergencyResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
-        Log.i("API Log: Success", "deleteEmergency 함수 실행 성공 ${result?.message}")
         return result?:DeleteEmergencyResponse(500, "에러원인 찾을 수 없음", null)
     }
 
@@ -105,18 +106,18 @@ class EmergencyManager {
                         Log.e("API Log: response(Null)", "getAllEmergency: "+result?.message)
                     }
                     else {
+                        Log.i("API Log: Success", "getAllEmergency 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             EmergencyListResponse::class.java
                         )
                     }
                 } catch(e: IOException){
-                    // IO 예외처리
                     Log.e("API Log: IOException", "getAllEmergency: ${e.message}(e.message)")
+                    result = EmergencyListResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
-        Log.i("API Log: Success", "getAllEmergency 함수 실행 성공 ${result?.message}")
         return result?: EmergencyListResponse(500, "에러 원인을 찾을 수 없음", null)
     }
 }
