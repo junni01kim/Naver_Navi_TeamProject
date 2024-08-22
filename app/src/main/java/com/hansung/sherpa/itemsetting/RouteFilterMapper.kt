@@ -1,6 +1,5 @@
 package com.hansung.sherpa.itemsetting
 
-import android.util.Log
 import com.hansung.sherpa.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.ODsaySubPath
 import com.hansung.sherpa.transit.ODsayTransitRouteResponse

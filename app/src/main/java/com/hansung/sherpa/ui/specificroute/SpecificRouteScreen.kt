@@ -3,26 +3,11 @@ package com.hansung.sherpa.ui.specificroute
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.AnchoredDraggableState
-import androidx.compose.foundation.gestures.DraggableAnchors
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults.cardColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
@@ -30,14 +15,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.naver.maps.geometry.LatLng
@@ -46,7 +30,6 @@ import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
-import kotlinx.coroutines.launch
 
 enum class DragValue { Start, Center, End }
 
@@ -61,7 +44,10 @@ enum class DragValue { Start, Center, End }
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun SpecificRouteScreen(response:TransportRoute){
+fun SpecificRouteScreen(
+    response:TransportRoute,
+    accidentProneArea: ArrayList<AccidentProneArea>
+){
 
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
@@ -91,6 +77,7 @@ fun SpecificRouteScreen(response:TransportRoute){
         onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }
     ){
         DrawPathOverlay(response)
+        DrawPolygons(accidentProneAreas = accidentProneArea)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 

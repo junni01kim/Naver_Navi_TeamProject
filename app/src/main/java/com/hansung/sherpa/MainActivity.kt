@@ -35,6 +35,9 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
@@ -64,6 +67,8 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity(), OnMapReadyCallback {
 
@@ -149,7 +154,29 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
-                            SpecificRouteScreen(StaticValue.transportRoute)
+
+                            // TODO: 여기서 위험 지역 요청함 ㅎㅎ 
+                            val list = mutableListOf<LatLng>()
+                            StaticValue.transportRoute.subPath.forEach {
+                                if(it.trafficType == 3){
+                                    for(latLng : LatLng in it.sectionRoute.routeList)
+                                        list.add(latLng)
+                                }
+                            }
+                            var result : ArrayList<AccidentProneArea> = arrayListOf()
+                            runBlocking(Dispatchers.IO) {
+                                run {
+                                    AccidentProneAreaManager().request(list, object : AccidentProneAreaCallback{
+                                        override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>) {
+                                            result = accidentProneAreas
+                                        }
+                                        override fun onFailure(message: String) {
+                                            result = arrayListOf()
+                                        }
+                                    })
+                                }
+                            }
+                            SpecificRouteScreen(StaticValue.transportRoute, result)
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->
