@@ -235,13 +235,13 @@ fun refuseSignup(
     emailValue: String,
     passwordValue: String,
     confirmPasswordValue: String,
-    nameValue: String,
+    userNameValue: String,
     telValue: String,
     addressValue: String,
     detailAddressValue: String,
     caregiverId: Int,
     allChecked: Boolean,
-    showDialog: (Boolean) -> Unit,
+    showDialog: (Boolean) -> Unit
 ):SherpaDialogParm {
     val sherpaDialog = SherpaDialogParm()
 
@@ -305,7 +305,7 @@ fun refuseSignup(
         )
     }
 
-    if(nameValue == ""){
+    if(userNameValue == ""){
         sherpaDialog.setParm(
             title = "필수 입력",
             message =listOf("이름을 기입해주세요"),

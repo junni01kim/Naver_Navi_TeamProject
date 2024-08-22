@@ -44,9 +44,7 @@ import java.util.Calendar
  * 보호자 회원가입 관련 구성품
  */
 @Composable
-fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<SherpaDialogParm>){
-    val context = LocalContext.current
-
+fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<SherpaDialogParm>, showDialog: (Boolean) -> Unit){
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     var confirmPasswordValue by remember { mutableStateOf("") }
@@ -122,22 +120,20 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             onClick = {
-                if(!allChecked){
-                    Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT).show()
-                    return@TextButton
-                }
+                sherpaDialog.value = refuseSignup(
+                    emailValue,
+                    passwordValue,
+                    confirmPasswordValue,
+                    userNameValue,
+                    telValue,
+                    addressValue,
+                    detailAddressValue,
+                    allChecked,
+                    showDialog
+                )
 
-                if(!isValidId(emailValue)){
-                    Toast.makeText(context,"로그인 실패!\n이메일 서식을 확인해주세요\n8~20 글자로 가능합니다.", Toast.LENGTH_SHORT).show()
-                    return@TextButton
-                }
-                if(!isValidId(passwordValue)){
-                    Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요\n8~20 글자로 가능합니다.", Toast.LENGTH_SHORT).show()
-                    return@TextButton
-                }
-
-                if(passwordValue != confirmPasswordValue){
-                    Toast.makeText(context, "비밀번호가 다릅니다.", Toast.LENGTH_SHORT).show()
+                if(sherpaDialog.value.title != ""){
+                    showDialog(true)
                     return@TextButton
                 }
 
@@ -155,8 +151,14 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
                 val user1 = UserManager().create(createUserRequest)
                 if(user1.code == 200) navController.navigate(SherpaScreen.Login.name)
                 else {
-                    Toast.makeText(context, "계정 생성 실패", Toast.LENGTH_SHORT).show()
-                    // TODO: 토스트 대신 다이얼로그 띄우기
+                    sherpaDialog.value.setParm(
+                        title = "회원가입 실패",
+                        message =listOf("계정 생성을 실패하였습니다"),
+                        confirmButtonText = "확인",
+                        onConfirmation = { showDialog(false) },
+                        onDismissRequest = { showDialog(false) }
+                    )
+                    showDialog(true)
                 }
             },
             colors= SherpaButtonColor,
@@ -169,4 +171,120 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
             )
         }
     }
+}
+
+fun refuseSignup(
+    emailValue: String,
+    passwordValue: String,
+    confirmPasswordValue: String,
+    userNameValue: String,
+    telValue: String,
+    addressValue: String,
+    detailAddressValue: String,
+    allChecked: Boolean,
+    showDialog: (Boolean) -> Unit
+): SherpaDialogParm {
+    val sherpaDialog = SherpaDialogParm()
+
+    if(passwordValue != confirmPasswordValue){
+        sherpaDialog.setParm(
+            title = "회원가입 실패",
+            message =listOf("비밀번호가 다릅니다"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(!isValidId(passwordValue)){
+        sherpaDialog.setParm(
+            title = "회원가입 실패",
+            message =listOf("비밀번호 서식을 확인해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(!isValidId(emailValue)){
+        sherpaDialog.setParm(
+            title = "회원가입 실패",
+            message =listOf("이메일 서식을 확인해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(telValue == "") {
+        sherpaDialog.setParm(
+            title = "필수 입력",
+            message =listOf("전화번호를 기입해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(addressValue == ""){
+        sherpaDialog.setParm(
+            title = "필수 입력",
+            message =listOf("주소를 기입해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(userNameValue == ""){
+        sherpaDialog.setParm(
+            title = "필수 입력",
+            message =listOf("이름을 기입해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(confirmPasswordValue == ""){
+        sherpaDialog.setParm(
+            title = "필수 입력",
+            message =listOf("비밀번호 확인을 기입해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(passwordValue == "") {
+        sherpaDialog.setParm(
+            title = "필수 입력",
+            message =listOf("비밀번호를 기입해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(emailValue == ""){
+        sherpaDialog.setParm(
+            title = "필수 입력",
+            message =listOf("이메일을 기입해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    if(!allChecked){
+        sherpaDialog.setParm(
+            title = "회원가입 실패",
+            message =listOf("약관을 모두 동의해주세요"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog(false) },
+            onDismissRequest = { showDialog(false) }
+        )
+    }
+
+    return sherpaDialog
 }
