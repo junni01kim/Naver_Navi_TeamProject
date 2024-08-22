@@ -58,8 +58,6 @@ class AccidentProneAreaDeserializer : JsonDeserializer<AccidentProneAreaResponse
                 polygons.add(polygon)
             }
 
-//            val polygon = context?.deserialize<Polygon>(polygonObject, Polygon::class.java)
-
             AccidentProneArea(
                 accidentProneAreaFid = accidentProneAreaFid,
                 accidentProneAreaId = accidentProneAreaId,
