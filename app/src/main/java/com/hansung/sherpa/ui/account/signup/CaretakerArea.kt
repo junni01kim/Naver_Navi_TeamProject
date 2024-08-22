@@ -60,6 +60,9 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
     var marketingChecked by remember { mutableStateOf(false) }
     var allChecked by remember { mutableStateOf(false) }
 
+    var isEmailDuplicate by remember { mutableStateOf(false) }
+    var isTelNumDuplicate by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
@@ -75,11 +78,59 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
             style = TextStyle(SherpaColor)
         )
 
-        InfomationGroupDarkMode("이메일", true, "중복검사", {/*중복검사 API*/}) { emailValue = it.trim() }
+        InfomationGroupDarkMode("이메일", true, "중복검사", {
+            val code = UserManager().verificatonEmail(emailValue).code
+            if(code == 200) {
+                sherpaDialog.value.setParm(
+                    title = "이메일 중복",
+                    message =listOf("이미 등록된 이메일입니다"),
+                    confirmButtonText = "확인",
+                    onConfirmation = { showDialog(false) },
+                    onDismissRequest = { showDialog(false) }
+                )
+                showDialog(true)
+                isEmailDuplicate = false
+            }
+            else if(code == 201) {
+                sherpaDialog.value.setParm(
+                    title = "이메일 승인",
+                    message =listOf("사용가능한 이메일입니다"),
+                    confirmButtonText = "확인",
+                    onConfirmation = { showDialog(false) },
+                    onDismissRequest = { showDialog(false) }
+                )
+                showDialog(true)
+                isEmailDuplicate = true
+            }
+        }) { emailValue = it.trim() }
         InfomationGroupDarkMode("비밀번호", false) { passwordValue = it.trim() }
         InfomationGroupDarkMode("비밀번호\n확인", false) { confirmPasswordValue = it.trim() }
         InfomationGroupDarkMode("이름", false) { userNameValue = it }
-        InfomationGroupDarkMode("전화번호", true, "인증하기", {/* 전화 인증 API */}) { telValue = it.trim() }
+        InfomationGroupDarkMode("전화번호", true, "인증하기", {
+            val code = UserManager().verificatonTelNum(telValue).code
+            if(code == 200) {
+                sherpaDialog.value.setParm(
+                    title = "전화번호 중복",
+                    message =listOf("이미 등록된 전화번호입니다"),
+                    confirmButtonText = "확인",
+                    onConfirmation = { showDialog(false) },
+                    onDismissRequest = { showDialog(false) }
+                )
+                showDialog(true)
+                isTelNumDuplicate = false
+            }
+            else if(code == 201) {
+                sherpaDialog.value.setParm(
+                    title = "전화번호 승인",
+                    message =listOf("사용가능한 전화번호입니다"),
+                    confirmButtonText = "확인",
+                    onConfirmation = { showDialog(false) },
+                    onDismissRequest = { showDialog(false) }
+                )
+                showDialog(true)
+                isTelNumDuplicate = true
+            }
+        }) { telValue = it.trim() }
         InfomationGroupDarkMode("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroupDarkMode("상세주소", false) { detailAddressValue = it }
         InfomationGroupDarkMode("보호자\n이메일", true, "연동하기" ,{
