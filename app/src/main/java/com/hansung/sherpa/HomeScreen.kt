@@ -88,18 +88,18 @@ fun HomeScreen(
     }
 
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+    NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true),
+        properties = MapProperties(
+            locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
+        ),
+        uiSettings = MapUiSettings(
+            isLocationButtonEnabled = true,
+        ),
+        onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }) {
+        MarkerComponent(loc.value, markerIcon)
+    }
     CustomNavigationDrawer(navController =  navController,  drawerState = drawerState) {
         Box(Modifier.fillMaxSize()) {
-            NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true),
-                properties = MapProperties(
-                    locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
-                ),
-                uiSettings = MapUiSettings(
-                    isLocationButtonEnabled = true,
-                ),
-                onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }) {
-                MarkerComponent(loc.value, markerIcon)
-            }
 
             var destinationValue by remember { mutableStateOf("") }
 
