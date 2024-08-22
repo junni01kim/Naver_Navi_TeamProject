@@ -263,7 +263,9 @@ fun CaregiverArea(navController: NavController){
                     createdAt = Timestamp(Calendar.getInstance().timeInMillis),
                     updatedAt = Timestamp(Calendar.getInstance().timeInMillis)
                 )
-                signup(navController, createUserRequest)
+                if(signup(navController, createUserRequest)){
+                    Toast.makeText(context, "계정 생성 실패", Toast.LENGTH_SHORT).show()
+                }
             },
             colors= SherpaButtonColor,
             modifier = Modifier.width(200.dp)
@@ -417,7 +419,10 @@ fun CaretakerArea(navController: NavController) {
                     createdAt = Timestamp(Calendar.getInstance().timeInMillis),
                     updatedAt = Timestamp(Calendar.getInstance().timeInMillis)
                 )
-                signup(navController, createUserRequest)
+
+                if(signup(navController, createUserRequest)){
+                    Toast.makeText(context, "계정 생성 실패", Toast.LENGTH_SHORT).show()
+                }
             },
             colors= ButtonColors(
                 contentColor = Color.Black,
@@ -440,9 +445,11 @@ fun isValidId(id: String): Boolean {
     return regex.matches(id)
 }
 
-fun signup(navController: NavController, createUserRequest: CreateUserRequest) {
-    UserManager().create(createUserRequest)
-    navController.navigate("${SherpaScreen.Login.name}")
+fun signup(navController: NavController, createUserRequest: CreateUserRequest):Boolean {
+    val user1 = UserManager().create(createUserRequest)
+    if(user1.code == 200) navController.navigate(SherpaScreen.Login.name)
+    else return true
+    return false
 }
 
 @Composable
