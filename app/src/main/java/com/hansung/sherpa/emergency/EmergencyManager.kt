@@ -9,71 +9,114 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
+val nncBackendEmergencyUrl = "http://13.209.212.166:8080/api/v1/"
+
 class EmergencyManager {
-    fun insertEmergency(request: Emergency):Emergency? {
+    /**
+     * 긴급 연락처 추가 함수
+     */
+    fun insertEmergency(request: Emergency):EmergencyResponse {
         var result: EmergencyResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://13.209.212.166:8080/api/v1/")
+                        .baseUrl(nncBackendEmergencyUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
                         .postAddEmergencyService(request).execute()
-                    result = Gson().fromJson(response.body()!!.string(), EmergencyResponse::class.java)
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    //반환 실패에 대한 에러처리
+                    if(jsonString == "response is null"){
+                        result = EmergencyResponse(404, "'response.body()' is null")
+                        Log.e("API Log: response(Null)", "insertEmergency: "+result?.message)
+                    }
+                    else {
+                        result = Gson().fromJson(
+                            jsonString,
+                            EmergencyResponse::class.java
+                        )
+                        Log.i("API Log: success", "insertEmergency: ${result?.message}(result?.message)")
+                    }
                 } catch(e: IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    // IO 예외처리
+                    Log.e("API Log: IOException", "insertEmergency: ${e.message}(e.message)")
                 }
             }
         }
-        Log.d("FCMLog", "insertEmergency 함수 실행 성공 ${result?.data?.emergencyId}")
-        return result?.data
+        return result?:EmergencyResponse(500, "에러 원인을 찾을 수 없음", null)
     }
 
-    fun deleteEmergency(emergencyId:Int) {
+    /**
+     * 긴급 연락처 삭제 함수
+     */
+    fun deleteEmergency(emergencyId:Int):DeleteEmergencyResponse {
         var result: DeleteEmergencyResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://13.209.212.166:8080/api/v1/")
+                        .baseUrl(nncBackendEmergencyUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
                         .deleteEmergencyService(emergencyId).execute()
-                    result = Gson().fromJson(response.body()!!.string(), DeleteEmergencyResponse::class.java)
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    //반환 실패에 대한 에러처리
+                    if(jsonString == "response is null"){
+                        result = DeleteEmergencyResponse(404, "'response.body()' is null")
+                        Log.e("API Log: response(Null)", "deleteEmergency: "+result?.message)
+                    }
+                    else {
+                        result = Gson().fromJson(
+                            jsonString,
+                            DeleteEmergencyResponse::class.java
+                        )
+                        Log.i("API Log: success", "deleteEmergency: ${result?.message}(result?.message)")
+                    }
                 } catch(e: IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    // IO 예외처리
+                    Log.e("API Log: IOException", "deleteEmergency: ${e.message}(e.message)")
                 }
             }
         }
-        Log.d("FCMLog", "insertEmergency 함수 실행 성공 ${result?.code}")
+        return result?:DeleteEmergencyResponse(500, "에러원인 찾을 수 없음", null)
     }
 
-    fun getAllEmergency(userId:Int):MutableList<Emergency>?{
-        var result: MutableList<Emergency>? = null
+    fun getAllEmergency(userId:Int):EmergencyListResponse{
+        var result: EmergencyListResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://13.209.212.166:8080/api/v1/")
+                        .baseUrl(nncBackendEmergencyUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
                         .getAllEmergency(userId).execute()
-                    val resultString = response.body()
-                    if(resultString == null) result = mutableListOf()
-                    else result = Gson().fromJson(resultString.string(), EmergencyListResponse::class.java).data
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null"){
+                        result = EmergencyListResponse(404, "'response.body()' is null", null)
+                        Log.e("API Log: response(Null)", "getAllEmergency: "+result?.message)
+                    }
+                    else {
+                        result = Gson().fromJson(
+                            jsonString,
+                            EmergencyListResponse::class.java
+                        )
+                        Log.i("API Log: success", "getAllEmergency: ${result?.message}(result?.message)")
+                    }
                 } catch(e: IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    // IO 예외처리
+                    Log.e("API Log: IOException", "getAllEmergency: ${e.message}(e.message)")
                 }
             }
         }
-        Log.d("FCMLog", "insertEmergency 함수 실행 성공 ${result?.get(0)?.name}")
-        return result
+        return result?: EmergencyListResponse(500, "에러 원인을 찾을 수 없음", null)
     }
 }

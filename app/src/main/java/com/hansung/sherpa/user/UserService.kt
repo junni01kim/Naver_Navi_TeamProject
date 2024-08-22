@@ -12,7 +12,7 @@ interface UserService {
      * 계정을 생성하는 API
      */
     @POST("createUser")
-    fun postCreateService(@Body body: LoginRequest): Call<ResponseBody>
+    fun postCreateService(@Body body: CreateUserRequest): Call<ResponseBody>
 
     /**
      * 계정 로그인(사용자 인증) 하는 API
