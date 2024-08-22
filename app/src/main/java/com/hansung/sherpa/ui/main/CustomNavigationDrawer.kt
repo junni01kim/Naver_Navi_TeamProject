@@ -1,6 +1,9 @@
 package com.hansung.sherpa.ui.main
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -15,13 +18,17 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.ui.preference.Divider
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -29,11 +36,14 @@ fun CustomNavigationDrawer(
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
-    content: @Composable () -> Unit = {}
+    scope: CoroutineScope = rememberCoroutineScope(),
+    content: @Composable () -> Unit = {},
 ) {
+
     ModalNavigationDrawer(
         modifier = modifier,
         drawerState = drawerState,
+        gesturesEnabled = false,
         drawerContent = {
             ModalDrawerSheet(
                 modifier = Modifier.fillMaxWidth(0.6F)
@@ -57,6 +67,7 @@ fun CustomNavigationDrawer(
     ) {
         content()
     }
+
 }
 
 @Preview
