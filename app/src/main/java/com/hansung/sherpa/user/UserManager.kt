@@ -84,6 +84,7 @@ class UserManager {
                     }
                 } catch (e:IOException){
                     Log.e("API Log: IOException", "UserManager.login: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
@@ -120,6 +121,7 @@ class UserManager {
                     }
                 }catch(e: java.io.IOException){
                     Log.e("API Log: IOException", "UserManager.getUser: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
@@ -157,6 +159,7 @@ class UserManager {
                     }
                 } catch(e:IOException){
                     Log.e("API Log: IOException", "UserManager.linkPermission: ${e.message}(e.message)")
+                    result = LinkPermissionResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
@@ -193,6 +196,7 @@ class UserManager {
                     }
                 } catch(e: java.io.IOException){
                     Log.e("API Log: IOException", "UserManager.getRelation: ${e.message}(e.message)")
+                    result = RelationResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
@@ -230,6 +234,7 @@ class UserManager {
                     }
                 } catch (e:IOException){
                     Log.e("API Log: IOException", "UserManager.updateFcm: ${e.message}(e.message)")
+                    result = UpdateFcmResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
@@ -261,6 +266,7 @@ class UserManager {
                     }
                 } catch (e:IOException){
                     Log.e("API Log: IOException", "UserManager.verificatonEmail: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
@@ -293,6 +299,7 @@ class UserManager {
                     }
                 } catch (e:IOException){
                     Log.e("API Log: IOException", "UserManager.verificatonTelNum: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
