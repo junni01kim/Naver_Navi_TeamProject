@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.dialog.SherpaDialogParm
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaButtonColor
 import com.hansung.sherpa.sherpares.SherpaColor
@@ -42,7 +44,7 @@ import java.util.Calendar
  * 보호자 회원가입 관련 구성품
  */
 @Composable
-fun CaregiverArea(navController: NavController){
+fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<SherpaDialogParm>){
     val context = LocalContext.current
 
     var emailValue by remember { mutableStateOf("") }

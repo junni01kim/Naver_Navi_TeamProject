@@ -124,15 +124,6 @@ class MainActivity : ComponentActivity() {
                             LoginScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SignUp.name) {
-                            val sherpaDialog = remember { mutableStateOf(SherpaDialog())}
-                            SherpaDialog(
-                                title = sherpaDialog.value.title,
-                                message = sherpaDialog.value.message,
-                                confirmButtonText = sherpaDialog.value.confirmButtonText,
-                                dismissButtonText = sherpaDialog.value.dismissButtonText,
-                                onConfirmation = sherpaDialog.value.onConfirmation,
-                                onDismissRequest = sherpaDialog.value.onDismissRequest
-                            )
                             SignupScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.Home.name){

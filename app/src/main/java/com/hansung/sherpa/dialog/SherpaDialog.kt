@@ -18,8 +18,7 @@ val titleColor = Color.Black
 val contentColor = Color.Black
 val buttonColor = Color(0xFF34DFD5)
 
-data class SherpaDialog(
-    var show:Boolean = false,
+data class SherpaDialogParm(
     var title: String = "",
     var message:List<String> = listOf(),
     var confirmButtonText:String = "",

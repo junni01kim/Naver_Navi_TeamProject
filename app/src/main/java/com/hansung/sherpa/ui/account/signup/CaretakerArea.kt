@@ -14,6 +14,7 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.dialog.SherpaDialogParm
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.account.module.InfomationGroupDarkMode
@@ -44,7 +46,7 @@ import java.util.Calendar
  * 사용자 회원가입 구성품
  */
 @Composable
-fun CaretakerArea(navController: NavController) {
+fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<SherpaDialogParm>, showDialog: (Boolean) -> Unit) {
     val context = LocalContext.current
 
     var emailValue by remember { mutableStateOf("") }
@@ -148,6 +150,12 @@ fun CaretakerArea(navController: NavController) {
             onClick = {
                 if(!allChecked){
                     Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT).show()
+                    sherpaDialog.value.title = "생성 실패"
+                    sherpaDialog.value.message = listOf("약관을 모두 동의해주세요.")
+                    sherpaDialog.value.confirmButtonText = "확인"
+                    sherpaDialog.value.onConfirmation = { showDialog(false) }
+                    sherpaDialog.value.onDismissRequest = { showDialog(false) }
+                    showDialog(true)
                     // TODO: 토스트 대신 다이얼로그 띄우기
                     return@TextButton
                 }
