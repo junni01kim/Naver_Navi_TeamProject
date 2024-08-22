@@ -2,8 +2,6 @@ package com.hansung.sherpa.user
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.user.user.Relation
-import com.hansung.sherpa.user.user.User1
 import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
 import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
 import com.hansung.sherpa.user.updateFcm.UpdateFcmService
@@ -21,8 +19,8 @@ class UserManager {
     /**
      * 계정을 생성하는 함수
      */
-    fun create(request: CreateUserRequest): CreateUserResponse {
-        var result: CreateUserResponse? = null
+    fun create(request: CreateUserRequest): UserResponse {
+        var result: UserResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
@@ -36,13 +34,13 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        result = CreateUserResponse(404, "'reponse.body()' is null")
+                        result = UserResponse(404, "'reponse.body()' is null")
                         Log.e("API Log:response(Null)", "UserManager.create: ${result?.message}")
                     }
                     else {
                         result = Gson().fromJson(
                             jsonString,
-                            CreateUserResponse::class.java
+                            UserResponse::class.java
                         )
                     }
                 } catch(e:IOException){
@@ -51,7 +49,7 @@ class UserManager {
             }
         }
         Log.i("API Log: Success", "create 함수 실행 성공 ${result?.message}")
-        return result?: CreateUserResponse(500, "에러 원인을 찾을 수 없음")
+        return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
     }
 
     /**

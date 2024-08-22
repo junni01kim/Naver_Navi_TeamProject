@@ -1,7 +1,7 @@
 package com.hansung.sherpa.user
 
-import com.hansung.sherpa.user.user.Relation
-import com.hansung.sherpa.user.user.User1
+import com.hansung.sherpa.user.table.Relation
+import com.hansung.sherpa.user.table.User1
 
 /**
  * - UserResponse -
@@ -27,15 +27,6 @@ class LinkPermissionResponse (
     val code: Int? = null,
     val message: String? = null,
     val data:Int? = null
-)
-
-/**
- * 새로운 계정을 생성했을 시 성공 실패를 반환하는 클래스
- *
- */
-data class CreateUserResponse (
-    val code: Int? = null,
-    val message: String? = null
 )
 
 /**

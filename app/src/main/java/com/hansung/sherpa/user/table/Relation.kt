@@ -1,4 +1,4 @@
-package com.hansung.sherpa.user.user
+package com.hansung.sherpa.user.table
 
 data class Relation(
     val userRelationId:Int,

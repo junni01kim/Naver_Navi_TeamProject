@@ -21,7 +21,7 @@ class CreateUserRequest (
     @SerializedName("address") val address: String,
     @SerializedName("detailAddress") val detailAddress: String = "지정안함",
     @SerializedName("fcmToken") val fcmToken: String,
-    @SerializedName("caregiverId") val caregiverId: Int = -1,
+    @SerializedName("caregiverId") val caregiverId: Int = 0,
     @SerializedName("caregiverRelation") val caregiverRelation: String = "지정안함",
     @SerializedName("createAt") val createdAt: Timestamp,
     @SerializedName("updateAt") val updatedAt: Timestamp,
