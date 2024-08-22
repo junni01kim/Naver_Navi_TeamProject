@@ -38,7 +38,6 @@ class EmergencyManager {
                             jsonString,
                             EmergencyResponse::class.java
                         )
-                        Log.i("API Log: success", "insertEmergency: ${result?.message}(result?.message)")
                     }
                 } catch(e: IOException){
                     // IO 예외처리
@@ -46,6 +45,7 @@ class EmergencyManager {
                 }
             }
         }
+        Log.i("API Log: Success", "insertEmergency 함수 실행 성공 ${result?.message}")
         return result?:EmergencyResponse(500, "에러 원인을 찾을 수 없음", null)
     }
 
@@ -75,7 +75,6 @@ class EmergencyManager {
                             jsonString,
                             DeleteEmergencyResponse::class.java
                         )
-                        Log.i("API Log: success", "deleteEmergency: ${result?.message}(result?.message)")
                     }
                 } catch(e: IOException){
                     // IO 예외처리
@@ -83,6 +82,7 @@ class EmergencyManager {
                 }
             }
         }
+        Log.i("API Log: Success", "deleteEmergency 함수 실행 성공 ${result?.message}")
         return result?:DeleteEmergencyResponse(500, "에러원인 찾을 수 없음", null)
     }
 
@@ -109,7 +109,6 @@ class EmergencyManager {
                             jsonString,
                             EmergencyListResponse::class.java
                         )
-                        Log.i("API Log: success", "getAllEmergency: ${result?.message}(result?.message)")
                     }
                 } catch(e: IOException){
                     // IO 예외처리
@@ -117,6 +116,7 @@ class EmergencyManager {
                 }
             }
         }
+        Log.i("API Log: Success", "getAllEmergency 함수 실행 성공 ${result?.message}")
         return result?: EmergencyListResponse(500, "에러 원인을 찾을 수 없음", null)
     }
 }

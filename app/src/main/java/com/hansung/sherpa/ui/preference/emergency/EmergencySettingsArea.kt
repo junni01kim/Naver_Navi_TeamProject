@@ -43,6 +43,8 @@ import com.hansung.sherpa.user.UserManager
 fun EmergencySettingsArea(
     finish : () -> Unit
 ) {
+    val context = LocalContext.current
+
     // Dialog 확장 여부를 관리하는 변수
     var deleteDialogExpand by remember{ mutableStateOf(false) }
     var emrgInfoExpand by remember{ mutableStateOf(false) }
@@ -53,18 +55,36 @@ fun EmergencySettingsArea(
 
     // (2024-08-16) 에러 처리 완료
     val emergencyListResponse = EmergencyManager().getAllEmergency(StaticValue.userInfo.userId!!)
-    val userEmrgList = if(emergencyListResponse.code == 200) emergencyListResponse.data!! else listOf()
+    val userEmrgList =
+        if(emergencyListResponse.code == 200) emergencyListResponse.data!!
+        else {
+            Toast.makeText(context, "긴급 연락처 조회 실패", Toast.LENGTH_SHORT).show()
+            listOf()
+        }
 
     val emrgList = remember { mutableStateListOf<Emergency>().apply { addAll(userEmrgList) }}
 
     // TODO: 사용자로 로그인 했을 때 한정으로 제작
-    // 보호자 선택 시 사용될 변수
-    val userRelation = UserManager().getRelation(StaticValue.userInfo.userId!!)
-    val caregiverUser1 = UserManager().getUser(userRelation.caregiverId)
+    // (2024-08-16) 에러처리 완료
+    val userRelationResponse = UserManager().getRelation(StaticValue.userInfo.userId!!)
+    val userRelation =
+        if(userRelationResponse.code == 200) userRelationResponse.data
+    else {
+        Toast.makeText(context, "보호자 관계 요청 실패", Toast.LENGTH_SHORT).show()
+        return
+    }
 
-    val caregiverName = userRelation.relation // 보호자가 지정한 보호자 별명
-    val caregiverAddress = caregiverUser1.userAccount?.address
-    val caregiverTelNum = caregiverUser1.telNum
+    val userResponse = UserManager().getUser(userRelation?.caregiverId?:-1)
+    val caregiverUserInfo =
+        if(userResponse.code == 200) userResponse.data
+        else{
+            Toast.makeText(context, "보호자 정보 조회 실패", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+    val caregiverName = userRelation?.relation?:"None" // 보호자가 지정한 보호자 별명
+    val caregiverAddress = caregiverUserInfo?.userAccount?.address?:"None"
+    val caregiverTelNum = caregiverUserInfo?.telNum?:"None"
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -117,10 +137,11 @@ fun EmergencySettingsArea(
 
                     // (2024-08-16) 에러 처리 완료
                     val emergencyResponse = EmergencyManager().insertEmergency(newEmergency)
-                    if(emergencyResponse.code == 200){
+                    if(emergencyResponse.code == 200) {
                         val returnEmergency = emergencyResponse.data!!
                         emrgList.add(returnEmergency)
                     }
+                    else Toast.makeText(context, "연락처 추가 실패", Toast.LENGTH_SHORT).show()
                 }
             )
         }
@@ -142,12 +163,12 @@ fun EmergencySettingsArea(
                 onDeleteRequest = {
                     // (2024-08-16) 에러 처리 완료
                     val deleteEmergencyResponse = EmergencyManager().deleteEmergency(emrgList[clickedIndex].emergencyId)
-                    if(deleteEmergencyResponse.code != 200) Toast.makeText(context, "긴급 연락처 삭제 실패", Toast.LENGTH_SHORT).show()
-                    else {
+                    if(deleteEmergencyResponse.code == 200) {
                         emrgList.removeAt(clickedIndex)
                         clickedIndex = -1
                         deleteDialogExpand = false
                     }
+                    else Toast.makeText(context, "긴급 연락처 삭제 실패", Toast.LENGTH_SHORT).show()
                 }
             )
         }
