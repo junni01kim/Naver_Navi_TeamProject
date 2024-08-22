@@ -18,6 +18,30 @@ val titleColor = Color.Black
 val contentColor = Color.Black
 val buttonColor = Color(0xFF34DFD5)
 
+data class SherpaDialogParm(
+    var title: String = "",
+    var message:List<String> = listOf(),
+    var confirmButtonText:String = "",
+    var dismissButtonText:String = "",
+    var onDismissRequest: () -> Unit = {},
+    var onConfirmation: () -> Unit = {}
+){
+    fun setParm(
+        title:String = "",
+        message: List<String> = listOf(),
+        confirmButtonText: String = "",
+        dismissButtonText: String = "",
+        onDismissRequest: () -> Unit = {},
+        onConfirmation: () -> Unit = {}
+    ){
+        this.title = title
+        this.message = message
+        this.confirmButtonText = confirmButtonText
+        this.dismissButtonText = dismissButtonText
+        this.onDismissRequest = onDismissRequest
+        this.onConfirmation = onConfirmation
+    }
+}
 /**
  * 보행자 내비게이션 공용 에러 Dialog
  * 참고: https://developer.android.com/develop/ui/compose/components/dialog?hl=ko

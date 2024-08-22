@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -35,6 +37,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.FCM.MessageViewModel
 import com.hansung.sherpa.FCM.PermissionDialog
 import com.hansung.sherpa.FCM.RationaleDialog
+import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity

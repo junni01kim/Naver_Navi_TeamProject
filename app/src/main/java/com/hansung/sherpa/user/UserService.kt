@@ -30,11 +30,17 @@ interface UserService {
      * 보호자 인증을 요청하는 API
      */
     @GET("getLinkPermission/{caregiverEmail}")
-    fun getLinkPermissionService(@Body body: String): Call<ResponseBody>
+    fun getLinkPermissionService(@Path("caregiverEmail") body: String): Call<ResponseBody>
 
     /**
      * 사용자와 보호자의 관계를 얻는 API
      */
     @GET("getUserRelation/{userId}")
     fun getRelationService(@Path("userId") userId:Int): Call<ResponseBody>
+
+    @GET("signupEmail/{email}")
+    fun verificatonEmail(@Path("email") email:String): Call<ResponseBody>
+
+    @GET("signupTelNum/{telNum}")
+    fun verificatonTelNum(@Path("telNum") telNum:String): Call<ResponseBody>
 }
