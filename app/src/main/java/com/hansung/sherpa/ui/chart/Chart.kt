@@ -149,15 +149,17 @@ fun ThickChart(transportRoute: TransportRoute) {
                 .clip(CircleShape)
                 .background(typeOfColor(it)),
                 contentAlignment = Alignment.Center) {
-                Text(
-                    text = "${it.sectionInfo.sectionTime}분",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    modifier = Modifier.align(Alignment.Center),
-                    color = if(it.trafficType == 3) Color(0xFF8B8B8B) else Color.White,
-                    lineHeight = 10.sp,
-                    maxLines = 1,
-                )
+                if(boxWidth >= 20.dp){
+                    Text(
+                        text = "${it.sectionInfo.sectionTime}분",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        modifier = Modifier.align(Alignment.Center),
+                        color = if (it.trafficType == 3) Color(0xFF8B8B8B) else Color.White,
+                        lineHeight = 10.sp,
+                        maxLines = 1,
+                    )
+                }
             }
         }
     }
