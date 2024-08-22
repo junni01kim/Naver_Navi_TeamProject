@@ -4,12 +4,16 @@ import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.user.createuser.CreateUserRequest
 import com.hansung.sherpa.user.createuser.CreateUserResponse
-import com.hansung.sherpa.user.createuser.CreateUserService
+import com.hansung.sherpa.user.createuser.UserService
 import com.hansung.sherpa.user.linkpermission.LinkPermissionResponse
 import com.hansung.sherpa.user.linkpermission.LinkPermissionService
 import com.hansung.sherpa.user.login.LoginRequest
-import com.hansung.sherpa.user.login.LoginResponse
 import com.hansung.sherpa.user.login.LoginService
+import com.hansung.sherpa.user.login.UserInfomation
+import com.hansung.sherpa.user.login.UserResponse
+import com.hansung.sherpa.user.relation.GetUserRelationService
+import com.hansung.sherpa.user.relation.Relation
+import com.hansung.sherpa.user.relation.RelationResponse
 import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
 import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
 import com.hansung.sherpa.user.updateFcm.UpdateFcmService
@@ -30,7 +34,7 @@ class UserManager {
                         .baseUrl("http://13.209.212.166:8080/api/v1/user/")
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
-                        .create(CreateUserService::class.java)
+                        .create(UserService::class.java)
                         .postLoginService(request).execute()
                     result = Gson().fromJson(response.body()!!.string(), CreateUserResponse::class.java)
                 } catch(e:IOException){
@@ -66,9 +70,9 @@ class UserManager {
         return result
     }
 
-    fun login(email:String, password:String): LoginResponse? {
+    fun login(email:String, password:String): UserResponse? {
         val loginRequest = LoginRequest(email,password)
-        var result: LoginResponse? = null
+        var result: UserResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
@@ -78,7 +82,7 @@ class UserManager {
                         .build()
                         .create(LoginService::class.java)
                         .postLoginService(loginRequest).execute()
-                    result = Gson().fromJson(response.body()!!.string(), LoginResponse::class.java)
+                    result = Gson().fromJson(response.body()!!.string(), UserResponse::class.java)
                 } catch (e:IOException){
                     Log.d("explain", "onFailure: 실패")
                     Log.d("explain", "message: ${e.message}")
@@ -108,5 +112,48 @@ class UserManager {
                 }
             }
         }
+    }
+
+    fun getUser(userId:Int): UserInfomation {
+        var result: UserResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO){
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl("http://13.209.212.166:8080/api/v1/user/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UserService::class.java)
+                        .getUser(userId).execute()
+                    result = Gson().fromJson(response.body()!!.string(), UserResponse::class.java)
+                }catch(e: java.io.IOException){
+                    Log.d("explain", "onFailure: 실패")
+                    Log.d("explain", "message: ${e.message}")
+                }
+            }
+        }
+        return result?.data!!
+    }
+
+    fun getRelation(userId:Int): Relation {
+        var result: RelationResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO){
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl("http://13.209.212.166:8080/api/v1/userRelation/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(GetUserRelationService::class.java)
+                        .getUserRelationService(userId).execute()
+                    result = Gson().fromJson(response.body()!!.string(), RelationResponse::class.java)
+                } catch(e: java.io.IOException){
+                    Log.d("explain", "onFailure: 실패")
+                    Log.d("explain", "message: ${e.message}")
+                }
+            }
+        }
+        Log.d("FCMLog", "getRelation 함수 실행 성공 ${result?.code}")
+        return result?.data!!
     }
 }
