@@ -72,10 +72,11 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        result = UserResponse(404, "'reponse.body()' is null")
                         Log.e("API Log:response(Null)", "UserManager.login: ${result?.message}")
+                        result = UserResponse(404, "'reponse.body()' is null")
                     }
                     else {
+                        Log.i("API Log: Success", "login 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             UserResponse::class.java
@@ -86,7 +87,6 @@ class UserManager {
                 }
             }
         }
-        Log.i("API Log: Success", "login 함수 실행 성공 ${result?.message}")
         return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
     }
 
@@ -108,10 +108,11 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        result = UserResponse(404, "'reponse.body()' is null")
                         Log.e("API Log:response(Null)", "UserManager.getUser: ${result?.message}")
+                        result = UserResponse(404, "'reponse.body()' is null")
                     }
                     else {
+                        Log.i("API Log: Success", "getUser 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             UserResponse::class.java
@@ -122,7 +123,6 @@ class UserManager {
                 }
             }
         }
-        Log.i("API Log: Success", "getUser 함수 실행 성공 ${result?.message}")
         return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
     }
 
@@ -145,10 +145,11 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        result = LinkPermissionResponse(404, "'reponse.body()' is null")
                         Log.e("API Log:response(Null)", "UserManager.linkPermission: ${result?.message}")
+                        result = LinkPermissionResponse(404, "'reponse.body()' is null")
                     }
                     else {
+                        Log.i("API Log: Success", "linkPermission 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             LinkPermissionResponse::class.java
@@ -159,7 +160,6 @@ class UserManager {
                 }
             }
         }
-        Log.i("API Log: Success", "linkPermission 함수 실행 성공 ${result?.message}")
         return result?: LinkPermissionResponse(500, "에러 원인을 찾을 수 없음")
     }
 
@@ -181,10 +181,11 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        result = RelationResponse(404, "'reponse.body()' is null")
                         Log.e("API Log:response(Null)", "UserManager.getRelation: ${result?.message}")
+                        result = RelationResponse(404, "'reponse.body()' is null")
                     }
                     else {
+                        Log.i("API Log: Success", "getRelation 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             RelationResponse::class.java
@@ -195,7 +196,6 @@ class UserManager {
                 }
             }
         }
-        Log.i("API Log: Success", "getRelation 함수 실행 성공 ${result?.message}")
         return result?:RelationResponse(500, "에러 원인을 찾을 수 없음")
     }
 
@@ -218,10 +218,11 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        result = UpdateFcmResponse(404, "'reponse.body()' is null")
                         Log.e("API Log:response(Null)", "UserManager.updateFcm: ${result?.message}")
+                        result = UpdateFcmResponse(404, "'reponse.body()' is null")
                     }
                     else {
+                        Log.i("API Log: Success", "updateFcm 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             UpdateFcmResponse::class.java
@@ -232,8 +233,69 @@ class UserManager {
                 }
             }
         }
-        Log.i("API Log: Success", "updateFcm 함수 실행 성공 ${result?.message}")
     }
 
+    fun verificatonEmail(email: String): UserResponse{
+        var result: UserResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl(nncBackendUserUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UserService::class.java)
+                        .verificatonEmail(email).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
 
+                    if(jsonString == "response is null") {
+                        result = UserResponse(404, "'response.body()' is null")
+                        Log.e("API Log:response(Null)", "UserManager.updateFcm: ${result?.message}")
+                    }
+                    else {
+                        Log.i("API Log: Success", "verificatonEmail 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UserResponse::class.java
+                        )
+                    }
+                } catch (e:IOException){
+                    Log.e("API Log: IOException", "UserManager.verificatonEmail: ${e.message}(e.message)")
+                }
+            }
+        }
+        return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
+    }
+
+    fun verificatonTelNum(telNum: String): UserResponse{
+        var result: UserResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl(nncBackendUserUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UserService::class.java)
+                        .verificatonTelNum(telNum).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    if(jsonString == "response is null") {
+                        result = UserResponse(404, "'response.body()' is null")
+                        Log.e("API Log:response(Null)", "UserManager.verificatonTelNum: ${result?.message}")
+                    }
+                    else {
+                        Log.i("API Log: Success", "verificatonTelNum 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UserResponse::class.java
+                        )
+                    }
+                } catch (e:IOException){
+                    Log.e("API Log: IOException", "UserManager.verificatonTelNum: ${e.message}(e.message)")
+                }
+            }
+        }
+        return result?:UserResponse(500, "에러 원인을 찾을 수 없음")
+    }
 }

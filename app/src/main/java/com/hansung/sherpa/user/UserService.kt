@@ -37,4 +37,10 @@ interface UserService {
      */
     @GET("getUserRelation/{userId}")
     fun getRelationService(@Path("userId") userId:Int): Call<ResponseBody>
+
+    @GET("signup/{email}")
+    fun verificatonEmail(@Path("email") email:String): Call<ResponseBody>
+
+    @GET("signup/{telNum}")
+    fun verificatonTelNum(@Path("telNum") telNum:String): Call<ResponseBody>
 }
