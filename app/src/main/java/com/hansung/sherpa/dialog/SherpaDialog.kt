@@ -75,7 +75,7 @@ data class SherpaDialogParm(
  * @sample ErrorDialogSample
  */
 @Composable
-fun SherpaDialog(
+fun SherpaDialog2(
     title:String,
     message:List<String>,
     confirmButtonText:String,
@@ -131,7 +131,7 @@ val nomalTextColor = Color.Black
 val lightTextColor = Color(0xFF8F8F8F)
 val sherpaThemeColor = Color(0xFF34DFD5)
 @Composable
-fun SherpaDialog2(
+fun SherpaDialog(
     title:String,
     message:List<String>,
     confirmButtonText:String,
@@ -221,5 +221,5 @@ fun ErrorDialogSample() {
 @Preview
 @Composable
 fun SherpaDialogPreview(){
-    SherpaDialog2("로그인 실패", listOf("이메일 혹은 비밀번호를 확인해 주세요"), "확인", "") { println("test") }
+    SherpaDialog("로그인 실패", listOf("이메일 혹은 비밀번호를 확인해 주세요"), "확인", "") { println("test") }
 }
