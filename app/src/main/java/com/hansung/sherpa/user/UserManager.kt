@@ -34,10 +34,11 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        result = UserResponse(404, "'reponse.body()' is null")
                         Log.e("API Log:response(Null)", "UserManager.create: ${result?.message}")
+                        result = UserResponse(404, result?.message)
                     }
                     else {
+                        Log.i("API Log: Success", "create 함수 실행 성공 ${result?.message}")
                         result = Gson().fromJson(
                             jsonString,
                             UserResponse::class.java
@@ -45,10 +46,10 @@ class UserManager {
                     }
                 } catch(e:IOException){
                     Log.e("API Log: IOException", "UserManager.create: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
-        Log.i("API Log: Success", "create 함수 실행 성공 ${result?.message}")
         return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
     }
 
