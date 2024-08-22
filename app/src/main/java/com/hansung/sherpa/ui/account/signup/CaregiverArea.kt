@@ -26,6 +26,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaButtonColor
@@ -33,6 +34,7 @@ import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.account.module.InfomationGroup
 import com.hansung.sherpa.ui.account.module.ViewTOS
 import com.hansung.sherpa.user.CreateUserRequest
+import com.hansung.sherpa.user.UserManager
 import java.sql.Timestamp
 import java.util.Calendar
 
@@ -148,8 +150,11 @@ fun CaregiverArea(navController: NavController){
                     createdAt = Timestamp(Calendar.getInstance().timeInMillis),
                     updatedAt = Timestamp(Calendar.getInstance().timeInMillis)
                 )
-                if(signup(navController, createUserRequest)){
+                val user1 = UserManager().create(createUserRequest)
+                if(user1.code == 200) navController.navigate(SherpaScreen.Login.name)
+                else {
                     Toast.makeText(context, "계정 생성 실패", Toast.LENGTH_SHORT).show()
+                    // TODO: 토스트 대신 다이얼로그 띄우기
                 }
             },
             colors= SherpaButtonColor,

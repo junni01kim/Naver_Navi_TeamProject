@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaColor
@@ -52,7 +54,7 @@ fun CaretakerArea(navController: NavController) {
     var telValue by remember { mutableStateOf("") }
     var addressValue by remember { mutableStateOf("") }
     var detailAddressValue by remember { mutableStateOf("") }
-    var caregiverId by remember { mutableStateOf(-1) }
+    var caregiverId by remember { mutableIntStateOf(-1) }
     var caregiverEmail by remember { mutableStateOf("-1") }
     var caregiverRelation by remember { mutableStateOf("보호자") }
 
@@ -87,14 +89,15 @@ fun CaretakerArea(navController: NavController) {
 
             val caregiverUserResponse = UserManager().linkPermission(caregiverEmail)
 
-            if(caregiverUserResponse?.code == 404) {
+            if(caregiverUserResponse.code == 404) {
                 Toast.makeText(context, "일치하는 보호자 아이디가 없습니다.", Toast.LENGTH_SHORT).show()
+                // TODO: 토스트 대신 다이얼로그 띄우기
                 return@InfomationGroupDarkMode
             }
 
             // TODO: 여기에 보호자 연동 허가 로직 구현할 것
 
-            caregiverId = caregiverUserResponse?.data!!
+            caregiverId = caregiverUserResponse.data!!
 
             caregiverRelation = "연동 로직 구현 시에는 이거도 같이 반환 받아야 함."
         }) { caregiverEmail = it.trim() }
@@ -110,7 +113,7 @@ fun CaretakerArea(navController: NavController) {
             textColor = Color.White,
             onCheckedChange = {
                 tosChecked = it
-                allChecked = if(tosChecked && marketingChecked) true else false
+                allChecked = tosChecked && marketingChecked
             }
         )
         ViewTOS(
@@ -122,7 +125,7 @@ fun CaretakerArea(navController: NavController) {
             textColor = Color.White,
             onCheckedChange = {
                 marketingChecked = it
-                allChecked = if(tosChecked && marketingChecked) true else false
+                allChecked = tosChecked && marketingChecked
             }
         )
         ViewTOS(
@@ -145,23 +148,28 @@ fun CaretakerArea(navController: NavController) {
             onClick = {
                 if(!allChecked){
                     Toast.makeText(context, "약관을 모두 동의해주세요.", Toast.LENGTH_SHORT).show()
+                    // TODO: 토스트 대신 다이얼로그 띄우기
                     return@TextButton
                 }
 
                 if(!isValidId(emailValue)){
                     Toast.makeText(context,"로그인 실패!\n이메일 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                    // TODO: 토스트 대신 다이얼로그 띄우기
                 }
                 if(!isValidId(passwordValue)){
                     Toast.makeText(context,"로그인 실패!\n비밀번호 서식을 확인해주세요", Toast.LENGTH_SHORT).show()
+                    // TODO: 토스트 대신 다이얼로그 띄우기
                 }
 
                 if(passwordValue != confirmPasswordValue){
                     Toast.makeText(context, "비밀번호가 다릅니다.", Toast.LENGTH_SHORT).show()
+                    // TODO: 토스트 대신 다이얼로그 띄우기
                     return@TextButton
                 }
 
                 if(caregiverId == -1) {
                     Toast.makeText(context, "보호자 연동 후 사용할 것", Toast.LENGTH_SHORT).show()
+                    // TODO: 토스트 대신 다이얼로그 띄우기
                     return@TextButton
                 }
 
@@ -179,8 +187,11 @@ fun CaretakerArea(navController: NavController) {
                     updatedAt = Timestamp(Calendar.getInstance().timeInMillis)
                 )
 
-                if(signup(navController, createUserRequest)){
+                val userResponse = UserManager().create(createUserRequest)
+                if(userResponse.code == 200) navController.navigate(SherpaScreen.Login.name)
+                else {
                     Toast.makeText(context, "계정 생성 실패", Toast.LENGTH_SHORT).show()
+                    // TODO: 토스트 대신 다이얼로그 띄우기
                 }
             },
             colors= ButtonColors(

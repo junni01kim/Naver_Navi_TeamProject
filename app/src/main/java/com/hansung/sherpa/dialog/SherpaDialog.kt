@@ -18,6 +18,15 @@ val titleColor = Color.Black
 val contentColor = Color.Black
 val buttonColor = Color(0xFF34DFD5)
 
+data class SherpaDialog(
+    var show:Boolean = false,
+    var title: String = "",
+    var message:List<String> = listOf(),
+    var confirmButtonText:String = "",
+    var dismissButtonText:String = "",
+    var onDismissRequest: () -> Unit = {},
+    var onConfirmation: () -> Unit = {}
+)
 /**
  * 보행자 내비게이션 공용 에러 Dialog
  * 참고: https://developer.android.com/develop/ui/compose/components/dialog?hl=ko

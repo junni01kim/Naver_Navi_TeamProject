@@ -139,13 +139,6 @@ fun isValidId(id: String): Boolean {
     return regex.matches(id)
 }
 
-fun signup(navController: NavController, createUserRequest: CreateUserRequest):Boolean {
-    val user1 = UserManager().create(createUserRequest)
-    if(user1.code == 200) navController.navigate(SherpaScreen.Login.name)
-    else return true
-    return false
-}
-
 @Composable
 @Preview
 fun SignupPreview() {
