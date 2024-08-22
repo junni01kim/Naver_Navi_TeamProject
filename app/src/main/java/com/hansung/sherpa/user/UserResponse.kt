@@ -1,7 +1,7 @@
 package com.hansung.sherpa.user
 
-import com.hansung.sherpa.user.`class`.Relation
-import com.hansung.sherpa.user.`class`.User1
+import com.hansung.sherpa.user.user.Relation
+import com.hansung.sherpa.user.user.User1
 
 /**
  * - UserResponse -

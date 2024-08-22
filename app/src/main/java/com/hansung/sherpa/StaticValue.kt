@@ -1,7 +1,7 @@
 package com.hansung.sherpa
 
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.user.`class`.User1
+import com.hansung.sherpa.user.user.User1
 
 class StaticValue {
     companion object{

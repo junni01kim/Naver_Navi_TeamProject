@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.preference.emergency
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,17 +16,20 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.emergency.Emergency
 import com.hansung.sherpa.emergency.EmergencyManager
+import com.hansung.sherpa.emergency.EmergencyResponse
 import com.hansung.sherpa.ui.preference.Divider
 import com.hansung.sherpa.ui.theme.tertiaryLight
 import com.hansung.sherpa.user.UserManager
@@ -44,18 +48,16 @@ fun EmergencySettingsArea(
     var emrgInfoExpand by remember{ mutableStateOf(false) }
     var createDialogExpand by remember{ mutableStateOf(false) }
 
-    // ------------------------------ 샘플 데이터 ------------------------------------
     // 리스트 선택 및 삭제 될 리스트의 Index를 알려주는 변수 ( emrgList에서 아무것도 선택되지 않았을 때는 -1)
-    var clickedIndex by remember{ mutableStateOf(-1) }
+    var clickedIndex by remember{ mutableIntStateOf(-1) }
 
-    // TODO: 서버에서 긴급 연락처 리스트 가져오기
-    val userEmrgList = EmergencyManager().getAllEmergency(StaticValue.userInfo.userId!!)!!
-    var emrgList = remember { mutableStateListOf<Emergency>().apply { addAll(userEmrgList) }}
+    // (2024-08-16) 에러 처리 완료
+    val emergencyListResponse = EmergencyManager().getAllEmergency(StaticValue.userInfo.userId!!)
+    val userEmrgList = if(emergencyListResponse.code == 200) emergencyListResponse.data!! else listOf()
 
-    // 정석인지는 모르겠음
-    // ------------------------------------------------------------------
+    val emrgList = remember { mutableStateListOf<Emergency>().apply { addAll(userEmrgList) }}
 
-    // TODO: 사용자로 로그인 했을 때 한성으로 제작
+    // TODO: 사용자로 로그인 했을 때 한정으로 제작
     // 보호자 선택 시 사용될 변수
     val userRelation = UserManager().getRelation(StaticValue.userInfo.userId!!)
     val caregiverUser1 = UserManager().getUser(userRelation.caregiverId)
@@ -113,8 +115,12 @@ fun EmergencySettingsArea(
                         address = address
                     )
 
-                    val returnEmergency = EmergencyManager().insertEmergency(newEmergency)!!
-                    emrgList.add(returnEmergency)
+                    // (2024-08-16) 에러 처리 완료
+                    val emergencyResponse = EmergencyManager().insertEmergency(newEmergency)
+                    if(emergencyResponse.code == 200){
+                        val returnEmergency = emergencyResponse.data!!
+                        emrgList.add(returnEmergency)
+                    }
                 }
             )
         }
@@ -129,16 +135,19 @@ fun EmergencySettingsArea(
          * Emergency Table의 name이 Unique하므로 name을 통해 삭제 예정
          */
         if(deleteDialogExpand) {
+            val context = LocalContext.current
             DeleteDialogUI(
                 name = emrgList[clickedIndex].name,
                 onCloseRequest = { deleteDialogExpand = false },
                 onDeleteRequest = {
-                    // TODO: 1. 긴급 연락처 삭제 API 연결
-                    EmergencyManager().deleteEmergency(emrgList[clickedIndex].emergencyId)
-                    // TODO: 2. 긴급 연락처 정보 불러오기
-                    emrgList.removeAt(clickedIndex)
-                    clickedIndex = -1
-                    deleteDialogExpand = false
+                    // (2024-08-16) 에러 처리 완료
+                    val deleteEmergencyResponse = EmergencyManager().deleteEmergency(emrgList[clickedIndex].emergencyId)
+                    if(deleteEmergencyResponse.code != 200) Toast.makeText(context, "긴급 연락처 삭제 실패", Toast.LENGTH_SHORT).show()
+                    else {
+                        emrgList.removeAt(clickedIndex)
+                        clickedIndex = -1
+                        deleteDialogExpand = false
+                    }
                 }
             )
         }

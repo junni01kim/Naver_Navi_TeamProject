@@ -1,4 +1,4 @@
-package com.hansung.sherpa.user.`class`
+package com.hansung.sherpa.user.user
 
 /**
  * ※ MariaDB에서는 enum과 timeStamp를 클래스로 반환받지 못한다. (String 처리)
