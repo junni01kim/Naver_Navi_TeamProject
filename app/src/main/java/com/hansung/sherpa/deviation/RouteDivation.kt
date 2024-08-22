@@ -80,9 +80,8 @@ class RouteDivation(
             }
         }
 
-        val transportRoute = StaticValue.transportRoute
         // 출발지와 내 위치의 거리를 판단한다.
-        val distance = location.distanceTo(transportRoute.subPath[nowSubpath].sectionRoute.routeList[nowSection])
+        val distance = location.distanceTo(coordParts[nowSubpath][nowSection])
 
         // 출발지와 도착지 간의 점과 직선거리가 올바른지 판단한다.
         val user = Utmk.valueOf(location)
@@ -123,7 +122,6 @@ class RouteDivation(
                 passedRoute[nowSubpath] = 1.0
                 nowSection = 0
                 nowSubpath++
-                renewWholeDistance(coordParts[nowSubpath])
             } else {
                 Log.d("RouteControl", "섹션통과: ${nowSection}")
                 nowSection++
@@ -133,7 +131,6 @@ class RouteDivation(
             // (지금은 아님 테스트 중) ※ 'nowSubpath + 1'로 할 시, 하단 섹션 값 재설정이 outOfIndex가 발생한다.
             if(nowSubpath + 1 == coordParts.size && lastSection){
                 Log.d("RouteControl", "목적지 도착")
-                // TODO: 아직 잘되는지는 모르겠음
                 return -1
             }
 
@@ -158,6 +155,7 @@ class RouteDivation(
      * @param myPos 현재 내 위치
      */
     fun renewProcess(myPos:LatLng) {
+        renewWholeDistance(coordParts[nowSubpath])
         // 내 섹션 이전까지의 거리 합
         var beforeDistanceSum = 0.0
         for(i in 0..<nowSection) {
@@ -167,6 +165,7 @@ class RouteDivation(
         val nowSectionDistance = coordParts[nowSubpath][nowSection].distanceTo(myPos) + beforeDistanceSum
 
         passedRoute[nowSubpath] = nowSectionDistance/subPathWholeDistance
+        Log.d("sectionProcess", passedRoute[nowSubpath].toString())
     }
 
     /**
@@ -294,8 +293,8 @@ class RouteDivation(
         var tmp:Double //확인된 거리
         var tmpIndex:Int=nowSection// 가장 짧은 거리에 있는 좌표의 값
 
-        for(i in nowSection until StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList.size){
-            tmp = location.distanceTo(StaticValue.transportRoute.subPath[nowSubpath].sectionRoute.routeList[i])
+        for(i in nowSection until coordParts[nowSubpath].size){
+            tmp = location.distanceTo(coordParts[nowSubpath][i])
             if(tmp<dist){
                 dist = tmp
                 tmpIndex = i

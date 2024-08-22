@@ -10,6 +10,7 @@ import com.hansung.sherpa.itemsetting.TransportRoute
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
 import com.naver.maps.map.compose.PathOverlay
+import com.naver.maps.map.overlay.OverlayImage
 
 /**
  * NaverMap에 대중교통 경로를 그리는 Compose
@@ -50,7 +51,7 @@ fun setColerParts(transportRoute: TransportRoute): MutableList<ColorPart> {
 
     for(subPath in transportRoute.subPath) {
         colorParts.add(ColorPart(
-            color = typeOfColor(subPath),
+            color = if(subPath.trafficType == 3) Color.Gray else typeOfColor(subPath),
             outlineColor = Color.Transparent,
             passedColor = Color.Transparent,
             passedOutlineColor = Color.Transparent
