@@ -22,8 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.emergency.Emergency
+import com.hansung.sherpa.emergency.EmergencyManager
 import com.hansung.sherpa.ui.preference.Divider
+import com.hansung.sherpa.ui.theme.tertiaryLight
+import com.hansung.sherpa.user.UserManager
 
 /**
  * 설정 창 긴급 연락처 화면
@@ -43,35 +48,21 @@ fun EmergencySettingsArea(
     // 리스트 선택 및 삭제 될 리스트의 Index를 알려주는 변수 ( emrgList에서 아무것도 선택되지 않았을 때는 -1)
     var clickedIndex by remember{ mutableStateOf(-1) }
 
-    // TODO: 서버에서 보호자 연락처 리스트 가져오기 ※ getUser1으로 가져오면 나머지(setting, account) 다 가져와 진다.
-    val caregiverUserAccount = UserAccount(
-        1,
-        "audwnss@naver.com",
-        "qweasdmnb123",
-        "qweasdmnb123",
-        "hashAlgorithm",
-        "2001-06-15",
-        "2024-08-15",
-        "인천광역시 서창남로17",
-        "1109동 1906호"
-    )
-    val caregiverUserSetting = UserSetting(1, true, true, true, false, false)
-    val caregiverUser1 =
-        User1(1, "김명준", "010-9032-0000", "명준", caregiverUserSetting, caregiverUserAccount)
-    val caregiverUserRelation = UserRelation(11, 1, 2, "보호자")
-
     // TODO: 서버에서 긴급 연락처 리스트 가져오기
-    var emrgList = remember { mutableStateListOf(
-        Emergency(11, 1, "y", "병원", "02-760-0000", "성북구 삼선교로"),
-        Emergency(12, 1, "y", "김상준", "010-9570-1111", "용산"),
-        Emergency(13, 1, "y", "이준희", "010-2916-2222", "홍대"))
-    }
+    val userEmrgList = EmergencyManager().getAllEmergency(StaticValue.userInfo.userId!!)!!
+    var emrgList = remember { mutableStateListOf<Emergency>().apply { addAll(userEmrgList) }}
+
+    // 정석인지는 모르겠음
     // ------------------------------------------------------------------
 
+    // TODO: 사용자로 로그인 했을 때 한성으로 제작
     // 보호자 선택 시 사용될 변수
-    val caregiverName = caregiverUserRelation.relation.toString()
-    val caregiverAddress = caregiverUserAccount.address.toString()
-    val caregiverTelNum = caregiverUser1.telNum.toString()
+    val userRelation = UserManager().getRelation(StaticValue.userInfo.userId!!)
+    val caregiverUser1 = UserManager().getUser(userRelation.caregiverId)
+
+    val caregiverName = userRelation.relation // 보호자가 지정한 보호자 별명
+    val caregiverAddress = caregiverUser1.userAccount?.address
+    val caregiverTelNum = caregiverUser1.telNum
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -113,10 +104,17 @@ fun EmergencySettingsArea(
         if(createDialogExpand){
             CreateDialog(
                 onCloseRequest = { createDialogExpand = !createDialogExpand },
-                createRequest = {
-                    // TODO: 1. 긴급 연락처 추가 API 연결
-                    emrgList.add(it) // 임시 추가 로직 삭제처리 할 것
-                    // TODO: 2. 긴급 연락처 정보 불러오기
+                createRequest = { name, telNum, address ->
+                    // 긴급 연락처 추가 API
+                    val newEmergency = Emergency(
+                        userId = StaticValue.userInfo.userId!!,
+                        name = name,
+                        telNum = telNum,
+                        address = address
+                    )
+
+                    val returnEmergency = EmergencyManager().insertEmergency(newEmergency)!!
+                    emrgList.add(returnEmergency)
                 }
             )
         }
@@ -136,6 +134,7 @@ fun EmergencySettingsArea(
                 onCloseRequest = { deleteDialogExpand = false },
                 onDeleteRequest = {
                     // TODO: 1. 긴급 연락처 삭제 API 연결
+                    EmergencyManager().deleteEmergency(emrgList[clickedIndex].emergencyId)
                     // TODO: 2. 긴급 연락처 정보 불러오기
                     emrgList.removeAt(clickedIndex)
                     clickedIndex = -1
@@ -158,9 +157,9 @@ fun EmergencySettingsArea(
             item { Divider("보호자 연락처") }
             item {
                 ItemRow(
-                    name = caregiverUserRelation.relation,
-                    address = caregiverUserAccount.address,
-                    telNum = caregiverUser1.telNum,
+                    name = caregiverName,
+                    address = caregiverAddress,
+                    telNum = caregiverTelNum,
                     deleteItem = {/* 삭제기능 이용 X */},
                     showItem = {
                         emrgInfoExpand = !emrgInfoExpand

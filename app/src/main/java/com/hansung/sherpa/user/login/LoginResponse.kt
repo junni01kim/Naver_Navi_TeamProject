@@ -1,14 +1,12 @@
 package com.hansung.sherpa.user.login
 
-import java.sql.Timestamp
-
 data class UserResponse(
     val code: Int? = null,
-    val `data`: UserInfomation? = null,
+    val `data`: User1? = null,
     val message: String? = null
 )
 
-data class UserInfomation (
+data class User1 (
     val userId:Int? = null,
     val name:String? = null,
     val telNum:String? = null,

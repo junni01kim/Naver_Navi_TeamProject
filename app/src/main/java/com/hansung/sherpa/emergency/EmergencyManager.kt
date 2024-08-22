@@ -1,5 +1,6 @@
 package com.hansung.sherpa.emergency
 
+import android.util.Log
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

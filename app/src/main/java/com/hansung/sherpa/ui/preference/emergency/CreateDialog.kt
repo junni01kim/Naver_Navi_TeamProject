@@ -48,7 +48,7 @@ import com.hansung.sherpa.ui.theme.PurpleGrey40
 @Composable
 fun CreateDialog(
     onCloseRequest: () -> Unit,
-    createRequest: (Emergency) -> Unit
+    createRequest: (String, String, String) -> Unit
 ) {
     // TextField 작성 시 이용할 변수
     var name by remember { mutableStateOf("") }
@@ -185,7 +185,7 @@ fun CreateDialog(
 
                             // TODO: DB 내용 불러오는 함수지만 일단 임시 정보 가져오는 것으로 작업
                             // TODO: DB 내용 불러오는 이유는 안정성을 위함
-                            createRequest(Emergency(100, 1, "y", name, telNum, address))
+                            createRequest(name, telNum, address)
 
                             onCloseRequest()
                         }

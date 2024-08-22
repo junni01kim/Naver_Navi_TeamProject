@@ -9,7 +9,7 @@ import com.hansung.sherpa.user.linkpermission.LinkPermissionResponse
 import com.hansung.sherpa.user.linkpermission.LinkPermissionService
 import com.hansung.sherpa.user.login.LoginRequest
 import com.hansung.sherpa.user.login.LoginService
-import com.hansung.sherpa.user.login.UserInfomation
+import com.hansung.sherpa.user.login.User1
 import com.hansung.sherpa.user.login.UserResponse
 import com.hansung.sherpa.user.relation.GetUserRelationService
 import com.hansung.sherpa.user.relation.Relation
@@ -114,7 +114,7 @@ class UserManager {
         }
     }
 
-    fun getUser(userId:Int): UserInfomation {
+    fun getUser(userId:Int): User1 {
         var result: UserResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
