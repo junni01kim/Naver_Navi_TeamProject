@@ -1,12 +1,14 @@
 package com.hansung.sherpa.ui.chart
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
@@ -127,35 +129,35 @@ val textColor = Color(0xFF424242)
 @Composable
 fun ThickChart(transportRoute: TransportRoute) {
     // 차트 너비
-    val width = 400.dp
+    val width = 350.dp
 
     val routeList = transportRoute.subPath
     val fullTime = transportRoute.info.totalTime
 
-    Box(modifier = Modifier.height(20.dp)) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
+    Row(modifier = Modifier
+        .size(width, 20.dp)
+        .clip(CircleShape)
+        .background(searchScreenBackgroundColor),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        routeList.forEach {
+            val boxWidth = (width.value * it.sectionInfo.sectionTime!! / fullTime).dp
+            Box(modifier = Modifier
+                .width(boxWidth)
+                .fillMaxHeight()
                 .clip(CircleShape)
-                .background(searchScreenBackgroundColor)
-        )
-        Row(modifier = Modifier.fillMaxSize()) {
-            routeList.forEachIndexed { index, it ->
-                Box(modifier = Modifier
-                    .width((width.value * it.sectionInfo.sectionTime!! / fullTime).dp)
-                    .fillMaxHeight()
-                    .clip(CircleShape)
-                    .background(typeOfColor(it)),
-                    contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "${it.sectionInfo.sectionTime}분",
-                        modifier = Modifier.align(Alignment.Center),
-                        color = if(it.trafficType == 3) Color(0xFF8B8B8B) else Color.White,
-                        fontSize = 14.sp,
-                        lineHeight = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                .background(typeOfColor(it)),
+                contentAlignment = Alignment.Center) {
+                Text(
+                    text = "${it.sectionInfo.sectionTime}분",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    modifier = Modifier.align(Alignment.Center),
+                    color = if(it.trafficType == 3) Color(0xFF8B8B8B) else Color.White,
+                    lineHeight = 10.sp,
+                    maxLines = 1,
+                )
             }
         }
     }

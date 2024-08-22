@@ -47,7 +47,6 @@ import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoRequest
 import com.hansung.sherpa.arrivalinfo.ArrivalInfoManager
-import com.hansung.sherpa.ui.chart.Chart
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
@@ -96,7 +95,8 @@ fun ExpandableCard(navController:NavController, route: TransportRoute, searching
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(verticalAlignment = Alignment.Top){
                 Row(verticalAlignment = Alignment.Bottom){
