@@ -160,7 +160,9 @@ fun SherpaDialog(
                     fontFamily = PretendardVariable
                 )
 
-                Column {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     for (text in message) {
                         Text(
                             text = text,
@@ -221,5 +223,5 @@ fun ErrorDialogSample() {
 @Preview
 @Composable
 fun SherpaDialogPreview(){
-    SherpaDialog("로그인 실패", listOf("이메일 혹은 비밀번호를 확인해 주세요"), "확인", "") { println("test") }
+    SherpaDialog("로그인 실패", listOf("이메일 혹은 비밀번호를","확인해 주세요"), "확인", "") { println("test") }
 }
