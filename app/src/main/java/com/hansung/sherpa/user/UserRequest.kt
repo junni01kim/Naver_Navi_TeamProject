@@ -1,8 +1,18 @@
-package com.hansung.sherpa.user.createuser
+package com.hansung.sherpa.user
 
 import com.google.gson.annotations.SerializedName
 import java.sql.Timestamp
 
+/**
+ * - UserRequest -
+ * compose.user 패키지에서 다루는 request 클래스를 모아둔 파일
+ *
+ */
+
+/**
+ * user 정보를 생성하는 클래스
+ *
+ */
 class CreateUserRequest (
     @SerializedName("email") val email: String,
     @SerializedName("password") val password: String,
@@ -15,4 +25,13 @@ class CreateUserRequest (
     @SerializedName("caregiverRelation") val caregiverRelation: String = "지정안함",
     @SerializedName("createAt") val createdAt: Timestamp,
     @SerializedName("updateAt") val updatedAt: Timestamp,
+)
+
+/**
+ * user로 접속하기 위한 클래스
+ *
+ */
+class LoginRequest (
+    @SerializedName("email") val email: String,
+    @SerializedName("password") val password: String
 )

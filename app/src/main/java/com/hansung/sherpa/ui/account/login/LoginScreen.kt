@@ -194,14 +194,13 @@ fun LoginArea(navController: NavController) {
 
 fun login(navController: NavController, email: String, password: String) : Boolean {
     val loginResponse = UserManager().login(email, password)
-    if(loginResponse == null) return true
-    val data = loginResponse.data!!
-    if(data.userId == 0 || data.userId == null) {
-        return true
-    } else {
-        StaticValue.userInfo = data
-        UserManager().updateFcm()
+
+    if(loginResponse.code == 200) {
+        StaticValue.userInfo = loginResponse.data!!
         navController.navigate("${SherpaScreen.Home.name}")
+    }
+    else {
+        return true
     }
     return false
 }
