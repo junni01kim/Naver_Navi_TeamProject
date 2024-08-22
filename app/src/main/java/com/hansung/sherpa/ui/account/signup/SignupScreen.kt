@@ -122,7 +122,7 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
                     }
                 }
                 if (careToggle) CaretakerArea(navController, sherpaDialog) {showDialog = it}
-                else CaregiverArea(navController, sherpaDialog)
+                else CaregiverArea(navController, sherpaDialog) {showDialog = it}
             }
         }
     }
