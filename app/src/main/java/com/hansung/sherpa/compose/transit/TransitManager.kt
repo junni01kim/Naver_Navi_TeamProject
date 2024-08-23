@@ -4,16 +4,16 @@ import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.convert.Convert
-import com.hansung.sherpa.routegraphic.RouteGraphicResponse
-import com.hansung.sherpa.transit.ODsayGraphicRequest
-import com.hansung.sherpa.transit.ODsayMapObject
-import com.hansung.sherpa.transit.ODsayPath
-import com.hansung.sherpa.transit.ODsayTransitRouteRequest
-import com.hansung.sherpa.transit.ODsayTransitRouteResponse
-import com.hansung.sherpa.transit.PedestrianResponse
-import com.hansung.sherpa.transit.PedestrianRouteRequest
-import com.hansung.sherpa.transit.PedestrianRouteService
-import com.hansung.sherpa.transit.ShortWalkResponse
+import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
+import com.hansung.sherpa.transit.routegraphic.ODsayGraphicRequest
+import com.hansung.sherpa.transit.routegraphic.ODsayMapObject
+import com.hansung.sherpa.transit.odsay.ODsayPath
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteRequest
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteResponse
+import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
+import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
+import com.hansung.sherpa.transit.pedestrian.PedestrianRouteService
+import com.hansung.sherpa.transit.osrm.ShortWalkResponse
 import com.hansung.sherpa.transit.TransitRouteService
 import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
@@ -91,6 +91,33 @@ class TransitManager {
                             Log.e("Error", "OSRM API Exception")
                         }
                     }
+                }
+            }
+        }
+        return rr
+    }
+
+    fun getOsrmPedestrianRoute(routeRequest: PedestrianRouteRequest): PedestrianResponse {
+        lateinit var rr: PedestrianResponse
+        runBlocking<Job> {
+            launch(Dispatchers.IO) {
+                val rQ = routeRequest // 축약
+                try {
+                    val options = setOSRMRequestToMap()
+                    val response = Retrofit.Builder()
+                        .baseUrl("https://routing.openstreetmap.de/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<TransitRouteService?>(TransitRouteService::class.java)
+                        .getOSRMWalk(rQ.startX.toString(),
+                            rQ.startY.toString(), rQ.endX.toString(),
+                            rQ.endY.toString(), options).execute() // API 호출
+                    Log.i("API", response.toString())
+                    val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
+                    Log.i("item", sW.toString())
+                    rr = Convert().convertToPedestrianResponse(sW)
+                } catch (e: IOException) {
+                    Log.e("Error", "OSRM API Exception")
                 }
             }
         }

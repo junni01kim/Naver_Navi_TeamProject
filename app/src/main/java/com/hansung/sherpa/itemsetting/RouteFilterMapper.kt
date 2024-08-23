@@ -1,9 +1,10 @@
 package com.hansung.sherpa.itemsetting
 
-import com.hansung.sherpa.routegraphic.RouteGraphicResponse
-import com.hansung.sherpa.transit.ODsaySubPath
-import com.hansung.sherpa.transit.ODsayTransitRouteResponse
-import com.hansung.sherpa.transit.PedestrianResponse
+import android.util.Log
+import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
+import com.hansung.sherpa.transit.odsay.ODsaySubPath
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteResponse
+import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
 import com.naver.maps.geometry.LatLng
 
 class RouteFilterMapper {
@@ -55,6 +56,13 @@ class RouteFilterMapper {
         return list.toList()
     }
 
+    /**
+     * ODSay 정보를 공통 데이터 TransportRoute의 SectionInfo로 매핑시켜주는 함수
+     *
+     * @param trafficType
+     * @param path
+     * @return
+     */
     private fun castSectionInfo(trafficType: Int, path: ODsaySubPath): SectionInfo {
         return when (trafficType) {
             TrafficType.SUBWAY.value -> SubwaySectionInfo(
@@ -121,6 +129,7 @@ class RouteFilterMapper {
         }
     }
 
+    // ODSay 노선 그래픽 API 데이터를 TransportRoute의 SectionRoute로 매핑시켜주는 함수
     private fun castSectionRoute(trafficType: Int, response: RouteGraphicResponse, transportIndex: Int): SectionRoute {
         return when (trafficType) {
             TrafficType.SUBWAY.value, TrafficType.BUS.value ->
@@ -151,7 +160,8 @@ class RouteFilterMapper {
 
     // 선택한 TransPortRoute에 보행자 데이터 추가
     fun mappingPedestrianRouteToTransportRoute(
-        transportRoute: TransportRoute, pedestrianResponseList: List<PedestrianResponse>
+        transportRoute: TransportRoute, pedestrianResponseList: List<PedestrianResponse>,
+        depart: String = "", destination: String = ""
     ): TransportRoute {
         var index = 0
         transportRoute.subPath.forEach {
@@ -162,6 +172,17 @@ class RouteFilterMapper {
                             pedestrianResponseList[index].features
                                 ?.map { feat -> feat.properties.description }
                                 ?.toMutableList()!!
+                        val features = pedestrianResponseList[index].features
+                        if (features != null) {
+                            val size = features.size
+                            features.forEachIndexed {
+                                    fIndex, _ ->
+                                it.sectionInfo.startName = features[0].properties.facilityName ?: ""
+                                it.sectionInfo.endName = features[size-1].properties.facilityName ?: ""
+                                if(fIndex == 0) it.sectionInfo.startName = depart
+                                if(fIndex == size-1) it.sectionInfo.endName = destination
+                            }
+                        }
                     }
 
                     pedestrianResponseList[index].features?.forEach { feat ->
@@ -181,5 +202,39 @@ class RouteFilterMapper {
         }
 
         return transportRoute
+    }
+
+    /**
+     * transportRoute에서 보행자 경로 nowSubPath 부분만 수정하는 함수
+     */
+    fun mappingOnePedestrianRoute(
+        transportRoute: TransportRoute, nowSubPath:Int, pedstrianResponse: PedestrianResponse
+    ): TransportRoute{
+        transportRoute.subPath[nowSubPath].sectionRoute.routeList.clear()
+        pedstrianResponse.features?.forEach { feat ->
+            feat.geometry.coordinates.forEach { coordinate ->
+                transportRoute.subPath[nowSubPath].sectionRoute.routeList.add(
+                    LatLng(coordinate[1], coordinate[0])
+                )
+                //Log.i("MAPPER","routeList: ${transportRoute.subPath[nowSubPath].sectionRoute.routeList}")
+                //Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+            }
+        }
+        return transportRoute
+    }
+
+    fun pedstrianResponseToRouteList(pedstrianResponse: PedestrianResponse):MutableList<LatLng> {
+        val mappingValue = mutableListOf<LatLng>()
+
+        pedstrianResponse.features?.forEach { feat ->
+            feat.geometry.coordinates.forEach { coordinate ->
+                mappingValue.add(
+                    LatLng(coordinate[1], coordinate[0])
+                )
+                //Log.i("MAPPER","routeList: ${mappingValue}")
+                //Log.i("MAPPER","Coordinate added: ${coordinate[0]}, ${coordinate[1]}")
+            }
+        }
+        return mappingValue
     }
 }

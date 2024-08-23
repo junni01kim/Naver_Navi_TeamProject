@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.preference.emergency
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -15,15 +16,24 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.emergency.Emergency
+import com.hansung.sherpa.emergency.EmergencyManager
+import com.hansung.sherpa.emergency.EmergencyResponse
 import com.hansung.sherpa.ui.preference.Divider
+import com.hansung.sherpa.ui.theme.tertiaryLight
+import com.hansung.sherpa.user.UserManager
 
 /**
  * 설정 창 긴급 연락처 화면
@@ -34,52 +44,52 @@ import com.hansung.sherpa.ui.preference.Divider
 fun EmergencySettingsArea(
     finish : () -> Unit
 ) {
+    val context = LocalContext.current
+
     // Dialog 확장 여부를 관리하는 변수
     var deleteDialogExpand by remember{ mutableStateOf(false) }
     var emrgInfoExpand by remember{ mutableStateOf(false) }
     var createDialogExpand by remember{ mutableStateOf(false) }
 
-    // ------------------------------ 샘플 데이터 ------------------------------------
     // 리스트 선택 및 삭제 될 리스트의 Index를 알려주는 변수 ( emrgList에서 아무것도 선택되지 않았을 때는 -1)
-    var clickedIndex by remember{ mutableStateOf(-1) }
+    var clickedIndex by remember{ mutableIntStateOf(-1) }
 
-    // TODO: 서버에서 보호자 연락처 리스트 가져오기 ※ getUser1으로 가져오면 나머지(setting, account) 다 가져와 진다.
-    val caregiverUserAccount = UserAccount(
-        1,
-        "audwnss@naver.com",
-        "qweasdmnb123",
-        "qweasdmnb123",
-        "hashAlgorithm",
-        "2001-06-15",
-        "2024-08-15",
-        "인천광역시 서창남로17",
-        "1109동 1906호"
-    )
-    val caregiverUserSetting = UserSetting(1, true, true, true, false, false)
-    val caregiverUser1 =
-        User1(1, "김명준", "010-9032-0000", "명준", caregiverUserSetting, caregiverUserAccount)
-    val caregiverUserRelation = UserRelation(11, 1, 2, "보호자")
+    // (2024-08-16) 에러 처리 완료
+    val emergencyListResponse = EmergencyManager().getAllEmergency(StaticValue.userInfo.userId!!)
+    val userEmrgList =
+        if(emergencyListResponse.code == 200) emergencyListResponse.data!!
+        else {
+            Toast.makeText(context, "긴급 연락처 조회 실패", Toast.LENGTH_SHORT).show()
+            listOf()
+        }
 
-    // TODO: 서버에서 긴급 연락처 리스트 가져오기
-    var emrgList = remember { mutableStateListOf(
-        Emergency(11, 1, "y", "병원", "02-760-0000", "성북구 삼선교로"),
-        Emergency(12, 1, "y", "김상준", "010-9570-1111", "용산"),
-        Emergency(13, 1, "y", "이준희", "010-2916-2222", "홍대"))
+    val emrgList = remember { mutableStateListOf<Emergency>().apply { addAll(userEmrgList) }}
+
+    // TODO: 사용자로 로그인 했을 때 한정으로 제작
+    // (2024-08-16) 에러처리 완료
+    val userRelationResponse = UserManager().getRelation(StaticValue.userInfo.userId!!)
+    val userRelation =
+        if(userRelationResponse.code == 200) userRelationResponse.data
+    else {
+        Toast.makeText(context, "보호자 관계 요청 실패", Toast.LENGTH_SHORT).show()
+        return
     }
-    // ------------------------------------------------------------------
 
-    // 보호자 선택 시 사용될 변수
-    val caregiverName = caregiverUserRelation.relation.toString()
-    val caregiverAddress = caregiverUserAccount.address.toString()
-    val caregiverTelNum = caregiverUser1.telNum.toString()
+    val userResponse = UserManager().getUser(userRelation?.caregiverId?:-1)
+    val caregiverUserInfo =
+        if(userResponse.code == 200) userResponse.data
+        else{
+            Toast.makeText(context, "보호자 정보 조회 실패", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+    val caregiverName = userRelation?.relation?:"None" // 보호자가 지정한 보호자 별명
+    val caregiverAddress = caregiverUserInfo?.userAccount?.address?:"None"
+    val caregiverTelNum = caregiverUserInfo?.telNum?:"None"
 
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        /**
-         * 긴급 연락처 조회 다이얼로그
-         *
-         */
         /**
          * 긴급 연락처 조회 다이얼로그
          *
@@ -106,48 +116,50 @@ fun EmergencySettingsArea(
          * 긴급 연락처 추가 다이얼로그
          *
          */
-        /**
-         * 긴급 연락처 추가 다이얼로그
-         *
-         */
         if(createDialogExpand){
             CreateDialog(
                 onCloseRequest = { createDialogExpand = !createDialogExpand },
-                createRequest = {
-                    // TODO: 1. 긴급 연락처 추가 API 연결
-                    emrgList.add(it) // 임시 추가 로직 삭제처리 할 것
-                    // TODO: 2. 긴급 연락처 정보 불러오기
+                createRequest = { name, telNum, address ->
+                    // 긴급 연락처 추가 API
+                    val newEmergency = Emergency(
+                        userId = StaticValue.userInfo.userId!!,
+                        name = name,
+                        telNum = telNum,
+                        address = address
+                    )
+
+                    // (2024-08-16) 에러 처리 완료
+                    val emergencyResponse = EmergencyManager().insertEmergency(newEmergency)
+                    if(emergencyResponse.code == 200) {
+                        val returnEmergency = emergencyResponse.data!!
+                        emrgList.add(returnEmergency)
+                    }
+                    else Toast.makeText(context, "연락처 추가 실패", Toast.LENGTH_SHORT).show()
                 }
             )
         }
-
-        /**
-         * 긴급 연락처 삭제 다이얼로그
-         * Emergency Table의 name이 Unique하므로 name을 통해 삭제 예정
-         */
 
         /**
          * 긴급 연락처 삭제 다이얼로그
          * Emergency Table의 name이 Unique하므로 name을 통해 삭제 예정
          */
         if(deleteDialogExpand) {
+            val context = LocalContext.current
             DeleteDialogUI(
                 name = emrgList[clickedIndex].name,
                 onCloseRequest = { deleteDialogExpand = false },
                 onDeleteRequest = {
-                    // TODO: 1. 긴급 연락처 삭제 API 연결
-                    // TODO: 2. 긴급 연락처 정보 불러오기
-                    emrgList.removeAt(clickedIndex)
-                    clickedIndex = -1
-                    deleteDialogExpand = false
+                    // (2024-08-16) 에러 처리 완료
+                    val deleteEmergencyResponse = EmergencyManager().deleteEmergency(emrgList[clickedIndex].emergencyId)
+                    if(deleteEmergencyResponse.code == 200) {
+                        emrgList.removeAt(clickedIndex)
+                        clickedIndex = -1
+                        deleteDialogExpand = false
+                    }
+                    else Toast.makeText(context, "긴급 연락처 삭제 실패", Toast.LENGTH_SHORT).show()
                 }
             )
         }
-
-        /**
-         * 보호자와 긴급 연락처의 리스트를 보여 주는 영역
-         *
-         */
 
         /**
          * 보호자와 긴급 연락처의 리스트를 보여 주는 영역
@@ -158,30 +170,15 @@ fun EmergencySettingsArea(
             item { Divider("보호자 연락처") }
             item {
                 ItemRow(
-                    name = caregiverUserRelation.relation,
-                    address = caregiverUserAccount.address,
-                    telNum = caregiverUser1.telNum,
+                    name = caregiverName,
+                    address = caregiverAddress,
+                    telNum = caregiverTelNum,
                     deleteItem = {/* 삭제기능 이용 X */},
                     showItem = {
                         emrgInfoExpand = !emrgInfoExpand
                     }
                 )
             }
-
-            /**
-             * 긴급 연락처에 관한 정보가 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처에 관한 정보가 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처에 관한 정보가 작성된 영역
-             *
-             */
 
             /**
              * 긴급 연락처에 관한 정보가 작성된 영역
@@ -204,21 +201,6 @@ fun EmergencySettingsArea(
                     }
                 )
             }
-
-            /**
-             * 긴급 연락처 추가 버튼이 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처 추가 버튼이 작성된 영역
-             *
-             */
-
-            /**
-             * 긴급 연락처 추가 버튼이 작성된 영역
-             *
-             */
 
             /**
              * 긴급 연락처 추가 버튼이 작성된 영역

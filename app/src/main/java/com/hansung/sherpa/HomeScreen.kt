@@ -88,86 +88,94 @@ fun HomeScreen(
     }
 
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
-    CustomNavigationDrawer(navController =  navController,  drawerState = drawerState) {
-        Box(Modifier.fillMaxSize()) {
-            NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true),
-                properties = MapProperties(
-                    locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
-                ),
-                uiSettings = MapUiSettings(
-                    isLocationButtonEnabled = true,
-                ),
-                onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }) {
-                MarkerComponent(loc.value, markerIcon)
-            }
 
-            var destinationValue by remember { mutableStateOf("") }
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(10.dp),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                // 검색 텍스트필드 및 검색 버튼을 위한 행
-                Row(horizontalArrangement = Arrangement.SpaceAround,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-
-                    /**
-                     * DestinationTextField
-                     *
-                     * 목적지를 점색할 내용을 저장하는 Composable
-                     * SearchButton을 클릭 시 해당 정보가 함께 이동
-                     */
-                    TextField(
-                        leadingIcon = {
-                            IconButton(onClick = { onclick() }) {
-                                Icon(Icons.Filled.DensityMedium, contentDescription = "")
-                            }
-                        },
-                        value = destinationValue,
-                        onValueChange = {destinationValue = it},
-                        modifier = Modifier
-                            .fillMaxWidth(0.8f)
-                            .height(55.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        singleLine = true,
-                        placeholder = { Text("검색어를 입력하세요") },
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color.Transparent,
-                            unfocusedIndicatorColor = Color.Transparent
-                        ),
-                    )
-
-                    /**
-                     * SearchButton
-                     *
-                     * DestinationTextField의 정보를 가지고 RouteListScreen으로 이동시키는 버튼
-                     */
-                    Button(
-                        modifier = Modifier
-                            .width(66.dp)
-                            .height(55.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(Color.Black),
-                        onClick = {
-                            navController.navigate("${SherpaScreen.Search.name}/${if(destinationValue=="") "아무것도 전달되지 않았음" else destinationValue}")
-                        }
-                    ) {
-                        // 버튼에 들어갈 이미지
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.route_list_submit),
-                            contentDescription = "홈 화면에서 사용하는 검색 버튼"
-                        )
-                    }
+        CustomNavigationDrawer(
+            navController = navController,
+            drawerState = drawerState,
+            scope = scope
+        ) {
+            Box(Modifier.fillMaxSize()) {
+                NaverMap(locationSource = rememberFusedLocationSource(isCompassEnabled = true),
+                    properties = MapProperties(
+                        locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
+                    ),
+                    uiSettings = MapUiSettings(
+                        isLocationButtonEnabled = true,
+                    ),
+                    onLocationChange = { loc.value = LatLng(it.latitude, it.longitude) }) {
+                    MarkerComponent(loc.value, markerIcon)
                 }
 
-                if(StaticValue.userInfo.role1 == "CARETAKER" || StaticValue.userInfo.role1 == "ADMIN"){ ExtendedFABContainer() }
+                var destinationValue by remember { mutableStateOf("") }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(10.dp),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    // 검색 텍스트필드 및 검색 버튼을 위한 행
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+
+                        /**
+                         * DestinationTextField
+                         *
+                         * 목적지를 점색할 내용을 저장하는 Composable
+                         * SearchButton을 클릭 시 해당 정보가 함께 이동
+                         */
+                        TextField(
+                            leadingIcon = {
+                                IconButton(onClick = { onclick() }) {
+                                    Icon(Icons.Filled.DensityMedium, contentDescription = "")
+                                }
+                            },
+                            value = destinationValue,
+                            onValueChange = { destinationValue = it },
+                            modifier = Modifier
+                                .fillMaxWidth(0.8f)
+                                .height(55.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true,
+                            placeholder = { Text("검색어를 입력하세요") },
+                            colors = TextFieldDefaults.colors(
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent
+                            ),
+                        )
+
+                        /**
+                         * SearchButton
+                         *
+                         * DestinationTextField의 정보를 가지고 RouteListScreen으로 이동시키는 버튼
+                         */
+                        Button(
+                            modifier = Modifier
+                                .width(66.dp)
+                                .height(55.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(Color.Black),
+                            onClick = {
+                                navController.navigate("${SherpaScreen.Search.name}/${if (destinationValue == "") "아무것도 전달되지 않았음" else destinationValue}")
+                            }
+                        ) {
+                            // 버튼에 들어갈 이미지
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.route_list_submit),
+                                contentDescription = "홈 화면에서 사용하는 검색 버튼"
+                            )
+                        }
+                    }
+
+                    if (StaticValue.userInfo.role1 == "CARETAKER" || StaticValue.userInfo.role1 == "ADMIN") {
+                        ExtendedFABContainer()
+                    }
+                }
             }
         }
-    }
 
 }
 

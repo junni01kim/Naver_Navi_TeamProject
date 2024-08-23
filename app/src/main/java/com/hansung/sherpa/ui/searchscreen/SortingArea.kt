@@ -36,13 +36,19 @@ fun SortingArea(searchingTime:Long) {
          *
          * 대중교통 경로가 검색 된 시간
          */
-        Text("${SimpleDateFormat("hh:mm").format(searchingTime)}" )
+        Text(
+            text = "${SimpleDateFormat("hh:mm").format(searchingTime)}",
+            color = textColor
+        )
 
         /**
          * SortingAlgorithm
          * 
          * 대중교통 리스트가 정렬되는 기준
          */
-        Text("최적경로 순")
+        Text(
+            text = "최적경로 순",
+            color = textColor
+        )
     }
 }

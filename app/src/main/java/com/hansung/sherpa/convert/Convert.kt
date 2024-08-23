@@ -2,12 +2,13 @@ package com.hansung.sherpa.convert
 
 import android.util.Log
 import com.hansung.sherpa.BuildConfig
-import com.hansung.sherpa.transit.Leg
-import com.hansung.sherpa.transit.ODsayTransitRouteRequest
-import com.hansung.sherpa.transit.TmapTransitRouteRequest
-import com.hansung.sherpa.transit.TmapTransitRouteResponse
-import com.hansung.sherpa.transit.PedestrianResponse
-import com.hansung.sherpa.transit.ShortWalkResponse
+import com.hansung.sherpa.transit.tmap.Leg
+import com.hansung.sherpa.transit.odsay.ODsayTransitRouteRequest
+import com.hansung.sherpa.transit.tmap.TmapTransitRouteRequest
+import com.hansung.sherpa.transit.tmap.TmapTransitRouteResponse
+import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
+import com.hansung.sherpa.transit.osrm.ShortWalkResponse
+import com.hansung.sherpa.transit.osrm.Steps
 import com.naver.maps.geometry.LatLng
 
 /**
@@ -204,11 +205,12 @@ class Convert {
         return coordinates.map { LatLng(it.latitude, it.longitude) }
     }
 
+    // TMAP API 요청 값을 ODSay 요청 파라미터로 변환해주는 함수
     fun convertTmapToODsayRequest(t: TmapTransitRouteRequest): ODsayTransitRouteRequest{
         return ODsayTransitRouteRequest(SX = t.startX, SY = t.startY, EX = t.endX, EY = t.endY, apiKey = BuildConfig.ODSAY_APP_KEY)
     }
 
-    // ShortWalkResponse 데이터 클래스를 PedestrianResponse로 변환하는 함수 TODO 임시로 바꿔줌
+    // ShortWalkResponse 데이터 클래스를 PedestrianResponse로 변환하는 함수
     fun convertToPedestrianResponse(shortWalkResponse: ShortWalkResponse): PedestrianResponse {
         // Convert Routes to Feature
         val features = shortWalkResponse.routes[0].legs.flatMap { leg ->
@@ -221,22 +223,22 @@ class Convert {
                             type = step.geometry?.type ?: ""
                         ),
                         properties = PedestrianResponse.Feature.Properties(
-                            categoryRoadType = 0, // Example value, adjust as needed
-                            description = step.drivingSide ?: "",
-                            direction = step.maneuver?.type ?: "",
-                            distance = leg.distance?.toInt() ?: 0,
-                            facilityName = "", // Example value, adjust as needed
-                            facilityType = "", // Example value, adjust as needed
+                            categoryRoadType = 0,
+                            description = convertStepFieldsToDescription(step) ?: "", // step의 필드 값들로 안내 문구 생성
+                            direction = step.maneuver?.type ?: "", // 이동 방향  : right, left ...
+                            distance = leg.distance?.toInt() ?: 0, // 이동 거리 m 단위 (정수)
+                            facilityName = step.name ?: "",
+                            facilityType = "",
                             index = index,
-                            intersectionName = "", // Example value, adjust as needed
-                            lineIndex = 0, // Example value, adjust as needed
+                            intersectionName = "",
+                            lineIndex = 0,
                             name = step.name ?: "",
-                            nearPoiName = "", // Example value, adjust as needed
-                            nearPoiX = "", // Example value, adjust as needed
-                            nearPoiY = "", // Example value, adjust as needed
+                            nearPoiName = "",
+                            nearPoiX = "",
+                            nearPoiY = "",
                             pointIndex = index,
-                            pointType = "", // Example value, adjust as needed
-                            roadType = 0, // Example value, adjust as needed
+                            pointType = "",
+                            roadType = 0,
                             time = step.duration?.toInt() ?: 0,
                             totalDistance = leg.distance?.toInt() ?: 0,
                             totalTime = leg.duration?.toInt() ?: 0,
@@ -246,10 +248,61 @@ class Convert {
                     )
                 }
         }
-        // Create PedestrianResponse
+        
         return PedestrianResponse(
             features = features,
-            type = "FeatureCollection" // Adjust the type as needed
+            type = "FeatureCollection" 
         )
+    }
+
+    /**
+     * 보행자 안내 문구 만들어 주는 함수
+     *
+     * @param step
+     * @return
+     */
+    fun convertStepFieldsToDescription(step: Steps): String {
+        val maneuver = step.maneuver
+        val distance = step.distance?.toInt() ?: 0 // 도보 구간에서 안내시 1개의 step 거리
+        val roadName = step.name ?: "도로" // 주소/지명 이름 (간략화)
+
+        val maneuverType = maneuver?.type ?: ""
+        val bearingBefore = maneuver?.bearingBefore ?: 0
+        val bearingAfter = maneuver?.bearingAfter ?: 0
+        val modifier = maneuver?.modifier ?: ""
+        val direction = when (modifier) {
+            "uturn" -> "U턴해서 "
+            "sharp right" -> "급하게 우측으로 "
+            "right" -> "우측으로 "
+            "slight right" -> "조금 우측으로 "
+            "straight" -> "직진으로 "
+            "slight left" -> "조금 좌측으로 "
+            "left" -> "좌측으로 "
+            "sharp left" -> "급하게 좌측으로 "
+            else -> ""
+        }
+
+        val directionDescription = when (maneuverType) {
+            "depart" -> "출발지에서 "
+            "arrive" -> "목적지까지 "
+            "merge" -> "도로에 합류하여 "
+            "on ramp" -> "램프를 타고 고속도로로 들어가 "
+            "off ramp" -> "램프를 타고 고속도로에서 나가 "
+            "fork" -> "갈림길에서 "
+            "end of road" -> "도로 끝에서 "
+            "use lane" -> "차선을 이용하여 "
+            "continue" -> "계속 직진해서 "
+            "roundabout turn" -> "회전교차로에서 돌아서 "
+            "notification" -> "[변경 사항]"
+            else -> "현재 위치에서 "
+        }
+
+        val instructionText =  if (distance > 0) {
+            "${directionDescription}${direction}${distance}미터 이동합니다."
+        } else {
+            "${directionDescription}${direction}이동합니다."
+        }
+        Log.i("API", instructionText)
+        return instructionText
     }
 }

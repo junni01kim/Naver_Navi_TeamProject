@@ -2,14 +2,7 @@ package com.hansung.sherpa.user
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.user.createuser.CreateUserRequest
-import com.hansung.sherpa.user.createuser.CreateUserResponse
-import com.hansung.sherpa.user.createuser.CreateUserService
-import com.hansung.sherpa.user.linkpermission.LinkPermissionResponse
-import com.hansung.sherpa.user.linkpermission.LinkPermissionService
-import com.hansung.sherpa.user.login.LoginRequest
-import com.hansung.sherpa.user.login.LoginResponse
-import com.hansung.sherpa.user.login.LoginService
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
 import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
 import com.hansung.sherpa.user.updateFcm.UpdateFcmService
@@ -20,75 +13,200 @@ import okio.IOException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
+val nncBackendUserUrl = "http://13.209.212.166:8080/api/v1/user/"
+val nncBackendRelationUrl = "http://13.209.212.166:8080/api/v1/userRelation/"
+
 class UserManager {
-    fun create(request: CreateUserRequest): CreateUserResponse? {
-        var result: CreateUserResponse? = null
+    /**
+     * 계정을 생성하는 함수
+     */
+    fun create(request: CreateUserRequest): UserResponse {
+        var result: UserResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://13.209.212.166:8080/api/v1/user/")
+                        .baseUrl(nncBackendUserUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
-                        .create(CreateUserService::class.java)
-                        .postLoginService(request).execute()
-                    result = Gson().fromJson(response.body()!!.string(), CreateUserResponse::class.java)
+                        .create(UserService::class.java)
+                        .postCreateService(request).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.create: ${result?.message}")
+                        result = UserResponse(404, result?.message)
+                    }
+                    else {
+                        Log.i("API Log: Success", "create 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UserResponse::class.java
+                        )
+                    }
                 } catch(e:IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    Log.e("API Log: IOException", "UserManager.create: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
-        Log.d("FCMLog", "create 함수 실행 성공 ${result?.code}")
-        return result
+        return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
     }
 
-    fun linkPermission(caregiverEmail: String):LinkPermissionResponse? {
+    /**
+     * 계정 로그인(사용자 인증)하는 함수
+     */
+    fun login(email:String, password:String): UserResponse {
+        val loginRequest = LoginRequest(email,password)
+        var result: UserResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO){
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl(nncBackendUserUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UserService::class.java)
+                        .postLoginService(loginRequest).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.login: ${result?.message}")
+                        result = UserResponse(404, "'reponse.body()' is null")
+                    }
+                    else {
+                        Log.i("API Log: Success", "login 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UserResponse::class.java
+                        )
+                    }
+                } catch (e:IOException){
+                    Log.e("API Log: IOException", "UserManager.login: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
+                }
+            }
+        }
+        return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
+    }
+
+    /**
+     * 사용자 정보를 얻는 함수
+     */
+    fun getUser(userId:Int): UserResponse {
+        var result: UserResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO){
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl(nncBackendUserUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UserService::class.java)
+                        .getUser(userId).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.getUser: ${result?.message}")
+                        result = UserResponse(404, "'reponse.body()' is null")
+                    }
+                    else {
+                        Log.i("API Log: Success", "getUser 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UserResponse::class.java
+                        )
+                    }
+                }catch(e: java.io.IOException){
+                    Log.e("API Log: IOException", "UserManager.getUser: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
+                }
+            }
+        }
+        return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
+    }
+
+    /**
+     * 보호자 인증을 요청하는 함수
+     */
+    fun linkPermission(caregiverEmail: String):LinkPermissionResponse {
         var result: LinkPermissionResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://13.209.212.166:8080/api/v1/user/")
+                        .baseUrl(nncBackendUserUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
-                        .create(LinkPermissionService::class.java)
+                        .create(UserService::class.java)
                         .getLinkPermissionService(caregiverEmail).execute()
                     //TODO: 잘못된 Email로 요청할 때 에러처리 해야한다.
-                    result = Gson().fromJson(response.body()!!.string(), LinkPermissionResponse::class.java)
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.linkPermission: ${result?.message}")
+                        result = LinkPermissionResponse(404, "'reponse.body()' is null")
+                    }
+                    else {
+                        Log.i("API Log: Success", "linkPermission 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            LinkPermissionResponse::class.java
+                        )
+                    }
                 } catch(e:IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    Log.e("API Log: IOException", "UserManager.linkPermission: ${e.message}(e.message)")
+                    result = LinkPermissionResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
-        Log.d("FCMLog", "create 함수 실행 성공 ${result?.code}")
-        return result
+        return result?: LinkPermissionResponse(500, "에러 원인을 찾을 수 없음")
     }
 
-    fun login(email:String, password:String): LoginResponse? {
-        val loginRequest = LoginRequest(email,password)
-        var result: LoginResponse? = null
+    /**
+     * 사용자와 보호자의 관계를 얻는 함수
+     */
+    fun getRelation(userId:Int): RelationResponse {
+        var result: RelationResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://13.209.212.166:8080/api/v1/user/")
+                        .baseUrl(nncBackendRelationUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
-                        .create(LoginService::class.java)
-                        .postLoginService(loginRequest).execute()
-                    result = Gson().fromJson(response.body()!!.string(), LoginResponse::class.java)
-                } catch (e:IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                        .create(UserService::class.java)
+                        .getRelationService(userId).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.getRelation: ${result?.message}")
+                        result = RelationResponse(404, "'reponse.body()' is null")
+                    }
+                    else {
+                        Log.i("API Log: Success", "getRelation 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            RelationResponse::class.java
+                        )
+                    }
+                } catch(e: java.io.IOException){
+                    Log.e("API Log: IOException", "UserManager.getRelation: ${e.message}(e.message)")
+                    result = RelationResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
-        Log.d("FCMLog", "login 함수 실행 성공 ${result?.data?.userId}")
-        return result
+        return result?:RelationResponse(500, "에러 원인을 찾을 수 없음")
     }
 
+    /**
+     * 사용자 정보를 얻는 함수
+     */
     fun updateFcm() {
         val updateFcmRequest = UpdateFcmRequest()
         var result: UpdateFcmResponse? = null
@@ -96,17 +214,96 @@ class UserManager {
             launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("http://13.209.212.166:8080/api/v1/fcm1/")
+                        .baseUrl(nncBackendUserUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UpdateFcmService::class.java)
                         .patchUpdateFcmService(updateFcmRequest).execute()
-                    result = Gson().fromJson(response.body()!!.string(), UpdateFcmResponse::class.java)
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.updateFcm: ${result?.message}")
+                        result = UpdateFcmResponse(404, "'reponse.body()' is null")
+                    }
+                    else {
+                        Log.i("API Log: Success", "updateFcm 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UpdateFcmResponse::class.java
+                        )
+                    }
                 } catch (e:IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    Log.e("API Log: IOException", "UserManager.updateFcm: ${e.message}(e.message)")
+                    result = UpdateFcmResponse(404, "IOException: 네트워크 연결 실패")
                 }
             }
         }
+    }
+
+    fun verificatonEmail(email: String): UserResponse{
+        var result: UserResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl(nncBackendUserUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UserService::class.java)
+                        .verificatonEmail(email).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    if(jsonString == "response is null") {
+                        result = UserResponse(404, "'response.body()' is null")
+                        Log.e("API Log:response(Null)", "UserManager.updateFcm: ${result?.message}")
+                    }
+                    else {
+                        Log.i("API Log: Success", "verificatonEmail 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UserResponse::class.java
+                        )
+                    }
+                } catch (e:IOException){
+                    Log.e("API Log: IOException", "UserManager.verificatonEmail: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
+                }
+            }
+        }
+        return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
+    }
+
+    fun verificatonTelNum(telNum: String): UserResponse{
+        var result: UserResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl(nncBackendUserUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(UserService::class.java)
+                        .verificatonTelNum(telNum).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    if(jsonString == "response is null") {
+                        result = UserResponse(404, "'response.body()' is null")
+                        Log.e("API Log:response(Null)", "UserManager.verificatonTelNum: ${result?.message}")
+                    }
+                    else {
+                        Log.i("API Log: Success", "verificatonTelNum 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            UserResponse::class.java
+                        )
+                    }
+                } catch (e:IOException){
+                    Log.e("API Log: IOException", "UserManager.verificatonTelNum: ${e.message}(e.message)")
+                    result = UserResponse(404, "IOException: 네트워크 연결 실패")
+                }
+            }
+        }
+        return result?:UserResponse(500, "에러 원인을 찾을 수 없음")
     }
 }

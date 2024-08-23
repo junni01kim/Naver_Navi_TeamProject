@@ -27,6 +27,7 @@ import com.hansung.sherpa.itemsetting.TransportRoute
  *
  * @param navController 홈화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
  */
+val searchScreenBackgroundColor = Color(0xFFF2F3F4)
 @Composable
 fun SearchScreen(
     navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
@@ -39,7 +40,7 @@ fun SearchScreen(
     // 경로를 요청한 시간을 저장하기 위한 변수이다. State Hoisting을 이용해 값을 통일하기 위해 해당 위치에 저장
     var searchingTime by remember { mutableStateOf( System.currentTimeMillis() )}
 
-    var dialogToggle = remember { mutableStateOf(false) }
+    val dialogToggle = remember { mutableStateOf(false) }
 
     if(dialogToggle.value){
         SherpaDialog(
@@ -56,10 +57,14 @@ fun SearchScreen(
     }
     Column(modifier = Modifier
         .fillMaxSize()
-        .background(Color.LightGray),
-        verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        .background(searchScreenBackgroundColor),
+        verticalArrangement = Arrangement.spacedBy(4.dp)) {
         // 검색 항목을 구현한 Composable
         // 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
+//        SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
+//            routeList = childRouteList
+//            searchingTime = childSearchingTime
+//        }
         SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
             routeList = childRouteList
             searchingTime = childSearchingTime
