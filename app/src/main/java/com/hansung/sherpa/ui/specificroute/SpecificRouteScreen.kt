@@ -130,14 +130,14 @@ fun SpecificRouteScreen(
             }
         }
     }
+
     val accidentProneAreaAlert = Toast.makeText(LocalContext.current,"보행자 사고 다발 구간입니다.", Toast.LENGTH_SHORT)
-    val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
-    LaunchedEffect(loc) {
+    LaunchedEffect(myPos) {
         var flag = false
         if(centers.isNotEmpty()){
             centers.forEach {
                 val distance = AccidentProneAreaManager.distanceCalculate(
-                    loc.value.latitude, loc.value.longitude,
+                    myPos.latitude, myPos.longitude,
                     it.center.latitude, it.center.longitude
                 )
                 if(distance <= it.radius){
