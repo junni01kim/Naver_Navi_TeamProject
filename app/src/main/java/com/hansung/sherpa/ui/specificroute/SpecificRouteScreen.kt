@@ -1,7 +1,50 @@
 package com.hansung.sherpa.ui.specificroute
 
-
 import android.os.Build
+import android.util.Log
+import android.widget.Toast
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
+import com.hansung.sherpa.compose.transit.TransitManager
+import com.hansung.sherpa.deviation.RouteDivation
+import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.itemsetting.RouteFilterMapper
+import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.LocationTrackingMode
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.MapUiSettings
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberFusedLocationSource
 
 enum class DragValue { Start, Center, End }
 
@@ -12,12 +55,13 @@ enum class DragValue { Start, Center, End }
  * (해당 Composable에서 UI조합 시작함)
  */
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalNaverMapApi::class,
+@OptIn(
+    ExperimentalNaverMapApi::class,
     ExperimentalMaterial3Api::class
 )
 @Composable
 fun SpecificRouteScreen(
-    response:TransportRoute,
+    response: TransportRoute,
     accidentProneArea: ArrayList<AccidentProneArea>,
     centers: List<PolygonCenter>
 ){
@@ -108,7 +152,7 @@ fun SpecificRouteScreen(
     NaverMap(
         locationSource = rememberFusedLocationSource(isCompassEnabled = true),
         properties = MapProperties(
-            locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
+            locationTrackingMode = LocationTrackingMode.Follow,
         ),
         uiSettings = MapUiSettings(
             isLocationButtonEnabled = true,
