@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.specificroute
 
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -11,6 +12,7 @@ import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -18,10 +20,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.naver.maps.geometry.LatLng
@@ -46,7 +51,8 @@ enum class DragValue { Start, Center, End }
 @Composable
 fun SpecificRouteScreen(
     response:TransportRoute,
-    accidentProneArea: ArrayList<AccidentProneArea>
+    accidentProneArea: ArrayList<AccidentProneArea>,
+    centers: List<PolygonCenter>
 ){
 
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
@@ -64,8 +70,25 @@ fun SpecificRouteScreen(
             dialogToggle.value = false
         }
     }
-    
+    val accidentProneAreaAlert = Toast.makeText(LocalContext.current,"보행자 사고 다발 구간입니다.", Toast.LENGTH_SHORT)
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+    LaunchedEffect(loc) {
+        var flag = false
+        if(centers.isNotEmpty()){
+            centers.forEach {
+                val distance = AccidentProneAreaManager.distanceCalculate(
+                    loc.value.latitude, loc.value.longitude,
+                    it.center.latitude, it.center.longitude
+                )
+                if(distance <= it.radius){
+                    flag = true
+                }
+            }
+        }
+        if(flag)
+            accidentProneAreaAlert.show()
+    }
+
     NaverMap(
         locationSource = rememberFusedLocationSource(isCompassEnabled = true),
         properties = MapProperties(

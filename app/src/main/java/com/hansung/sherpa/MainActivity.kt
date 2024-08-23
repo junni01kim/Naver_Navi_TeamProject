@@ -38,6 +38,7 @@ import com.hansung.sherpa.FCM.RationaleDialog
 import com.hansung.sherpa.accidentpronearea.AccidentProneArea
 import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
 import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.deviation.RouteControl
 import com.hansung.sherpa.gps.GPSDatas
 import com.hansung.sherpa.gps.GpsLocationSource
@@ -164,11 +165,13 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                 }
                             }
                             var result : ArrayList<AccidentProneArea> = arrayListOf()
+                            var centers : List<PolygonCenter> = listOf()
                             runBlocking(Dispatchers.IO) {
                                 run {
                                     AccidentProneAreaManager().request(list, object : AccidentProneAreaCallback{
-                                        override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>) {
+                                        override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>, listOfCenter : List<PolygonCenter>) {
                                             result = accidentProneAreas
+                                            centers = listOfCenter
                                         }
                                         override fun onFailure(message: String) {
                                             result = arrayListOf()
@@ -176,7 +179,7 @@ class MainActivity : ComponentActivity(), OnMapReadyCallback {
                                     })
                                 }
                             }
-                            SpecificRouteScreen(StaticValue.transportRoute, result)
+                            SpecificRouteScreen(StaticValue.transportRoute, result, centers)
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->
