@@ -148,7 +148,7 @@ fun SherpaDialog(
             shape = RoundedCornerShape(12.dp)
         ){
             Column(
-                modifier = Modifier.fillMaxSize().padding(top = 30.dp, bottom = 5.dp),
+                modifier = Modifier.fillMaxSize().padding(top = 30.dp, bottom = 10.dp),
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
