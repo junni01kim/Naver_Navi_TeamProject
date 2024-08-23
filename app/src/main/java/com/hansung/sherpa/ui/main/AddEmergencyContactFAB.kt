@@ -47,14 +47,14 @@ private val ConfirmTextStyle = TextStyle(
 
 @Composable
 fun AddEmergencyContactFAB() {
-    var openAlertDialog by remember { mutableStateOf(false) }
+    var openAlertDialog = remember { mutableStateOf(false) }
 
-    FloatingActionButton(onClick = { openAlertDialog = true }) {
+    FloatingActionButton(onClick = { openAlertDialog.value = true }) {
         CustomIcon(IconType.Resource(R.drawable.add), "")
     }
 
-    if (openAlertDialog) {
-        AddEmergencyScreen()
+    if (openAlertDialog.value) {
+        AddEmergencyScreen(openAlertDialog)
     }
 }
 

@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -72,8 +73,7 @@ val contactList : List<Contact> = listOf(
 )
 
 @Composable
-fun AddEmergencyScreen() {
-    val openDialog = remember { mutableStateOf(true) }
+fun AddEmergencyScreen(openDialog: MutableState<Boolean> = remember { mutableStateOf(true) }) {
     val dialogWidth = 800.dp
     val dialogHeight = 300.dp
     var isAddContact by remember { mutableStateOf(true) }
