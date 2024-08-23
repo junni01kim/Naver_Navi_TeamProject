@@ -61,14 +61,14 @@ import androidx.compose.ui.zIndex
 import com.hansung.sherpa.R
 
 val contactList : List<Contact> = listOf(
-    Contact("홍길동", "hong****@gmail.com", "010-1111-1111", R.drawable._1),
-    Contact("엄홍길", "umHo****@naver.com", "010-2222-2222", R.drawable._2),
-    Contact("고길동", "gogl****@daum.net", "010-3333-3333", R.drawable._3),
-    Contact("길동홍", "gldh****@kakao.com", "010-4444-4444", R.drawable._4),
-    Contact("금길동", "kkdn****@hanmail.net", "010-5555-5555", R.drawable._5),
-    Contact("홍길길", "hngg****@yahoo.com", "010-6666-6666", R.drawable._6),
-    Contact("홍수동", "hsdg****@hansung.ac.kr", "010-7777-7777", R.drawable._7),
-    Contact("홍홍홍", "hhhg****@amazon.com", "010-8888-8888", R.drawable._8),
+    Contact("홍길동", "부산광역시 동래구 석사북로 9-2(사직동) 47856 한국", "010-1111-1111", R.drawable._1),
+    Contact("엄홍길", "강원도 정선군 북평면 오대천로 600-16 26100 한국", "010-2222-2222", R.drawable._2),
+    Contact("고길동", "경상북도 김천시 봉산면 예지1길 45 39563 한국", "010-3333-3333", R.drawable._3),
+    Contact("길동홍", "경상북도 상주시 화서면 황산길 191-20 37142 한국", "010-4444-4444", R.drawable._4),
+    Contact("금길동", "경상남도 산청군 생초면 생초안길 13-8 52203 한국", "010-5555-5555", R.drawable._5),
+    Contact("홍길길", "경기도 이천시 부발읍 부발중앙로 183 17321 한국", "010-6666-6666", R.drawable._6),
+    Contact("홍수동", "경기도 평택시 지제중앙로 149-20(지제동) 17823 한국", "010-7777-7777", R.drawable._7),
+    Contact("홍홍홍", "경상남도 남해군 남면 남면로66번길 5 52436 한국", "010-8888-8888", R.drawable._8),
 )
 
 @Composable
@@ -235,7 +235,7 @@ fun ContactCard(contact: Contact) {
                     Spacer(modifier = Modifier.fillMaxHeight(0.1F))
                     Text(text = contact.phone, style = ContentStyle)
                     Spacer(modifier = Modifier.fillMaxHeight(0.05F))
-                    Text(text = contact.email, style = ContentStyle, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(text = contact.address, style = ContentStyle, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
             }
         }
@@ -260,7 +260,7 @@ private val ContentStyle = TextStyle(
 
 data class Contact(
     val name: String,
-    val email: String,
+    val address: String,
     val phone: String,
     @DrawableRes val image: Int
 )
@@ -317,7 +317,7 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
                             }
                             Spacer(modifier = Modifier.height(8.dp)) // 이미지와 텍스트 사이의 간격
                             Text(text = item.name, style = ContentStyle)
-                            Text(text = item.email,
+                            Text(text = item.address,
                                 style = ContentStyle,
                                 maxLines = 1, // 한 줄까지만 표시
                                 overflow = TextOverflow.Ellipsis // 넘치는 부분은 생략
