@@ -1,4 +1,4 @@
-package com.hansung.sherpa.fcm.getUserPos
+package com.hansung.sherpa.fcm.getuserpos
 
 import com.google.gson.Gson
 import com.naver.maps.geometry.LatLng

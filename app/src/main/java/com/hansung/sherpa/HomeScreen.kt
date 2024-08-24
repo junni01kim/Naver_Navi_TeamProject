@@ -22,6 +22,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,11 +32,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.hansung.sherpa.fcm.getuserpos.UserPosReceiver
 import com.hansung.sherpa.ui.main.CustomNavigationDrawer
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
@@ -86,6 +89,15 @@ fun HomeScreen(
         // 카메라 초기 위치를 설정합니다.
         position = CameraPosition(seoul, 11.0)
     }
+
+    // TODO: 김명준이 추가한 부분
+    var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
+    val receiver = remember { UserPosReceiver{ careTakerPos = it } }
+
+    LaunchedEffect(Unit) {
+        if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.startReceiving()
+    }
+    // TODO: 김명준 끝----
 
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
@@ -159,6 +171,9 @@ fun HomeScreen(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(Color.Black),
                             onClick = {
+                                // TODO: 김명준 ----
+                                if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.stopReceiving()
+                                // TODO: 김명준 끝----
                                 navController.navigate("${SherpaScreen.Search.name}/${if (destinationValue == "") "아무것도 전달되지 않았음" else destinationValue}")
                             }
                         ) {

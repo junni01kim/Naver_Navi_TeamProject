@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +33,7 @@ import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.fcm.getuserpos.UserPosReceiver
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
@@ -79,6 +81,19 @@ fun SpecificRouteScreen(response:TransportRoute){
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeDivation = RouteDivation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
+
+    // TODO: 김명준이 추가한 부분
+    var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
+    val receiver = remember { UserPosReceiver{ careTakerPos = it } }
+
+    LaunchedEffect(Unit) {
+        if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.startReceiving()
+    }
+
+    // TODO: 따로 화면 전환이 없어서 receiver 종료하지 않았음 추가해야 함
+    // if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.stopReceiving()
+    
+    // TODO: 김명준 끝----
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
@@ -142,7 +157,6 @@ fun SpecificRouteScreen(response:TransportRoute){
              *           1 인 경우: 경로 이탈이 된 경우
              */
             if(startNavigation) {
-            //if(false) {
                 when (routeDivation.detectOutRoute(myPos)) {
                     -1 -> {
                         Toast.makeText(context, "목적지 인근에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
