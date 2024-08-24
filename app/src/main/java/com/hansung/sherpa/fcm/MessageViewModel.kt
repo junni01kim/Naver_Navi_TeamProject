@@ -1,11 +1,13 @@
-package com.hansung.sherpa.FCM
+package com.hansung.sherpa.fcm
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.hansung.sherpa.fcm.send.SendManager
 
 class MessageViewModel : ViewModel() {
+    val sendManager = SendManager()
     private val _showDialog = MutableLiveData(false)
     val showDialog: LiveData<Boolean> get() = _showDialog
 
@@ -45,13 +47,11 @@ class MessageViewModel : ViewModel() {
         val title = parts[1]
 
         when (topic) {
+            "예시" -> Log.d("FCMLog", "FCM: title(${title}) body(${body})")
             "알림" -> this.updateValue(title, body)
             "위치" -> Log.d("FCMLog", "FCM: 사용자 경로 전송")
-            "예시" -> Log.d("FCMLog", "FCM: title(${title}) body(${body})")
-            "일정" -> Log.d("FCMLog", "FCM: 일정 객체 ${body}")
-            "예약경로" -> Log.d("FCMLog", "FCM: 경로 안내 객체 ${body}")
-            "로그인" -> Log.d("FCMLog", "FCM: 로그인 성공 ${body}")
-            "긴급 연락처" -> Log.d("FCMLog", "FCM: 긴급 연락처 받기 ${body}")
+            "일정" -> sendManager.nowSchedule()
+            "예약경로" -> sendManager.nowRoute()
             else -> Log.d("FCMLog", "FCM: message 형식 오류")
         }
     }

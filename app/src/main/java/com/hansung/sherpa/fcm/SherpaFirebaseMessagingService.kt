@@ -1,4 +1,4 @@
-package com.hansung.sherpa.FCM
+package com.hansung.sherpa.fcm
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,12 +9,10 @@ import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
-import com.hansung.sherpa.StaticValue
 import kotlin.random.Random
 
 class SherpaFirebaseMessagingService : FirebaseMessagingService() {

@@ -1,4 +1,4 @@
-package com.hansung.sherpa.FCM
+package com.hansung.sherpa.fcm
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

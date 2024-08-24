@@ -62,7 +62,7 @@
         </activity>
 
         <service
-            android:name=".FCM.SherpaFirebaseMessagingService"
+            android:name=".fcm.SherpaFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
