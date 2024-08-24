@@ -34,6 +34,7 @@ import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.fcm.getuserpos.UserPosReceiver
+import com.hansung.sherpa.fcm.send.SendManager
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
@@ -82,7 +83,7 @@ fun SpecificRouteScreen(response:TransportRoute){
     val routeDivation = RouteDivation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
 
-    // TODO: 김명준이 추가한 부분
+    val sendManager = SendManager()
     var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
     val receiver = remember { UserPosReceiver{ careTakerPos = it } }
 
@@ -147,6 +148,9 @@ fun SpecificRouteScreen(response:TransportRoute){
         ),
         onLocationChange = {
             myPos = LatLng(it.latitude, it.longitude)
+
+            // 사용자는 서버에 내 위치를 전송한다.
+            if(StaticValue.userInfo.role1 == "CARETAKER") sendManager.sendMyPos(myPos)
 
             /**
              * 경로 이탈 시 실행되는 함수

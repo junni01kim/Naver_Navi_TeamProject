@@ -1,8 +1,22 @@
 package com.hansung.sherpa.fcm.send
 
-import com.naver.maps.geometry.LatLng
+class SendRequest (
+    token:String, title:String, body: String
+) {
+    val message:Message
 
-class SendRequest {
+    init {
+        val notification = Notification(title,body)
+        message = Message(token, notification)
+    }
 }
 
-data class sendMyPosRequest(val userId: Int, val myPos: LatLng)
+data class Message(
+    val token:String,
+    val notification:Notification
+)
+
+data class Notification(
+    val title:String,
+    val body:String
+)
