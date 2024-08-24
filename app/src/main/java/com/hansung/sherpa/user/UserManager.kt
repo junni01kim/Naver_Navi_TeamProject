@@ -2,6 +2,7 @@ package com.hansung.sherpa.user
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
 import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
@@ -13,8 +14,8 @@ import okio.IOException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-val nncBackendUserUrl = "http://13.209.212.166:8080/api/v1/user/"
-val nncBackendRelationUrl = "http://13.209.212.166:8080/api/v1/userRelation/"
+val nncBackendUserUrl = BuildConfig.SHERPA_URL+"user/"
+val nncBackendRelationUrl = BuildConfig.SHERPA_URL+"userRelation/"
 
 class UserManager {
     /**
@@ -23,7 +24,7 @@ class UserManager {
     fun create(request: CreateUserRequest): UserResponse {
         var result: UserResponse? = null
         runBlocking {
-            launch(Dispatchers.IO){
+            launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
                         .baseUrl(nncBackendUserUrl)

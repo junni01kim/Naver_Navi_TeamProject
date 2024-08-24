@@ -2,6 +2,7 @@ package com.hansung.sherpa.emergency
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.user.UserResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -10,7 +11,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-val nncBackendEmergencyUrl = "http://13.209.212.166:8080/api/v1/"
+val nncBackendEmergencyUrl = BuildConfig.SHERPA_URL
 
 class EmergencyManager {
     /**
