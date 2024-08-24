@@ -1,117 +1,29 @@
 package com.hansung.sherpa.transit
 
-import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.convert.Convert
+import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
+import com.hansung.sherpa.transit.routegraphic.ODsayGraphicRequest
+import com.hansung.sherpa.transit.routegraphic.ODsayMapObject
 import com.hansung.sherpa.transit.odsay.ODsayPath
 import com.hansung.sherpa.transit.odsay.ODsayTransitRouteRequest
 import com.hansung.sherpa.transit.odsay.ODsayTransitRouteResponse
-import com.hansung.sherpa.transit.osrm.ShortWalkResponse
 import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteService
-import com.hansung.sherpa.transit.routegraphic.ODsayGraphicRequest
-import com.hansung.sherpa.transit.routegraphic.ODsayMapObject
-import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
-import com.hansung.sherpa.transit.tmap.TmapTransitRouteRequest
-import com.hansung.sherpa.transit.tmap.TmapTransitRouteResponse
+import com.hansung.sherpa.transit.osrm.ShortWalkResponse
 import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import okhttp3.ResponseBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-/**
- * 교통수단 API를 관리하는 클래스
- *
- * @since 2024-05-09
- * @author HS-JNYLee
- *
- * @property context Activity의 context
- * @sample TransitManager.sampleGetTransitRoutes
- */
-class TransitManager(context: Context) {
-
-    val context: Context = context
-
-    /**
-     * 교통수단 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
-     *
-     * @param routeRequest 요청할 정보 객체
-     * @return LiveData<TransitRouteResponse>
-     */
-    fun getTransitRoutes(routeRequest: TmapTransitRouteRequest): LiveData<TmapTransitRouteResponse> {
-        val resultLiveData = MutableLiveData<TmapTransitRouteResponse>()
-        val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
-        Retrofit.Builder()
-            .baseUrl("https://apis.openapi.sk.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build().create(TransitRouteService::class.java).postTransitRoutes(appKey, routeRequest) // API 호출
-            .enqueue(object : Callback<ResponseBody> {
-                // 성공시 콜백
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        // Deserialized 역직렬화
-                        val tmapTransitRouteResponse = Gson().fromJson(responseBody.string(), TmapTransitRouteResponse::class.java)
-                        // post to livedata (Change Notification) 변경된 값을 알림
-                        resultLiveData.postValue(tmapTransitRouteResponse)
-                    }
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
-            })
-        return resultLiveData
-    }
-
-    /**
-     * 교통수단 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
-     *
-     * @param routeRequest 요청할 정보 객체
-     * @return TransitRouteResponse
-     */
-    fun getTmapTransitRoutes(routeRequest: TmapTransitRouteRequest): TmapTransitRouteResponse {
-        val appKey = BuildConfig.TMAP_APP_KEY // 앱 키
-        lateinit var rr: TmapTransitRouteResponse
-        runBlocking<Job> {
-            launch(Dispatchers.IO) {
-                try {
-                    val response = Retrofit.Builder()
-                        .baseUrl("https://apis.openapi.sk.com/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                        .create<TransitRouteService?>(TransitRouteService::class.java)
-                        .postTransitRoutes(appKey, routeRequest).execute() // API 호출
-                    rr = Gson().fromJson(response.body()!!.string(), TmapTransitRouteResponse::class.java)
-                    // Error Log
-                    /*if (rr.metaData == null) {
-                        val errorCode = Gson().fromJson(response.body()!!.string(), TmapTransitErrorCode::class.java)
-                        Log.e("Error", "Error Code: ${errorCode.result?.status}, ${errorCode.result?.message}")
-                        // getOdsayTransitRoute(Convert().convertTmapToOdsayRequest(routeRequest))
-                    }*/
-                } catch (e: IOException) {
-                    Log.e("Error", "Transit API Exception")
-                    rr = TmapTransitRouteResponse()
-                }
-            }
-        }
-        return rr
-    }
-
+class TransitManager {
     fun getODsayTransitRoute(routeRequest: ODsayTransitRouteRequest): ODsayTransitRouteResponse? {
         var rr: ODsayTransitRouteResponse? = null
         runBlocking<Job> {
@@ -125,7 +37,7 @@ class TransitManager(context: Context) {
                         .getODsayTransitRoutes(setODsayRequestToMap(routeRequest)).execute()
                     rr = Gson().fromJson(response.body()!!.string(), ODsayTransitRouteResponse::class.java)
                 } catch (e: IOException) {
-                    Log.e("Error", "Transit API Exception ${rr}")
+                    Log.e("API Log: IOException", "Transit API Exception ${rr}")
                 }
             }
         }
@@ -151,13 +63,13 @@ class TransitManager(context: Context) {
                         .build()
                         .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
                         .postPedestrianRoutes(appKey, routeRequest).execute() // API 호출
-                    Log.i("API", response.toString())
+                    Log.i("API Log: Tmap", "Tmap response: ${response.toString()}")
                     rr = Gson().fromJson(
                         response.body()!!.string(),
                         PedestrianResponse::class.java
                     )
                 } catch (e: Exception) {
-                    Log.i("Error", "postPedestrianRoutes API Exception")
+                    Log.i("API Log: Exception", "postPedestrianRoutes: API Exception(OSRM API 호출)")
                     launch(Dispatchers.IO) {
                         val rQ = routeRequest // 축약
                         try {
@@ -170,14 +82,41 @@ class TransitManager(context: Context) {
                                 .getOSRMWalk(rQ.startX.toString(),
                                     rQ.startY.toString(), rQ.endX.toString(),
                                     rQ.endY.toString(), options).execute() // API 호출
-                            Log.i("API", response.toString())
+                            Log.i("API Log: OSRM", "OSRM response: ${response.toString()}")
                             val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
-                            Log.i("item", sW.toString())
+                            Log.i("API Log: OSRM", "OSRM item: ${sW.toString()}")
                             rr = Convert().convertToPedestrianResponse(sW)
                         } catch (e: IOException) {
-                            Log.e("Error", "OSRM API Exception")
+                            Log.e("API Log: IOException", "OSRM API Exception")
                         }
                     }
+                }
+            }
+        }
+        return rr
+    }
+
+    fun getOsrmPedestrianRoute(routeRequest: PedestrianRouteRequest): PedestrianResponse {
+        lateinit var rr: PedestrianResponse
+        runBlocking<Job> {
+            launch(Dispatchers.IO) {
+                val rQ = routeRequest // 축약
+                try {
+                    val options = setOSRMRequestToMap()
+                    val response = Retrofit.Builder()
+                        .baseUrl("https://routing.openstreetmap.de/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<TransitRouteService?>(TransitRouteService::class.java)
+                        .getOSRMWalk(rQ.startX.toString(),
+                            rQ.startY.toString(), rQ.endX.toString(),
+                            rQ.endY.toString(), options).execute() // API 호출
+                    Log.i("API Log: OSRM", "OSRM response: ${response.toString()}")
+                    val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
+                    Log.i("API Log: OSRM", "OSRM item: ${sW.toString()}")
+                    rr = Convert().convertToPedestrianResponse(sW)
+                } catch (e: IOException) {
+                    Log.e("API Log: IOException", "OSRM API Exception")
                 }
             }
         }
@@ -203,8 +142,7 @@ class TransitManager(context: Context) {
                         .getGraphicRoute(request.getQuery()).execute()
                     result = Gson().fromJson(response.body()!!.string(), RouteGraphicResponse::class.java)
                 } catch (e: IOException) {
-                    Log.e("error:RouteGraphic", "RouteGraphic 요청 실패")
-                    Log.e("error:RouteGraphic", "error code: ${e.cause} message: ${e.message}")
+                    Log.e("API Log: IOException", "getODsayGraphicRoute: ${e.message}(e.message)")
                 }
             }
         }
@@ -250,7 +188,7 @@ class TransitManager(context: Context) {
      * @param response
      * @return
      */
-    fun requestCoordinateForRoute(start: LatLng, end: LatLng,response: ODsayPath?): List<PedestrianResponse> {
+    fun requestCoordinateForRoute(start: LatLng, end: LatLng, response: ODsayPath?): List<PedestrianResponse> {
         var pedestrianResponse: PedestrianResponse = PedestrianResponse()
         if(response == null){
             runBlocking {
@@ -261,9 +199,9 @@ class TransitManager(context: Context) {
                     endY = end.latitude.toFloat(),
                 )
                 val job =
-                        launch(Dispatchers.IO) {
-                            pedestrianResponse = getPedestrianRoute(pedestrianRouteRequest)
-                        }
+                    launch(Dispatchers.IO) {
+                        pedestrianResponse = getPedestrianRoute(pedestrianRouteRequest)
+                    }
                 job.join() // 비동기 요청 완료 대기
             }
 
