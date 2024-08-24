@@ -37,10 +37,6 @@ class SendManager {
         }
     }
 
-    fun getUserPos() {
-
-    }
-
     /**
      * 일정 시간이 되었을 때 실행 될 함수
      */
