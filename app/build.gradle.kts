@@ -14,6 +14,7 @@ val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
 val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
 val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
 val openDataPotalKey = getLocalPropertyKey("OPEN_DATA_POTAL_KEY")
+val sherpaUrl = getLocalPropertyKey("SHERPA_URL")
 
 android {
 
@@ -34,6 +35,7 @@ android {
         buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
+        buildConfigField("String", "SHERPA_URL", sherpaUrl)
         manifestPlaceholders["CLIENT_ID"] = clientId
 
         vectorDrawables {
