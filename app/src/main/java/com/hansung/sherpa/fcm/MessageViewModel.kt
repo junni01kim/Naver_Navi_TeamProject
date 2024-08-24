@@ -39,20 +39,20 @@ class MessageViewModel : ViewModel() {
      * ※ 토큰 방식과 토픽 방식 같이 사용하지 못해서, title 머리를 토픽으로 사용하면 좋을 것 같아서 만듦
      */
     private fun branch(head: String, body: String) {
-        Log.d("FCMLog", "branch 메서드: 수신 완료")
+        Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
 
-        Log.d("FCMLog", "$head, $body")
+        Log.i("FCM Log: Data", "$head, $body")
         val parts = head.split("/")
         val topic = parts[0]
         val title = parts[1]
 
         when (topic) {
-            "예시" -> Log.d("FCMLog", "FCM: title(${title}) body(${body})")
+            "예시" -> Log.i("FCM Log: Message", "FCM: title(${title}) body(${body})")
             "알림" -> this.updateValue(title, body)
-            "위치" -> Log.d("FCMLog", "FCM: 사용자 경로 전송")
-            "일정" -> sendManager.nowSchedule()
-            "예약경로" -> sendManager.nowRoute()
-            else -> Log.d("FCMLog", "FCM: message 형식 오류")
+            "위치" -> Log.i("FCM Log: Location", "FCM: 사용자 경로 전송<UDP 사용 고려중>")
+            "일정" -> sendManager.nowSchedule(title, body)
+            "예약경로" -> sendManager.nowRoute(title, body)
+            else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
         }
     }
 }

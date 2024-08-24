@@ -1,20 +1,19 @@
 package com.hansung.sherpa.fcm.send
 
-import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.itemsetting.LatLng
-import java.net.InetAddress
-
-fun SendMyPos(myPos:LatLng) {
-    val serverAddr = InetAddress.getByName(BuildConfig.SHERPA_URL)
-
-}
 
 class SendManager {
-    fun nowSchedule() {
+    var myPos = LatLng(0.0, 0.0)
+    fun SendMyPos(_myPos:LatLng) {
+        myPos = _myPos
 
     }
 
-    fun nowRoute() {
+    fun nowSchedule(title: String, body: String) {
+
+    }
+
+    fun nowRoute(title: String, body: String) {
 
     }
 }
