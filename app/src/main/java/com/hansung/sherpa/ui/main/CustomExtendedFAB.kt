@@ -198,6 +198,7 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
 
         ) {
             LazyColumn(
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.wrapContentHeight()
             ) {
