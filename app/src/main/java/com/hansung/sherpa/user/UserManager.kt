@@ -36,7 +36,7 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        Log.e("API Log:response(Null)", "UserManager.create: ${result?.message}")
+                        Log.e("API Log:response(Null)", "UserManager.create: 'response is null'")
                         result = UserResponse(404, result?.message)
                     }
                     else {
@@ -74,7 +74,7 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        Log.e("API Log:response(Null)", "UserManager.login: ${result?.message}")
+                        Log.e("API Log:response(Null)", "UserManager.login: 'response is null'")
                         result = UserResponse(404, "'reponse.body()' is null")
                     }
                     else {
@@ -111,7 +111,7 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        Log.e("API Log:response(Null)", "UserManager.getUser: ${result?.message}")
+                        Log.e("API Log:response(Null)", "UserManager.getUser: 'response is null'")
                         result = UserResponse(404, "'reponse.body()' is null")
                     }
                     else {
@@ -149,7 +149,7 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        Log.e("API Log:response(Null)", "UserManager.linkPermission: ${result?.message}")
+                        Log.e("API Log:response(Null)", "UserManager.linkPermission: 'response is null'")
                         result = LinkPermissionResponse(404, "'reponse.body()' is null")
                     }
                     else {
@@ -186,7 +186,7 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        Log.e("API Log:response(Null)", "UserManager.getRelation: ${result?.message}")
+                        Log.e("API Log:response(Null)", "UserManager.getRelation: 'response is null'")
                         result = RelationResponse(404, "'reponse.body()' is null")
                     }
                     else {
@@ -224,7 +224,7 @@ class UserManager {
 
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
-                        Log.e("API Log:response(Null)", "UserManager.updateFcm: ${result?.message}")
+                        Log.e("API Log:response(Null)", "UserManager.updateFcm: 'response is null'")
                         result = UpdateFcmResponse(404, "'reponse.body()' is null")
                     }
                     else {
@@ -256,8 +256,8 @@ class UserManager {
                     val jsonString = response.body()?.string()?:"response is null"
 
                     if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.updateFcm: 'response is null'")
                         result = UserResponse(404, "'response.body()' is null")
-                        Log.e("API Log:response(Null)", "UserManager.updateFcm: ${result?.message}")
                     }
                     else {
                         Log.i("API Log: Success", "verificatonEmail 함수 실행 성공 ${result?.message}")
@@ -289,8 +289,8 @@ class UserManager {
                     val jsonString = response.body()?.string()?:"response is null"
 
                     if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "UserManager.verificatonTelNum: 'response is null'")
                         result = UserResponse(404, "'response.body()' is null")
-                        Log.e("API Log:response(Null)", "UserManager.verificatonTelNum: ${result?.message}")
                     }
                     else {
                         Log.i("API Log: Success", "verificatonTelNum 함수 실행 성공 ${result?.message}")
