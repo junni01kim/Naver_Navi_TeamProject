@@ -1,4 +1,4 @@
-package com.hansung.sherpa.fcm
+package com.hansung.sherpa.sendPos
 
 import android.util.Log
 import com.google.gson.Gson
@@ -12,33 +12,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 val nncBackendUserUrl = BuildConfig.SHERPA_URL
-val udpPort = 8000
 
 class SendManager {
     var myPos = LatLng(0.0, 0.0)
-
-    /**
-     * 내 위치(사용자 위치)를 서버에게 전달해주는 함수
-     * ※ UDP 방식 연구중
-     * TODO: 비동기 방식으로 전송할 것
-     */
-//    fun sendMyPosUdp(_myPos: LatLng) {
-//        myPos = _myPos
-//
-//        // TODO: 1. 보호자 정보 혹은 사용자Id를 함께 전달해준다.
-//        val request = SendRequest("","위치/사용자위치",Gson().toJson(myPos))
-//        val serializationRequest = Gson().toJson(request)
-//
-//        try {
-//            val socket = DatagramSocket()
-//            socket.broadcast = true
-//            val sendData = serializationRequest.toByteArray()
-//            val sendPacket = DatagramPacket(sendData, sendData.size, InetAddress.getByName(BuildConfig.SHERPA_URL), udpPort)
-//            socket.send(sendPacket)
-//        } catch (e: IOException) {
-//            Log.e("API Log: IOException", "SendManager.sendMyPos: ${e.message}(e.message)")
-//        }
-//    }
 
     /**
      * 내 위치(사용자 위치)를 서버에게 전달해주는 함수
@@ -84,6 +60,6 @@ class SendManager {
 
     fun getPos(title: String, body: String) {
         val caretakerPos = Gson().fromJson(body, LatLng::class.java)
-        Log.d("FCM Log", "caretaker pos: $caretakerPos")
+        Log.d("FCM Log:getPos", "caretaker pos: $caretakerPos")
     }
 }

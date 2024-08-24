@@ -1,4 +1,4 @@
-package com.hansung.sherpa.fcm
+package com.hansung.sherpa.sendPos
 
 import okhttp3.ResponseBody
 import retrofit2.Call

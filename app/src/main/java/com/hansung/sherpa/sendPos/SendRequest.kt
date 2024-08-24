@@ -1,4 +1,4 @@
-package com.hansung.sherpa.fcm
+package com.hansung.sherpa.sendPos
 
 class SendRequest (
     token:String, title:String, body: String

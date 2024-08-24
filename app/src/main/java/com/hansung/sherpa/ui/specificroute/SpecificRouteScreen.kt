@@ -28,11 +28,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
-import com.hansung.sherpa.fcm.SendManager
+import com.hansung.sherpa.sendPos.SendManager
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
@@ -42,6 +43,7 @@ import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
+import com.naver.maps.map.overlay.OverlayImage
 
 enum class DragValue { Start, Center, End }
 
@@ -59,6 +61,7 @@ enum class DragValue { Start, Center, End }
 fun SpecificRouteScreen(response:TransportRoute){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
+    val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
@@ -75,23 +78,15 @@ fun SpecificRouteScreen(response:TransportRoute){
      * @property routeControl 경로 이탈 알고리즘 객체
      */
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+
     val coordParts = remember { setCoordParts(response) }
     val colorParts = setColerParts(response)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeDivation = RouteDivation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
 
-    val sendManager = SendManager()
     var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
-
-//    LaunchedEffect(Unit) {
-//        if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.startReceiving()
-//    }
-
-    // TODO: 따로 화면 전환이 없어서 receiver 종료하지 않았음 추가해야 함
-    // if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.stopReceiving()
-    
-    // TODO: 김명준 끝----
+    val sendManager = SendManager()
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
@@ -211,6 +206,7 @@ fun SpecificRouteScreen(response:TransportRoute){
             }
         }
     ){
+        MarkerComponent(myPos, markerIcon)
         DrawPathOverlay(coordParts, colorParts, passedRoute)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------

@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.hansung.sherpa.fcm.SendManager
+import com.hansung.sherpa.sendPos.SendManager
 import com.hansung.sherpa.ui.main.CustomNavigationDrawer
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
@@ -90,7 +90,6 @@ fun HomeScreen(
 
     // TODO: 김명준이 추가한 부분
     var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
-
     val sendManager = SendManager()
     // TODO: 김명준 끝----
 
