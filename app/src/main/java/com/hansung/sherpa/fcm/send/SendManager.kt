@@ -17,6 +17,7 @@ class SendManager {
 
     /**
      * 내 위치(사용자 위치)를 서버에게 전달해주는 함수
+     * TODO: 비동기 방식으로 전송할 것
      */
     fun sendMyPos(_myPos: LatLng) {
         myPos = _myPos
@@ -34,6 +35,10 @@ class SendManager {
         } catch (e: IOException) {
             Log.e("API Log: IOException", "SendManager.sendMyPos: ${e.message}(e.message)")
         }
+    }
+
+    fun getUserPos() {
+
     }
 
     /**
