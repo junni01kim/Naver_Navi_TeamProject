@@ -46,6 +46,7 @@ class MessageViewModel : ViewModel() {
 
         when (topic) {
             "알림" -> this.updateValue(title, body)
+            "위치" -> Log.d("FCMLog", "FCM: 사용자 경로 전송")
             "예시" -> Log.d("FCMLog", "FCM: title(${title}) body(${body})")
             "일정" -> Log.d("FCMLog", "FCM: 일정 객체 ${body}")
             "예약경로" -> Log.d("FCMLog", "FCM: 경로 안내 객체 ${body}")
