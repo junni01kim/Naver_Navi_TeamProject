@@ -55,7 +55,7 @@ fun LocationList(locationValue:String, update: (String, LatLng) -> Unit) {
             }
 
             override fun onFailure(message: String) {
-                Log.e("SearchLocation error", "지역검색 API 오류: $message")
+                Log.e("API Log: SearchLocation", "지역검색 API 오류: $message")
             }
         })
     }

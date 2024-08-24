@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.compose.transit.TransitManager
+import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
