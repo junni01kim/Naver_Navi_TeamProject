@@ -1,9 +1,9 @@
-package com.hansung.sherpa.fcm.send
+package com.hansung.sherpa.fcm
 
 class SendRequest (
     token:String, title:String, body: String
 ) {
-    val message:Message
+    val message: Message
 
     init {
         val notification = Notification(title,body)
@@ -13,7 +13,7 @@ class SendRequest (
 
 data class Message(
     val token:String,
-    val notification:Notification
+    val notification: Notification
 )
 
 data class Notification(

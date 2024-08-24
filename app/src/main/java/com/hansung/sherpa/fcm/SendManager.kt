@@ -1,10 +1,8 @@
-package com.hansung.sherpa.fcm.send
+package com.hansung.sherpa.fcm
 
 import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
-import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.searchlocation.SearchLocationResponse
 import com.naver.maps.geometry.LatLng
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -12,10 +10,6 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.io.IOException
-import java.net.DatagramPacket
-import java.net.DatagramSocket
-import java.net.InetAddress
 
 val nncBackendUserUrl = BuildConfig.SHERPA_URL
 val udpPort = 8000
@@ -28,41 +22,43 @@ class SendManager {
      * ※ UDP 방식 연구중
      * TODO: 비동기 방식으로 전송할 것
      */
-    fun sendMyPosUdp(_myPos: LatLng) {
-        myPos = _myPos
-
-        // TODO: 1. 보호자 정보 혹은 사용자Id를 함께 전달해준다.
-        val request = SendRequest("","위치/사용자위치",Gson().toJson(myPos))
-        val serializationRequest = Gson().toJson(request)
-
-        try {
-            val socket = DatagramSocket()
-            socket.broadcast = true
-            val sendData = serializationRequest.toByteArray()
-            val sendPacket = DatagramPacket(sendData, sendData.size, InetAddress.getByName(BuildConfig.SHERPA_URL), udpPort)
-            socket.send(sendPacket)
-        } catch (e: IOException) {
-            Log.e("API Log: IOException", "SendManager.sendMyPos: ${e.message}(e.message)")
-        }
-    }
+//    fun sendMyPosUdp(_myPos: LatLng) {
+//        myPos = _myPos
+//
+//        // TODO: 1. 보호자 정보 혹은 사용자Id를 함께 전달해준다.
+//        val request = SendRequest("","위치/사용자위치",Gson().toJson(myPos))
+//        val serializationRequest = Gson().toJson(request)
+//
+//        try {
+//            val socket = DatagramSocket()
+//            socket.broadcast = true
+//            val sendData = serializationRequest.toByteArray()
+//            val sendPacket = DatagramPacket(sendData, sendData.size, InetAddress.getByName(BuildConfig.SHERPA_URL), udpPort)
+//            socket.send(sendPacket)
+//        } catch (e: IOException) {
+//            Log.e("API Log: IOException", "SendManager.sendMyPos: ${e.message}(e.message)")
+//        }
+//    }
 
     /**
      * 내 위치(사용자 위치)를 서버에게 전달해주는 함수
      */
     fun sendMyPos(_myPos: LatLng) {
         myPos = _myPos
-        val request = SendRequest("","위치/사용자위치",Gson().toJson(myPos))
+        val request = SendRequest("eSGfk_33RIG5PTTb0rsCUM:APA91bG4Jc-xJtzK52Xz7h_Vhd6wg-5as7i_oo0qXcoVNNfTyPiUOu9RIH9TTtZOn237T3JjDd1qpaaIc6syrmNEZvKqpWJLR4WpsIUxs0TcwU3CrQYpXXXWeSG7gxqXGVwXBhlepuLc","위치/사용자위치",Gson().toJson(myPos))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(SendService::class.java)
-            .getSendService(request).enqueue(object : Callback<ResponseBody> {
+            .postSendService(request).enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
-                ) {}
+                ) {
+                    Log.d("FCM Log", "${response.code()}")
+                }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
             })
@@ -84,5 +80,10 @@ class SendManager {
         // TODO: 1. body 데이터 파싱
         // TODO: 2. 경로 안내 시작에 대한 다이얼로그 띄우기
         // TODO: 3. 화면 이동
+    }
+
+    fun getPos(title: String, body: String) {
+        val caretakerPos = Gson().fromJson(body, LatLng::class.java)
+        Log.d("FCM Log", "caretaker pos: $caretakerPos")
     }
 }

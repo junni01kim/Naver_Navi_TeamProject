@@ -15,7 +15,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -33,8 +32,7 @@ import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
-import com.hansung.sherpa.fcm.getuserpos.UserPosReceiver
-import com.hansung.sherpa.fcm.send.SendManager
+import com.hansung.sherpa.fcm.SendManager
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
@@ -85,11 +83,10 @@ fun SpecificRouteScreen(response:TransportRoute){
 
     val sendManager = SendManager()
     var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
-    val receiver = remember { UserPosReceiver{ careTakerPos = it } }
 
-    LaunchedEffect(Unit) {
-        if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.startReceiving()
-    }
+//    LaunchedEffect(Unit) {
+//        if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.startReceiving()
+//    }
 
     // TODO: 따로 화면 전환이 없어서 receiver 종료하지 않았음 추가해야 함
     // if(StaticValue.userInfo.role1 == "CAREGIVER") receiver.stopReceiving()

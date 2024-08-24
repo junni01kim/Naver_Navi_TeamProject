@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.hansung.sherpa.fcm.send.SendManager
 
 class MessageViewModel : ViewModel() {
     val sendManager = SendManager()
@@ -49,7 +48,7 @@ class MessageViewModel : ViewModel() {
         when (topic) {
             "예시" -> Log.i("FCM Log: Message", "FCM: title(${title}) body(${body})")
             "알림" -> this.updateValue(title, body)
-            "위치" -> Log.i("FCM Log: Location", "FCM: 사용자 경로 전송<UDP 사용 고려중>")
+            "위치" -> sendManager.getPos(title, body)
             "일정" -> sendManager.scheduleStart(title, body)
             "예약경로" -> sendManager.navigationStart(title, body)
             else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
