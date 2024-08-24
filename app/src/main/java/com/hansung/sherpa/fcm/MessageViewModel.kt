@@ -47,7 +47,6 @@ class MessageViewModel : ViewModel() {
         val title = parts[1]
 
         when (topic) {
-            "예시" -> Log.i("FCM Log: Message", "FCM: title(${title}) body(${body})")
             "알림" -> this.updateValue(title, body)
             "위치" -> sendManager.getPos(title, body)
             "일정" -> sendManager.scheduleStart(title, body)
