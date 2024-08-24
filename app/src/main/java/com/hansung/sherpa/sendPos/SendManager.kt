@@ -1,8 +1,13 @@
 package com.hansung.sherpa.sendPos
 
 import android.util.Log
+import androidx.navigation.NavController
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
+import com.hansung.sherpa.SherpaScreen
+import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.navigation.Navigation
 import com.naver.maps.geometry.LatLng
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -13,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 val nncBackendUserUrl = BuildConfig.SHERPA_URL
 
-class SendManager {
+class SendManager(val navController: NavController) {
     var myPos = LatLng(0.0, 0.0)
 
     /**
@@ -53,9 +58,13 @@ class SendManager {
      * 경로 안내 시간이 되었을 때 실행 될 함수
      */
     fun navigationStart(title: String, body: String) {
-        // TODO: 1. body 데이터 파싱
+        // TODO: 1. body에서 목적지 받아오기
+        val destinationLatLng = LatLng(37.1115, 127.0106) // 임시
+        StaticValue.transportRoute = Navigation().getDetailTransitRoutes(myPos,destinationLatLng)[0]
         // TODO: 2. 경로 안내 시작에 대한 다이얼로그 띄우기
+
         // TODO: 3. 화면 이동
+        navController.navigate(SherpaScreen.SpecificRoute.name)
     }
 
     fun getPos(title: String, body: String) {

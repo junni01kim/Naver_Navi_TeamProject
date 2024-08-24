@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
@@ -58,7 +59,7 @@ enum class DragValue { Start, Center, End }
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun SpecificRouteScreen(response:TransportRoute){
+fun SpecificRouteScreen(navController: NavController, response:TransportRoute){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
     val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
@@ -86,7 +87,7 @@ fun SpecificRouteScreen(response:TransportRoute){
     var startNavigation by remember { mutableStateOf(false)}
 
     var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
-    val sendManager = SendManager()
+    val sendManager = SendManager(navController)
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그

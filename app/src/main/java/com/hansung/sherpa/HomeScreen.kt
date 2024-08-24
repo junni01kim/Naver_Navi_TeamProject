@@ -90,7 +90,7 @@ fun HomeScreen(
 
     // TODO: 김명준이 추가한 부분
     var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
-    val sendManager = SendManager()
+    val sendManager = SendManager(navController)
     // TODO: 김명준 끝----
 
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
