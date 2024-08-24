@@ -50,8 +50,8 @@ class MessageViewModel : ViewModel() {
             "예시" -> Log.i("FCM Log: Message", "FCM: title(${title}) body(${body})")
             "알림" -> this.updateValue(title, body)
             "위치" -> Log.i("FCM Log: Location", "FCM: 사용자 경로 전송<UDP 사용 고려중>")
-            "일정" -> sendManager.nowSchedule(title, body)
-            "예약경로" -> sendManager.nowRoute(title, body)
+            "일정" -> sendManager.scheduleStart(title, body)
+            "예약경로" -> sendManager.navigationStart(title, body)
             else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
         }
     }
