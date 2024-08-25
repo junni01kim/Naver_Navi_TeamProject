@@ -8,5 +8,6 @@ data class Emergency (
     @SerializedName("deleteYn") val deleteYn: String = "n",
     @SerializedName("name") val name: String = "",
     @SerializedName("telNum") val telNum: String = "",
-    @SerializedName("address") val address: String = ""
+    @SerializedName("address") val address: String = "",
+    @SerializedName("bookmarkYn") val bookmarkYn: String = "N"
 )

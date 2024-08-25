@@ -13,19 +13,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -64,19 +59,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
 import com.hansung.sherpa.R
 
-val contactList : List<Contact> = listOf(
-    Contact("홍길동", "부산광역시 동래구 석사북로 9-2(사직동) 47856 한국", "010-1111-1111", R.drawable._1),
-    Contact("엄홍길", "강원도 정선군 북평면 오대천로 600-16 26100 한국", "010-2222-2222", R.drawable._2),
-    Contact("고길동", "경상북도 김천시 봉산면 예지1길 45 39563 한국", "010-3333-3333", R.drawable._3),
-    Contact("길동홍", "경상북도 상주시 화서면 황산길 191-20 37142 한국", "010-4444-4444", R.drawable._4),
-    Contact("금길동", "경상남도 산청군 생초면 생초안길 13-8 52203 한국", "010-5555-5555", R.drawable._5),
-    Contact("홍길길", "경기도 이천시 부발읍 부발중앙로 183 17321 한국", "010-6666-6666", R.drawable._6),
-    Contact("홍수동", "경기도 평택시 지제중앙로 149-20(지제동) 17823 한국", "010-7777-7777", R.drawable._7),
-    Contact("홍홍홍", "경상남도 남해군 남면 남면로66번길 5 52436 한국", "010-8888-8888", R.drawable._8),
-)
-
 @Composable
-fun AddEmergencyScreen(openDialog: MutableState<Boolean> = remember { mutableStateOf(true) }, onClick: (Contact) -> Unit = {}) {
+fun AddEmergencyScreen(contactList: List<Contact>  = listOf(), openDialog: MutableState<Boolean> = remember { mutableStateOf(true) }, onClick: (Contact) -> Unit = {}) {
     val dialogWidth = 800.dp
     val dialogHeight = 300.dp
     var isAddContact by remember { mutableStateOf(true) }
@@ -172,7 +156,7 @@ fun AddContactButton(onClick: () -> Unit) {
 
 // 추가하기 버튼
 @Composable
-fun AddEmergencyButton(isEnabled: Boolean, onDismissRequest: () -> Unit = {}, onClick: () -> Unit = {}) {
+fun AddEmergencyButton(isEnabled: Boolean,onDismissRequest: () -> Unit = {}, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
@@ -276,9 +260,11 @@ private val ContentStyle = TextStyle(
 )
 
 data class Contact(
+    val emergencyId: Int,
     val name: String,
     val address: String,
     val phone: String,
+    val bookmarkYn: String,
     @DrawableRes val image: Int
 )
 
@@ -357,6 +343,16 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
 @Preview
 @Composable
 fun PreviewSelectContactDialog() {
+    val contactList : List<Contact> = listOf(
+    Contact(0, "홍길동", "부산광역시 동래구 석사북로 9-2(사직동) 47856 한국", "010-1111-1111", "N", R.drawable._1),
+    Contact(0, "엄홍길", "강원도 정선군 북평면 오대천로 600-16 26100 한국", "010-2222-2222", "N", R.drawable._2),
+    Contact(0, "고길동", "경상북도 김천시 봉산면 예지1길 45 39563 한국", "010-3333-3333", "N", R.drawable._3),
+    Contact(0, "길동홍", "경상북도 상주시 화서면 황산길 191-20 37142 한국", "010-4444-4444", "N", R.drawable._4),
+    Contact(0, "금길동", "경상남도 산청군 생초면 생초안길 13-8 52203 한국", "010-5555-5555", "N", R.drawable._5),
+    Contact(0, "홍길길", "경기도 이천시 부발읍 부발중앙로 183 17321 한국", "010-6666-6666", "N", R.drawable._6),
+    Contact(0, "홍수동", "경기도 평택시 지제중앙로 149-20(지제동) 17823 한국", "010-7777-7777", "N", R.drawable._7),
+    Contact(0, "홍홍홍", "경상남도 남해군 남면 남면로66번길 5 52436 한국", "010-8888-8888", "N", R.drawable._8),
+    )
     SelectContactDialog(contactList, {})
 }
 
@@ -407,5 +403,15 @@ fun PreviewAddEmergencyButton() {
 @Preview
 @Composable
 fun PreviewContactCard() {
+    val contactList : List<Contact> = listOf(
+    Contact(0, "홍길동", "부산광역시 동래구 석사북로 9-2(사직동) 47856 한국", "010-1111-1111", "N", R.drawable._1),
+    Contact(0, "엄홍길", "강원도 정선군 북평면 오대천로 600-16 26100 한국", "010-2222-2222", "N", R.drawable._2),
+    Contact(0, "고길동", "경상북도 김천시 봉산면 예지1길 45 39563 한국", "010-3333-3333", "N", R.drawable._3),
+    Contact(0, "길동홍", "경상북도 상주시 화서면 황산길 191-20 37142 한국", "010-4444-4444", "N", R.drawable._4),
+    Contact(0, "금길동", "경상남도 산청군 생초면 생초안길 13-8 52203 한국", "010-5555-5555", "N", R.drawable._5),
+    Contact(0, "홍길길", "경기도 이천시 부발읍 부발중앙로 183 17321 한국", "010-6666-6666", "N", R.drawable._6),
+    Contact(0, "홍수동", "경기도 평택시 지제중앙로 149-20(지제동) 17823 한국", "010-7777-7777", "N", R.drawable._7),
+    Contact(0, "홍홍홍", "경상남도 남해군 남면 남면로66번길 5 52436 한국", "010-8888-8888", "N", R.drawable._8),
+    )
     ContactCard(contactList[0])
 }

@@ -30,13 +30,13 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -47,11 +47,13 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
 import com.hansung.sherpa.emergency.EmergencyManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private val CustomIconWidth = 33.dp
 
@@ -207,31 +209,32 @@ fun FabExtendedResource() {
 @Preview
 @Composable
 fun ExtendedFABContainer(isVisible: Boolean = true) {
-    /*val tripleEmrgList = remember {
-        mutableStateListOf<Contact>().apply {
-            addAll(contactList.subList(0, 3))
+    val coroutineScope = rememberCoroutineScope()
+    val emrgList = remember { mutableStateListOf<Contact>() }
+    val bookmarkList = remember { mutableStateListOf<Contact>() }
+    val visibleList = remember { mutableStateListOf<MutableState<Boolean>>() }
+    val imgList = listOf(R.drawable._1, R.drawable._2, R.drawable._3, R.drawable._4, R.drawable._5)
+
+    // 긴급연락처 리스트 가져오는 작업 - 백그라운드로 진행
+    LaunchedEffect(Unit) {
+        val apiList = withContext(Dispatchers.IO) {
+            val result = EmergencyManager().getAllEmergency(1).data
+            result?.mapIndexed { index, emergency ->
+                Contact(
+                    emergencyId = emergency.emergencyId,
+                    name = emergency.name,
+                    phone = emergency.telNum,
+                    image = imgList.getOrElse(index) { R.drawable._1 }, // 인덱스 초과 시 기본 이미지 설정
+                    address = emergency.address,
+                    bookmarkYn = emergency.bookmarkYn
+                )
+            } ?: emptyList()
         }
-    }*/
-    var apiList = mutableListOf<Contact>()
-    val imgList = listOf<Int>(R.drawable._1, R.drawable._2, R.drawable._3, R.drawable._4, R.drawable._5,)
-    EmergencyManager().getAllEmergency(1)
-        .data
-        ?.forEachIndexed { index, emergency ->
-            val c = Contact(
-                name = emergency.name,
-                phone = emergency.telNum,
-                image = imgList[index],
-                address = emergency.address
-            )
-            apiList.add(c)
-        }
-    val tripleEmrgList = remember {
-        mutableStateListOf<Contact>().apply {
-            addAll(apiList)
-        }
-    }
-    val visibleList = remember {
-        MutableList(tripleEmrgList.size) { mutableStateOf(false) }
+
+        // UI 업데이트는 메인 스레드에서 진행
+        emrgList.addAll(apiList)
+        bookmarkList.addAll(emrgList.filter { it.bookmarkYn == "Y" })
+        visibleList.addAll(bookmarkList.map { mutableStateOf(false) })
     }
     if (isVisible) {
         Column(
@@ -247,8 +250,8 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
                     .wrapContentHeight()
                     .padding(vertical = 8.dp)
             ) {
-                items(tripleEmrgList.size) { index ->
-                    val item = tripleEmrgList[index]
+                items(bookmarkList.size) { index ->
+                    val item = bookmarkList[index]
                     val openDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
                     if (openDialog.value) {
                         EmergencyOptionModal(openDialog ,item)
@@ -262,9 +265,12 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
                     )
                 }
             }
-            AddEmergencyContactFAB() {
+            AddEmergencyContactFAB(emrgList.filter { it.bookmarkYn == "N" }) {
                 contact ->
-                tripleEmrgList.add(contact)
+                coroutineScope.launch(Dispatchers.IO) {  // 코루틴 실행
+                    EmergencyManager().updateEmergencyBookmark(contact.emergencyId)
+                }
+                bookmarkList.add(contact)
                 visibleList.add(mutableStateOf(false))
             }
         }

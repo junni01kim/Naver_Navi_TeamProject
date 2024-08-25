@@ -59,9 +59,8 @@ private val TitleStyle = TextStyle(
  * @param openDialog
  * @param contact
  */
-@Preview
 @Composable
-fun EmergencyOptionModal(openDialog: MutableState<Boolean> = remember { mutableStateOf(false) },  contact: Contact = contactList[0]) {
+fun EmergencyOptionModal(openDialog: MutableState<Boolean> = remember { mutableStateOf(false) },  contact: Contact) {
     val onDismissRequest = { openDialog.value = false }
     val dialogWidth = 500.dp
     val dialogHeight = 300.dp
