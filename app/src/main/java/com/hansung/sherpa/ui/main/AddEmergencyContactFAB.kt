@@ -46,7 +46,7 @@ private val ConfirmTextStyle = TextStyle(
 )
 
 @Composable
-fun AddEmergencyContactFAB() {
+fun AddEmergencyContactFAB(onClick: (Contact) -> Unit = {}) {
     var openAlertDialog = remember { mutableStateOf(false) }
 
     FloatingActionButton(onClick = { openAlertDialog.value = true }) {
@@ -54,7 +54,7 @@ fun AddEmergencyContactFAB() {
     }
 
     if (openAlertDialog.value) {
-        AddEmergencyScreen(openAlertDialog)
+        AddEmergencyScreen(openAlertDialog, onClick)
     }
 }
 

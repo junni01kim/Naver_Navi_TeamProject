@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,15 +20,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -39,17 +44,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
 
 private val CustomIconWidth = 33.dp
 
 private val CustomIconHeight = 33.dp
 
-private val ExtendedFabStartIconPadding = 16.dp
+private val ExtendedFabStartIconPadding = 1.dp
 
-private val ExtendedFabEndIconPadding = 12.dp
+private val ExtendedFabEndIconPadding = 10.dp
 
 private val ExtendedFabTextPadding = 20.dp
 
@@ -102,11 +111,13 @@ private val ExtendedFabExpandAnimation = fadeIn(
 @Composable
 fun CustomExtendedFAB(
     modifier: Modifier = Modifier,
-    text: String,
+    name: String = "ㅇㅇㅇ",
+    phone: String = "000-0000-0000",
     icon: IconType,
     expanded: MutableState<Boolean>,
     onClick: () -> Unit  = { expanded.value = !expanded.value},
     contentDescription: String? = "",
+    openDialog: MutableState<Boolean> = remember { mutableStateOf(true) }
 ) {
     FloatingActionButton(
         onClick = onClick,
@@ -131,7 +142,15 @@ fun CustomExtendedFAB(
                 exit = ExtendedFabCollapseAnimation,
             ) {
                 Row(Modifier.clearAndSetSemantics {}) {
-                    Text(text)
+                    Icon(modifier = Modifier
+                        .height(40.dp)
+                        .wrapContentWidth()
+                        .clickable { openDialog.value = true }
+                        , imageVector = Icons.Default.ChevronLeft, contentDescription = "긴급 연락처 요청")
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(name, textAlign = TextAlign.End)
+                        Text(phone, textAlign = TextAlign.End, style = TextStyle(fontSize = 12.sp), modifier = Modifier.padding(start = 20.dp))
+                    }
                     Spacer(Modifier.width(ExtendedFabEndIconPadding))
                 }
             }
@@ -164,7 +183,8 @@ fun CustomIcon(icon: IconType, contentDescription: String?) {
 @Composable
 fun ExtendFABImageVector() {
     CustomExtendedFAB(
-        text = "Reverse Extended FAB",
+        name = "홍길동",
+        phone = "010-1234-5678",
         icon = IconType.Vector(Icons.Filled.Edit),
         contentDescription = "Favorite",
         modifier = Modifier,
@@ -176,7 +196,8 @@ fun ExtendFABImageVector() {
 @Composable
 fun FabExtendedResource() {
     CustomExtendedFAB(
-        text = "아버지\n전화하기: 010-0000-0000",
+        name = "아버지",
+        phone = "전화하기: 010-0000-0000",
         icon = IconType.Resource(R.drawable.medical),
         expanded = remember { mutableStateOf(false) }
     )
@@ -185,9 +206,13 @@ fun FabExtendedResource() {
 @Preview
 @Composable
 fun ExtendedFABContainer(isVisible: Boolean = true) {
-    val tripleEmrgList = contactList.subList(0, 3)
+    val tripleEmrgList = remember {
+        mutableStateListOf<Contact>().apply {
+            addAll(contactList.subList(0, 3))
+        }
+    }
     val visibleList = remember {
-        List(tripleEmrgList.size) { mutableStateOf(false) }
+        MutableList(tripleEmrgList.size) { mutableStateOf(false) }
     }
     if (isVisible) {
         Column(
@@ -195,24 +220,34 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
                 .fillMaxWidth()
                 .padding(16.dp),
             horizontalAlignment = Alignment.End
-
         ) {
             LazyColumn(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.wrapContentHeight()
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(vertical = 8.dp)
             ) {
                 items(tripleEmrgList.size) { index ->
                     val item = tripleEmrgList[index]
+                    val openDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
+                    if (openDialog.value) {
+                        EmergencyOptionModal(openDialog ,item)
+                    }
                     CustomExtendedFAB(
-                        text = "${item.name}\n전화하기: ${item.phone}",
+                        name = item.name,
+                        phone = item.phone,
                         icon = IconType.Painter(item.image),
-                        expanded = visibleList[index]
+                        expanded = visibleList[index],
+                        openDialog = openDialog
                     )
                 }
             }
-            Spacer(modifier = Modifier.padding(vertical = 5.dp))
-            AddEmergencyContactFAB()
+            AddEmergencyContactFAB() {
+                contact ->
+                tripleEmrgList.add(contact)
+                visibleList.add(mutableStateOf(false))
+            }
         }
     }
 }

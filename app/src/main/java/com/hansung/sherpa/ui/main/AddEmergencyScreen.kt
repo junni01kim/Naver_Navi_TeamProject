@@ -22,6 +22,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -41,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -73,16 +76,17 @@ val contactList : List<Contact> = listOf(
 )
 
 @Composable
-fun AddEmergencyScreen(openDialog: MutableState<Boolean> = remember { mutableStateOf(true) }) {
+fun AddEmergencyScreen(openDialog: MutableState<Boolean> = remember { mutableStateOf(true) }, onClick: (Contact) -> Unit = {}) {
     val dialogWidth = 800.dp
     val dialogHeight = 300.dp
     var isAddContact by remember { mutableStateOf(true) }
     var isOpenContacts by remember { mutableStateOf(false) }
     var isEnabled by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableStateOf(0) }
+    var selectedIndex by remember { mutableIntStateOf(0) }
+    val onDismissRequest = { openDialog.value = false }
     if (openDialog.value) {
         Dialog(
-            onDismissRequest = { openDialog.value = false }
+            onDismissRequest = onDismissRequest
         ) {
             // Draw a rectangle shape with rounded corners inside the dialog
             Card(modifier = Modifier
@@ -103,7 +107,7 @@ fun AddEmergencyScreen(openDialog: MutableState<Boolean> = remember { mutableSta
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
-                                .offset(x = (2).dp, y = 5.dp) // Image와 겹치도록 위치 조정
+                                .offset(x = (-10).dp, y = 10.dp) // Image와 겹치도록 위치 조정
                                 .zIndex(1f) // Icon이 이미지 위로 오도록 설정
                                 .clip(RoundedCornerShape(50.dp))
                                 .clickable {
@@ -113,25 +117,29 @@ fun AddEmergencyScreen(openDialog: MutableState<Boolean> = remember { mutableSta
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "edit",
+                                tint = MaterialTheme.colorScheme.onSecondary,
+                                contentDescription = "추가한 연락처 지우기",
                                 modifier = Modifier
-                                    .background(Color.White)
-                                    .padding(2.dp)
+                                    .background(MaterialTheme.colorScheme.secondary)
                             )
                         }
 
                     }
                 }
-                AddEmergencyButton(isEnabled = isEnabled)
+                AddEmergencyButton(isEnabled = isEnabled, onDismissRequest) {
+                    onClick(contactList[selectedIndex])
+                }
             }
         }
     }
     if (isOpenContacts) {
         SelectContactDialog(contactList, {
             isOpenContacts = false
-            isAddContact = false
+            isAddContact = true
         }) {
             it -> selectedIndex = it
+            isOpenContacts = false
+            isAddContact = false
         }
     }
 }
@@ -157,19 +165,28 @@ fun AddContactButton(onClick: () -> Unit) {
                     .width(iconSize)
                     .height(iconSize),
                 imageVector = Icons.Default.Add, contentDescription = "연락처 추가 버튼")
-            Text(text = "연락처 불러오기")
+            Text(text = "긴급연락처 불러오기")
         }
     }
 }
 
 // 추가하기 버튼
 @Composable
-fun AddEmergencyButton(isEnabled: Boolean) {
+fun AddEmergencyButton(isEnabled: Boolean, onDismissRequest: () -> Unit = {}, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        FilledTonalButton(onClick = {  }, enabled = isEnabled) {
+        OutlinedButton(onClick = onDismissRequest) {
+            Text(text = "돌아가기")
+        }
+        FilledTonalButton(
+            onClick =
+            {
+                onClick()
+                onDismissRequest()
+            }
+            , enabled = isEnabled) {
             Text("추가하기")
         }
     }
@@ -194,25 +211,14 @@ fun ContactCard(contact: Contact) {
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.50F)
                     .padding(10.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.Top // Row의 자식들을 수직으로 상단 정렬
+                Column(
+                    modifier = Modifier.wrapContentWidth(),
                 ) {
-                    Image(
-                        painter = painterResource(id = contact.image),
-                        contentDescription = "배경사진",
-                        modifier = Modifier
-                            .weight(1f) // Row에서 Image가 가능한 공간을 다 차지하게 설정
-                            .aspectRatio(1f) // Image를 1:1 비율로 설정
-                            .clip(RoundedCornerShape(20.dp)),
-                        contentScale = ContentScale.Crop
-                    )
-
                     Box(
                         modifier = Modifier
-                            .offset(x = (-14).dp, y = (-9).dp) // Image와 겹치도록 위치 조정
+                            .offset(x = (57).dp, y = (0).dp) // Image와 겹치도록 위치 조정
                             .zIndex(1f) // Icon이 이미지 위로 오도록 설정
                             .clip(RoundedCornerShape(50.dp))
                     ) {
@@ -224,6 +230,17 @@ fun ContactCard(contact: Contact) {
                                 .padding(2.dp)
                         )
                     }
+                    Image(
+                        painter = painterResource(id = contact.image),
+                        contentDescription = "배경사진",
+                        modifier = Modifier
+                            .offset(x = (0).dp, y = (-10).dp)
+                            .size(80.dp)
+                            .weight(1f) // Row에서 Image가 가능한 공간을 다 차지하게 설정
+                            .aspectRatio(1f) // Image를 1:1 비율로 설정
+                            .clip(RoundedCornerShape(50.dp)),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
 
@@ -268,60 +285,66 @@ data class Contact(
 @Composable
 fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onClick: (Int) -> Unit = {}) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Box(
-            modifier = Modifier.wrapContentSize().clip(RoundedCornerShape(20.dp))
+        Column(
+            modifier = Modifier
+                .clip(RoundedCornerShape(20.dp))
+                .background(MaterialTheme.colorScheme.background)
+                .height(530.dp)
         ) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(3), // 3열로 고정
-                modifier = Modifier.fillMaxWidth()
-                    .wrapContentHeight()
-                    .background(MaterialTheme.colorScheme.background)
-                , // 그리드가 화면 전체를 차지하게 설정
-                contentPadding = PaddingValues(8.dp), // 그리드의 패딩
-                horizontalArrangement = Arrangement.spacedBy(8.dp), // 열 간의 간격 설정
-                verticalArrangement = Arrangement.spacedBy(8.dp) // 행 간의 간격 설정
+            Icon(
+                modifier = Modifier
+                    .size(35.dp)
+                    .padding(top =  10.dp, end = 10.dp)
+                    .align(Alignment.End)
+                    .clickable { onDismissRequest() }
+                ,
+                tint = MaterialTheme.colorScheme.secondary,
+                imageVector = Icons.Default.Close, contentDescription = "연락처 리스트 닫기")
+            LazyColumn(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background).padding(bottom = 30.dp),
+                contentPadding = PaddingValues(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(list.size) { index ->
                     val item = list[index]
                     Card(
                         modifier = Modifier
-                            .fillMaxWidth() // 각 Card가 열의 너비를 채우도록 설정
-                            .aspectRatio(0.65f) // 카드의 가로세로 비율을 설정
+                            .aspectRatio(2.8f) // 카드의 가로세로 비율을 설정
                             .padding(4.dp) // Card 내부의 패딩
                             .clickable {
-                                onDismissRequest()
                                 onClick(index)
                             }
                     ) {
-                        Column(
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(8.dp), // Column 내의 padding 설정
-                            horizontalAlignment = Alignment.CenterHorizontally, // 텍스트를 가운데 정렬
-                            verticalArrangement = Arrangement.Center // 텍스트를 수직으로 중앙에 배치
+                                .padding(8.dp),
                         ) {
                             Box(
-                                contentAlignment = Alignment.Center, // 중앙에 배치
+                                contentAlignment = Alignment.Center,
                                 modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f) // Box를 정사각형으로 설정
+                                    .aspectRatio(1f)
                             ) {
                                 Image(
-                                    painter = painterResource(id = item.image), // 사용할 이미지
+                                    painter = painterResource(id = item.image),
                                     contentDescription = "프로필 사진",
                                     modifier = Modifier
-                                        .size(60.dp) // 이미지의 크기 설정
-                                        .clip(CircleShape), // 이미지를 원형으로 자름
+                                        .size(60.dp)
+                                        .clip(CircleShape),
                                     contentScale = ContentScale.Crop
                                 )
                             }
-                            Spacer(modifier = Modifier.height(8.dp)) // 이미지와 텍스트 사이의 간격
-                            Text(text = item.name, style = ContentStyle)
-                            Text(text = item.address,
-                                style = ContentStyle,
-                                maxLines = 1, // 한 줄까지만 표시
-                                overflow = TextOverflow.Ellipsis // 넘치는 부분은 생략
-                            )
+                            // Spacer(modifier = Modifier.height(8.dp)) // 이미지와 텍스트 사이의 간격
+                            Column {
+                                Text(text = item.name, style = ContentStyle+ TextStyle(fontWeight = FontWeight.ExtraBold))
+                                Text(text = item.phone, style = ContentStyle)
+                                Text(text = item.address,
+                                    style = ContentStyle,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
                         }
                     }
                 }
@@ -372,7 +395,7 @@ fun PreviewAddContactScreen() {
 @Preview
 @Composable
 fun PreviewAddContactButton() {
-    AddContactButton({})
+    AddContactButton {}
 }
 
 @Preview
@@ -386,7 +409,3 @@ fun PreviewAddEmergencyButton() {
 fun PreviewContactCard() {
     ContactCard(contactList[0])
 }
-
-
-
-
