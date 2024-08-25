@@ -23,6 +23,7 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,7 +37,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.hansung.sherpa.sendPos.SendManager
+import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
+import com.hansung.sherpa.sendInfo.SendPos.SendManager
 import com.hansung.sherpa.ui.main.CustomNavigationDrawer
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
@@ -57,7 +59,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    caretakerPosViewModel: CaretakerPosViewModel
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -89,8 +92,8 @@ fun HomeScreen(
     }
 
     // TODO: 김명준이 추가한 부분
-    var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
-    val sendManager = SendManager(navController)
+    val sendManager = SendManager()
+    val caretakerPos = caretakerPosViewModel.latLng.observeAsState()
     // TODO: 김명준 끝----
 
     val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
@@ -112,6 +115,8 @@ fun HomeScreen(
                         loc.value = LatLng(it.latitude, it.longitude)
                         if(StaticValue.userInfo.role1 == "CARETAKER") sendManager.sendMyPos(loc.value)
                     }) {
+                    if(StaticValue.userInfo.role1 == "CAREGIVER")
+                        MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), markerIcon)
                     MarkerComponent(loc.value, markerIcon)
                 }
 

@@ -34,7 +34,7 @@ import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
-import com.hansung.sherpa.sendPos.SendManager
+import com.hansung.sherpa.sendInfo.SendPos.SendManager
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
@@ -87,7 +87,7 @@ fun SpecificRouteScreen(navController: NavController, response:TransportRoute){
     var startNavigation by remember { mutableStateOf(false)}
 
     var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
-    val sendManager = SendManager(navController)
+    val sendManager = SendManager()
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그

@@ -1,4 +1,4 @@
-package com.hansung.sherpa.sendPos
+package com.hansung.sherpa.sendInfo.SendPos
 
 class SendRequest (
     token:String, title:String, body: String

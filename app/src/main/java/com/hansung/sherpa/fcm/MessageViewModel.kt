@@ -1,13 +1,11 @@
 package com.hansung.sherpa.fcm
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.hansung.sherpa.sendPos.SendManager
 
 class MessageViewModel : ViewModel() {
-    val sendManager = SendManager()
+
     private val _showDialog = MutableLiveData(false)
     val showDialog: LiveData<Boolean> get() = _showDialog
 
@@ -23,36 +21,8 @@ class MessageViewModel : ViewModel() {
         _body.postValue(body)
     }
 
-    // 데이터 수신 : 값 업데이트, 다이얼로그 띄우기
-    fun onMessageReceived(title: String, body: String) {
-        branch(title, body)
-        _showDialog.postValue(true)
-    }
-
     // 다이얼로그 닫기
     fun onDialogDismiss() {
         _showDialog.postValue(false)
-    }
-
-    /**
-     * 분기를 위한 함수
-     * ※ 토큰 방식과 토픽 방식 같이 사용하지 못해서, title 머리를 토픽으로 사용하면 좋을 것 같아서 만듦
-     */
-    private fun branch(head: String, body: String) {
-        Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
-
-        Log.i("FCM Log: Data", "$head, $body")
-        val parts = head.split("/")
-        val topic = parts[0]
-        val title = parts[1]
-
-        when (topic) {
-            "알림" -> this.updateValue(title, body)
-            "위치" -> sendManager.getPos(title, body)
-            "일정" -> sendManager.scheduleStart(title, body)
-            "경로안내" -> {/*TODO: 토스트 띄우기*/}
-            "예약경로" -> sendManager.navigationStart(title, body)
-            else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
-        }
     }
 }
