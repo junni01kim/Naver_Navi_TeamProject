@@ -29,12 +29,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.contentcapture.ContentCaptureManager.Companion.isEnabled
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
+
+private val TitleStyle = TextStyle(
+    fontFamily = FontFamily.SansSerif,
+    fontWeight = FontWeight.Bold,
+    fontSize = 20.sp,
+    lineHeight = 20.0.sp,
+    letterSpacing = 0.1.sp,
+)
 
 /**
  * < 화살표를 눌렀을 때 띄워지는 긴급 연락처의 모달창
@@ -62,7 +74,7 @@ fun EmergencyOptionModal(openDialog: MutableState<Boolean> = remember { mutableS
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(modifier = Modifier.fillMaxWidth(),text = contact.name, textAlign = TextAlign.Center)
+                Text(modifier = Modifier.fillMaxWidth(),text = contact.name, textAlign = TextAlign.Center, style =  TitleStyle)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
