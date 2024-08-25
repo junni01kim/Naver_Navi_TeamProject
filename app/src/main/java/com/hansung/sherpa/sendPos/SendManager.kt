@@ -18,7 +18,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 val nncBackendUserUrl = BuildConfig.SHERPA_URL
 
-class SendManager(val navController: NavController) {
+class SendManager(val navController: NavController? = null) {
     var myPos = LatLng(0.0, 0.0)
 
     /**
@@ -64,7 +64,7 @@ class SendManager(val navController: NavController) {
         // TODO: 2. 경로 안내 시작에 대한 다이얼로그 띄우기
 
         // TODO: 3. 화면 이동
-        navController.navigate(SherpaScreen.SpecificRoute.name)
+        navController?.navigate(SherpaScreen.SpecificRoute.name)
     }
 
     fun getPos(title: String, body: String) {
