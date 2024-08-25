@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
+import com.hansung.sherpa.emergency.EmergencyManager
 
 private val CustomIconWidth = 33.dp
 
@@ -206,9 +207,27 @@ fun FabExtendedResource() {
 @Preview
 @Composable
 fun ExtendedFABContainer(isVisible: Boolean = true) {
-    val tripleEmrgList = remember {
+    /*val tripleEmrgList = remember {
         mutableStateListOf<Contact>().apply {
             addAll(contactList.subList(0, 3))
+        }
+    }*/
+    var apiList = mutableListOf<Contact>()
+    val imgList = listOf<Int>(R.drawable._1, R.drawable._2, R.drawable._3, R.drawable._4, R.drawable._5,)
+    EmergencyManager().getAllEmergency(1)
+        .data
+        ?.forEachIndexed { index, emergency ->
+            val c = Contact(
+                name = emergency.name,
+                phone = emergency.telNum,
+                image = imgList[index],
+                address = emergency.address
+            )
+            apiList.add(c)
+        }
+    val tripleEmrgList = remember {
+        mutableStateListOf<Contact>().apply {
+            addAll(apiList)
         }
     }
     val visibleList = remember {
