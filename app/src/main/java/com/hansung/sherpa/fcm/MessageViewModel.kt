@@ -50,6 +50,7 @@ class MessageViewModel : ViewModel() {
             "알림" -> this.updateValue(title, body)
             "위치" -> sendManager.getPos(title, body)
             "일정" -> sendManager.scheduleStart(title, body)
+            "경로안내" -> {/*TODO: 토스트 띄우기*/}
             "예약경로" -> sendManager.navigationStart(title, body)
             else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
         }
