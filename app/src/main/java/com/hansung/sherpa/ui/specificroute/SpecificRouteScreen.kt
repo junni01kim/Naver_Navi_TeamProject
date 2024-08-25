@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.sendInfo.SendPos.SendManager
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
@@ -59,7 +61,11 @@ enum class DragValue { Start, Center, End }
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun SpecificRouteScreen(navController: NavController, response:TransportRoute){
+fun SpecificRouteScreen(
+    navController: NavController,
+    response:TransportRoute,
+    caretakerPosViewModel: CaretakerPosViewModel
+){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
     val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
@@ -86,8 +92,8 @@ fun SpecificRouteScreen(navController: NavController, response:TransportRoute){
     val routeDivation = RouteDivation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
 
-    var careTakerPos by remember { mutableStateOf(LatLng(0.0,0.0)) }
     val sendManager = SendManager()
+    val caretakerPos = caretakerPosViewModel.latLng.observeAsState()
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
@@ -207,6 +213,8 @@ fun SpecificRouteScreen(navController: NavController, response:TransportRoute){
             }
         }
     ){
+        if(StaticValue.userInfo.role1 == "CAREGIVER")
+            MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), markerIcon)
         MarkerComponent(myPos, markerIcon)
         DrawPathOverlay(coordParts, colorParts, passedRoute)
     }

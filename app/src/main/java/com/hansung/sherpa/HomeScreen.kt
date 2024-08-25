@@ -113,6 +113,8 @@ fun HomeScreen(
                     ),
                     onLocationChange = {
                         loc.value = LatLng(it.latitude, it.longitude)
+
+                        // 사용자는 서버에 내 위치를 전송한다.
                         if(StaticValue.userInfo.role1 == "CARETAKER") sendManager.sendMyPos(loc.value)
                     }) {
                     if(StaticValue.userInfo.role1 == "CAREGIVER")
