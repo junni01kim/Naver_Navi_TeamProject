@@ -1,5 +1,7 @@
 package com.hansung.sherpa.ui.main
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.contentcapture.ContentCaptureManager.Companion.isEnabled
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -86,19 +89,27 @@ fun EmergencyOptionModal(openDialog: MutableState<Boolean> = remember { mutableS
                     Text(text = "주소: ${contact.address}", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(text = "설명: 아버지입니다.")
                 }
-                EmergencyOptionButton(onDismissRequest)
+                EmergencyOptionButton(onDismissRequest, contact.phone)
             }
         }
     }
 }
 
 @Composable
-fun EmergencyOptionButton(onDismissRequest: () -> Unit = {}) {
+fun EmergencyOptionButton(onDismissRequest: () -> Unit = {}, phone: String = "010-0000-0000") {
+    val context = LocalContext.current
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        OutlinedButton(onClick = onDismissRequest) {
+        OutlinedButton(onClick = {
+            onDismissRequest()
+            val phoneNumber = "tel:${phone}" // 전화번호를 실제 번호로 변경하세요
+            val intent = Intent(Intent.ACTION_DIAL).apply {
+                data = Uri.parse(phoneNumber)
+            }
+            context.startActivity(intent)
+        }) {
             Text(text = "전화하기")
         }
         FilledTonalButton(onClick = onDismissRequest) {
