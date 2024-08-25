@@ -40,7 +40,6 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
             // 다이얼로그
             createMessageViewModel(message)
         }
-
     }
 
     private val random = Random
