@@ -200,6 +200,8 @@ fun ContactCard(contact: Contact) {
                 Column(
                     modifier = Modifier.wrapContentWidth(),
                 ) {
+                    /*
+                    * 프로필 수정 보류
                     Box(
                         modifier = Modifier
                             .offset(x = (57).dp, y = (0).dp) // Image와 겹치도록 위치 조정
@@ -214,6 +216,7 @@ fun ContactCard(contact: Contact) {
                                 .padding(2.dp)
                         )
                     }
+                    */
                     Image(
                         bitmap = contact.image,
                         contentDescription = "배경사진",
