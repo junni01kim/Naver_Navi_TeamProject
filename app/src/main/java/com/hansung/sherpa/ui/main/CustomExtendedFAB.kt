@@ -1,6 +1,9 @@
 package com.hansung.sherpa.ui.main
 
+import android.graphics.BitmapFactory
+import android.os.Build
 import androidx.annotation.DrawableRes
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
@@ -39,6 +42,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -54,6 +59,7 @@ import com.hansung.sherpa.emergency.EmergencyManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Base64
 
 private val CustomIconWidth = 33.dp
 
@@ -71,6 +77,7 @@ sealed class IconType {
     data class Vector(val imageVector: ImageVector) : IconType()
     data class Resource(val resId: Int) : IconType()
     data class Painter(@DrawableRes val resId: Int): IconType()
+    data class Bitmap(val imageBitmap: ImageBitmap): IconType()
 }
 
 private val ExtendedFabCollapseAnimation = fadeOut(
@@ -179,6 +186,11 @@ fun CustomIcon(icon: IconType, contentDescription: String?) {
                 .aspectRatio(1f)
                 .clip(CircleShape), painter = painterResource(id = icon.resId), contentScale = ContentScale.Crop, contentDescription = contentDescription)
         }
+        is IconType.Bitmap -> {
+            Image(modifier = modifier
+                .aspectRatio(1f)
+                .clip(CircleShape), bitmap = icon.imageBitmap, contentScale = ContentScale.Crop, contentDescription = contentDescription)
+        }
     }
 }
 
@@ -206,6 +218,7 @@ fun FabExtendedResource() {
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun ExtendedFABContainer(isVisible: Boolean = true) {
@@ -220,11 +233,12 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
         val apiList = withContext(Dispatchers.IO) {
             val result = EmergencyManager().getAllEmergency(1).data
             result?.mapIndexed { index, emergency ->
+                val byteArray = decodeFileData(emergency.fileData)
                 Contact(
                     emergencyId = emergency.emergencyId,
                     name = emergency.name,
                     phone = emergency.telNum,
-                    image = imgList.getOrElse(index) { R.drawable._1 }, // 인덱스 초과 시 기본 이미지 설정
+                    image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).asImageBitmap(), // 인덱스 초과 시 기본 이미지 설정
                     address = emergency.address,
                     bookmarkYn = emergency.bookmarkYn
                 )
@@ -259,7 +273,7 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
                     CustomExtendedFAB(
                         name = item.name,
                         phone = item.phone,
-                        icon = IconType.Painter(item.image),
+                        icon = IconType.Bitmap(item.image),
                         expanded = visibleList[index],
                         openDialog = openDialog
                     )
@@ -275,4 +289,9 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
             }
         }
     }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun decodeFileData(base64String: String): ByteArray {
+    return Base64.getDecoder().decode(base64String)
 }

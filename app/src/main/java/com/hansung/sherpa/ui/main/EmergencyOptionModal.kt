@@ -103,7 +103,7 @@ fun EmergencyOptionButton(onDismissRequest: () -> Unit = {}, phone: String = "01
     ) {
         OutlinedButton(onClick = {
             onDismissRequest()
-            val phoneNumber = "tel:${phone}" // 전화번호를 실제 번호로 변경하세요
+            val phoneNumber = "tel:${phone}"
             val intent = Intent(Intent.ACTION_DIAL).apply {
                 data = Uri.parse(phoneNumber)
             }

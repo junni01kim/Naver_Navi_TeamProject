@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -214,7 +215,7 @@ fun ContactCard(contact: Contact) {
                         )
                     }
                     Image(
-                        painter = painterResource(id = contact.image),
+                        bitmap = contact.image,
                         contentDescription = "배경사진",
                         modifier = Modifier
                             .offset(x = (0).dp, y = (-10).dp)
@@ -264,7 +265,7 @@ data class Contact(
     val address: String,
     val phone: String,
     val bookmarkYn: String,
-    @DrawableRes val image: Int
+    val image: ImageBitmap
 )
 
 @Composable
@@ -312,7 +313,7 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
                                     .aspectRatio(1f)
                             ) {
                                 Image(
-                                    painter = painterResource(id = item.image),
+                                    bitmap = item.image,
                                     contentDescription = "프로필 사진",
                                     modifier = Modifier
                                         .size(60.dp)
@@ -337,18 +338,6 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
     }
 
 }
-
-@Preview
-@Composable
-fun PreviewSelectContactDialog() {
-    val contactList : List<Contact> = listOf(
-        Contact(0, "홍길동", "부산광역시 동래구 석사북로 9-2(사직동) 47856 한국", "010-1111-1111", "N", R.drawable._1),
-        Contact(0, "엄홍길", "강원도 정선군 북평면 오대천로 600-16 26100 한국", "010-2222-2222", "N", R.drawable._2),
-        Contact(0, "고길동", "경상북도 김천시 봉산면 예지1길 45 39563 한국", "010-3333-3333", "N", R.drawable._3)
-    )
-    SelectContactDialog(contactList, {})
-}
-
 
 @Preview
 @Composable
@@ -390,15 +379,4 @@ fun PreviewAddContactButton() {
 @Composable
 fun PreviewAddEmergencyButton() {
     AddEmergencyButton(true)
-}
-
-@Preview
-@Composable
-fun PreviewContactCard() {
-    val contactList : List<Contact> = listOf(
-        Contact(0, "홍길동", "부산광역시 동래구 석사북로 9-2(사직동) 47856 한국", "010-1111-1111", "N", R.drawable._1),
-        Contact(0, "엄홍길", "강원도 정선군 북평면 오대천로 600-16 26100 한국", "010-2222-2222", "N", R.drawable._2),
-        Contact(0, "고길동", "경상북도 김천시 봉산면 예지1길 45 39563 한국", "010-3333-3333", "N", R.drawable._3),
-    )
-    ContactCard(contactList[0])
 }
