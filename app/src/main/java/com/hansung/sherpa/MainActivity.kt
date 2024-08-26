@@ -39,9 +39,6 @@ import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
 import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
 import com.hansung.sherpa.sendInfo.ReceiveManager
-import com.hansung.sherpa.FCM.MessageViewModel
-import com.hansung.sherpa.FCM.PermissionDialog
-import com.hansung.sherpa.FCM.RationaleDialog
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity

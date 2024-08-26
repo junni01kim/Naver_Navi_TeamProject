@@ -34,7 +34,6 @@ import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
-import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.sendInfo.SendPos.SendManager
 import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
