@@ -122,8 +122,8 @@ fun HomeScreen(
                     }) {
                     if(StaticValue.userInfo.role1 == "CAREGIVER")
                         MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), caretakerIcon)
-                    else
-                        MarkerComponent(myPos, caregiverIcon)
+
+                    MarkerComponent(myPos, caregiverIcon)
                 }
 
                 var destinationValue by remember { mutableStateOf("") }

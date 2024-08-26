@@ -218,8 +218,9 @@ fun SpecificRouteScreen(
     ){
         if(StaticValue.userInfo.role1 == "CAREGIVER")
             MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), caretakerIcon)
-        else
-            MarkerComponent(myPos, caregiverIcon)
+
+        MarkerComponent(myPos, caregiverIcon)
+
         DrawPathOverlay(coordParts, colorParts, passedRoute)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
