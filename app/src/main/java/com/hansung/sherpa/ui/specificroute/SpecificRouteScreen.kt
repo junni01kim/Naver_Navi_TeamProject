@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,11 +36,13 @@ import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
-import com.hansung.sherpa.sendInfo.SendPos.SendManager
+import com.hansung.sherpa.sendInfo.send.SendManager
 import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
+import com.hansung.sherpa.sendInfo.CaregiverViewModel
+import com.hansung.sherpa.sendInfo.CaretakerViewModel
+import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
@@ -65,8 +68,10 @@ enum class DragValue { Start, Center, End }
 @Composable
 fun SpecificRouteScreen(
     navController: NavController,
-    response:TransportRoute,
-    caretakerPosViewModel: CaretakerPosViewModel
+    response: TransportRoute,
+    partnerViewModel: PartnerViewModel,
+    caregiverViewModel: CaregiverViewModel,
+    caretakerViewModel: CaretakerViewModel
 ){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
@@ -94,10 +99,14 @@ fun SpecificRouteScreen(
     var startNavigation by remember { mutableStateOf(false)}
 
     val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
-    val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_xxxhdpi)
+    val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_mdpi)
 
     val sendManager = SendManager()
-    val partnerPos = caretakerPosViewModel.latLng.observeAsState()
+    val partnerPos = partnerViewModel.latLng.observeAsState()
+    val caretakerCoordParts = caregiverViewModel.coordParts.observeAsState()
+    val caretakerColorParts = caregiverViewModel.colorPart.observeAsState()
+    val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
+
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
      *
@@ -129,7 +138,8 @@ fun SpecificRouteScreen(
                     RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
                 coordParts[0] = newTransportRoute
 
-                // 경로 재 요청으로 기존 진행 값 초기화
+                sendManager.startNavigation(response, coordParts, colorParts)
+
                 routeDivation.nowSection = 0
                 passedRoute[0] = 0.0
                 routeDivation.renewWholeDistance(coordParts[0])
@@ -152,7 +162,8 @@ fun SpecificRouteScreen(
             myPos = LatLng(it.latitude, it.longitude)
 
             // 상대방에게 내 위치를 전송한다.
-            sendManager.sendPos(myPos)
+            if(startNavigation) sendManager.startNavigation(response, coordParts, colorParts) //sendManager.sendNavigation(myPos, passedRoute)
+            else sendManager.sendPos(myPos)
 
             /**
              * 경로 이탈 시 실행되는 함수
@@ -207,6 +218,9 @@ fun SpecificRouteScreen(
                             routeDivation.nowSection = 0
                             passedRoute[nowSubPath] = 0.0
                             routeDivation.renewWholeDistance(coordParts[nowSubPath])
+
+                            // 갱신된 경로 재전송ㅕ
+                            sendManager.sendRoute(coordParts, colorParts)
                         } else {
                             Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT)
                                 .show()
@@ -226,7 +240,8 @@ fun SpecificRouteScreen(
             MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
         }
 
-        DrawPathOverlay(coordParts, colorParts, passedRoute)
+        if(StaticValue.userInfo.role1 == "CARETAKER") DrawPathOverlay(coordParts, colorParts, passedRoute)
+        else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 

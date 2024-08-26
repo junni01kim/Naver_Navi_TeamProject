@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,8 +33,9 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
-import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
-import com.hansung.sherpa.sendInfo.ReceiveManager
+import com.hansung.sherpa.sendInfo.CaregiverViewModel
+import com.hansung.sherpa.sendInfo.CaretakerViewModel
+import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.common.ExampleAlam
@@ -61,10 +63,13 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var locationSource: FusedLocationSource
 
+    lateinit var navController: NavHostController
+
     // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
     private val messageViewModel: MessageViewModel by viewModels()
-    private val caretakerPosViewModel: CaretakerPosViewModel by viewModels()
-    private val receiveManager = ReceiveManager()
+    private val partnerViewModel: PartnerViewModel by viewModels()
+    private val caretakerViewModel: CaretakerViewModel by viewModels()
+    private val caregiverViewModel: CaregiverViewModel by viewModels()
 
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -81,10 +86,14 @@ class MainActivity : ComponentActivity() {
 
             when (topic) {
                 "알림" -> messageViewModel.updateValue(title, body)
-                "위치" -> caretakerPosViewModel.getLatLng(title, body)
+                "위치" -> partnerViewModel.getLatLng(title, body)
                 "일정" -> messageViewModel.updateSchedule(title, body)//receiveManager.scheduleStart(title, body)
                 "경로안내" -> {/*TODO: 토스트 띄우기*/}
-                "예약경로" -> receiveManager.navigationStart(title, body)
+                "예약경로" -> caregiverViewModel.receiveRoute(title, body)
+                "안내시작" -> {
+                    caregiverViewModel.startNavigation(title, body)
+                    navController.navigate(SherpaScreen.SpecificRoute.name)
+                }
                 else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
             }
         }
@@ -126,7 +135,7 @@ class MainActivity : ComponentActivity() {
 
                     // 화면 간 이동에 대한 함수
                     // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
-                    val navController = rememberNavController()
+                    navController = rememberNavController()
                     NavHost(
                         navController = navController,
                         startDestination = SherpaScreen.Start.name
@@ -142,7 +151,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = SherpaScreen.Home.name){
                             ExampleAlam(messageViewModel)
-                            HomeScreen(navController, Modifier.padding(innerPadding), caretakerPosViewModel)
+                            HomeScreen(navController, Modifier.padding(innerPadding), partnerViewModel)
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
                             arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
@@ -151,7 +160,7 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
-                            SpecificRouteScreen(navController, StaticValue.transportRoute, caretakerPosViewModel)
+                            SpecificRouteScreen(navController, StaticValue.transportRoute, partnerViewModel, caregiverViewModel, caretakerViewModel)
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->

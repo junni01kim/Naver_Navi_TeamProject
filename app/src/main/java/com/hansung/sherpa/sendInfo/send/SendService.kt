@@ -1,4 +1,4 @@
-package com.hansung.sherpa.sendInfo.SendPos
+package com.hansung.sherpa.sendInfo.send
 
 import okhttp3.ResponseBody
 import retrofit2.Call

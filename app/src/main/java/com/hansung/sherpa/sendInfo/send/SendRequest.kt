@@ -1,4 +1,4 @@
-package com.hansung.sherpa.sendInfo.SendPos
+package com.hansung.sherpa.sendInfo.send
 
 class SendRequest (
     title:String, body: String, token:String = "None"
