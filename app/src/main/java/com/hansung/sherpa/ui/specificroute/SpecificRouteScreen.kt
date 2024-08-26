@@ -31,6 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.hansung.sherpa.MarkerComponent
+import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
@@ -69,7 +70,6 @@ fun SpecificRouteScreen(
 ){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
-    val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
 
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
@@ -94,7 +94,7 @@ fun SpecificRouteScreen(
     var startNavigation by remember { mutableStateOf(false)}
 
     val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
-    val caregiverIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_xxxhdpi)
 
     val sendManager = SendManager()
     val partnerPos = caretakerPosViewModel.latLng.observeAsState()

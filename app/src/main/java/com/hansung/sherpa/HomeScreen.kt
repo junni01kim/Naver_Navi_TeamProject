@@ -1,5 +1,7 @@
 package com.hansung.sherpa
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -73,7 +75,7 @@ fun HomeScreen(
         }
     }
     val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
-    val caregiverIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_mdpi)
 
     // Jetpack Compose
     var mapProperties by remember {
@@ -209,6 +211,7 @@ fun HomeScreen(
     Marker(state = MarkerState(position = loc), markerIcon, anchor = Offset(0.5F, 0.5F))
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview
 @Composable
 fun HomePreview(){
