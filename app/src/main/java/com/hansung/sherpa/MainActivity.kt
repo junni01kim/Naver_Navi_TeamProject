@@ -29,11 +29,14 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
-import com.hansung.sherpa.FCM.MessageViewModel
-import com.hansung.sherpa.FCM.PermissionDialog
-import com.hansung.sherpa.FCM.RationaleDialog
+import com.hansung.sherpa.fcm.MessageViewModel
+import com.hansung.sherpa.fcm.PermissionDialog
+import com.hansung.sherpa.fcm.RationaleDialog
+import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
+import com.hansung.sherpa.sendInfo.ReceiveManager
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
+import com.hansung.sherpa.ui.common.ExampleAlam
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
 import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
@@ -59,13 +62,31 @@ class MainActivity : ComponentActivity() {
     private lateinit var locationSource: FusedLocationSource
 
     // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
-    private val viewModel: MessageViewModel by viewModels()
+    private val messageViewModel: MessageViewModel by viewModels()
+    private val caretakerPosViewModel: CaretakerPosViewModel by viewModels()
+    private val receiveManager = ReceiveManager()
 
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val title = intent?.getStringExtra("title") ?: ""
+            val head = intent?.getStringExtra("title") ?: ""
             val body = intent?.getStringExtra("body") ?: ""
-            viewModel.onMessageReceived(title, body)
+            //messageViewModel.onMessageReceived(title, body)
+
+            Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
+
+            Log.i("FCM Log: Data", "$head, $body")
+            val parts = head.split("/")
+            val topic = parts[0]
+            val title = parts[1]
+
+            when (topic) {
+                "알림" -> messageViewModel.updateValue(title, body)
+                "위치" -> caretakerPosViewModel.getLatLng(title, body)
+                "일정" -> messageViewModel.updateSchedule(title, body)//receiveManager.scheduleStart(title, body)
+                "경로안내" -> {/*TODO: 토스트 띄우기*/}
+                "예약경로" -> receiveManager.navigationStart(title, body)
+                else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
+            }
         }
     }
 
@@ -120,8 +141,8 @@ class MainActivity : ComponentActivity() {
                             SignupScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.Home.name){
-                            ExampleAlam(viewModel)
-                            HomeScreen(navController, Modifier.padding(innerPadding))
+                            ExampleAlam(messageViewModel)
+                            HomeScreen(navController, Modifier.padding(innerPadding), caretakerPosViewModel)
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
                             arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
@@ -130,7 +151,7 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
-                            SpecificRouteScreen(StaticValue.transportRoute)
+                            SpecificRouteScreen(navController, StaticValue.transportRoute, caretakerPosViewModel)
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->
