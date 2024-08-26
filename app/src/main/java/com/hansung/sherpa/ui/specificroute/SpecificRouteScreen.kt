@@ -36,6 +36,7 @@ import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.sendInfo.SendPos.SendManager
+import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaretakerPosViewModel

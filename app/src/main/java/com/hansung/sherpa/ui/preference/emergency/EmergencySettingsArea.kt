@@ -24,15 +24,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.emergency.Emergency
 import com.hansung.sherpa.emergency.EmergencyManager
-import com.hansung.sherpa.emergency.EmergencyResponse
 import com.hansung.sherpa.ui.preference.Divider
-import com.hansung.sherpa.ui.theme.tertiaryLight
 import com.hansung.sherpa.user.UserManager
 
 /**

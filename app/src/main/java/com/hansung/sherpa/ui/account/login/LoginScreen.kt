@@ -23,8 +23,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.dialog.SherpaDialog
-import com.hansung.sherpa.dialog.SherpaDialogParm
+import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.ui.common.SherpaDialogParm
 import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.user.UserManager
 

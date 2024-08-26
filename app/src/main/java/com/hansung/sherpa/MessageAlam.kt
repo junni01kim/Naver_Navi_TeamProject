@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.FCM.MessageViewModel
+import com.hansung.sherpa.ui.common.SherpaDialog
 
 @Composable
 fun ExampleAlam(messageViewModel: MessageViewModel) {

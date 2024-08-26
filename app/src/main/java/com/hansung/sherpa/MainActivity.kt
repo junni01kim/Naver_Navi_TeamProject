@@ -1,10 +1,13 @@
 package com.hansung.sherpa
 
 import android.Manifest
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.graphics.PointF
+import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +19,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -34,6 +39,9 @@ import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
 import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
 import com.hansung.sherpa.sendInfo.ReceiveManager
+import com.hansung.sherpa.FCM.MessageViewModel
+import com.hansung.sherpa.FCM.PermissionDialog
+import com.hansung.sherpa.FCM.RationaleDialog
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
@@ -52,6 +60,7 @@ import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
+import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
 class MainActivity : ComponentActivity() {

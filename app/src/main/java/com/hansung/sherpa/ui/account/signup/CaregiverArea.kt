@@ -1,6 +1,5 @@
 package com.hansung.sherpa.ui.account.signup
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,14 +21,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.dialog.SherpaDialogParm
+import com.hansung.sherpa.ui.common.SherpaDialogParm
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaButtonColor
 import com.hansung.sherpa.sherpares.SherpaColor
