@@ -82,7 +82,8 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
 
         val title = message.title ?: "제목 없음"
         val body = message.body ?: "내용 없음"
-        val intent = Intent("FCM_MESSAGE")
+        val intent = Intent("FCM_MESSAGE").setPackage("com.hansung.sherpa")
+
         intent.putExtra("title", title)
         intent.putExtra("body", body)
 
