@@ -18,7 +18,7 @@ class SendManager() {
      * 내 위치(사용자 위치)를 서버에게 전달해주는 함수
      */
     fun sendMyPos(myPos: LatLng) {
-        val request = SendRequest("e5iWfEMESnW1uJJgHsuZYt:APA91bF2tWJ08VfXN-xmV6SdTUNJu_M4b4l0vXcHlZsQ-DqJvc3pkfPXot4xxV3LC3HKiWccqMY195PZlo6fKnGfLbgPS7w0hIMd-b-R4IDbnfZmjRpY3ykRNc2OzPPTMC1fqIFUDdev","위치/사용자위치",Gson().toJson(myPos))
+        val request = SendRequest("eSGfk_33RIG5PTTb0rsCUM:APA91bG4Jc-xJtzK52Xz7h_Vhd6wg-5as7i_oo0qXcoVNNfTyPiUOu9RIH9TTtZOn237T3JjDd1qpaaIc6syrmNEZvKqpWJLR4WpsIUxs0TcwU3CrQYpXXXWeSG7gxqXGVwXBhlepuLc","위치/사용자위치",Gson().toJson(myPos))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)

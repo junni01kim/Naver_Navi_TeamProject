@@ -41,6 +41,7 @@ import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
@@ -92,9 +93,11 @@ fun SpecificRouteScreen(
     val routeDivation = RouteDivation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
 
+    val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caregiverIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+
     val sendManager = SendManager()
     val caretakerPos = caretakerPosViewModel.latLng.observeAsState()
-
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
      *
@@ -214,8 +217,9 @@ fun SpecificRouteScreen(
         }
     ){
         if(StaticValue.userInfo.role1 == "CAREGIVER")
-            MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), markerIcon)
-        MarkerComponent(myPos, markerIcon)
+            MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), caretakerIcon)
+        else
+            MarkerComponent(myPos, caregiverIcon)
         DrawPathOverlay(coordParts, colorParts, passedRoute)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------

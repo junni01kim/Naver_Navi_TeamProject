@@ -43,6 +43,7 @@ import com.hansung.sherpa.ui.main.CustomNavigationDrawer
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
@@ -71,7 +72,9 @@ fun HomeScreen(
             }
         }
     }
-    val markerIcon = OverlayImage.fromResource(com.naver.maps.map.R.drawable.navermap_location_overlay_icon)
+    val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caregiverIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+
     // Jetpack Compose
     var mapProperties by remember {
         mutableStateOf(
@@ -96,7 +99,7 @@ fun HomeScreen(
     val caretakerPos = caretakerPosViewModel.latLng.observeAsState()
     // TODO: 김명준 끝----
 
-    val loc = remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+    var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
         CustomNavigationDrawer(
             navController = navController,
@@ -112,14 +115,15 @@ fun HomeScreen(
                         isLocationButtonEnabled = true,
                     ),
                     onLocationChange = {
-                        loc.value = LatLng(it.latitude, it.longitude)
+                        myPos = LatLng(it.latitude, it.longitude)
 
                         // 사용자는 서버에 내 위치를 전송한다.
-                        if(StaticValue.userInfo.role1 == "CARETAKER") sendManager.sendMyPos(loc.value)
+                        if(StaticValue.userInfo.role1 == "CARETAKER") sendManager.sendMyPos(myPos)
                     }) {
                     if(StaticValue.userInfo.role1 == "CAREGIVER")
-                        MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), markerIcon)
-                    MarkerComponent(loc.value, markerIcon)
+                        MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), caretakerIcon)
+                    else
+                        MarkerComponent(myPos, caregiverIcon)
                 }
 
                 var destinationValue by remember { mutableStateOf("") }
