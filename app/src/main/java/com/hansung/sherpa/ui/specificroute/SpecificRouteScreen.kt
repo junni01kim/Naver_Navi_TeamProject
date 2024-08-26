@@ -97,7 +97,7 @@ fun SpecificRouteScreen(
     val caregiverIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
 
     val sendManager = SendManager()
-    val caretakerPos = caretakerPosViewModel.latLng.observeAsState()
+    val partnerPos = caretakerPosViewModel.latLng.observeAsState()
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
      *
@@ -151,8 +151,8 @@ fun SpecificRouteScreen(
         onLocationChange = {
             myPos = LatLng(it.latitude, it.longitude)
 
-            // 사용자는 서버에 내 위치를 전송한다.
-            if(StaticValue.userInfo.role1 == "CARETAKER") sendManager.sendMyPos(myPos)
+            // 상대방에게 내 위치를 전송한다.
+            sendManager.sendPos(myPos)
 
             /**
              * 경로 이탈 시 실행되는 함수
@@ -180,6 +180,7 @@ fun SpecificRouteScreen(
                          * 다른 타입(대중교통)의 경우 대중교통을 잘못 탑승했다고 판단해 경로 안내를 종료하고 다시 요청받도록 한다.
                          */
                         val nowSubPath = routeDivation.nowSubpath
+
                         if (response.subPath[nowSubPath].trafficType == 3) {
                             Log.d("RouteControl", "경로이탈")
                             // 너무 많이나와서 잠궈 둠
@@ -216,10 +217,14 @@ fun SpecificRouteScreen(
             }
         }
     ){
-        if(StaticValue.userInfo.role1 == "CAREGIVER")
-            MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), caretakerIcon)
-
-        MarkerComponent(myPos, caregiverIcon)
+        if(StaticValue.userInfo.role1 == "CARETAKER"){
+            MarkerComponent(myPos, caretakerIcon)
+            MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
+        }
+        else {
+            MarkerComponent(myPos, caregiverIcon)
+            MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
+        }
 
         DrawPathOverlay(coordParts, colorParts, passedRoute)
     }

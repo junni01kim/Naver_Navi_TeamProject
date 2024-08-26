@@ -1,7 +1,7 @@
 package com.hansung.sherpa.sendInfo.SendPos
 
 class SendRequest (
-    token:String, title:String, body: String
+    title:String, body: String, token:String = "None"
 ) {
     val message: Message
 

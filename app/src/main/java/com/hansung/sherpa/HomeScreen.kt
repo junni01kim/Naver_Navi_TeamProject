@@ -96,7 +96,7 @@ fun HomeScreen(
 
     // TODO: 김명준이 추가한 부분
     val sendManager = SendManager()
-    val caretakerPos = caretakerPosViewModel.latLng.observeAsState()
+    val partnerPos = caretakerPosViewModel.latLng.observeAsState()
     // TODO: 김명준 끝----
 
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
@@ -117,13 +117,17 @@ fun HomeScreen(
                     onLocationChange = {
                         myPos = LatLng(it.latitude, it.longitude)
 
-                        // 사용자는 서버에 내 위치를 전송한다.
-                        if(StaticValue.userInfo.role1 == "CARETAKER") sendManager.sendMyPos(myPos)
+                        // 상대방에게 내 위치를 전송한다.
+                        sendManager.sendPos(myPos)
                     }) {
-                    if(StaticValue.userInfo.role1 == "CAREGIVER")
-                        MarkerComponent(caretakerPos.value?:LatLng(0.0,0.0), caretakerIcon)
-
-                    MarkerComponent(myPos, caregiverIcon)
+                    if(StaticValue.userInfo.role1 == "CARETAKER"){
+                        MarkerComponent(myPos, caretakerIcon)
+                        MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
+                    }
+                    else {
+                        MarkerComponent(myPos, caregiverIcon)
+                        MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
+                    }
                 }
 
                 var destinationValue by remember { mutableStateOf("") }

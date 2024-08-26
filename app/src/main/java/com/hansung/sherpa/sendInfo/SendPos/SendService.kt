@@ -4,8 +4,12 @@ import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface SendService {
     @POST("fcm")
-    fun postSendService(@Body request: SendRequest): Call<ResponseBody>
+    fun postSendServiceToToken(@Body request: SendRequest): Call<ResponseBody>
+
+    @POST("fcm/pos/{userId}")
+    fun postSendService(@Path("userId") userId: Int, @Body request: SendRequest): Call<ResponseBody>
 }
