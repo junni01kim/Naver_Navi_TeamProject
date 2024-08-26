@@ -55,6 +55,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.emergency.EmergencyManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -231,7 +232,7 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
     // 긴급연락처 리스트 가져오는 작업 - 백그라운드로 진행
     LaunchedEffect(Unit) {
         val apiList = withContext(Dispatchers.IO) {
-            val result = EmergencyManager().getAllEmergency(1).data
+            val result = EmergencyManager().getAllEmergency(StaticValue.userInfo.userId!!).data
             result?.mapIndexed { index, emergency ->
                 val byteArray = decodeFileData(emergency.fileData)
                 Contact(
