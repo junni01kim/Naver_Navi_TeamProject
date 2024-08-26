@@ -4,14 +4,13 @@ package com.hansung.sherpa.ui.specificroute
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
@@ -30,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.compose.transit.TransitManager
-import com.hansung.sherpa.deviation.RouteDivation
+import com.hansung.sherpa.deviation.RouteDeviation
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
@@ -55,13 +54,17 @@ enum class DragValue { Start, Center, End }
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun SpecificRouteScreen(response:TransportRoute){
+fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
     val screenSizePx = with(density) {screenHeightSizeDp.toPx()} // 화면 밀도에 따른 화면 크기 PxSize
+
+
+    //TODO 좌표 삽입 reponse 업데이트
+
 
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     /**
@@ -77,7 +80,7 @@ fun SpecificRouteScreen(response:TransportRoute){
     val coordParts = remember { setCoordParts(response) }
     val colorParts = setColerParts(response)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
-    val routeDivation = RouteDivation(coordParts, passedRoute)
+    val routeDivation = RouteDeviation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
 
     /**
@@ -201,11 +204,10 @@ fun SpecificRouteScreen(response:TransportRoute){
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-
-    Button(
-        modifier = Modifier.size(20.dp),
-        onClick = { dialogFlag = true }
-    ){}
+    
+    BackHandler {
+        goBack()
+    }
 
     BottomSheetScaffold(
         sheetDragHandle = {},

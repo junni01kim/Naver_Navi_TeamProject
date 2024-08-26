@@ -137,7 +137,7 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
-                            SpecificRouteScreen(StaticValue.transportRoute)
+                            SpecificRouteScreen(StaticValue.transportRoute, {navController.navigate(SherpaScreen.Home.name)})
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->
