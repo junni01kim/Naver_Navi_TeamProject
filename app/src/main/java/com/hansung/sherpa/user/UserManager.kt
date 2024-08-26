@@ -15,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 val nncBackendUserUrl = BuildConfig.SHERPA_URL+"user/"
+val nncBackendFcmUrl = BuildConfig.SHERPA_URL+"fcm/"
 val nncBackendRelationUrl = BuildConfig.SHERPA_URL+"userRelation/"
 
 class UserManager {
@@ -215,7 +216,7 @@ class UserManager {
             launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(nncBackendFcmUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UpdateFcmService::class.java)
