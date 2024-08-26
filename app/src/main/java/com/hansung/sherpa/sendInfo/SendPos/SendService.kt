@@ -10,6 +10,6 @@ interface SendService {
     @POST("fcm")
     fun postSendServiceToToken(@Body request: SendRequest): Call<ResponseBody>
 
-    @POST("fcm/pos/{userId}")
+    @POST("fcm/send/{userId}")
     fun postSendService(@Path("userId") userId: Int, @Body request: SendRequest): Call<ResponseBody>
 }
