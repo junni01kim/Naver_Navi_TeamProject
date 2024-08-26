@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -138,14 +137,14 @@ fun SpecificRouteScreen(
                     RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
                 coordParts[0] = newTransportRoute
 
-                sendManager.startNavigation(response, coordParts, colorParts)
-
                 routeDivation.nowSection = 0
                 passedRoute[0] = 0.0
                 routeDivation.renewWholeDistance(coordParts[0])
 
                 startNavigation = true
                 dialogFlag = false
+
+                sendManager.startNavigation(response)
             }
         }
     }
@@ -162,7 +161,7 @@ fun SpecificRouteScreen(
             myPos = LatLng(it.latitude, it.longitude)
 
             // 상대방에게 내 위치를 전송한다.
-            if(startNavigation) sendManager.startNavigation(response, coordParts, colorParts) //sendManager.sendNavigation(myPos, passedRoute)
+            if(startNavigation) sendManager.sendPos(myPos, passedRoute)
             else sendManager.sendPos(myPos)
 
             /**
@@ -219,8 +218,8 @@ fun SpecificRouteScreen(
                             passedRoute[nowSubPath] = 0.0
                             routeDivation.renewWholeDistance(coordParts[nowSubPath])
 
-                            // 갱신된 경로 재전송ㅕ
-                            sendManager.sendRoute(coordParts, colorParts)
+                            // 갱신된 경로 재전송
+                            sendManager.devateRoute(coordParts, colorParts)
                         } else {
                             Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT)
                                 .show()

@@ -6,6 +6,8 @@ import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.sendInfo.receive.ReceivePos
+import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
 import okhttp3.ResponseBody
@@ -64,8 +66,8 @@ class SendManager() {
             })
     }
 
-    fun sendNavigation(myPos: LatLng, passedRoute:SnapshotStateList<Double>) {
-        val request = SendRequest("경로안내/Pair",Gson().toJson(Pair(myPos,passedRoute)))
+    fun sendPos(myPos: LatLng, passedRoute:SnapshotStateList<Double>) {
+        val request = SendRequest("경로이동/Pair",Gson().toJson(ReceivePos(myPos,passedRoute)))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
@@ -84,8 +86,8 @@ class SendManager() {
             })
     }
 
-    fun sendRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
-        val request = SendRequest("재탐색/Pair",Gson().toJson(Pair(coordParts,colorParts)))
+    fun devateRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
+        val request = SendRequest("재탐색/Pair",Gson().toJson(ReceiveRouteResponse(coordParts,colorParts)))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
@@ -104,8 +106,8 @@ class SendManager() {
             })
     }
 
-    fun startNavigation(transportRoute: TransportRoute, coordParts: SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
-        val request = SendRequest("안내시작/Triple",Gson().toJson(Triple(transportRoute, coordParts,colorParts)))
+    fun startNavigation(transportRoute: TransportRoute) {
+        val request = SendRequest("시작/Triple",Gson().toJson(transportRoute))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)

@@ -10,3 +10,13 @@ data class StartNavigationResponse(
     val coordParts: SnapshotStateList<MutableList<LatLng>>,
     val colorParts: MutableList<ColorPart>
 )
+
+data class ReceiveRouteResponse(
+    val coordParts:SnapshotStateList<MutableList<LatLng>>,
+    val colorParts: MutableList<ColorPart>
+)
+
+data class ReceivePos(
+    val pos: LatLng,
+    val passedRoute:SnapshotStateList<Double>
+)

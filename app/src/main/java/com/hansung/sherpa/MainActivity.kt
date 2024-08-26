@@ -30,12 +30,14 @@ import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.Gson
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
+import com.hansung.sherpa.sendInfo.receive.ReceivePos
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.common.ExampleAlam
@@ -86,14 +88,20 @@ class MainActivity : ComponentActivity() {
 
             when (topic) {
                 "알림" -> messageViewModel.updateValue(title, body)
+                "일정" -> messageViewModel.updateSchedule(title, body)
+                //"예약경로" -> caregiverViewModel.receivePos(title, body)
                 "위치" -> partnerViewModel.getLatLng(title, body)
-                "일정" -> messageViewModel.updateSchedule(title, body)//receiveManager.scheduleStart(title, body)
-                "경로안내" -> {/*TODO: 토스트 띄우기*/}
-                "예약경로" -> caregiverViewModel.receiveRoute(title, body)
-                "안내시작" -> {
+                "경로이동" -> {
+                    val response = Gson().fromJson(body, ReceivePos::class.java)
+                    partnerViewModel.updateLatLng(response.pos)
+                    caregiverViewModel.updatePassedRoute(response.passedRoute)
+                }
+                "재탐색" -> caregiverViewModel.devateRoute(title,body)
+                "시작" -> {
                     caregiverViewModel.startNavigation(title, body)
                     navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
+
                 else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
             }
         }
