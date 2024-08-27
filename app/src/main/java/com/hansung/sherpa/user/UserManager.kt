@@ -15,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 val nncBackendUserUrl = BuildConfig.SHERPA_URL+"user/"
+val nncBackendFcmUrl = BuildConfig.SHERPA_URL+"fcm/"
 val nncBackendRelationUrl = BuildConfig.SHERPA_URL+"userRelation/"
 
 class UserManager {
@@ -37,7 +38,7 @@ class UserManager {
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
                         Log.e("API Log:response(Null)", "UserManager.create: 'response is null'")
-                        result = UserResponse(404, result?.message)
+                        result = UserResponse(404, "UserManager.create: 'response is null'")
                     }
                     else {
                         Log.i("API Log: Success", "create 함수 실행 성공 ${result?.message}")
@@ -215,7 +216,7 @@ class UserManager {
             launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(nncBackendFcmUrl)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UpdateFcmService::class.java)
