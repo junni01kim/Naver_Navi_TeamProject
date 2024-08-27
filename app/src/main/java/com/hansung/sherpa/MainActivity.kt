@@ -33,6 +33,12 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.hansung.sherpa.fcm.*
 import com.hansung.sherpa.fcm.ScheduleViewModel
+import com.hansung.sherpa.itemsetting.Info
+import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
+import com.hansung.sherpa.itemsetting.SectionInfo
+import com.hansung.sherpa.itemsetting.SectionRoute
+import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
@@ -79,8 +85,8 @@ class MainActivity : ComponentActivity() {
             val head = intent?.getStringExtra("title") ?: ""
             val body = intent?.getStringExtra("body") ?: ""
 
-            Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
-            Log.i("FCM Log: Data", "$head, $body")
+            //Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
+            //Log.i("FCM Log: Data", "$head, $body")
 
             val parts = head.split("/")
             val topic = parts[0]
@@ -96,10 +102,13 @@ class MainActivity : ComponentActivity() {
                     partnerViewModel.updateLatLng(response.pos)
                     caregiverViewModel.updatePassedRoute(response.passedRoute)
                 }
-                "재탐색" -> caregiverViewModel.devateRoute(title,body)
+                "재탐색" -> {
+                    Log.d("FCM LOG", "재탐색")
+                    caregiverViewModel.devateRoute(title, body)
+                }
                 "시작" -> {
                     Log.d("FCM LOG", "시작 전송")
-                    caregiverViewModel.startNavigation(title, body)
+                    //caregiverViewModel.startNavigation(title, body)
                     navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
 

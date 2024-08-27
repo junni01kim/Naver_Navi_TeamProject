@@ -37,7 +37,7 @@ class ReceiveManager {
                         result = Gson().fromJson(
                             jsonString,
                             CommonResponse::class.java
-                        ) as CommonResponse
+                        )
                     }
                 } catch(e: IOException){
                     Log.e("API Log: IOException", "getTransportRoute: ${e.message}(e.message)")
@@ -70,7 +70,7 @@ class ReceiveManager {
                         result = Gson().fromJson(
                             jsonString,
                             CommonResponse::class.java
-                        ) as CommonResponse
+                        )
                     }
                 } catch(e: IOException){
                     Log.e("API Log: IOException", "getRoute: ${e.message}(e.message)")

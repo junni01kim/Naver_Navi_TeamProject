@@ -248,34 +248,38 @@ fun SpecificRouteScreen(
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
 
-    Button(
-        modifier = Modifier.size(20.dp),
-        onClick = { dialogFlag = true }
-    ){}
+    if(!startNavigation){
+        Button(
+            modifier = Modifier.size(20.dp),
+            onClick = { dialogFlag = true }
+        ) {}
+    }
 
-    BottomSheetScaffold(
-        sheetDragHandle = {},
-        sheetContainerColor = Color.White,
-        scaffoldState = bottomSheetScaffoldState,
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 20.dp,
-            topEnd = 20.dp
-        ),
-        sheetContent = {
-            Column(
-                verticalArrangement = Arrangement.Top,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
-                SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
-            }
-        },
-        // 해당 부분은 초기 높이임
-        sheetPeekHeight = 85.dp
-    ) {
+    if(StaticValue.userInfo.role1 == "CARETAKER"){
+        BottomSheetScaffold(
+            sheetDragHandle = {},
+            sheetContainerColor = Color.White,
+            scaffoldState = bottomSheetScaffoldState,
+            sheetShape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 20.dp,
+                topEnd = 20.dp
+            ),
+            sheetContent = {
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
+                    SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
+                }
+            },
+            // 해당 부분은 초기 높이임
+            sheetPeekHeight = 85.dp
+        ) {
 
+        }
     }
 }
 

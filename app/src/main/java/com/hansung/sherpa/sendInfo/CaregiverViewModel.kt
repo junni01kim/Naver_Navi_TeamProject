@@ -1,5 +1,6 @@
 package com.hansung.sherpa.sendInfo
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.LiveData
@@ -28,14 +29,16 @@ class CaregiverViewModel : ViewModel()  {
     }
 
     fun startNavigation(title: String, body: String) {
-        val responseJson = ReceiveManager().getTransportRoute().data!!
+        val responseJson = ReceiveManager().getTransportRoute().data!!.replace("\\","")
+        Log.d("API Log", "모든 \\삭제: ${responseJson}")
         val response = Gson().fromJson(responseJson,TransportRoute::class.java)
 
         StaticValue.transportRoute = response
     }
 
     fun devateRoute(title: String, body: String) {
-        val responseJson = ReceiveManager().getRoute().data!!
+        val responseJson = ReceiveManager().getRoute().data!!.replace("\\","")
+        Log.d("API Log", "모든 \\삭제: ${responseJson}")
         val response = Gson().fromJson(responseJson,ReceiveRouteResponse::class.java)
 
         _coordParts.postValue(response.coordParts)
