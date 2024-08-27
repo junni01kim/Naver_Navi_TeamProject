@@ -31,9 +31,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
-import com.hansung.sherpa.fcm.MessageViewModel
-import com.hansung.sherpa.fcm.PermissionDialog
-import com.hansung.sherpa.fcm.RationaleDialog
+import com.hansung.sherpa.fcm.*
 import com.hansung.sherpa.fcm.ScheduleViewModel
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel

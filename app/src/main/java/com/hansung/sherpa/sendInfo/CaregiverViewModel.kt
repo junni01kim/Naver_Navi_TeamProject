@@ -12,6 +12,7 @@ import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
 import com.hansung.sherpa.sendInfo.receive.StartNavigationResponse
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
+import java.nio.ByteBuffer
 
 class CaregiverViewModel : ViewModel()  {
     private val _coordParts = MutableLiveData(mutableStateListOf(mutableListOf(LatLng(0.0,0.0), LatLng(0.0,0.0))))
@@ -28,7 +29,14 @@ class CaregiverViewModel : ViewModel()  {
     }
 
     fun startNavigation(title: String, body: String) {
-        val response = Gson().fromJson(body, TransportRoute::class.java)
+        val buff = ByteBuffer.allocate(body.length / 2)
+        for (i in 0..body.length - 1 step 2) {
+            buff.put(Integer.parseInt(body.substring(i, i + 2), 16).toByte())
+        }
+        buff.rewind()
+        val decodeResponse = Charsets.UTF_8.decode(buff).toString()
+
+        val response = Gson().fromJson(decodeResponse, TransportRoute::class.java)
         StaticValue.transportRoute = response
     }
 

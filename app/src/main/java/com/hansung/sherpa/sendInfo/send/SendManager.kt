@@ -87,7 +87,7 @@ class SendManager() {
     }
 
     fun devateRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
-        val request = SendRequest("재탐색/Pair",Gson().toJson(ReceiveRouteResponse(coordParts,colorParts)))
+        val jsonReceiveRouteResponse = SendRequest("재탐색/Pair",Gson().toJson(ReceiveRouteResponse(coordParts,colorParts)))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
@@ -107,7 +107,14 @@ class SendManager() {
     }
 
     fun startNavigation(transportRoute: TransportRoute) {
-        val request = SendRequest("시작/transportRoute",Gson().toJson(transportRoute))
+        val jsonTransportRoute = Gson().toJson(transportRoute)
+        val tempTransportRoute = jsonTransportRoute.toByteArray(Charsets.UTF_8)
+        var encodingTransportRoute = ""
+        for(i in tempTransportRoute) {
+            val st = String.format("%02X", i)
+            encodingTransportRoute += st
+        }
+        val request = SendRequest("시작/transportRoute",encodingTransportRoute)
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
