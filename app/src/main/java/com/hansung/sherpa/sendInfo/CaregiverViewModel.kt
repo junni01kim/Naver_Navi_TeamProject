@@ -34,14 +34,21 @@ class CaregiverViewModel : ViewModel()  {
             buff.put(Integer.parseInt(body.substring(i, i + 2), 16).toByte())
         }
         buff.rewind()
-        val decodeResponse = Charsets.UTF_8.decode(buff).toString()
+        val decode = Charsets.UTF_8.decode(buff).toString()
 
-        val response = Gson().fromJson(decodeResponse, TransportRoute::class.java)
+        val response = Gson().fromJson(decode, TransportRoute::class.java)
         StaticValue.transportRoute = response
     }
 
     fun devateRoute(title: String, body: String) {
-        val response = Gson().fromJson(body, ReceiveRouteResponse::class.java)
+        val buff = ByteBuffer.allocate(body.length / 2)
+        for (i in 0..body.length - 1 step 2) {
+            buff.put(Integer.parseInt(body.substring(i, i + 2), 16).toByte())
+        }
+        buff.rewind()
+        val decode = Charsets.UTF_8.decode(buff).toString()
+
+        val response = Gson().fromJson(decode, ReceiveRouteResponse::class.java)
         _coordParts.postValue(response.coordParts)
         _colorParts.postValue(response.colorParts)
     }
