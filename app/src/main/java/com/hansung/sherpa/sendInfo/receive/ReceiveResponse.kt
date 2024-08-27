@@ -6,10 +6,10 @@ import com.hansung.sherpa.user.table.User1
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
 
-data class CommonResponse<T>(
+data class CommonResponse(
     var code: Int? = null,
     var message: String? = null,
-    var `data`: T? = null
+    var `data`: String? = null
 )
 
 data class ReceiveRouteResponse(

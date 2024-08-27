@@ -19,6 +19,6 @@ class PartnerViewModel : ViewModel()  {
         val caretakerLatLng = Gson().fromJson(body, LatLng::class.java)
         updateLatLng(caretakerLatLng)
 
-        Log.d("FCM Log:getLatLng", "caretaker latLng: $caretakerLatLng")
+        //Log.d("FCM Log:getLatLng", "caretaker latLng: $caretakerLatLng")
     }
 }

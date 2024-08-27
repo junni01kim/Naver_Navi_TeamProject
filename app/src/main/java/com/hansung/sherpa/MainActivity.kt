@@ -40,6 +40,7 @@ import com.hansung.sherpa.sendInfo.receive.ReceivePos
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.common.MessageAlam
+import com.hansung.sherpa.ui.common.ScheduleAlam
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
 import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
@@ -159,6 +160,7 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = SherpaScreen.Home.name){
                             MessageAlam(messageViewModel)
+                            ScheduleAlam(scheduleViewModel)
                             HomeScreen(navController, Modifier.padding(innerPadding), partnerViewModel)
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",

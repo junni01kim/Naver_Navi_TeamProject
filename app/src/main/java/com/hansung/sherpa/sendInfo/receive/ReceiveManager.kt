@@ -5,7 +5,6 @@ import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.user.UserResponse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -16,8 +15,8 @@ import java.io.IOException
 val nncBackendUserUrl = BuildConfig.SHERPA_URL
 
 class ReceiveManager {
-    fun getTransportRoute():CommonResponse<TransportRoute> {
-        var result: CommonResponse<TransportRoute>? = null
+    fun getTransportRoute():CommonResponse {
+        var result: CommonResponse? = null
         runBlocking {
             launch(Dispatchers.IO) {
                 try{
@@ -34,11 +33,11 @@ class ReceiveManager {
                         result = CommonResponse(404, "getTransportRoute: 'response is null'")
                     }
                     else {
-                        Log.i("API Log: Success", "getTransportRoute 함수 실행 성공 ${result?.message}")
+                        Log.i("API Log: Success", "getTransportRoute 함수 실행 성공 ${jsonString}")
                         result = Gson().fromJson(
                             jsonString,
                             CommonResponse::class.java
-                        ) as CommonResponse<TransportRoute>
+                        ) as CommonResponse
                     }
                 } catch(e: IOException){
                     Log.e("API Log: IOException", "getTransportRoute: ${e.message}(e.message)")
@@ -49,8 +48,8 @@ class ReceiveManager {
         return result?: CommonResponse(500, "에러 원인을 찾을 수 없음")
     }
 
-    fun getRoute(): CommonResponse<ReceiveRouteResponse> {
-        var result: CommonResponse<ReceiveRouteResponse>? = null
+    fun getRoute(): CommonResponse {
+        var result: CommonResponse? = null
         runBlocking {
             launch(Dispatchers.IO) {
                 try{
@@ -71,7 +70,7 @@ class ReceiveManager {
                         result = Gson().fromJson(
                             jsonString,
                             CommonResponse::class.java
-                        ) as CommonResponse<ReceiveRouteResponse>
+                        ) as CommonResponse
                     }
                 } catch(e: IOException){
                     Log.e("API Log: IOException", "getRoute: ${e.message}(e.message)")
