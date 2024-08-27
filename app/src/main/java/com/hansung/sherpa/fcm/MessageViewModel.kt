@@ -25,14 +25,6 @@ class MessageViewModel : ViewModel() {
         _body.postValue(body)
     }
 
-    fun updateSchedule(title: String, body: String){
-        val schedule = Gson().fromJson(body, Schedule::class.java)
-
-        _showDialog.postValue(true)
-        _title.postValue("${schedule.title}")
-        _body.postValue("${schedule.description}")
-    }
-
     // 다이얼로그 닫기
     fun onDialogDismiss() {
         _showDialog.postValue(false)

@@ -34,13 +34,14 @@ import com.google.gson.Gson
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
+import com.hansung.sherpa.fcm.ScheduleViewModel
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.sendInfo.receive.ReceivePos
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
-import com.hansung.sherpa.ui.common.ExampleAlam
+import com.hansung.sherpa.ui.common.MessageAlam
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
 import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
@@ -69,6 +70,7 @@ class MainActivity : ComponentActivity() {
 
     // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
     private val messageViewModel: MessageViewModel by viewModels()
+    private val scheduleViewModel: ScheduleViewModel by viewModels()
     private val partnerViewModel: PartnerViewModel by viewModels()
     private val caretakerViewModel: CaretakerViewModel by viewModels()
     private val caregiverViewModel: CaregiverViewModel by viewModels()
@@ -77,18 +79,17 @@ class MainActivity : ComponentActivity() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val head = intent?.getStringExtra("title") ?: ""
             val body = intent?.getStringExtra("body") ?: ""
-            //messageViewModel.onMessageReceived(title, body)
 
-                    Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
-
+            Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
             Log.i("FCM Log: Data", "$head, $body")
+
             val parts = head.split("/")
             val topic = parts[0]
             val title = parts[1]
 
             when (topic) {
                 "알림" -> messageViewModel.updateValue(title, body)
-                "일정" -> messageViewModel.updateSchedule(title, body)
+                "일정" -> scheduleViewModel.updateSchedule(title, body)
                 //"예약경로" -> caregiverViewModel.receivePos(title, body)
                 "위치" -> partnerViewModel.getLatLng(title, body)
                 "경로이동" -> {
@@ -159,7 +160,7 @@ class MainActivity : ComponentActivity() {
                             SignupScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.Home.name){
-                            ExampleAlam(messageViewModel)
+                            MessageAlam(messageViewModel)
                             HomeScreen(navController, Modifier.padding(innerPadding), partnerViewModel)
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
