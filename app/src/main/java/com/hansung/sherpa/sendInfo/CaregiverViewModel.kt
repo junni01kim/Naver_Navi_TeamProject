@@ -8,11 +8,10 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.sendInfo.receive.ReceiveManager
 import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
-import com.hansung.sherpa.sendInfo.receive.StartNavigationResponse
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
-import java.nio.ByteBuffer
 
 class CaregiverViewModel : ViewModel()  {
     private val _coordParts = MutableLiveData(mutableStateListOf(mutableListOf(LatLng(0.0,0.0), LatLng(0.0,0.0))))
@@ -29,12 +28,12 @@ class CaregiverViewModel : ViewModel()  {
     }
 
     fun startNavigation(title: String, body: String) {
-        val response = Gson().fromJson(body, TransportRoute::class.java)
+        val response = ReceiveManager().getTransportRoute().data!!
         StaticValue.transportRoute = response
     }
 
     fun devateRoute(title: String, body: String) {
-        val response = Gson().fromJson(body, ReceiveRouteResponse::class.java)
+        val response = ReceiveManager().getRoute().data!!
         _coordParts.postValue(response.coordParts)
         _colorParts.postValue(response.colorParts)
     }

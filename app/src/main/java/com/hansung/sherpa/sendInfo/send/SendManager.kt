@@ -21,29 +21,6 @@ val nncBackendUserUrl = BuildConfig.SHERPA_URL
 
 class SendManager() {
     /**
-     * 내 위치(사용자 위치)를 서버에게 전달해주는 함수
-     */
-    fun sendPosToToken(myPos: LatLng) {
-        val request = SendRequest("위치/사용자위치",Gson().toJson(myPos), "eSGfk_33RIG5PTTb0rsCUM:APA91bG4Jc-xJtzK52Xz7h_Vhd6wg-5as7i_oo0qXcoVNNfTyPiUOu9RIH9TTtZOn237T3JjDd1qpaaIc6syrmNEZvKqpWJLR4WpsIUxs0TcwU3CrQYpXXXWeSG7gxqXGVwXBhlepuLc")
-
-        Retrofit.Builder()
-            .baseUrl(nncBackendUserUrl)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(SendService::class.java)
-            .postSendServiceToToken(request).enqueue(object : Callback<ResponseBody> {
-                override fun onResponse(
-                    call: Call<ResponseBody>,
-                    response: Response<ResponseBody>
-                ) {
-                    Log.d("FCM Log", "${response.code()}")
-                }
-
-                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
-            })
-    }
-
-    /**
      * 아래 기술 된 함수들과 오버로딩이 가능하지만, 각 함수의 동작을 정확하게 명시하고 싶어 다르게 구현
      */
     fun sendPos(myPos: LatLng) {
@@ -87,14 +64,15 @@ class SendManager() {
     }
 
     fun devateRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
-        val request = SendRequest("재탐색/Pair",Gson().toJson(ReceiveRouteResponse(coordParts,colorParts)))
+        val request = Gson().toJson(ReceiveRouteResponse(coordParts,colorParts))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(SendService::class.java)
-            .postSendService(StaticValue.userInfo.userId?:-1,request).enqueue(object : Callback<ResponseBody> {
+            .patchUpdateRoute(StaticValue.userInfo.userId?:-1, request)
+            .enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
@@ -107,19 +85,39 @@ class SendManager() {
     }
 
     fun startNavigation(transportRoute: TransportRoute) {
-        val request = SendRequest("시작/transportRoute",Gson().toJson(transportRoute))
+        val request = Gson().toJson(transportRoute)
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(SendService::class.java)
-            .postSendService(StaticValue.userInfo.userId?:-1,request).enqueue(object : Callback<ResponseBody> {
+            .postCreateNavigation(StaticValue.userInfo.userId?:-1,request)
+            .enqueue(object : Callback<ResponseBody> {
                 override fun onResponse(
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    Log.d("FCM Log", "startNavigation: ${response.code()}")
+                    Log.d("FCM Log", "devateRoute: ${response.code()}")
+                }
+
+                override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
+            })
+    }
+
+    fun deleteNavigation() {
+        Retrofit.Builder()
+            .baseUrl(nncBackendUserUrl)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(SendService::class.java)
+            .deleteRoute(StaticValue.userInfo.userId?:-1)
+            .enqueue(object : Callback<ResponseBody> {
+                override fun onResponse(
+                    call: Call<ResponseBody>,
+                    response: Response<ResponseBody>
+                ) {
+                    Log.d("FCM Log", "devateRoute: ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}

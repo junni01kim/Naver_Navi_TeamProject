@@ -180,6 +180,7 @@ fun SpecificRouteScreen(
                             passedRoute[i] = 1.0
                         }
                         startNavigation = false
+                        SendManager().deleteNavigation()
                     }
                     0 -> {
                         routeDivation.renewProcess(myPos)
@@ -224,6 +225,7 @@ fun SpecificRouteScreen(
                             Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT)
                                 .show()
                             // TODO: 경로 안내 종료 및 SpecificRouteScreen 나가기
+                            SendManager().deleteNavigation()
                         }
                     }
                 }

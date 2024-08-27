@@ -90,5 +90,5 @@ fun SherpaSchedule(
 @Preview
 @Composable
 fun SherpaSchedulePreview(){
-    SherpaSchedule("일정 제목", "일정 내용 사과사기 qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", "2024-08-12   22:24", "2024-08-12   23:24") {}
+    SherpaSchedule("일정 제목", "일정 내용 사과사기 qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq", "2024-08-12 22:24", "2024-08-12 23:24") {}
 }
