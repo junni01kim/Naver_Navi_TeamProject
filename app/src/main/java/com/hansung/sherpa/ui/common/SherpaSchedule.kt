@@ -1,11 +1,15 @@
 package com.hansung.sherpa.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
@@ -13,6 +17,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,7 +31,7 @@ fun SherpaSchedule(
     description: String,
     dateBegin: String,
     dateEnd: String,
-    onConfirm: () -> Unit
+    onConfirmation: () -> Unit
 ) {
     Card(
         modifier = Modifier.size(320.dp, 220.dp),
@@ -39,38 +45,33 @@ fun SherpaSchedule(
             verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-//            Text(
-//                text = title,
-//                color = nomalTextColor,
-//                fontSize = 30.sp,
-//                fontWeight = FontWeight.Bold,
-//                fontFamily = PretendardVariable
-//            )
-//
-//            Column(
-//                horizontalAlignment = Alignment.CenterHorizontally
-//            ) {
-//                for (text in message) {
-//                    Text(
-//                        text = text,
-//                        color = lightTextColor,
-//                        fontSize = 15.sp,
-//                        fontWeight = FontWeight.Medium,
-//                        fontFamily = PretendardVariable
-//                    )
-//                }
-//            }
-//
-//            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-//                if (dismissButtonText != "") SherpaButton1(
-//                    dismissButtonText = dismissButtonText,
-//                    onDismissRequest = onDismissRequest
-//                )
-//                SherpaButton2(
-//                    confirmButtonText = confirmButtonText,
-//                    onConfirmation = onConfirmation
-//                )
-//            }
+            Text(
+                text = title,
+                color = nomalTextColor,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = PretendardVariable
+            )
+
+            Text(
+                modifier = Modifier.fillMaxWidth(0.8f),
+                text = description,
+                color = lightTextColor,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = PretendardVariable
+            )
+
+            Row {
+                Text(dateBegin)
+                Box(modifier = Modifier.size(2.dp, 30.dp).clip(CircleShape).background(Color.Black))
+                Text(dateEnd)
+            }
+
+            SherpaButton2(
+                confirmButtonText = "확인",
+                onConfirmation = onConfirmation
+            )
         }
     }
 }
