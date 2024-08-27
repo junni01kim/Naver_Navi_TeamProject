@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
             val body = intent?.getStringExtra("body") ?: ""
             //messageViewModel.onMessageReceived(title, body)
 
-            Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
+                    Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
 
             Log.i("FCM Log: Data", "$head, $body")
             val parts = head.split("/")
@@ -98,6 +98,7 @@ class MainActivity : ComponentActivity() {
                 }
                 "재탐색" -> caregiverViewModel.devateRoute(title,body)
                 "시작" -> {
+                    Log.d("FCM LOG", "시작 전송")
                     caregiverViewModel.startNavigation(title, body)
                     navController.navigate(SherpaScreen.SpecificRoute.name)
                 }

@@ -59,7 +59,7 @@ class SendManager() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    Log.d("FCM Log", "${response.code()}")
+                    Log.d("FCM Log", "sendPos: ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
@@ -79,7 +79,7 @@ class SendManager() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    Log.d("FCM Log", "${response.code()}")
+                    Log.d("FCM Log", "sendPos(경로이동): ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
@@ -99,7 +99,7 @@ class SendManager() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    Log.d("FCM Log", "${response.code()}")
+                    Log.d("FCM Log", "devateRoute: ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
@@ -107,7 +107,7 @@ class SendManager() {
     }
 
     fun startNavigation(transportRoute: TransportRoute) {
-        val request = SendRequest("시작/Triple",Gson().toJson(transportRoute))
+        val request = SendRequest("시작/transportRoute",Gson().toJson(transportRoute))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
@@ -119,7 +119,7 @@ class SendManager() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    Log.d("FCM Log", "${response.code()}")
+                    Log.d("FCM Log", "startNavigation: ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
