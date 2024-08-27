@@ -87,14 +87,7 @@ class SendManager() {
     }
 
     fun devateRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
-        val json = Gson().toJson(ReceiveRouteResponse(coordParts,colorParts))
-        val byte = json.toByteArray(Charsets.UTF_8)
-        var encode = ""
-        for (i in byte) {
-            val st = String.format("%02X", i)
-            encode += st
-        }
-        val request = SendRequest("재탐색/Pair",Gson().toJson(encode))
+        val request = SendRequest("재탐색/Pair",Gson().toJson(ReceiveRouteResponse(coordParts,colorParts)))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
@@ -114,14 +107,7 @@ class SendManager() {
     }
 
     fun startNavigation(transportRoute: TransportRoute) {
-        val json = Gson().toJson(transportRoute)
-        val byte = json.toByteArray(Charsets.UTF_8)
-        var encode = ""
-        for(i in byte) {
-            val st = String.format("%02X", i)
-            encode += st
-        }
-        val request = SendRequest("시작/transportRoute",encode)
+        val request = SendRequest("시작/transportRoute",Gson().toJson(transportRoute))
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)

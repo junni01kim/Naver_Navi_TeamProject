@@ -14,6 +14,6 @@ fun ScheduleAlam(scheduleViewModel: ScheduleViewModel) {
     val dateEnd by scheduleViewModel.dateEnd.observeAsState("")
 
     if(showDialog) {
-        SherpaSchedule(title, description, dateBegin, dateEnd, onConfirm = {scheduleViewModel.onDialogDismiss()})
+        SherpaSchedule(title, description, dateBegin, dateEnd, onConfirmation = {scheduleViewModel.onDialogDismiss()})
     }
 }
