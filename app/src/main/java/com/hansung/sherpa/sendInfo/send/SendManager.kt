@@ -98,7 +98,7 @@ class SendManager() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    Log.d("FCM Log", "devateRoute: ${response.code()}")
+                    Log.d("FCM Log", "startNavigation: ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
@@ -117,7 +117,7 @@ class SendManager() {
                     call: Call<ResponseBody>,
                     response: Response<ResponseBody>
                 ) {
-                    Log.d("FCM Log", "devateRoute: ${response.code()}")
+                    Log.d("FCM Log", "deleteNavigation: ${response.code()}")
                 }
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
