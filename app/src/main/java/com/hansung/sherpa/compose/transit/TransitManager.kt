@@ -4,6 +4,9 @@ import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.convert.Convert
+import com.hansung.sherpa.subwayelevator.ElevatorException
+import com.hansung.sherpa.subwayelevator.ElevatorLocResponse
+import com.hansung.sherpa.subwayelevator.getSubwayElevLocation
 import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.routegraphic.ODsayGraphicRequest
 import com.hansung.sherpa.transit.routegraphic.ODsayMapObject
@@ -183,6 +186,7 @@ class TransitManager {
         return coordinateList.filterNotNull()
     }
 
+    var ELEVATOR_PRIMARY_SETTING = true // 지하철 우선 안내 ON/OFF
     enum class Coordinates(val SX: Int, val y: Int)
     /**
      * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
@@ -215,23 +219,73 @@ class TransitManager {
 
         val routeCoordinateList: MutableList<PedestrianRouteRequest> = mutableListOf()
 
+        var tmp:PedestrianRouteRequest = PedestrianRouteRequest(0.0f,0.0f,0.0f,0.0f)
+
         response.subPath.forEachIndexed { index, it ->
             if (it.trafficType == PEDESTRINAN_CODE) {
                 routeCoordinateList.add(
                     when (index) {
-                        FIRST_INDEX -> PedestrianRouteRequest(
-                            startX = start.longitude.toFloat(),
-                            startY = start.latitude.toFloat(),
-                            endX = response.subPath[FIRST_INDEX + 1].startX.toFloat(),
-                            endY = response.subPath[FIRST_INDEX + 1].startY.toFloat()
-                        )
+                        FIRST_INDEX -> {
+                            try {
+                                if(ELEVATOR_PRIMARY_SETTING && response.subPath[index+1].trafficType==1) {
 
-                        LAST_INDEX -> PedestrianRouteRequest(
-                            startX = response.subPath[LAST_INDEX - 1].endX.toFloat(),
-                            startY = response.subPath[LAST_INDEX - 1].endY.toFloat(),
-                            endX = end.longitude.toFloat(),
-                            endY = end.latitude.toFloat()
-                        )
+                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index+1].startName)
+
+                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(it.endY, it.endX))
+
+                                    tmp = PedestrianRouteRequest(
+                                        startX = start.longitude.toFloat(),
+                                        startY = start.latitude.toFloat(),
+                                        endX = minLoc.longitude.toFloat(),
+                                        endY = minLoc.latitude.toFloat()
+                                    )
+
+                                }
+                                else{
+                                    throw ElevatorException("Hold")
+                                }
+                            }catch (e:ElevatorException){
+                                Log.d("ElevatorConvertError",e.msg)
+                                tmp = PedestrianRouteRequest(
+                                    startX = start.longitude.toFloat(),
+                                    startY = start.latitude.toFloat(),
+                                    endX = response.subPath[FIRST_INDEX + 1].startX.toFloat(),
+                                    endY = response.subPath[FIRST_INDEX + 1].startY.toFloat()
+                                )
+                            }
+
+                            tmp
+                        }
+                        LAST_INDEX -> {
+                            try {
+                                if(ELEVATOR_PRIMARY_SETTING && response.subPath[index-1].trafficType==1){
+                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index-1].startName)
+
+                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(it.startY, it.startX))
+
+                                    tmp = PedestrianRouteRequest(
+                                        startX = minLoc.longitude.toFloat(),
+                                        startY = minLoc.latitude.toFloat(),
+                                        endX = end.longitude.toFloat(),
+                                        endY = end.latitude.toFloat()
+                                    )
+
+                                }
+                                else{
+                                    throw ElevatorException("Hold")
+                                }
+                            }catch (e:ElevatorException){
+                                Log.d("ElevatorConvertError", e.msg)
+                                tmp = PedestrianRouteRequest(
+                                    startX = response.subPath[LAST_INDEX - 1].endX.toFloat(),
+                                    startY = response.subPath[LAST_INDEX - 1].endY.toFloat(),
+                                    endX = end.longitude.toFloat(),
+                                    endY = end.latitude.toFloat()
+                                )
+                            }
+
+                            tmp
+                        }
 
                         else -> PedestrianRouteRequest(
                             startX = response.subPath[index - 1].endX.toFloat(),
@@ -340,4 +394,38 @@ class TransitManager {
             "overview" to overview,
         )
     }
+
+    private fun fromPedestrianToSubwayElev(){
+
+    }
+
+    private fun fromSubwayToPedestrianElev(){
+
+    }
+
+}
+
+fun findMinDistanceLatLng(elevatorLocation: ElevatorLocResponse, pedestrianLoc: LatLng):LatLng{
+    Log.d("minDist","pede : " + pedestrianLoc.latitude + "," + pedestrianLoc.longitude + "\n")
+
+    var target:LatLng
+    lateinit var ret:LatLng
+    var mindist = 100000000000.0
+
+    for (i in elevatorLocation.data){
+        var slicing = i.location.split(",")
+        var lat = slicing[0].toDouble()
+        var lng = slicing[1].toDouble()
+
+        target = LatLng(lat, lng)
+
+        if(target.distanceTo(pedestrianLoc)<mindist){
+            mindist = target.distanceTo(pedestrianLoc)
+            ret = target
+        }
+    }
+
+    Log.d("minDist", "ret : " + ret.latitude + ", " + ret.longitude)
+
+    return ret
 }

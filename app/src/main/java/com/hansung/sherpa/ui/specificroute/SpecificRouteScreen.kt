@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.compose.transit.TransitManager
+import com.hansung.sherpa.compose.transit.findMinDistanceLatLng
 import com.hansung.sherpa.deviation.RouteDeviation
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
@@ -74,56 +75,56 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
     // 2. 엘리베이터의 위치는?
     // 2-1) 엘리베이터의 역이름 조회 : subPath.traffictype이 지하철 and sectionInfo.startName사용
 
-    var elevatorLocation:ElevatorLocResponse
-    var pedestrianLoc:LatLng
-    var pedestrianPart:SubPath
-    var minElevLoc:LatLng
-
-
-    for(i in response.subPath){
-            if(i.trafficType==1){
-                var index = response.subPath.indexOf(i)
-
-                if(index<=0 && index >= response.subPath.size-1) {
-                    continue
-                }
-
-                // 보행자 -> 지하철의 경우
-                if(response.subPath[index-1].trafficType==3){
-                    try {
-                    pedestrianPart = response.subPath[index-1]
-
-                    elevatorLocation = getSubwayElevLocation(i.sectionInfo.startName!!)
-
-                    pedestrianLoc = LatLng(pedestrianPart.sectionInfo.endY!!, pedestrianPart.sectionInfo.endX!!)
-
-                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
-
-                    pedestrianPart.sectionRoute.routeList.add(minElevLoc)
-                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
-                        Log.d("ElevatorError", e.message!!)
-                    }
-                }//지하철->보행자의 경우
-                if(response.subPath[index+1].trafficType==3){
-                    try {
-                    pedestrianPart = response.subPath[index+1]
-
-                    elevatorLocation = getSubwayElevLocation(i.sectionInfo.endName!!)
-
-                    pedestrianLoc = LatLng(pedestrianPart.sectionInfo.startY!!, pedestrianPart.sectionInfo.startX!!)
-
-                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
-
-                    pedestrianPart.sectionRoute.routeList.add(0, minElevLoc)
-                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
-                        Log.d("ElevatorError", e.message!!)
-                    }
-                }
-                else{
-                    continue
-                }
-            }
-    }
+//    var elevatorLocation:ElevatorLocResponse
+//    var pedestrianLoc:LatLng
+//    var pedestrianPart:SubPath
+//    var minElevLoc:LatLng
+//
+//
+//    for(subPath in response.subPath){
+//            if(subPath.trafficType==1){
+//                var index = response.subPath.indexOf(subPath)
+//
+//                if(index<=0 && index >= response.subPath.size-1) {
+//                    continue
+//                }
+//
+//                // 보행자 -> 지하철의 경우
+//                if(response.subPath[index-1].trafficType==3){
+//                    try {
+//                    pedestrianPart = response.subPath[index-1]
+//
+//                    elevatorLocation = getSubwayElevLocation(subPath.sectionInfo.startName!!)
+//
+//                    pedestrianLoc = pedestrianPart.sectionRoute.routeList[pedestrianPart.sectionRoute.routeList.size-1]
+//
+//                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
+//
+//                    pedestrianPart.sectionRoute.routeList.add(minElevLoc)
+//                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
+//                        Log.d("ElevatorError", e.message!!)
+//                    }
+//                }//지하철->보행자의 경우
+//                if(response.subPath[index+1].trafficType==3){
+//                    try {
+//                    pedestrianPart = response.subPath[index+1]
+//
+//                    elevatorLocation = getSubwayElevLocation(subPath.sectionInfo.endName!!)
+//
+//                    pedestrianLoc = pedestrianPart.sectionRoute.routeList[0]
+//
+//                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
+//
+//                    pedestrianPart.sectionRoute.routeList.add(0, minElevLoc)
+//                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
+//                        Log.d("ElevatorError", e.message!!)
+//                    }
+//                }
+//                else{
+//                    continue
+//                }
+//            }
+//    }
 
 
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
@@ -270,7 +271,7 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
         goBack()
     }
 
-    BottomSheetScaffold(
+    BottomSheetScaffold (
         sheetDragHandle = {},
         sheetContainerColor = Color.White,
         scaffoldState = bottomSheetScaffoldState,
@@ -294,27 +295,6 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
     ) {
 
     }
-}
-
-fun findMinDistanceLatLng(elevatorLocation: ElevatorLocResponse, pedestrianLoc: LatLng):LatLng{
-    var target:LatLng
-    lateinit var ret:LatLng
-    var mindist = 100000000000.0
-
-    for (i in elevatorLocation.data){
-        var slicing = i.location.split(",")
-        var lat = slicing[0].toDouble()
-        var lon = slicing[1].toDouble()
-
-        target = LatLng(lat, lon)
-
-        if(target.distanceTo(pedestrianLoc)<mindist){
-            mindist = target.distanceTo(pedestrianLoc)
-            ret = target
-        }
-    }
-
-    return ret
 }
 
 
