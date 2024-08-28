@@ -10,6 +10,8 @@ import com.hansung.sherpa.sendInfo.receive.ReceivePos
 import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
+import com.owlike.genson.Genson
+import com.owlike.genson.GensonBuilder
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -64,7 +66,8 @@ class SendManager() {
     }
 
     fun devateRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
-        val json = Gson().toJson(ReceiveRouteResponse(coordParts,colorParts))
+        val json = GensonBuilder().useClassMetadata(true).create().serialize(ReceiveRouteResponse(coordParts,colorParts))
+
         val temp = json.toByteArray(Charsets.UTF_8)
         val request = temp.joinToString("") { String.format("%02X", it) }
 
@@ -87,7 +90,8 @@ class SendManager() {
     }
 
     fun startNavigation(transportRoute: TransportRoute) {
-        val json = Gson().toJson(transportRoute)
+        val json = GensonBuilder().useClassMetadata(true).create().serialize(transportRoute)
+
         val temp = json.toByteArray(Charsets.UTF_8)
         val request = temp.joinToString("") { String.format("%02X", it) }
 

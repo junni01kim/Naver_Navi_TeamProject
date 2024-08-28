@@ -13,6 +13,7 @@ import com.hansung.sherpa.sendInfo.receive.ReceiveManager
 import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
+import com.owlike.genson.GensonBuilder
 import java.nio.ByteBuffer
 
 class CaregiverViewModel : ViewModel()  {
@@ -40,7 +41,7 @@ class CaregiverViewModel : ViewModel()  {
             .toString(Charsets.UTF_8)
 
         Log.d("API Log", "반환: ${json}")
-        val response = Gson().fromJson(json,TransportRoute::class.java)
+        val response = GensonBuilder().useClassMetadata(true).create().deserialize(json, TransportRoute::class.java)
 
         StaticValue.transportRoute = response
     }
@@ -56,7 +57,8 @@ class CaregiverViewModel : ViewModel()  {
             .toString(Charsets.UTF_8)
 
         Log.d("API Log", "반환: ${json}")
-        val response = Gson().fromJson(json,ReceiveRouteResponse::class.java)
+        val response = GensonBuilder().useClassMetadata(true).create().deserialize(json, ReceiveRouteResponse::class.java)
+        //val response = Gson().fromJson(json,ReceiveRouteResponse::class.java)
 
         _coordParts.postValue(response.coordParts)
         _colorParts.postValue(response.colorParts)
