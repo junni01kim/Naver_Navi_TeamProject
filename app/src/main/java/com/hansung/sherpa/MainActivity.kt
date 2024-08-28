@@ -37,14 +37,10 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
-import com.hansung.sherpa.fcm.*
+import com.hansung.sherpa.fcm.MessageViewModel
+import com.hansung.sherpa.fcm.PermissionDialog
+import com.hansung.sherpa.fcm.RationaleDialog
 import com.hansung.sherpa.fcm.ScheduleViewModel
-import com.hansung.sherpa.itemsetting.Info
-import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
-import com.hansung.sherpa.itemsetting.SectionInfo
-import com.hansung.sherpa.itemsetting.SectionRoute
-import com.hansung.sherpa.itemsetting.SubPath
-import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
@@ -151,7 +147,7 @@ class MainActivity : ComponentActivity() {
             .database(BuildConfig.FIREBASE_RTDB_URL)
             .reference
 
-        val myRef = database.child("message")
+        val myRef = database.child("coord")
         myRef.setValue("Hello, World")
         // Read from the database
         myRef.addValueEventListener(object : ValueEventListener {
@@ -159,12 +155,12 @@ class MainActivity : ComponentActivity() {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
                 val value = dataSnapshot.getValue<String>()
-                Log.d("API", "Value is: $value")
+                Log.d("RTDB", "Value is: $value")
             }
 
             override fun onCancelled(error: DatabaseError) {
                 // Failed to read value
-                Log.w("API", "Failed to read value.", error.toException())
+                Log.w("RTDB", "Failed to read value.", error.toException())
             }
         })
         StaticValue.ref = myRef

@@ -25,7 +25,7 @@ class SendManager() {
      */
     fun sendPos(myPos: LatLng) {
         val request = SendRequest("위치/myPos",Gson().toJson(myPos))
-
+        // StaticValue.ref.setValue("${myPos.latitude}, ${myPos.longitude}")
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
             .addConverterFactory(GsonConverterFactory.create())
@@ -45,6 +45,7 @@ class SendManager() {
 
     fun sendPos(myPos: LatLng, passedRoute:SnapshotStateList<Double>) {
         val request = SendRequest("경로이동/Pair",Gson().toJson(ReceivePos(myPos,passedRoute)))
+        StaticValue.ref.setValue("${myPos.latitude}, ${myPos.longitude}")
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
