@@ -81,7 +81,6 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
 
 
     for(i in response.subPath){
-        try {
             if(i.trafficType==1){
                 var index = response.subPath.indexOf(i)
 
@@ -91,6 +90,7 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
 
                 // 보행자 -> 지하철의 경우
                 if(response.subPath[index-1].trafficType==3){
+                    try {
                     pedestrianPart = response.subPath[index-1]
 
                     elevatorLocation = getSubwayElevLocation(i.sectionInfo.startName!!)
@@ -100,8 +100,12 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
                     minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
 
                     pedestrianPart.sectionRoute.routeList.add(minElevLoc)
+                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
+                        Log.d("ElevatorError", e.message!!)
+                    }
                 }//지하철->보행자의 경우
-                else if(response.subPath[index+1].trafficType==3){
+                if(response.subPath[index+1].trafficType==3){
+                    try {
                     pedestrianPart = response.subPath[index+1]
 
                     elevatorLocation = getSubwayElevLocation(i.sectionInfo.endName!!)
@@ -111,15 +115,14 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
                     minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
 
                     pedestrianPart.sectionRoute.routeList.add(0, minElevLoc)
+                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
+                        Log.d("ElevatorError", e.message!!)
+                    }
                 }
                 else{
                     continue
                 }
             }
-        }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
-            Log.d("ElevatorError", e.message!!)
-            continue
-        }
     }
 
 

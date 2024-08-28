@@ -2,6 +2,7 @@ package com.hansung.sherpa.subwayelevator
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hansung.sherpa.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -19,12 +20,13 @@ import java.io.IOException
  * */
 
 fun getSubwayElevLocation(stationName: String): ElevatorLocResponse {
+    val baseUrl = BuildConfig.SHERPA_URL + "elevator/"
     lateinit var rr: ElevatorLocResponse
     runBlocking<Job> {
         launch(Dispatchers.IO) {
             try {
                 val response = Retrofit.Builder()
-                    .baseUrl("http://localhost:8080/api/v1/elevator/")
+                    .baseUrl(baseUrl)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
                     .create(ElevatorService::class.java)
@@ -32,7 +34,7 @@ fun getSubwayElevLocation(stationName: String): ElevatorLocResponse {
                     .execute()
                 rr = Gson().fromJson(response.body()!!.string(), ElevatorLocResponse::class.java)
             } catch (e: IOException) {
-                Log.e("Error", "Transit API Exception ${rr}")
+                Log.e("Error", "Transit API Exception $rr")
             }
         }
     }
