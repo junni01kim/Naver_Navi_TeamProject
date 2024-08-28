@@ -13,6 +13,8 @@ import com.hansung.sherpa.sendInfo.receive.ReceiveManager
 import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ColorPart
+import com.owlike.genson.GensonBuilder
+import java.nio.ByteBuffer
 
 class CaregiverViewModel : ViewModel()  {
     private val _coordParts = MutableLiveData(mutableStateListOf(mutableListOf(LatLng(0.0,0.0), LatLng(0.0,0.0))))
@@ -29,17 +31,34 @@ class CaregiverViewModel : ViewModel()  {
     }
 
     fun startNavigation(title: String, body: String) {
-        val responseJson = ReceiveManager().getTransportRoute().data!!.replace("\\","")
-        Log.d("API Log", "모든 \\삭제: ${responseJson}")
-        val response = Gson().fromJson(responseJson,TransportRoute::class.java)
+        val responseJson = ReceiveManager().getTransportRoute().data!!
+
+        val json = responseJson
+            .substring(1, responseJson.length - 1)
+            .chunked(2)
+            .map { Integer.parseInt(it, 16).toByte() }
+            .toByteArray()
+            .toString(Charsets.UTF_8)
+
+        Log.d("API Log", "반환: ${json}")
+        val response = GensonBuilder().useClassMetadata(true).create().deserialize(json, TransportRoute::class.java)
 
         StaticValue.transportRoute = response
     }
 
     fun devateRoute(title: String, body: String) {
-        val responseJson = ReceiveManager().getRoute().data!!.replace("\\","")
-        Log.d("API Log", "모든 \\삭제: ${responseJson}")
-        val response = Gson().fromJson(responseJson,ReceiveRouteResponse::class.java)
+        val responseJson = ReceiveManager().getRoute().data!!
+
+        val json = responseJson
+            .substring(1, responseJson.length - 1)
+            .chunked(2)
+            .map { Integer.parseInt(it, 16).toByte() }
+            .toByteArray()
+            .toString(Charsets.UTF_8)
+
+        Log.d("API Log", "반환: ${json}")
+        val response = GensonBuilder().useClassMetadata(true).create().deserialize(json, ReceiveRouteResponse::class.java)
+        //val response = Gson().fromJson(json,ReceiveRouteResponse::class.java)
 
         _coordParts.postValue(response.coordParts)
         _colorParts.postValue(response.colorParts)

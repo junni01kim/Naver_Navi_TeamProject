@@ -76,8 +76,8 @@ val placeholderColor = Color(0xFFAAAAAA)
 fun SearchArea(navController: NavController, _destinationValue: String, dialogToggle: MutableState<Boolean>, update: (List<TransportRoute>, Long) -> Unit) {
     // ===== 저장되는 데이터 목록 =====
     // Departure TextField, Destination TextField에 사용할 변수: 문자열(String)
-    var departureValue by remember { mutableStateOf("") }
-    var destinationValue by remember { mutableStateOf("") }
+    var departureValue by remember { mutableStateOf("한성대학교") }
+    var destinationValue by remember { mutableStateOf("한성대입구역") }
 
     // Departure TextField, Destination TextField에 사용할 변수: 좌표값(LatLng)
     var departureLatLng by remember {mutableStateOf(LatLng(-1.0,-1.0))}

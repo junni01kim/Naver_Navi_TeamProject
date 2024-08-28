@@ -37,7 +37,6 @@ android {
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
         buildConfigField("String", "SHERPA_URL", sherpaUrl)
-        buildConfigField("String", "FIREBASE_RTDB_URL", rtdbUrl)
         manifestPlaceholders["CLIENT_ID"] = clientId
 
         vectorDrawables {
@@ -177,6 +176,9 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
     implementation("androidx.work:work-runtime:2.9.1")
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+
+    // for genson
+    implementation("com.owlike:genson:1.4")
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-database-ktx")
 }
