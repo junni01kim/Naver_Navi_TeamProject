@@ -175,4 +175,7 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
     implementation("androidx.work:work-runtime:2.9.1")
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+
+    // for genson
+    implementation("com.owlike:genson:1.4")
 }
