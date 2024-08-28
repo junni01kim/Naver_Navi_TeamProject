@@ -30,16 +30,18 @@ class CaregiverViewModel : ViewModel()  {
 
     fun startNavigation(title: String, body: String) {
         val responseJson = ReceiveManager().getTransportRoute().data!!.replace("\\","")
-        Log.d("API Log", "모든 \\삭제: ${responseJson}")
-        val response = Gson().fromJson(responseJson,TransportRoute::class.java)
+        val trimmedJson = responseJson.substring(1, responseJson.length - 1)
+        Log.d("API Log", "모든 \\삭제, 앞뒤 \"삭제: ${trimmedJson}")
+        val response = Gson().fromJson(trimmedJson,TransportRoute::class.java)
 
         StaticValue.transportRoute = response
     }
 
     fun devateRoute(title: String, body: String) {
         val responseJson = ReceiveManager().getRoute().data!!.replace("\\","")
-        Log.d("API Log", "모든 \\삭제: ${responseJson}")
-        val response = Gson().fromJson(responseJson,ReceiveRouteResponse::class.java)
+        val trimmedJson = responseJson.substring(1, responseJson.length - 1)
+        Log.d("API Log", "모든 \\삭제, 앞뒤 \"삭제: ${trimmedJson}")
+        val response = Gson().fromJson(trimmedJson,ReceiveRouteResponse::class.java)
 
         _coordParts.postValue(response.coordParts)
         _colorParts.postValue(response.colorParts)

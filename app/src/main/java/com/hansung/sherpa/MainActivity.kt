@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
                 }
                 "시작" -> {
                     Log.d("FCM LOG", "시작 전송")
-                    //caregiverViewModel.startNavigation(title, body)
+                    caregiverViewModel.startNavigation(title, body)
                     navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
 
