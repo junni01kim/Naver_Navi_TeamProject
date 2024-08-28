@@ -19,6 +19,8 @@ import com.hansung.sherpa.transit.routegraphic.ODsayMapObject
 import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.tmap.TmapTransitRouteRequest
 import com.hansung.sherpa.transit.tmap.TmapTransitRouteResponse
+import com.hansung.sherpa.transit.tmappoi.TmapPoiResponse
+import com.hansung.sherpa.transit.tmappoi.TmapPoiService
 import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -399,5 +401,37 @@ class TransitManager(context: Context) {
             "geometries" to geometries,
             "overview" to overview,
         )
+    }
+
+    /**
+     * @param keyword 검색하고자 하는 위치의 키워드 (EX : 한성대입구역 2번출구)
+     * @param currLat 현재 Lat 위치
+     * @param currLon 현재 Lon 위치
+     *
+     * */
+
+    fun getTmapPois(keyword:String, currLat:Double, currLon:Double): TmapPoiResponse? {
+        var rr: TmapPoiResponse? = null
+        runBlocking<Job> {
+            launch(Dispatchers.IO) {
+                try {
+                    val response = Retrofit.Builder()
+                        .baseUrl("https://apis.openapi.sk.com/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(TmapPoiService::class.java).getTmapPoi(
+                            BuildConfig.TMAP_APP_KEY,
+                            keyword,
+                            currLat,
+                            currLon
+                        ).execute()
+                    rr = Gson().fromJson(response.body()!!.string(), TmapPoiResponse::class.java)
+                } catch (e: IOException) {
+                    Log.e("Error", "Transit API Exception ${rr}")
+                    println(rr)
+                }
+            }
+        }
+        return rr
     }
 }

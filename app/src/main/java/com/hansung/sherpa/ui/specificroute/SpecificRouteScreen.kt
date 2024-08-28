@@ -32,7 +32,10 @@ import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.deviation.RouteDeviation
 import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
+import com.hansung.sherpa.itemsetting.SubPath
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.subwayelevator.ElevatorLocResponse
+import com.hansung.sherpa.subwayelevator.getSubwayElevLocation
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
@@ -64,6 +67,60 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
 
 
     //TODO 좌표 삽입 reponse 업데이트
+    // Goal -  보행자 끝점을 찾는다 이후 해당부분의 끝에 엘리베이터 좌표 삽입
+    // 1. 어느 부분에 넣어야 하는가?
+    // 1-1) 보행자 -> 지하철의 보행자 끝부분
+    // 1-2) 지하철 -> 보행자의 보행자 앞부분
+    // 2. 엘리베이터의 위치는?
+    // 2-1) 엘리베이터의 역이름 조회 : subPath.traffictype이 지하철 and sectionInfo.startName사용
+
+    var elevatorLocation:ElevatorLocResponse
+    var pedestrianLoc:LatLng
+    var pedestrianPart:SubPath
+    var minElevLoc:LatLng
+
+
+    for(i in response.subPath){
+        try {
+            if(i.trafficType==1){
+                var index = response.subPath.indexOf(i)
+
+                if(index<=0 && index >= response.subPath.size-1) {
+                    continue
+                }
+
+                // 보행자 -> 지하철의 경우
+                if(response.subPath[index-1].trafficType==3){
+                    pedestrianPart = response.subPath[index-1]
+
+                    elevatorLocation = getSubwayElevLocation(i.sectionInfo.startName!!)
+
+                    pedestrianLoc = LatLng(pedestrianPart.sectionInfo.endY!!, pedestrianPart.sectionInfo.endX!!)
+
+                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
+
+                    pedestrianPart.sectionRoute.routeList.add(minElevLoc)
+                }//지하철->보행자의 경우
+                else if(response.subPath[index+1].trafficType==3){
+                    pedestrianPart = response.subPath[index+1]
+
+                    elevatorLocation = getSubwayElevLocation(i.sectionInfo.endName!!)
+
+                    pedestrianLoc = LatLng(pedestrianPart.sectionInfo.startY!!, pedestrianPart.sectionInfo.startX!!)
+
+                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
+
+                    pedestrianPart.sectionRoute.routeList.add(0, minElevLoc)
+                }
+                else{
+                    continue
+                }
+            }
+        }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
+            Log.d("ElevatorError", e.message!!)
+            continue
+        }
+    }
 
 
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
@@ -204,7 +261,8 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
-    
+
+    // 핸드폰의 뒤로가기 버튼 누를시 화면 종료(메인 화면으로 이동)
     BackHandler {
         goBack()
     }
@@ -233,6 +291,27 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
     ) {
 
     }
+}
+
+fun findMinDistanceLatLng(elevatorLocation: ElevatorLocResponse, pedestrianLoc: LatLng):LatLng{
+    var target:LatLng
+    lateinit var ret:LatLng
+    var mindist = 100000000000.0
+
+    for (i in elevatorLocation.data){
+        var slicing = i.location.split(",")
+        var lat = slicing[0].toDouble()
+        var lon = slicing[1].toDouble()
+
+        target = LatLng(lat, lon)
+
+        if(target.distanceTo(pedestrianLoc)<mindist){
+            mindist = target.distanceTo(pedestrianLoc)
+            ret = target
+        }
+    }
+
+    return ret
 }
 
 
