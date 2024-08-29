@@ -7,7 +7,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.SubPathAdapter
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.receive.ReceiveManager
 import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
@@ -40,8 +43,11 @@ class CaregiverViewModel : ViewModel()  {
             .toByteArray()
             .toString(Charsets.UTF_8)
 
-        Log.d("API Log", "반환: ${json}")
-        val response = GensonBuilder().useClassMetadata(true).create().deserialize(json, TransportRoute::class.java)
+        Log.d("API Log", "반환: $json")
+        val gson = GsonBuilder()
+            .registerTypeAdapter(SubPath::class.java, SubPathAdapter())
+            .create()
+        val response = gson.fromJson(json, TransportRoute::class.java)
 
         StaticValue.transportRoute = response
     }
@@ -57,8 +63,8 @@ class CaregiverViewModel : ViewModel()  {
             .toString(Charsets.UTF_8)
 
         Log.d("API Log", "반환: ${json}")
-        val response = GensonBuilder().useClassMetadata(true).create().deserialize(json, ReceiveRouteResponse::class.java)
-        //val response = Gson().fromJson(json,ReceiveRouteResponse::class.java)
+
+        val response = Gson().fromJson(json,ReceiveRouteResponse::class.java)
 
         _coordParts.postValue(response.coordParts)
         _colorParts.postValue(response.colorParts)
