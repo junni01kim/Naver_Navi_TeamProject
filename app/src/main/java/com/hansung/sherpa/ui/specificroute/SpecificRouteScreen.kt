@@ -145,6 +145,7 @@ fun SpecificRouteScreen(
                 dialogFlag = false
 
                 sendManager.startNavigation(response)
+                sendManager.devateRoute(coordParts, colorParts)
             }
         }
     }
