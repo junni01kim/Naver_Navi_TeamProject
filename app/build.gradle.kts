@@ -37,6 +37,7 @@ android {
         buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
         buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
         buildConfigField("String", "SHERPA_URL", sherpaUrl)
+        buildConfigField("String", "FIREBASE_RTDB_URL", rtdbUrl)
         manifestPlaceholders["CLIENT_ID"] = clientId
 
         vectorDrawables {

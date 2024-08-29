@@ -161,8 +161,8 @@ fun SpecificRouteScreen(
             myPos = LatLng(it.latitude, it.longitude)
 
             // 상대방에게 내 위치를 전송한다.
-            if(startNavigation) sendManager.sendPos(myPos, passedRoute)
-            else sendManager.sendPos(myPos)
+            if(startNavigation) sendManager.sendPositionAndPassedRoute(myPos, passedRoute)
+            else sendManager.sendPosition(myPos)
 
             /**
              * 경로 이탈 시 실행되는 함수

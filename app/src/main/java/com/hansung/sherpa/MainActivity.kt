@@ -36,7 +36,6 @@ import com.google.firebase.database.getValue
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.gson.Gson
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
@@ -44,7 +43,8 @@ import com.hansung.sherpa.fcm.ScheduleViewModel
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
-import com.hansung.sherpa.sendInfo.receive.ReceivePos
+import com.hansung.sherpa.sendInfo.receive.addValueEventListener
+import com.hansung.sherpa.sendInfo.receive.isCareGiver
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.common.MessageAlam
@@ -62,6 +62,7 @@ import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
+import com.hansung.sherpa.user.UserManager
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
@@ -98,12 +99,11 @@ class MainActivity : ComponentActivity() {
                 "알림" -> messageViewModel.updateValue(title, body)
                 "일정" -> scheduleViewModel.updateSchedule(title, body)
                 //"예약경로" -> caregiverViewModel.receivePos(title, body)
-                "위치" -> partnerViewModel.getLatLng(title, body)
-                "경로이동" -> {
-                    val response = Gson().fromJson(body, ReceivePos::class.java)
+                "위치" -> {} // partnerViewModel.getLatLng(title, body)
+                "경로이동" -> {}
+                    /*val response = Gson().fromJson(body, ReceivePos::class.java)
                     partnerViewModel.updateLatLng(response.pos)
-                    caregiverViewModel.updatePassedRoute(response.passedRoute)
-                }
+                    caregiverViewModel.updatePassedRoute(response.passedRoute)*/
                 "재탐색" -> {
                     Log.d("FCM LOG", "재탐색")
                     caregiverViewModel.devateRoute(title, body)
@@ -146,24 +146,7 @@ class MainActivity : ComponentActivity() {
         val database = Firebase
             .database(BuildConfig.FIREBASE_RTDB_URL)
             .reference
-
-        val myRef = database.child("coord")
-        myRef.setValue("Hello, World")
-        // Read from the database
-        myRef.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                val value = dataSnapshot.getValue<String>()
-                Log.d("RTDB", "Value is: $value")
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Failed to read value
-                Log.w("RTDB", "Failed to read value.", error.toException())
-            }
-        })
-        StaticValue.ref = myRef
+        StaticValue.ref = database
 
         setContent {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -190,6 +173,11 @@ class MainActivity : ComponentActivity() {
                             SignupScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.Home.name){
+                            val userInfo = StaticValue.userInfo
+                            if(isCareGiver(userInfo)) {
+                                val caregiverId = UserManager().getRelation(userInfo.userId!!).data?.caretakerId.toString()
+                                addValueEventListener(caregiverId, partnerViewModel, caregiverViewModel)
+                            }
                             MessageAlam(messageViewModel)
                             ScheduleAlam(scheduleViewModel)
                             HomeScreen(navController, Modifier.padding(innerPadding), partnerViewModel)

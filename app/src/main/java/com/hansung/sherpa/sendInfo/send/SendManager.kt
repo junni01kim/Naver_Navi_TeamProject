@@ -22,12 +22,13 @@ import retrofit2.converter.gson.GsonConverterFactory
 val nncBackendUserUrl = BuildConfig.SHERPA_URL
 
 class SendManager() {
+    val userId = StaticValue.userInfo.userId?.toString() ?: "-1"
+
     /**
      * 아래 기술 된 함수들과 오버로딩이 가능하지만, 각 함수의 동작을 정확하게 명시하고 싶어 다르게 구현
      */
     fun sendPos(myPos: LatLng) {
         val request = SendRequest("위치/myPos",Gson().toJson(myPos))
-        // StaticValue.ref.setValue("${myPos.latitude}, ${myPos.longitude}")
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
             .addConverterFactory(GsonConverterFactory.create())
@@ -45,9 +46,15 @@ class SendManager() {
             })
     }
 
+    fun sendPosition(myPos: LatLng, table: String = "current_position") {
+        StaticValue.ref
+            .child(table)
+            .child(userId)
+            .setValue(Gson().toJson(myPos))
+    }
+
     fun sendPos(myPos: LatLng, passedRoute:SnapshotStateList<Double>) {
         val request = SendRequest("경로이동/Pair",Gson().toJson(ReceivePos(myPos,passedRoute)))
-        StaticValue.ref.setValue("${myPos.latitude}, ${myPos.longitude}")
 
         Retrofit.Builder()
             .baseUrl(nncBackendUserUrl)
@@ -64,6 +71,14 @@ class SendManager() {
 
                 override fun onFailure(call: Call<ResponseBody>, t: Throwable) {}
             })
+    }
+
+    fun sendPositionAndPassedRoute(myPos: LatLng, passedRoute:SnapshotStateList<Double>) {
+        sendPosition(myPos, "moving_position")
+        StaticValue.ref
+            .child("passed_route")
+            .child(userId)
+            .setValue(passedRoute)
     }
 
     fun devateRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
