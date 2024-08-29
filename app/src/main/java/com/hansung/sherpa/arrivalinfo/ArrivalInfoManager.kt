@@ -35,8 +35,7 @@ class ArrivalInfoManager {
                         .getService(request.getMap()).execute()
                     result = Gson().fromJson(response.body()!!.string(), ArrivalInfoResponse::class.java)
                 } catch (e: IOException) {
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    Log.e("API Log: IOException", "getArrivalInfoList: ${e.message}(e.message)")
                 }
             }
         }
@@ -56,8 +55,7 @@ class ArrivalInfoManager {
                         .getODsayArrivalInfoService(request.getMap()).execute()
                     result = Gson().fromJson(response.body()!!.string(), ODsayArrivalInfoResponse::class.java)
                 } catch(e:IOException){
-                    Log.d("explain", "onFailure: 실패")
-                    Log.d("explain", "message: ${e.message}")
+                    Log.e("API Log: IOException", "getODsayArrivalInfoList: ${e.message}(e.message)")
                 }
             }
         }

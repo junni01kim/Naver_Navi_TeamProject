@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -33,13 +34,26 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.tasks.Task
 import com.google.firebase.FirebaseApp
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.getValue
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
-import com.hansung.sherpa.FCM.MessageViewModel
-import com.hansung.sherpa.FCM.PermissionDialog
-import com.hansung.sherpa.FCM.RationaleDialog
-import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.fcm.MessageViewModel
+import com.hansung.sherpa.fcm.PermissionDialog
+import com.hansung.sherpa.fcm.RationaleDialog
+import com.hansung.sherpa.fcm.ScheduleViewModel
+import com.hansung.sherpa.sendInfo.CaregiverViewModel
+import com.hansung.sherpa.sendInfo.CaretakerViewModel
+import com.hansung.sherpa.sendInfo.PartnerViewModel
+import com.hansung.sherpa.sendInfo.receive.addValueEventListener
+import com.hansung.sherpa.sendInfo.receive.isCareGiver
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
+import com.hansung.sherpa.ui.common.MessageAlam
+import com.hansung.sherpa.ui.common.ScheduleAlam
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
 import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
@@ -53,10 +67,10 @@ import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
+import com.hansung.sherpa.user.UserManager
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
-import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 
 class MainActivity : ComponentActivity() {
@@ -65,14 +79,48 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var locationSource: FusedLocationSource
 
+    lateinit var navController: NavHostController
+
     // TODO: 여기 있는게 "알림" topic으로 FCM 전달 받는 뷰모델 ※ FCM pakage 참고
-    private val viewModel: MessageViewModel by viewModels()
+    private val messageViewModel: MessageViewModel by viewModels()
+    private val scheduleViewModel: ScheduleViewModel by viewModels()
+    private val partnerViewModel: PartnerViewModel by viewModels()
+    private val caretakerViewModel: CaretakerViewModel by viewModels()
+    private val caregiverViewModel: CaregiverViewModel by viewModels()
 
     private val messageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val title = intent?.getStringExtra("title") ?: ""
+            val head = intent?.getStringExtra("title") ?: ""
             val body = intent?.getStringExtra("body") ?: ""
-            viewModel.onMessageReceived(title, body)
+
+            //Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
+            //Log.i("FCM Log: Data", "$head, $body")
+
+            val parts = head.split("/")
+            val topic = parts[0]
+            val title = parts[1]
+
+            when (topic) {
+                "알림" -> messageViewModel.updateValue(title, body)
+                "일정" -> scheduleViewModel.updateSchedule(title, body)
+                //"예약경로" -> caregiverViewModel.receivePos(title, body)
+                "위치" -> {} // partnerViewModel.getLatLng(title, body)
+                "경로이동" -> {}
+                    /*val response = Gson().fromJson(body, ReceivePos::class.java)
+                    partnerViewModel.updateLatLng(response.pos)
+                    caregiverViewModel.updatePassedRoute(response.passedRoute)*/
+                "재탐색" -> {
+                    Log.d("FCM LOG", "재탐색")
+                    caregiverViewModel.devateRoute(title, body)
+                }
+                "시작" -> {
+                    Log.d("FCM LOG", "시작 전송")
+                    //caregiverViewModel.startNavigation(title, body)
+                    navController.navigate(SherpaScreen.SpecificRoute.name)
+                }
+
+                else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
+            }
         }
     }
 
@@ -100,7 +148,10 @@ class MainActivity : ComponentActivity() {
         NaverMapSdk.getInstance(this).client =
             NaverMapSdk.NaverCloudPlatformClient(BuildConfig.CLIENT_ID)
 
-
+        val database = Firebase
+            .database(BuildConfig.FIREBASE_RTDB_URL)
+            .reference
+        StaticValue.ref = database
 
         setContent {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -112,7 +163,7 @@ class MainActivity : ComponentActivity() {
 
                     // 화면 간 이동에 대한 함수
                     // https://developer.android.com/codelabs/basic-android-kotlin-compose-navigation?hl=ko#0
-                    val navController = rememberNavController()
+                    navController = rememberNavController()
                     NavHost(
                         navController = navController,
                         startDestination = SherpaScreen.Start.name
@@ -127,8 +178,14 @@ class MainActivity : ComponentActivity() {
                             SignupScreen(navController, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.Home.name){
-                            ExampleAlam(viewModel)
-                            HomeScreen(navController, Modifier.padding(innerPadding))
+                            val userInfo = StaticValue.userInfo
+                            if(isCareGiver(userInfo)) {
+                                val caregiverId = UserManager().getRelation(userInfo.userId!!).data?.caretakerId.toString()
+                                addValueEventListener(caregiverId, partnerViewModel, caregiverViewModel)
+                            }
+                            MessageAlam(messageViewModel)
+                            ScheduleAlam(scheduleViewModel)
+                            HomeScreen(navController, Modifier.padding(innerPadding), partnerViewModel)
                         }
                         composable(route = "${SherpaScreen.Search.name}/{destinationValue}",
                             arguments = listOf(navArgument("destinationValue"){type = NavType.StringType})
@@ -137,7 +194,7 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
-                            SpecificRouteScreen(StaticValue.transportRoute, {navController.navigate(SherpaScreen.Home.name)})
+                            SpecificRouteScreen(navController, StaticValue.transportRoute, partnerViewModel, caregiverViewModel, caretakerViewModel)
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->

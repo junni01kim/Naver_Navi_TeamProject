@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.dialog.SherpaDialogParm
+import com.hansung.sherpa.ui.common.SherpaDialogParm
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.account.module.InfomationGroupDarkMode
@@ -304,7 +304,7 @@ fun refuseSignup(
     caregiverId: Int,
     allChecked: Boolean,
     showDialog: (Boolean) -> Unit
-):SherpaDialogParm {
+): SherpaDialogParm {
     val sherpaDialog = SherpaDialogParm()
 
     if(caregiverId == -1) {

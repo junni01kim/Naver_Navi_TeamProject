@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,7 +28,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.hansung.sherpa.MarkerComponent
+import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.transit.TransitManager
+import com.hansung.sherpa.deviation.RouteDivation
+import com.hansung.sherpa.sendInfo.send.SendManager
+import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.compose.transit.TransitManager
 import com.hansung.sherpa.compose.transit.findMinDistanceLatLng
 import com.hansung.sherpa.deviation.RouteDeviation
@@ -35,15 +43,20 @@ import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.SubPath
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.sendInfo.CaregiverViewModel
+import com.hansung.sherpa.sendInfo.CaretakerViewModel
+import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.subwayelevator.ElevatorLocResponse
 import com.hansung.sherpa.subwayelevator.getSubwayElevLocation
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
+import com.naver.maps.map.overlay.OverlayImage
 
 enum class DragValue { Start, Center, End }
 
@@ -58,74 +71,19 @@ enum class DragValue { Start, Center, End }
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
+fun SpecificRouteScreen(
+    navController: NavController,
+    response: TransportRoute,
+    partnerViewModel: PartnerViewModel,
+    caregiverViewModel: CaregiverViewModel,
+    caretakerViewModel: CaretakerViewModel
+){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
     val density = LocalDensity.current // 화면 밀도
     val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
     val screenSizePx = with(density) {screenHeightSizeDp.toPx()} // 화면 밀도에 따른 화면 크기 PxSize
-
-
-    //TODO 좌표 삽입 reponse 업데이트
-    // Goal -  보행자 끝점을 찾는다 이후 해당부분의 끝에 엘리베이터 좌표 삽입
-    // 1. 어느 부분에 넣어야 하는가?
-    // 1-1) 보행자 -> 지하철의 보행자 끝부분
-    // 1-2) 지하철 -> 보행자의 보행자 앞부분
-    // 2. 엘리베이터의 위치는?
-    // 2-1) 엘리베이터의 역이름 조회 : subPath.traffictype이 지하철 and sectionInfo.startName사용
-
-//    var elevatorLocation:ElevatorLocResponse
-//    var pedestrianLoc:LatLng
-//    var pedestrianPart:SubPath
-//    var minElevLoc:LatLng
-//
-//
-//    for(subPath in response.subPath){
-//            if(subPath.trafficType==1){
-//                var index = response.subPath.indexOf(subPath)
-//
-//                if(index<=0 && index >= response.subPath.size-1) {
-//                    continue
-//                }
-//
-//                // 보행자 -> 지하철의 경우
-//                if(response.subPath[index-1].trafficType==3){
-//                    try {
-//                    pedestrianPart = response.subPath[index-1]
-//
-//                    elevatorLocation = getSubwayElevLocation(subPath.sectionInfo.startName!!)
-//
-//                    pedestrianLoc = pedestrianPart.sectionRoute.routeList[pedestrianPart.sectionRoute.routeList.size-1]
-//
-//                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
-//
-//                    pedestrianPart.sectionRoute.routeList.add(minElevLoc)
-//                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
-//                        Log.d("ElevatorError", e.message!!)
-//                    }
-//                }//지하철->보행자의 경우
-//                if(response.subPath[index+1].trafficType==3){
-//                    try {
-//                    pedestrianPart = response.subPath[index+1]
-//
-//                    elevatorLocation = getSubwayElevLocation(subPath.sectionInfo.endName!!)
-//
-//                    pedestrianLoc = pedestrianPart.sectionRoute.routeList[0]
-//
-//                    minElevLoc = findMinDistanceLatLng(elevatorLocation, pedestrianLoc)
-//
-//                    pedestrianPart.sectionRoute.routeList.add(0, minElevLoc)
-//                    }catch (e:Exception){// 찾는 지하철이 DB에 없는 경우
-//                        Log.d("ElevatorError", e.message!!)
-//                    }
-//                }
-//                else{
-//                    continue
-//                }
-//            }
-//    }
-
 
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     /**
@@ -138,11 +96,21 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
      * @property routeControl 경로 이탈 알고리즘 객체
      */
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
+
     val coordParts = remember { setCoordParts(response) }
     val colorParts = setColerParts(response)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeDivation = RouteDeviation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
+
+    val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_mdpi)
+
+    val sendManager = SendManager()
+    val partnerPos = partnerViewModel.latLng.observeAsState()
+    val caretakerCoordParts = caregiverViewModel.coordParts.observeAsState()
+    val caretakerColorParts = caregiverViewModel.colorPart.observeAsState()
+    val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
@@ -182,6 +150,9 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
 
                 startNavigation = true
                 dialogFlag = false
+
+                sendManager.startNavigation(response)
+                sendManager.devateRoute(coordParts, colorParts)
             }
         }
     }
@@ -197,6 +168,10 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
         onLocationChange = {
             myPos = LatLng(it.latitude, it.longitude)
 
+            // 상대방에게 내 위치를 전송한다.
+            if(startNavigation) sendManager.sendPositionAndPassedRoute(myPos, passedRoute)
+            else sendManager.sendPosition(myPos)
+
             /**
              * 경로 이탈 시 실행되는 함수
              *
@@ -206,7 +181,6 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
              *           1 인 경우: 경로 이탈이 된 경우
              */
             if(startNavigation) {
-            //if(false) {
                 when (routeDivation.detectOutRoute(myPos)) {
                     -1 -> {
                         Toast.makeText(context, "목적지 인근에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
@@ -214,6 +188,7 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
                             passedRoute[i] = 1.0
                         }
                         startNavigation = false
+                        SendManager().deleteNavigation()
                     }
                     0 -> {
                         routeDivation.renewProcess(myPos)
@@ -224,6 +199,7 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
                          * 다른 타입(대중교통)의 경우 대중교통을 잘못 탑승했다고 판단해 경로 안내를 종료하고 다시 요청받도록 한다.
                          */
                         val nowSubPath = routeDivation.nowSubpath
+
                         if (response.subPath[nowSubPath].trafficType == 3) {
                             Log.d("RouteControl", "경로이탈")
                             // 너무 많이나와서 잠궈 둠
@@ -250,17 +226,31 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
                             routeDivation.nowSection = 0
                             passedRoute[nowSubPath] = 0.0
                             routeDivation.renewWholeDistance(coordParts[nowSubPath])
+
+                            // 갱신된 경로 재전송
+                            sendManager.devateRoute(coordParts, colorParts)
                         } else {
                             Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT)
                                 .show()
                             // TODO: 경로 안내 종료 및 SpecificRouteScreen 나가기
+                            SendManager().deleteNavigation()
                         }
                     }
                 }
             }
         }
     ){
-        DrawPathOverlay(coordParts, colorParts, passedRoute)
+        if(StaticValue.userInfo.role1 == "CARETAKER"){
+            MarkerComponent(myPos, caretakerIcon)
+            MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
+        }
+        else {
+            MarkerComponent(myPos, caregiverIcon)
+            MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
+        }
+
+        if(StaticValue.userInfo.role1 == "CARETAKER") DrawPathOverlay(coordParts, colorParts, passedRoute)
+        else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
     }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
@@ -271,29 +261,31 @@ fun SpecificRouteScreen(response:TransportRoute, goBack:()->Unit){
         goBack()
     }
 
-    BottomSheetScaffold (
-        sheetDragHandle = {},
-        sheetContainerColor = Color.White,
-        scaffoldState = bottomSheetScaffoldState,
-        sheetShape = RoundedCornerShape(
-            bottomStart = 0.dp,
-            bottomEnd = 0.dp,
-            topStart = 20.dp,
-            topEnd = 20.dp
-        ),
-        sheetContent = {
-            Column(
-                verticalArrangement = Arrangement.Top,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
-                SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
-            }
-        },
-        // 해당 부분은 초기 높이임
-        sheetPeekHeight = 85.dp
-    ) {
+    if(StaticValue.userInfo.role1 == "CARETAKER"){
+        BottomSheetScaffold(
+            sheetDragHandle = {},
+            sheetContainerColor = Color.White,
+            scaffoldState = bottomSheetScaffoldState,
+            sheetShape = RoundedCornerShape(
+                bottomStart = 0.dp,
+                bottomEnd = 0.dp,
+                topStart = 20.dp,
+                topEnd = 20.dp
+            ),
+            sheetContent = {
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
+                    SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
+                }
+            },
+            // 해당 부분은 초기 높이임
+            sheetPeekHeight = 85.dp
+        ) {
 
+        }
     }
 }
 

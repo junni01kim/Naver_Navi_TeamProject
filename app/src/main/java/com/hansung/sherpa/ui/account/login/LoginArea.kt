@@ -23,7 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.hansung.sherpa.dialog.SherpaDialogParm
+import com.hansung.sherpa.ui.common.SherpaDialogParm
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.account.module.InfomationGroup

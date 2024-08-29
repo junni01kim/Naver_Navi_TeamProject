@@ -121,4 +121,38 @@ class EmergencyManager {
         }
         return result?: EmergencyListResponse(500, "에러 원인을 찾을 수 없음", null)
     }
+
+    fun updateEmergencyBookmark(emergencyId: Int): EmergencyResponse {
+        var result: EmergencyResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO){
+                try{
+                    val response = Retrofit.Builder()
+                        .baseUrl(nncBackendEmergencyUrl)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(EmergencyService::class.java)
+                        .updateEmergencyByEmergencyId(emergencyId).execute()
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null"){
+                        result = EmergencyResponse(404, "'response.body()' is null", null)
+                        Log.e("API Log: response(Null)", "updateEmergencyBookmark: "+result?.message)
+                    }
+                    else {
+                        Log.i("API Log: Success", "updateEmergencyBookmark 함수 실행 성공 ${result?.message}")
+                        result = Gson().fromJson(
+                            jsonString,
+                            EmergencyResponse::class.java
+                        )
+                    }
+                } catch(e: IOException){
+                    Log.e("API Log: IOException", "updateEmergencyBookmark: ${e.message}(e.message)")
+                    result = EmergencyResponse(404, "IOException: 네트워크 연결 실패")
+                }
+            }
+        }
+        return result?: EmergencyResponse(500, "에러 원인을 찾을 수 없음", null)
+    }
 }
