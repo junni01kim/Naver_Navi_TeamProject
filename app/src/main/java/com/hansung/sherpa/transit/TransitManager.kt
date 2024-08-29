@@ -14,6 +14,9 @@ import com.hansung.sherpa.transit.pedestrian.PedestrianResponse
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteService
 import com.hansung.sherpa.transit.osrm.ShortWalkResponse
+import com.hansung.sherpa.transit.routegraphic.ODsayGraphicRequest
+import com.hansung.sherpa.transit.routegraphic.ODsayMapObject
+import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
 import com.hansung.sherpa.transit.tmappoi.TmapPoiResponse
 import com.hansung.sherpa.transit.tmappoi.TmapPoiService
 import com.naver.maps.geometry.LatLng
@@ -96,6 +99,36 @@ class TransitManager {
             }
         }
         return rr
+    }
+    /**
+     * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
+     *
+     * @param response
+     * @return
+     */
+    fun requestCoordinateForMapObject(response: ODsayTransitRouteResponse): List<RouteGraphicResponse> {
+        if (response.result?.path == null) return emptyList()
+        val mapObjectList: List<String> = response.result.path.map { it.info.mapObj ?: "" }
+        val coordinateList = MutableList<RouteGraphicResponse?>(mapObjectList.size) { null }
+        runBlocking {
+            val jobs = mapObjectList.mapIndexed { index, mapObject -> // 순서대로 다시 정렬하기 위함
+                launch(Dispatchers.IO) {
+                    if (mapObject == "") {
+                        coordinateList[index] = null
+                    } else {
+                        val routeGraphicResponse = getODsayGraphicRoute(
+                            ODsayGraphicRequest(mapObject = ODsayMapObject(responseMapObject = mapObject))
+                        )
+                        if (routeGraphicResponse != null) {
+                            coordinateList[index] = routeGraphicResponse
+                        }
+                    }
+                }
+            }
+            jobs.forEach { it.join() } // 비동기 요청 완료 대기
+        }
+
+        return coordinateList.filterNotNull()
     }
 
     var ELEVATOR_PRIMARY_SETTING = true // 지하철 우선 안내 ON/OFF
