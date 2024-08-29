@@ -26,6 +26,7 @@ import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
+import kotlin.math.min
 
 class TransitManager {
     fun getODsayTransitRoute(routeRequest: ODsayTransitRouteRequest): ODsayTransitRouteResponse? {
@@ -221,6 +222,11 @@ class TransitManager {
 
         var tmp:PedestrianRouteRequest = PedestrianRouteRequest(0.0f,0.0f,0.0f,0.0f)
 
+        var targetSX:Float = 0.0f
+        var targetSY:Float = 0.0f
+        var targetEX:Float = 0.0f
+        var targetEY:Float = 0.0f
+
         response.subPath.forEachIndexed { index, it ->
             if (it.trafficType == PEDESTRINAN_CODE) {
                 routeCoordinateList.add(
@@ -231,7 +237,7 @@ class TransitManager {
 
                                     var elevatorLocation = getSubwayElevLocation(response.subPath[index+1].startName)
 
-                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(it.endY, it.endX))
+                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(response.subPath[index+1].startY, response.subPath[index+1].startX))
 
                                     tmp = PedestrianRouteRequest(
                                         startX = start.longitude.toFloat(),
@@ -259,9 +265,9 @@ class TransitManager {
                         LAST_INDEX -> {
                             try {
                                 if(ELEVATOR_PRIMARY_SETTING && response.subPath[index-1].trafficType==1){
-                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index-1].startName)
+                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index-1].endName)
 
-                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(it.startY, it.startX))
+                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(end.latitude, end.longitude))
 
                                     tmp = PedestrianRouteRequest(
                                         startX = minLoc.longitude.toFloat(),
@@ -287,12 +293,47 @@ class TransitManager {
                             tmp
                         }
 
-                        else -> PedestrianRouteRequest(
-                            startX = response.subPath[index - 1].endX.toFloat(),
-                            startY = response.subPath[index - 1].endY.toFloat(),
-                            endX = response.subPath[index + 1].startX.toFloat(),
-                            endY = response.subPath[index + 1].startY.toFloat()
-                        )
+                        else -> {
+                            targetSX = response.subPath[index - 1].endX.toFloat()
+                            targetSY = response.subPath[index - 1].endY.toFloat()
+                            targetEX = response.subPath[index + 1].startX.toFloat()
+                            targetEY = response.subPath[index + 1].startY.toFloat()
+
+                            var beforeTransit = response.subPath[index-1]
+                            var afterTransit = response.subPath[index+1]
+
+                            if(beforeTransit.trafficType==1) {
+                                try {
+                                    var elevLocation = getSubwayElevLocation(beforeTransit.endName)
+                                    var minLoc = findMinDistanceLatLng(elevLocation, LatLng(afterTransit.startY, afterTransit.startX))
+
+                                    targetSX = minLoc.longitude.toFloat()
+                                    targetSY = minLoc.latitude.toFloat()
+                                } catch (e:ElevatorException){
+                                    Log.d("ElevatorConvertError", e.msg)
+                                }
+                            }
+
+                            if(afterTransit.trafficType==1) {
+                                try {
+                                    var elevatorLocation = getSubwayElevLocation(afterTransit.startName)
+                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(beforeTransit.endY, beforeTransit.endX))
+
+                                    targetEX = minLoc.longitude.toFloat()
+                                    targetEY = minLoc.latitude.toFloat()
+                                } catch (e:ElevatorException){
+                                    Log.d("ElevatorConvertError", e.msg)
+                                }
+                            }
+
+                            PedestrianRouteRequest (
+                                startX = targetSX,
+                                startY = targetSY,
+                                endX = targetEX,
+                                endY = targetEY
+                            )
+
+                        }
                     }
                 )
             }
@@ -393,14 +434,6 @@ class TransitManager {
             "geometries" to geometries,
             "overview" to overview,
         )
-    }
-
-    private fun fromPedestrianToSubwayElev(){
-
-    }
-
-    private fun fromSubwayToPedestrianElev(){
-
     }
 
 }
