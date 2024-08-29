@@ -33,21 +33,14 @@ import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.deviation.RouteDivation
 import com.hansung.sherpa.sendInfo.send.SendManager
 import com.hansung.sherpa.ui.common.SherpaDialog
-import com.hansung.sherpa.compose.transit.TransitManager
-import com.hansung.sherpa.compose.transit.findMinDistanceLatLng
 import com.hansung.sherpa.deviation.RouteDeviation
-import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
-import com.hansung.sherpa.itemsetting.SubPath
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
-import com.hansung.sherpa.subwayelevator.ElevatorLocResponse
-import com.hansung.sherpa.subwayelevator.getSubwayElevLocation
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
@@ -76,7 +69,8 @@ fun SpecificRouteScreen(
     response: TransportRoute,
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
-    caretakerViewModel: CaretakerViewModel
+    caretakerViewModel: CaretakerViewModel,
+    goBack:()->Unit
 ){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }

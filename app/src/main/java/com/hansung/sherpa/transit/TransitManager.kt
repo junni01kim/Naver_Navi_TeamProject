@@ -100,6 +100,33 @@ class TransitManager {
         }
         return rr
     }
+
+    /**
+     * 노선 그래픽 데이터를 리턴하는 함수
+     *
+     * @param routeRequest : ODsayGraphicRequest mapObject를 요청한다.
+     * @return ODsayGraphicRequest
+     */
+    fun getODsayGraphicRoute(request: ODsayGraphicRequest): RouteGraphicResponse? {
+        var result: RouteGraphicResponse? = null
+        runBlocking {
+            launch(Dispatchers.IO) {
+                try {
+                    val response = Retrofit.Builder()
+                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create(TransitRouteService::class.java)
+                        .getGraphicRoute(request.getQuery()).execute()
+                    result = Gson().fromJson(response.body()!!.string(), RouteGraphicResponse::class.java)
+                } catch (e: IOException) {
+                    Log.e("API Log: IOException", "getODsayGraphicRoute: ${e.message}(e.message)")
+                }
+            }
+        }
+        return result
+    }
+
     /**
      * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
      *
