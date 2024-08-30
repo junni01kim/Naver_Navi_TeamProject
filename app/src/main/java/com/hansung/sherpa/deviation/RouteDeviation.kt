@@ -2,7 +2,6 @@ package com.hansung.sherpa.deviation
 
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import com.hansung.sherpa.StaticValue
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.geometry.Utmk
 import kotlin.collections.*
@@ -17,7 +16,7 @@ import kotlin.math.sqrt
  * @param coordParts SpecificRouteScreen에서 경로로 선택 한 좌표들의 묶음
  * @param passedRoute 각 PathOverlay의 진척도를 조정하기 위한 값
  */
-class RouteDivation(
+class RouteDeviation(
     val coordParts: SnapshotStateList<MutableList<LatLng>>,
     val passedRoute: SnapshotStateList<Double>
 ) {

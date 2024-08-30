@@ -144,10 +144,10 @@ fun SetContentsImage(text:String){
     val settingImageID:Int
     val imagedesc:String = text
 
-    if(text.contains("우회전")){
+    if(text.contains("우측")){
         settingImageID = R.drawable.right_arrow
     }
-    else if(text.contains("좌회전")){
+    else if(text.contains("좌측")){
         settingImageID = R.drawable.left_arrow
     }
     else if(text.contains("횡단보도")){
