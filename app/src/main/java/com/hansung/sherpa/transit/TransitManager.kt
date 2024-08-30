@@ -186,7 +186,7 @@ class TransitManager {
         return coordinateList.filterNotNull()
     }
 
-    var ELEVATOR_PRIMARY_SETTING = StaticValue.userInfo.userSetting!!.elevatorFirst // 지하철 우선 안내 ON/OFF
+
     /**
      * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
      *
@@ -224,6 +224,8 @@ class TransitManager {
         var targetSY:Float = 0.0f
         var targetEX:Float = 0.0f
         var targetEY:Float = 0.0f
+
+        var ELEVATOR_PRIMARY_SETTING = StaticValue.userInfo.userSetting!!.elevatorFirst // 지하철 우선 안내 ON/OFF
 
         response.subPath.forEachIndexed { index, it ->
             if (it.trafficType == PEDESTRINAN_CODE) {
