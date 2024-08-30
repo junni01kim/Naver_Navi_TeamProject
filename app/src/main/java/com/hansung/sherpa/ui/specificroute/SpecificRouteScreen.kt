@@ -270,7 +270,7 @@ fun SpecificRouteScreen(
                             SendManager().deleteNavigation()
                         }
                         0 -> {
-                            routeDivation.renewProcess(myPos)
+                            routeDivation.renewProcess2(myPos)
                         }
                         1 -> {
                             /**

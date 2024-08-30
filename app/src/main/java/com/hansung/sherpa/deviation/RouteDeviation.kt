@@ -28,7 +28,7 @@ class RouteDeviation(
      */
     var nowSection = 0
     var nowSubpath = 0
-    val outRouteDistance = 20.0
+    val outRouteDistance = 10.0
     var subPathWholeDistance = 0.0
 
     /**
@@ -99,8 +99,6 @@ class RouteDeviation(
      *           1. 해당 섹션 통과
      */
     private fun detectNextSection(location:LatLng):Int {
-        // 해당 section이 nowSubPath의 마지막 section인지 판단하는 함수
-        fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
 
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
@@ -118,7 +116,7 @@ class RouteDeviation(
             // 다음 섹션 이동
             if(lastSection){
                 Log.d("RouteControl", "환승구간: ${nowSubpath}")
-                passedRoute[nowSubpath] = 1.0
+                //passedRoute[nowSubpath] = 1.0
                 nowSection = 0
                 nowSubpath++
             } else {
@@ -163,6 +161,32 @@ class RouteDeviation(
         // 내 섹션 안에서의 이동 거리
         val nowSectionDistance = coordParts[nowSubpath][nowSection].distanceTo(myPos) + beforeDistanceSum
 
+        passedRoute[nowSubpath] = nowSectionDistance/subPathWholeDistance
+        Log.d("sectionProcess", passedRoute[nowSubpath].toString())
+    }
+
+    /**
+     * 현재 진행도(이동한 거리)를 갱신하는 함수
+     * @param myPos 현재 내 위치
+     */
+    fun renewProcess2(myPos:LatLng) {
+        renewWholeDistance(coordParts[nowSubpath])
+        // 내 섹션 이전까지의 거리 합
+        var beforeDistanceSum = 0.0
+        for(i in 0..<nowSection) {
+            beforeDistanceSum += coordParts[nowSubpath][i].distanceTo(coordParts[nowSubpath][i+1])
+        }
+        // 내 섹션 안에서의 이동 거리
+        val nowSectionStart = coordParts[nowSubpath][nowSection]
+
+        val nowSectionEnd = if(isNextSubpath()) coordParts[nowSubpath+1][0] else coordParts[nowSubpath][nowSection+1]
+        val myPosVector = Utmk.valueOf(LatLng(myPos.latitude-nowSectionStart.latitude, myPos.longitude-nowSectionStart.longitude))
+        val nowSectionEndVector = Utmk.valueOf(LatLng(nowSectionEnd.latitude-nowSectionStart.latitude, nowSectionEnd.longitude-nowSectionStart.longitude))
+        val cosine = getCosine(myPosVector,nowSectionEndVector)
+
+        val nowSectionDistance = coordParts[nowSubpath][nowSection].distanceTo(myPos)*cosine + beforeDistanceSum
+
+        // passedRoute[nowSubpath] = if(cosine > 0) nowSectionDistance/subPathWholeDistance else 0.0
         passedRoute[nowSubpath] = nowSectionDistance/subPathWholeDistance
         Log.d("sectionProcess", passedRoute[nowSubpath].toString())
     }
@@ -302,4 +326,7 @@ class RouteDeviation(
 
         return tmpIndex
     }
+
+    // 해당 section이 nowSubPath의 마지막 section인지 판단하는 함수
+    fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
 }
