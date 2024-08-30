@@ -1,4 +1,4 @@
-package com.hansung.sherpa.FCM
+package com.hansung.sherpa.fcm
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -9,12 +9,10 @@ import android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
-import com.hansung.sherpa.StaticValue
 import kotlin.random.Random
 
 class SherpaFirebaseMessagingService : FirebaseMessagingService() {
@@ -42,7 +40,6 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
             // 다이얼로그
             createMessageViewModel(message)
         }
-
     }
 
     private val random = Random
@@ -85,7 +82,8 @@ class SherpaFirebaseMessagingService : FirebaseMessagingService() {
 
         val title = message.title ?: "제목 없음"
         val body = message.body ?: "내용 없음"
-        val intent = Intent("FCM_MESSAGE")
+        val intent = Intent("FCM_MESSAGE").setPackage("com.hansung.sherpa")
+
         intent.putExtra("title", title)
         intent.putExtra("body", body)
 

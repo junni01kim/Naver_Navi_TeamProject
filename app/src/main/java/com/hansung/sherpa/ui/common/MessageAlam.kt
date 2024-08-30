@@ -1,13 +1,12 @@
-package com.hansung.sherpa
+package com.hansung.sherpa.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import com.hansung.sherpa.FCM.MessageViewModel
-import com.hansung.sherpa.dialog.SherpaDialog
+import com.hansung.sherpa.fcm.MessageViewModel
 
 @Composable
-fun ExampleAlam(messageViewModel: MessageViewModel) {
+fun MessageAlam(messageViewModel: MessageViewModel) {
     val showDialog by messageViewModel.showDialog.observeAsState(false)
     val title by messageViewModel.title.observeAsState("")
     val body by messageViewModel.body.observeAsState("")

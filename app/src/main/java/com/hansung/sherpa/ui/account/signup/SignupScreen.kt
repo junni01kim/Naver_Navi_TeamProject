@@ -28,8 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.hansung.sherpa.dialog.SherpaDialog
-import com.hansung.sherpa.dialog.SherpaDialogParm
+import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.ui.common.SherpaDialogParm
 import com.hansung.sherpa.sherpares.BmHanna
 import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.account.module.rowWidth
