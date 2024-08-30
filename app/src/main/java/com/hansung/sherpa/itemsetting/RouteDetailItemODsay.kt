@@ -29,7 +29,7 @@ data class Info( // OdsayInfo에 해당
 
 /**
  * 이동수단 단위의 경로 집합 클래스
- * @param trafficType 대중교통 종류(#김재호 기준: 다운 캐스팅을 위함)
+ * @param trafficType 대중교통 종류(1: 지하철, 2: 버스, 3: 보행자)
  * @param sectionInfo 한 이동수단의 정보 ex) 버스, 지하철, 도보 단위의 정보
  * @param sectionRoute 한 이동수단의 경로 ex) 기존 좌표값 리스트랑 비슷
  */

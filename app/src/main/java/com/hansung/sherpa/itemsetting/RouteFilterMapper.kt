@@ -164,6 +164,7 @@ class RouteFilterMapper {
         depart: String = "", destination: String = ""
     ): TransportRoute {
         var index = 0
+        val pSize = pedestrianResponseList.size
         transportRoute.subPath.forEach {
             when (it.trafficType) {
                 TrafficType.WALK.value -> {
@@ -175,13 +176,10 @@ class RouteFilterMapper {
                         val features = pedestrianResponseList[index].features
                         if (features != null) {
                             val size = features.size
-                            features.forEachIndexed {
-                                    fIndex, _ ->
-                                it.sectionInfo.startName = features[0].properties.facilityName ?: ""
-                                it.sectionInfo.endName = features[size-1].properties.facilityName ?: ""
-                                if(fIndex == 0) it.sectionInfo.startName = depart
-                                if(fIndex == size-1) it.sectionInfo.endName = destination
-                            }
+                            it.sectionInfo.startName = features[0].properties.facilityName ?: ""
+                            it.sectionInfo.endName = features[size-1].properties.facilityName ?: ""
+                            if(index == 0) it.sectionInfo.startName = depart
+                            if(index == pSize-1) it.sectionInfo.endName = destination
                         }
                     }
 
