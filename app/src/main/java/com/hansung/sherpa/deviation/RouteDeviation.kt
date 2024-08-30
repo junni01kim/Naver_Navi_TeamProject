@@ -99,8 +99,6 @@ class RouteDeviation(
      *           1. 해당 섹션 통과
      */
     private fun detectNextSection(location:LatLng):Int {
-        // 해당 section이 nowSubPath의 마지막 section인지 판단하는 함수
-        fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
 
         // subPath의 마지막 구간인지 미리 탐색
         val lastSection = isNextSubpath()
@@ -180,14 +178,16 @@ class RouteDeviation(
         }
         // 내 섹션 안에서의 이동 거리
         val nowSectionStart = coordParts[nowSubpath][nowSection]
-        val nowSectionEnd = coordParts[nowSubpath][nowSection+1]
+
+        val nowSectionEnd = if(isNextSubpath()) coordParts[nowSubpath+1][0] else coordParts[nowSubpath][nowSection+1]
         val myPosVector = Utmk.valueOf(LatLng(myPos.latitude-nowSectionStart.latitude, myPos.longitude-nowSectionStart.longitude))
         val nowSectionEndVector = Utmk.valueOf(LatLng(nowSectionEnd.latitude-nowSectionStart.latitude, nowSectionEnd.longitude-nowSectionStart.longitude))
         val cosine = getCosine(myPosVector,nowSectionEndVector)
 
         val nowSectionDistance = coordParts[nowSubpath][nowSection].distanceTo(myPos)*cosine + beforeDistanceSum
 
-        passedRoute[nowSubpath] = if(cosine > 0) nowSectionDistance/subPathWholeDistance else 0.0
+        // passedRoute[nowSubpath] = if(cosine > 0) nowSectionDistance/subPathWholeDistance else 0.0
+        passedRoute[nowSubpath] = nowSectionDistance/subPathWholeDistance
         Log.d("sectionProcess", passedRoute[nowSubpath].toString())
     }
 
@@ -326,4 +326,7 @@ class RouteDeviation(
 
         return tmpIndex
     }
+
+    // 해당 section이 nowSubPath의 마지막 section인지 판단하는 함수
+    fun isNextSubpath() = nowSection + 1 >= coordParts[nowSubpath].size
 }
