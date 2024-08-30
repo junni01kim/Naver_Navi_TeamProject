@@ -43,10 +43,11 @@ class CaregiverViewModel : ViewModel()  {
             .toByteArray()
             .toString(Charsets.UTF_8)
 
-        Log.d("API Log", "반환: $json")
         val gson = GsonBuilder()
             .registerTypeAdapter(SubPath::class.java, SubPathAdapter())
             .create()
+
+        Log.d("API Log", "반환: ${json}")
         val response = gson.fromJson(json, TransportRoute::class.java)
 
         StaticValue.transportRoute = response
@@ -63,8 +64,7 @@ class CaregiverViewModel : ViewModel()  {
             .toString(Charsets.UTF_8)
 
         Log.d("API Log", "반환: ${json}")
-
-        val response = Gson().fromJson(json,ReceiveRouteResponse::class.java)
+        val response = Gson().fromJson(json, ReceiveRouteResponse::class.java)
 
         _coordParts.postValue(response.coordParts)
         _colorParts.postValue(response.colorParts)

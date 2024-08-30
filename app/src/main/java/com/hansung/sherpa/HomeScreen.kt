@@ -121,7 +121,7 @@ fun HomeScreen(
                         myPos = LatLng(it.latitude, it.longitude)
 
                         // 상대방에게 내 위치를 전송한다.
-                        sendManager.sendPos(myPos)
+                        sendManager.sendPosition(myPos)
                     }) {
                     if(StaticValue.userInfo.role1 == "CARETAKER"){
                         MarkerComponent(myPos, caretakerIcon)
