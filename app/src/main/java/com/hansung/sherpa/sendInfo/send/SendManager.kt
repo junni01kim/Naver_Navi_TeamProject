@@ -82,7 +82,7 @@ class SendManager() {
     }
 
     fun devateRoute(coordParts:SnapshotStateList<MutableList<LatLng>>, colorParts: MutableList<ColorPart>) {
-        val json = GensonBuilder().useClassMetadata(true).create().serialize(ReceiveRouteResponse(coordParts,colorParts))
+        val json = Gson().toJson(ReceiveRouteResponse(coordParts,colorParts))
 
         val temp = json.toByteArray(Charsets.UTF_8)
         val request = temp.joinToString("") { String.format("%02X", it) }
@@ -106,7 +106,7 @@ class SendManager() {
     }
 
     fun startNavigation(transportRoute: TransportRoute) {
-        val json = GensonBuilder().useClassMetadata(true).create().serialize(transportRoute)
+        val json = Gson().toJson(transportRoute)
 
         val temp = json.toByteArray(Charsets.UTF_8)
         val request = temp.joinToString("") { String.format("%02X", it) }
