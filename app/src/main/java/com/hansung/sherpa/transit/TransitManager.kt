@@ -101,6 +101,33 @@ class TransitManager {
         return rr
     }
 
+    fun getOsrmPedestrianRoute(routeRequest: PedestrianRouteRequest): PedestrianResponse {
+        lateinit var rr: PedestrianResponse
+        runBlocking<Job> {
+            launch(Dispatchers.IO) {
+                val rQ = routeRequest // 축약
+                try {
+                    val options = setOSRMRequestToMap()
+                    val response = Retrofit.Builder()
+                        .baseUrl("https://routing.openstreetmap.de/")
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<TransitRouteService?>(TransitRouteService::class.java)
+                        .getOSRMWalk(rQ.startX.toString(),
+                            rQ.startY.toString(), rQ.endX.toString(),
+                            rQ.endY.toString(), options).execute() // API 호출
+                    Log.i("API Log: OSRM", "OSRM response: ${response.toString()}")
+                    val sW = Gson().fromJson(response.body()!!.string(), ShortWalkResponse::class.java)
+                    Log.i("API Log: OSRM", "OSRM item: ${sW.toString()}")
+                    rr = Convert().convertToPedestrianResponse(sW)
+                } catch (e: IOException) {
+                    Log.e("API Log: IOException", "OSRM API Exception")
+                }
+            }
+        }
+        return rr
+    }
+
     /**
      * 노선 그래픽 데이터를 리턴하는 함수
      *

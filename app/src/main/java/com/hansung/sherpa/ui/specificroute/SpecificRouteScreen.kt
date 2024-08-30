@@ -1,6 +1,7 @@
 package com.hansung.sherpa.ui.specificroute
 
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
@@ -10,9 +11,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material.FabPosition
+import androidx.compose.material.rememberBottomSheetScaffoldState
+import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Navigation
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberBottomSheetScaffoldState
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -28,7 +34,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
@@ -50,22 +55,17 @@ import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
-
-enum class DragValue { Start, Center, End }
-
 /**
  * 경로의 세부 경로들 몇번 버스 이용, 어디서 내리기, 몇m 이동 등등의
  * 세부 정부 표현 화면
  *
  * (해당 Composable에서 UI조합 시작함)
  */
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalNaverMapApi::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun SpecificRouteScreen(
-    navController: NavController,
     response: TransportRoute,
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
@@ -74,10 +74,6 @@ fun SpecificRouteScreen(
 ){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
-
-    val density = LocalDensity.current // 화면 밀도
-    val screenHeightSizeDp = LocalConfiguration.current.screenHeightDp.dp // 현재 화면 높이 DpSize
-    val screenSizePx = with(density) {screenHeightSizeDp.toPx()} // 화면 밀도에 따른 화면 크기 PxSize
 
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     /**
@@ -150,102 +146,6 @@ fun SpecificRouteScreen(
             }
         }
     }
-
-    NaverMap(
-        locationSource = rememberFusedLocationSource(isCompassEnabled = true),
-        properties = MapProperties(
-            locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
-        ),
-        uiSettings = MapUiSettings(
-            isLocationButtonEnabled = true,
-        ),
-        onLocationChange = {
-            myPos = LatLng(it.latitude, it.longitude)
-
-            // 상대방에게 내 위치를 전송한다.
-            if(startNavigation) sendManager.sendPositionAndPassedRoute(myPos, passedRoute)
-            else sendManager.sendPosition(myPos)
-
-            /**
-             * 경로 이탈 시 실행되는 함수
-             *
-             * detectOuteRoute() 반환 값 마다 동작이 다르다.
-             *          -1 인 경우: 경로 안내 종료
-             *           0 인 경우: 정상 이동
-             *           1 인 경우: 경로 이탈이 된 경우
-             */
-            if(startNavigation) {
-                when (routeDivation.detectOutRoute(myPos)) {
-                    -1 -> {
-                        Toast.makeText(context, "목적지 인근에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
-                        for (i in passedRoute.indices) {
-                            passedRoute[i] = 1.0
-                        }
-                        startNavigation = false
-                        SendManager().deleteNavigation()
-                    }
-                    0 -> {
-                        routeDivation.renewProcess(myPos)
-                    }
-                    1 -> {
-                        /**
-                         * 도보의 경우 경로가 재설정 된다.
-                         * 다른 타입(대중교통)의 경우 대중교통을 잘못 탑승했다고 판단해 경로 안내를 종료하고 다시 요청받도록 한다.
-                         */
-                        val nowSubPath = routeDivation.nowSubpath
-
-                        if (response.subPath[nowSubPath].trafficType == 3) {
-                            Log.d("RouteControl", "경로이탈")
-                            // 너무 많이나와서 잠궈 둠
-                            //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
-
-                            val lastSectionIndex = coordParts[nowSubPath].lastIndex
-                            val toLatLng = coordParts[nowSubPath][lastSectionIndex]
-
-                            val pedestrianRouteRequest = PedestrianRouteRequest(
-                                startX = myPos.longitude.toFloat(),
-                                startY = myPos.latitude.toFloat(),
-                                endX = toLatLng.longitude.toFloat(),
-                                endY = toLatLng.latitude.toFloat()
-                            )
-
-                            val pedestrianResponse =
-                                TransitManager().getOsrmPedestrianRoute(pedestrianRouteRequest)
-
-                            val newTransportRoute =
-                                RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
-                            coordParts[nowSubPath] = newTransportRoute
-
-                            // 경로 재 요청으로 기존 진행 값 초기화
-                            routeDivation.nowSection = 0
-                            passedRoute[nowSubPath] = 0.0
-                            routeDivation.renewWholeDistance(coordParts[nowSubPath])
-
-                            // 갱신된 경로 재전송
-                            sendManager.devateRoute(coordParts, colorParts)
-                        } else {
-                            Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT)
-                                .show()
-                            // TODO: 경로 안내 종료 및 SpecificRouteScreen 나가기
-                            SendManager().deleteNavigation()
-                        }
-                    }
-                }
-            }
-        }
-    ){
-        if(StaticValue.userInfo.role1 == "CARETAKER"){
-            MarkerComponent(myPos, caretakerIcon)
-            MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
-        }
-        else {
-            MarkerComponent(myPos, caregiverIcon)
-            MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
-        }
-
-        if(StaticValue.userInfo.role1 == "CARETAKER") DrawPathOverlay(coordParts, colorParts, passedRoute)
-        else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
-    }
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
@@ -255,32 +155,135 @@ fun SpecificRouteScreen(
         goBack()
     }
 
-    if(StaticValue.userInfo.role1 == "CARETAKER"){
-        BottomSheetScaffold(
-            sheetDragHandle = {},
-            sheetContainerColor = Color.White,
-            scaffoldState = bottomSheetScaffoldState,
-            sheetShape = RoundedCornerShape(
-                bottomStart = 0.dp,
-                bottomEnd = 0.dp,
-                topStart = 20.dp,
-                topEnd = 20.dp
+    BottomSheetScaffold(
+        scaffoldState = bottomSheetScaffoldState,
+        sheetContentColor = Color.White,
+        sheetPeekHeight = 85.dp,
+        sheetShape = RoundedCornerShape(
+            bottomStart = 0.dp,
+            bottomEnd = 0.dp,
+            topStart = 20.dp,
+            topEnd = 20.dp
+        ),
+        backgroundColor = Color.Transparent,
+        floatingActionButtonPosition = FabPosition.End,
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { if(!startNavigation) startNavigation = true },
+                containerColor = Color.Cyan,
+                shape = RoundedCornerShape(50.dp)
+            ) {
+                Icon(imageVector = Icons.Outlined.Navigation, contentDescription = "경로 안내 버튼")
+            }
+        },
+        sheetContent = {
+            Column(
+                verticalArrangement = Arrangement.Top,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
+                SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
+            }
+        }
+    ) {
+        NaverMap(
+            locationSource = rememberFusedLocationSource(isCompassEnabled = true),
+            properties = MapProperties(
+                locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow,
             ),
-            sheetContent = {
-                Column(
-                    verticalArrangement = Arrangement.Top,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
-                    SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
-                }
-            },
-            // 해당 부분은 초기 높이임
-            sheetPeekHeight = 85.dp
-        ) {
+            uiSettings = MapUiSettings(
+                isLocationButtonEnabled = true,
+            ),
+            onLocationChange = {
+                myPos = LatLng(it.latitude, it.longitude)
 
+                // 상대방에게 내 위치를 전송한다.
+                if(startNavigation) sendManager.sendPositionAndPassedRoute(myPos, passedRoute)
+                else sendManager.sendPosition(myPos)
+
+                /**
+                 * 경로 이탈 시 실행되는 함수
+                 *
+                 * detectOuteRoute() 반환 값 마다 동작이 다르다.
+                 *          -1 인 경우: 경로 안내 종료
+                 *           0 인 경우: 정상 이동
+                 *           1 인 경우: 경로 이탈이 된 경우
+                 */
+                if(startNavigation) {
+                    when (routeDivation.detectOutRoute(myPos)) {
+                        -1 -> {
+                            Toast.makeText(context, "목적지 인근에 도착하였습니다.\n경로 안내를 종료합니다.", Toast.LENGTH_SHORT).show()
+                            for (i in passedRoute.indices) {
+                                passedRoute[i] = 1.0
+                            }
+                            startNavigation = false
+                            SendManager().deleteNavigation()
+                        }
+                        0 -> {
+                            routeDivation.renewProcess(myPos)
+                        }
+                        1 -> {
+                            /**
+                             * 도보의 경우 경로가 재설정 된다.
+                             * 다른 타입(대중교통)의 경우 대중교통을 잘못 탑승했다고 판단해 경로 안내를 종료하고 다시 요청받도록 한다.
+                             */
+                            val nowSubPath = routeDivation.nowSubpath
+
+                            if (response.subPath[nowSubPath].trafficType == 3) {
+                                Log.d("RouteControl", "경로이탈")
+                                // 너무 많이나와서 잠궈 둠
+                                //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
+
+                                val lastSectionIndex = coordParts[nowSubPath].lastIndex
+                                val toLatLng = coordParts[nowSubPath][lastSectionIndex]
+
+                                val pedestrianRouteRequest = PedestrianRouteRequest(
+                                    startX = myPos.longitude.toFloat(),
+                                    startY = myPos.latitude.toFloat(),
+                                    endX = toLatLng.longitude.toFloat(),
+                                    endY = toLatLng.latitude.toFloat()
+                                )
+
+                                val pedestrianResponse =
+                                    TransitManager().getOsrmPedestrianRoute(pedestrianRouteRequest)
+
+                                val newTransportRoute =
+                                    RouteFilterMapper().pedstrianResponseToRouteList(pedestrianResponse)
+                                coordParts[nowSubPath] = newTransportRoute
+
+                                // 경로 재 요청으로 기존 진행 값 초기화
+                                routeDivation.nowSection = 0
+                                passedRoute[nowSubPath] = 0.0
+                                routeDivation.renewWholeDistance(coordParts[nowSubPath])
+
+                                // 갱신된 경로 재전송
+                                sendManager.devateRoute(coordParts, colorParts)
+                            } else {
+                                Toast.makeText(context, "잘못된 탑승!\n다음역에서 하차하세요.", Toast.LENGTH_SHORT)
+                                    .show()
+                                // TODO: 경로 안내 종료 및 SpecificRouteScreen 나가기
+                                SendManager().deleteNavigation()
+                            }
+                        }
+                    }
+                }
+            }
+        ){
+            if(StaticValue.userInfo.role1 == "CARETAKER"){
+                MarkerComponent(myPos, caretakerIcon)
+                MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
+            }
+            else {
+                MarkerComponent(myPos, caregiverIcon)
+                MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
+            }
+
+            if(StaticValue.userInfo.role1 == "CARETAKER") DrawPathOverlay(coordParts, colorParts, passedRoute)
+            else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
         }
     }
+
+
 }
 
 
