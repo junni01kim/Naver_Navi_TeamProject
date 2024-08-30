@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
@@ -62,8 +61,7 @@ fun LocationBottomSheet(
         sheetState = bottomSheetState,
         onDismissRequest = { locationSheetStatus.value = false },
         modifier = Modifier
-            .fillMaxHeight(0.6f)
-            .heightIn(min = 200.dp),
+            .heightIn(min = 450.dp),
     ){
         LazyColumn {
             item {

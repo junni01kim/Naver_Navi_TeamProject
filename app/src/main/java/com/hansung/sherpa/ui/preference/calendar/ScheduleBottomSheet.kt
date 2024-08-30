@@ -12,10 +12,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -109,9 +107,6 @@ fun ScheduleBottomSheet(
     ModalBottomSheet(
         sheetState = bottomSheetState,
         onDismissRequest = { onClosedButtonClick(false) },
-        modifier = Modifier
-            .fillMaxHeight(0.88f)
-            .heightIn(min = 200.dp),
         dragHandle = {},
     ){
         LazyColumn {

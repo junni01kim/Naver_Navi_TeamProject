@@ -8,7 +8,7 @@ import java.lang.reflect.Type
 
 fun stripHTMLTags(html: String): String {
     val tagRegex = Regex("<[^>]*>")
-    var processedHtml = html.replace(Regex("</?b>"), " ")
+    var processedHtml = html.replace(Regex("</?b>"), "")
     processedHtml = processedHtml.replace(tagRegex, "")
     val multipleSpacesRegex = Regex("\\s{2,}")
     return multipleSpacesRegex.replace(processedHtml, " ").trim()
