@@ -1,6 +1,7 @@
 package com.hansung.sherpa.ui.specificroute
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import com.hansung.sherpa.accidentpronearea.AccidentProneArea
 import com.naver.maps.map.compose.PolygonOverlay
 
@@ -11,7 +12,7 @@ fun DrawPolygons(accidentProneAreas: ArrayList<AccidentProneArea>) {
         it.polygons?.coordinates?.forEach { coordinates ->
             PolygonOverlay(
                 coords = coordinates,
-                // TODO: 색깔 바꿔주셈 ㅎㅎ
+                color = Color(255,0,0,60)
             )
         }
     }

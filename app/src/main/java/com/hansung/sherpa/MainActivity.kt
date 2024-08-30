@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -28,13 +29,27 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.tasks.Task
+import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
+import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessaging
-import com.hansung.sherpa.FCM.MessageViewModel
-import com.hansung.sherpa.FCM.PermissionDialog
-import com.hansung.sherpa.FCM.RationaleDialog
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
+import com.hansung.sherpa.fcm.MessageViewModel
+import com.hansung.sherpa.fcm.PermissionDialog
+import com.hansung.sherpa.fcm.RationaleDialog
+import com.hansung.sherpa.fcm.ScheduleViewModel
+import com.hansung.sherpa.sendInfo.CaregiverViewModel
+import com.hansung.sherpa.sendInfo.CaretakerViewModel
+import com.hansung.sherpa.sendInfo.PartnerViewModel
+import com.hansung.sherpa.sendInfo.receive.addValueEventListener
+import com.hansung.sherpa.sendInfo.receive.isCareGiver
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
+import com.hansung.sherpa.ui.common.MessageAlam
+import com.hansung.sherpa.ui.common.ScheduleAlam
 import com.hansung.sherpa.ui.preference.AlarmSettingsActivity
 import com.hansung.sherpa.ui.preference.PreferenceScreen
 import com.hansung.sherpa.ui.preference.PreferenceScreenOption
@@ -48,10 +63,13 @@ import com.hansung.sherpa.ui.searchscreen.SearchScreen
 import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
+import com.hansung.sherpa.user.UserManager
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.util.FusedLocationSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -169,7 +187,6 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
-                            SpecificRouteScreen(navController, StaticValue.transportRoute, partnerViewModel, caregiverViewModel, caretakerViewModel)
 
                             // TODO: 여기서 위험 지역 요청함 ㅎㅎ
                             val list = mutableListOf<LatLng>()
@@ -183,7 +200,8 @@ class MainActivity : ComponentActivity() {
                             var centers : List<PolygonCenter> = listOf()
                             runBlocking(Dispatchers.IO) {
                                 run {
-                                    AccidentProneAreaManager().request(list, object : AccidentProneAreaCallback{
+                                    AccidentProneAreaManager().request(list, object :
+                                        AccidentProneAreaCallback {
                                         override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>, listOfCenter : List<PolygonCenter>) {
                                             result = accidentProneAreas
                                             centers = listOfCenter
@@ -194,7 +212,8 @@ class MainActivity : ComponentActivity() {
                                     })
                                 }
                             }
-                            SpecificRouteScreen(StaticValue.transportRoute, result, centers)
+                            SpecificRouteScreen(navController, StaticValue.transportRoute, partnerViewModel,
+                                caregiverViewModel, caretakerViewModel, result, centers)
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->

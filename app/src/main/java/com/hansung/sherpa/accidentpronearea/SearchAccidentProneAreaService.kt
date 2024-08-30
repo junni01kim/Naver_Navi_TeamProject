@@ -7,6 +7,6 @@ import retrofit2.http.POST
 
 interface SearchAccidentProneAreaService {
     @Headers("Accept: */*")
-    @POST("/api/v1/accident_prone_area/")
+    @POST("accident_prone_area/")
     fun search(@Body body : AccidentProneAreaReqeust): Call<AccidentProneAreaResponse>
 }

@@ -1,17 +1,6 @@
 package com.hansung.sherpa.ui.specificroute
 
 import android.os.Build
-import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.accidentpronearea.AccidentProneArea
-import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
-import com.hansung.sherpa.accidentpronearea.PolygonCenter
-import com.hansung.sherpa.compose.transit.TransitManager
-import com.hansung.sherpa.sendInfo.send.SendManager
-import com.hansung.sherpa.ui.common.SherpaDialog
-import com.hansung.sherpa.sendInfo.CaregiverViewModel
-import com.hansung.sherpa.sendInfo.CaretakerViewModel
-import com.hansung.sherpa.sendInfo.PartnerViewModel
-import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -25,7 +14,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,14 +29,25 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import com.hansung.sherpa.MarkerComponent
+import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.compose.transit.TransitManager
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.deviation.RouteDivation
-import com.hansung.sherpa.dialog.SherpaDialog
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
+import com.hansung.sherpa.sendInfo.CaregiverViewModel
+import com.hansung.sherpa.sendInfo.CaretakerViewModel
+import com.hansung.sherpa.sendInfo.PartnerViewModel
+import com.hansung.sherpa.sendInfo.send.SendManager
+import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
+import com.hansung.sherpa.ui.common.SherpaDialog
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
@@ -110,6 +112,7 @@ fun SpecificRouteScreen(
     val caretakerColorParts = caregiverViewModel.colorPart.observeAsState()
     val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
 
+    var section by remember { mutableIntStateOf(-1) }
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
      *
@@ -155,17 +158,21 @@ fun SpecificRouteScreen(
         }
     }
 
-    val accidentProneAreaAlert = Toast.makeText(LocalContext.current,"보행자 사고 다발 구간입니다.", Toast.LENGTH_SHORT)
+    val accidentProneAreaAlert = Toast.makeText(LocalContext.current,"⚠ 보행자 사고 다발 구간 ⚠", Toast.LENGTH_LONG)
     LaunchedEffect(myPos) {
         var flag = false
         if(centers.isNotEmpty()){
-            centers.forEach {
+            centers.forEachIndexed() { index, it ->
                 val distance = AccidentProneAreaManager.distanceCalculate(
                     myPos.latitude, myPos.longitude,
                     it.center.latitude, it.center.longitude
                 )
-                if(distance <= it.radius){
+                val collapseDistance = if(section == -1 || index == section) Double.MAX_VALUE
+                        else AccidentProneAreaManager.distanceCalculate(centers[section].center.latitude,  centers[section].center.longitude, it.center.latitude, it.center.longitude)
+
+                if(distance <= it.radius && index != section && collapseDistance > it.radius){
                     flag = true
+                    section = index
                 }
             }
         }
