@@ -3,6 +3,7 @@ package com.hansung.sherpa.transit
 import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.subwayelevator.ElevatorException
 import com.hansung.sherpa.subwayelevator.ElevatorLocResponse
@@ -185,7 +186,7 @@ class TransitManager {
         return coordinateList.filterNotNull()
     }
 
-    var ELEVATOR_PRIMARY_SETTING = true // 지하철 우선 안내 ON/OFF
+    var ELEVATOR_PRIMARY_SETTING = StaticValue.userInfo.userSetting!!.elevatorFirst // 지하철 우선 안내 ON/OFF
     /**
      * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
      *
@@ -230,7 +231,7 @@ class TransitManager {
                     when (index) {
                         FIRST_INDEX -> {
                             try {
-                                if(ELEVATOR_PRIMARY_SETTING && response.subPath[index+1].trafficType==1) {
+                                if(ELEVATOR_PRIMARY_SETTING == true && response.subPath[index+1].trafficType==1) {
 
                                     var elevatorLocation = getSubwayElevLocation(response.subPath[index+1].startName)
 
@@ -261,7 +262,7 @@ class TransitManager {
                         }
                         LAST_INDEX -> {
                             try {
-                                if(ELEVATOR_PRIMARY_SETTING && response.subPath[index-1].trafficType==1){
+                                if(ELEVATOR_PRIMARY_SETTING == true && response.subPath[index-1].trafficType==1){
                                     var elevatorLocation = getSubwayElevLocation(response.subPath[index-1].endName)
 
                                     var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(end.latitude, end.longitude))
@@ -299,27 +300,29 @@ class TransitManager {
                             var beforeTransit = response.subPath[index-1]
                             var afterTransit = response.subPath[index+1]
 
-                            if(beforeTransit.trafficType==1) {
-                                try {
-                                    var elevLocation = getSubwayElevLocation(beforeTransit.endName)
-                                    var minLoc = findMinDistanceLatLng(elevLocation, LatLng(afterTransit.startY, afterTransit.startX))
+                            if(ELEVATOR_PRIMARY_SETTING==true){
+                                if(beforeTransit.trafficType==1) {
+                                    try {
+                                        var elevLocation = getSubwayElevLocation(beforeTransit.endName)
+                                        var minLoc = findMinDistanceLatLng(elevLocation, LatLng(afterTransit.startY, afterTransit.startX))
 
-                                    targetSX = minLoc.longitude.toFloat()
-                                    targetSY = minLoc.latitude.toFloat()
-                                } catch (e: ElevatorException){
-                                    Log.d("ElevatorConvertError", e.msg)
+                                        targetSX = minLoc.longitude.toFloat()
+                                        targetSY = minLoc.latitude.toFloat()
+                                    } catch (e: ElevatorException){
+                                        Log.d("ElevatorConvertError", e.msg)
+                                    }
                                 }
-                            }
 
-                            if(afterTransit.trafficType==1) {
-                                try {
-                                    var elevatorLocation = getSubwayElevLocation(afterTransit.startName)
-                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(beforeTransit.endY, beforeTransit.endX))
+                                if(afterTransit.trafficType==1) {
+                                    try {
+                                        var elevatorLocation = getSubwayElevLocation(afterTransit.startName)
+                                        var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(beforeTransit.endY, beforeTransit.endX))
 
-                                    targetEX = minLoc.longitude.toFloat()
-                                    targetEY = minLoc.latitude.toFloat()
-                                } catch (e: ElevatorException){
-                                    Log.d("ElevatorConvertError", e.msg)
+                                        targetEX = minLoc.longitude.toFloat()
+                                        targetEY = minLoc.latitude.toFloat()
+                                    } catch (e: ElevatorException){
+                                        Log.d("ElevatorConvertError", e.msg)
+                                    }
                                 }
                             }
 

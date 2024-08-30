@@ -15,8 +15,7 @@ import androidx.compose.material.FabPosition
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Navigation
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -29,9 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.MarkerComponent
@@ -170,10 +167,10 @@ fun SpecificRouteScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { if(!startNavigation) startNavigation = true },
-                containerColor = Color.Cyan,
+                containerColor = Color(0xff8093f1),
                 shape = RoundedCornerShape(50.dp)
             ) {
-                Icon(imageVector = Icons.Outlined.Navigation, contentDescription = "경로 안내 버튼")
+                Icon(imageVector = Icons.Filled.Navigation, contentDescription = "경로 안내 버튼")
             }
         },
         sheetContent = {
