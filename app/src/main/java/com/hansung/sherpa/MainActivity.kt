@@ -84,18 +84,13 @@ class MainActivity : ComponentActivity() {
                 "알림" -> messageViewModel.updateValue(title, body)
                 "일정" -> scheduleViewModel.updateSchedule(title, body)
                 //"예약경로" -> caregiverViewModel.receivePos(title, body)
-                "위치" -> {} // partnerViewModel.getLatLng(title, body)
-                "경로이동" -> {}
-                    /*val response = Gson().fromJson(body, ReceivePos::class.java)
-                    partnerViewModel.updateLatLng(response.pos)
-                    caregiverViewModel.updatePassedRoute(response.passedRoute)*/
                 "재탐색" -> {
                     Log.d("FCM LOG", "재탐색")
                     caregiverViewModel.devateRoute(title, body)
                 }
                 "시작" -> {
                     Log.d("FCM LOG", "시작 전송")
-                    //caregiverViewModel.startNavigation(title, body)
+                    caregiverViewModel.startNavigation(title, body)
                     navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
 
