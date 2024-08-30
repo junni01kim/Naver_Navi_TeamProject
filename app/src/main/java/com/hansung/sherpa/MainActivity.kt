@@ -1,14 +1,10 @@
 package com.hansung.sherpa
 
 import android.Manifest
-import android.app.Activity
-import com.naver.maps.geometry.LatLng
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.PointF
-import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -20,8 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -69,6 +63,7 @@ import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.hansung.sherpa.user.UserManager
+import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
@@ -192,12 +187,6 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
-                            SpecificRouteScreen(
-                                StaticValue.transportRoute,
-                                partnerViewModel, caregiverViewModel,
-                                caretakerViewModel,
-                                { navController.navigate(SherpaScreen.Home.name) }
-                            )
 
                             // TODO: 여기서 위험 지역 요청함 ㅎㅎ
                             val list = mutableListOf<LatLng>()
@@ -223,8 +212,13 @@ class MainActivity : ComponentActivity() {
                                     })
                                 }
                             }
-                            SpecificRouteScreen(navController, StaticValue.transportRoute, partnerViewModel,
-                                caregiverViewModel, caretakerViewModel, result, centers)
+                            SpecificRouteScreen(
+                                StaticValue.transportRoute,
+                                partnerViewModel, caregiverViewModel,
+                                caretakerViewModel,
+                                { navController.navigate(SherpaScreen.Home.name) },
+                                result, centers
+                            )
                         }
                         composable(route = SherpaScreen.Preference.name){
                             PreferenceScreen { screenName ->
