@@ -20,7 +20,7 @@ import java.io.IOException
  * */
 
 fun getSubwayElevLocation(stationName: String): ElevatorLocResponse {
-    val baseUrl = "http://10.0.2.2:8080/api/v1/" + "elevator/"
+    val baseUrl = BuildConfig.SHERPA_URL + "elevator/"
     lateinit var rr: ElevatorLocResponse
     runBlocking<Job> {
         launch(Dispatchers.IO) {
