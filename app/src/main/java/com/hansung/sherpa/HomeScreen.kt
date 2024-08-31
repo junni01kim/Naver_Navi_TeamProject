@@ -41,6 +41,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.sendInfo.send.SendManager
+import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.main.CustomNavigationDrawer
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
@@ -146,6 +147,7 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceAround,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(top = 20.dp)
                     ) {
 
                         /**
@@ -169,6 +171,8 @@ fun HomeScreen(
                             singleLine = true,
                             placeholder = { Text("검색어를 입력하세요") },
                             colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent
                             ),
@@ -184,7 +188,7 @@ fun HomeScreen(
                                 .width(66.dp)
                                 .height(55.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(Color.Black),
+                            colors = ButtonDefaults.buttonColors(Color(0xFF34DFD5)),
                             onClick = {
                                 navController.navigate("${SherpaScreen.Search.name}/${if (destinationValue == "") "아무것도 전달되지 않았음" else destinationValue}")
                             }
