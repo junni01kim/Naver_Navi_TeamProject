@@ -109,8 +109,7 @@ fun SpecificRouteScreen(
     if(dialogFlag) {
         SherpaDialog(title = "안내 시작", message = listOf("사용자 경로 안내를","시작하시겠습니까?"), confirmButtonText = "안내", dismissButtonText = "취소") {
             if(StaticValue.userInfo.role1 == "CAREGIVER"){
-                // TODO: 사용자에게 경로값 전송
-                //StaticValue.transportRoute 이걸로
+                sendManager.startNavigation(response)
                 dialogFlag = false
             }
             else {
@@ -166,7 +165,9 @@ fun SpecificRouteScreen(
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { if(!startNavigation) startNavigation = true },
+                onClick = {
+                          dialogFlag = true
+                          },
                 containerColor = Color(0xff8093f1),
                 shape = RoundedCornerShape(50.dp)
             ) {

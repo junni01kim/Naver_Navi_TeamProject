@@ -1,6 +1,5 @@
 package com.hansung.sherpa.ui.main
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,7 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -48,7 +47,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -58,10 +56,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.zIndex
-import com.hansung.sherpa.R
+import com.hansung.sherpa.ui.theme.lightScheme
 
 @Composable
-fun AddEmergencyScreen(contactList: List<Contact>  = listOf(), openDialog: MutableState<Boolean> = remember { mutableStateOf(true) }, onClick: (Contact) -> Unit = {}) {
+fun AddEmergencyScreen(
+    contactList: List<Contact>  = listOf(),
+    openDialog: MutableState<Boolean> = remember { mutableStateOf(true) },
+    onClick: (Contact) -> Unit = {}
+) {
     val dialogWidth = 800.dp
     val dialogHeight = 300.dp
     var isAddContact by remember { mutableStateOf(true) }
@@ -76,11 +78,13 @@ fun AddEmergencyScreen(contactList: List<Contact>  = listOf(), openDialog: Mutab
             Card(modifier = Modifier
                 .height(dialogHeight)
                 .width(dialogWidth),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(20.dp)
                 ) {
                 if(isAddContact) {
                     AddContactButton { isOpenContacts = true }
-                } else {
+                }
+                else {
                     isEnabled = true
                     Box(
                         modifier = Modifier
@@ -91,7 +95,7 @@ fun AddEmergencyScreen(contactList: List<Contact>  = listOf(), openDialog: Mutab
                         Box(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
-                                .offset(x = (-10).dp, y = 10.dp) // Image와 겹치도록 위치 조정
+                                .offset(x = (-5).dp, y = 5.dp) // Image와 겹치도록 위치 조정
                                 .zIndex(1f) // Icon이 이미지 위로 오도록 설정
                                 .clip(RoundedCornerShape(50.dp))
                                 .clickable {
@@ -104,7 +108,7 @@ fun AddEmergencyScreen(contactList: List<Contact>  = listOf(), openDialog: Mutab
                                 tint = MaterialTheme.colorScheme.onSecondary,
                                 contentDescription = "추가한 연락처 지우기",
                                 modifier = Modifier
-                                    .background(MaterialTheme.colorScheme.secondary)
+                                    .background(MaterialTheme.colorScheme.surfaceDim)
                             )
                         }
 
@@ -138,7 +142,7 @@ fun AddContactButton(onClick: () -> Unit) {
             .fillMaxHeight(0.7F),
         border = BorderStroke(0.dp, color = Color.Transparent),
         shape = RoundedCornerShape(25.dp),
-        colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+        colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         onClick = { onClick() },
         enabled = true
     ) {
@@ -148,8 +152,10 @@ fun AddContactButton(onClick: () -> Unit) {
                 modifier = Modifier
                     .width(iconSize)
                     .height(iconSize),
-                imageVector = Icons.Default.Add, contentDescription = "연락처 추가 버튼")
-            Text(text = "긴급연락처 불러오기")
+                imageVector = Icons.Default.Add, contentDescription = "연락처 추가 버튼",
+                tint = MaterialTheme.colorScheme.outline
+            )
+            Text(text = "긴급연락처 불러오기", color = MaterialTheme.colorScheme.outline)
         }
     }
 }
@@ -157,21 +163,36 @@ fun AddContactButton(onClick: () -> Unit) {
 // 추가하기 버튼
 @Composable
 fun AddEmergencyButton(isEnabled: Boolean,onDismissRequest: () -> Unit = {}, onClick: () -> Unit = {}) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceAround
+    MaterialTheme(
+        colorScheme = lightScheme
     ) {
-        OutlinedButton(onClick = onDismissRequest) {
-            Text(text = "돌아가기")
-        }
-        FilledTonalButton(
-            onClick =
-            {
-                onClick()
-                onDismissRequest()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceAround
+        ) {
+            OutlinedButton(
+                onClick = onDismissRequest,
+                border = BorderStroke(width = 2.dp, color = MaterialTheme.colorScheme.scrim)
+            ) {
+                Text(text = "돌아가기", color = MaterialTheme.colorScheme.scrim)
             }
-            , enabled = isEnabled) {
-            Text("추가하기")
+            FilledTonalButton(
+                onClick =
+                {
+                    onClick()
+                    onDismissRequest()
+                }
+                , enabled = isEnabled,
+                colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.scrim,
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    disabledContentColor = MaterialTheme.colorScheme.outlineVariant,
+                )
+            ) {
+                Text("추가하기")
+            }
         }
     }
 }
@@ -185,7 +206,7 @@ fun ContactCard(contact: Contact) {
         .zIndex(0.9F),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
     )
     ) {
         Row(modifier = Modifier
@@ -283,7 +304,7 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
             Icon(
                 modifier = Modifier
                     .size(35.dp)
-                    .padding(top =  10.dp, end = 10.dp)
+                    .padding(top = 10.dp, end = 10.dp)
                     .align(Alignment.End)
                     .clickable { onDismissRequest() }
                 ,
@@ -291,7 +312,8 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
                 imageVector = Icons.Default.Close, contentDescription = "연락처 리스트 닫기")
             LazyColumn(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background).padding(bottom = 30.dp),
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(bottom = 30.dp),
                 contentPadding = PaddingValues(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -345,7 +367,9 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
 @Preview
 @Composable
 fun PreviewAddEmergencyScreen() {
-    AddEmergencyScreen()
+    MaterialTheme(colorScheme = lightScheme) {
+        AddEmergencyScreen()
+    }
 }
 
 @Preview

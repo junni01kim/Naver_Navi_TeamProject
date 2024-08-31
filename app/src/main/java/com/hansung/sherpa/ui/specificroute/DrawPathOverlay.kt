@@ -41,7 +41,16 @@ fun DrawPathOverlay(
 fun setCoordParts(transportRoute: TransportRoute): SnapshotStateList<MutableList<LatLng>> {
     val coordParts = mutableStateListOf<MutableList<LatLng>>()
 
-    for(subPath in transportRoute.subPath) coordParts.add(subPath.sectionRoute.routeList)
+    transportRoute.subPath.forEachIndexed {
+        index, subPath ->
+        coordParts.add(subPath.sectionRoute.routeList)
+        if(index != transportRoute.subPath.size - 1) {
+            val next = transportRoute.subPath[index + 1].sectionRoute.routeList
+            val curr = transportRoute.subPath[index].sectionRoute.routeList
+            val list = listOf<LatLng>(curr[curr.size-1], next[0])
+            coordParts.add(list.toMutableList())
+        }
+    }
 
     return coordParts
 }
@@ -49,13 +58,23 @@ fun setCoordParts(transportRoute: TransportRoute): SnapshotStateList<MutableList
 fun setColerParts(transportRoute: TransportRoute): MutableList<ColorPart> {
     val colorParts = mutableListOf<ColorPart>()
 
-    for(subPath in transportRoute.subPath) {
+    transportRoute.subPath.forEachIndexed {
+        index, subPath ->
         colorParts.add(ColorPart(
             color = if(subPath.trafficType == 3) Color.Gray else typeOfColor(subPath),
             outlineColor = Color.Transparent,
             passedColor = Color.Transparent,
             passedOutlineColor = Color.Transparent
         ))
+        if(index != transportRoute.subPath.size - 1) {
+            colorParts.add(ColorPart(
+                color = Color.Gray,
+                outlineColor = Color.Transparent,
+                passedColor = Color.Transparent,
+                passedOutlineColor = Color.Transparent
+            ))
+        }
+
     }
 
     return colorParts
