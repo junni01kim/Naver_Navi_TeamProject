@@ -38,6 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hansung.sherpa.schedule.RouteManager
+import com.hansung.sherpa.schedule.ScheduleManager
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -85,6 +87,9 @@ fun ScheduleColumns(
     var currentVisibleColumnsCount by remember { mutableIntStateOf(scheduleDataList.size) }
     var beforeListSize by remember { mutableIntStateOf(scheduleDataList.size) }
     val isDeleted = remember { mutableStateMapOf<ScheduleData, Boolean>() }
+    val routeManager = RouteManager()
+    val scheduleManager = ScheduleManager()
+
     scheduleDataList.sortWith(
         compareBy<ScheduleData> { !it.isWholeDay.value }
             .thenBy { if (it.isWholeDay.value) it.title.value else "" }
@@ -98,6 +103,9 @@ fun ScheduleColumns(
 
     val onDelete : (ScheduleData) -> Unit = { deleteItem ->
         // TODO: 삭제한 deleteItem -> 서버에서도 삭제
+        scheduleManager.deleteSchedules(deleteItem.scheduleId)
+        if(deleteItem.routeId != null)
+            routeManager.deleteRoute(deleteItem.routeId!!)
         isDeleted[deleteItem] = false
         currentVisibleColumnsCount--
     }
@@ -262,12 +270,15 @@ fun ScheduleColumn(
                     scheduleData.scheduledLocation.name = item.scheduledLocation.name
                     scheduleData.scheduledLocation.lat = item.scheduledLocation.lat
                     scheduleData.scheduledLocation.lat = item.scheduledLocation.lon
+                    scheduleData.scheduledLocation.isGuide = item.scheduledLocation.isGuide
+                    scheduleData.scheduledLocation.guideDatetime = item.scheduledLocation.guideDatetime
                     scheduleData.isWholeDay.value = item.isWholeDay.value
                     scheduleData.startDateTime.longValue = item.startDateTime.longValue
                     scheduleData.endDateTime.longValue = item.endDateTime.longValue
                     scheduleData.comment.value = item.comment.value
-                    scheduleData.repeat.value.repeatable = item.repeat.value.repeatable
-                    scheduleData.repeat.value.cycle = item.repeat.value.cycle
+                    scheduleData.routeId = item.routeId
+//                    scheduleData.repeat.value.repeatable = item.repeat.value.repeatable
+//                    scheduleData.repeat.value.cycle = item.repeat.value.cycle
                     // TODO: 일정 수정 API 호출
                 }
                 showEditSheet = false
@@ -291,14 +302,17 @@ fun cloneScheduleData(scheduleData: ScheduleData): ScheduleData {
                 scheduleData.scheduledLocation.address,
                 scheduleData.scheduledLocation.lat,
                 scheduleData.scheduledLocation.lon,
+                scheduleData.scheduledLocation.isGuide,
+                scheduleData.scheduledLocation.guideDatetime
             )
         },
         isWholeDay = remember { mutableStateOf(scheduleData.isWholeDay.value) },
         isDateValidate = remember { mutableStateOf(true )},
         startDateTime = remember { mutableLongStateOf(scheduleData.startDateTime.longValue) },
         endDateTime = remember { mutableLongStateOf(scheduleData.endDateTime.longValue) },
-        repeat = remember { mutableStateOf(Repeat(repeatable = scheduleData.repeat.value.repeatable, cycle = scheduleData.repeat.value.cycle)) },
-        comment = remember { mutableStateOf(scheduleData.comment.value) }
+        comment = remember { mutableStateOf(scheduleData.comment.value) },
+        routeId = scheduleData.routeId,
+        scheduleId = -1
     )
 }
 

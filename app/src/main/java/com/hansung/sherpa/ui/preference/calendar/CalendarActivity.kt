@@ -7,6 +7,7 @@ package com.hansung.sherpa.ui.preference.calendar
 //import org.threeten.bp.format.TextStyle
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -68,13 +69,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hansung.sherpa.schedule.RouteManager
+import com.hansung.sherpa.schedule.ScheduleFindCallback
+import com.hansung.sherpa.schedule.ScheduleManager
+import com.hansung.sherpa.schedule.Schedules
 import com.jakewharton.threetenabp.AndroidThreeTen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class CalendarActivity : ComponentActivity() {
@@ -100,17 +112,88 @@ fun CalendarScreen(
     var showBottomSheet by remember { mutableStateOf(false) }
     val beforeSelectedLocalDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
 
+    val scheduleManager = ScheduleManager()
+    val routeManager = RouteManager()
+
+    var flag by remember { mutableStateOf(false) }
+    var scheduleResponse : List<Schedules>? = null
+
     val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, isAdded ->
         if(isAdded){
-            // TODO: 추가 API 호출
-            scheduleDataList.add(item)
+            val route = runBlocking(Dispatchers.IO) {
+                withContext(Dispatchers.IO) { routeManager.insertRoute(scheduleData = item) }
+            }
+            if(route != null){
+                scheduleManager.insertSchedules(scheduleData = item, routeId = route.routeId)
+                scheduleDataList.add(item)
+            } else {
+                Log.e("Route API", "Failed to insert the data")
+            }
         }
         showBottomSheet = false
     }
     val updateScheduleData : @Composable (LocalDate) -> Unit = { changeDate ->
-        // TODO: 조회 API 호출
+        val localDatetime = changeDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+
+        scheduleManager.findSchedules(SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(localDatetime)), object : ScheduleFindCallback{
+            override fun onSuccess(scheduleData: List<Schedules>) {
+                scheduleResponse = scheduleData
+                flag = true
+            }
+            override fun onFailure(message: String) {
+                Log.e("Schedule API", message)
+            }
+        })
         if(!changeDate.isEqual(beforeSelectedLocalDate))
             scheduleDataList.clear()
+    }
+
+    if(flag && scheduleResponse != null){
+        scheduleDataList.clear()
+        scheduleResponse!!.forEach {
+            val time = Calendar.getInstance().apply { timeInMillis = it.dateBegin.toLong() }
+            val isWholeDay = when {
+                time.get(Calendar.HOUR) == 0 && time.get(Calendar.MINUTE) == 0 && time.get(Calendar.SECOND) == 0 -> true
+                else -> false
+            }
+            val route = runBlocking(Dispatchers.IO) {
+                run { routeManager.findRoute(it.routeId) }
+            }
+
+            scheduleDataList.add(
+                ScheduleData(
+                    title = remember { mutableStateOf(it.title) },
+                    comment = remember { mutableStateOf(it.description) },
+                    startDateTime = remember { mutableLongStateOf(it.dateBegin.toLong()) },
+                    endDateTime = remember { mutableLongStateOf(it.dateEnd.toLong()) },
+                    isDateValidate = remember { mutableStateOf(true) },
+                    isWholeDay = remember { mutableStateOf(isWholeDay) },
+                    scheduledLocation =
+                        if(route != null){
+                            ScheduleLocation(
+                                name = route.location.name,
+                                lat = route.location.latitude,
+                                lon = route.location.longitude,
+                                address = it.address,
+                                isGuide = if (it.guideDatetime.toLong() != 0L) true else false,
+                                guideDatetime = it.guideDatetime.toLong()
+                            )
+                        } else {
+                            ScheduleLocation(
+                                name = "",
+                                lat = 0.0,
+                                lon = 0.0,
+                                address = "",
+                                isGuide = false,
+                                guideDatetime = 0
+                            )
+                        },
+                    routeId = route?.routeId,
+                    scheduleId = it.scheduleId!!
+                )
+            )
+        }
+        flag = false
     }
 
     Scaffold (
@@ -173,15 +256,18 @@ fun CalendarScreen(
                     "",
                     "",
                     0.0,
-                    0.0
+                    0.0,
+                    false,
+                    startDateTime.timeInMillis
                 )
             },
             isWholeDay = remember { mutableStateOf(false) },
             isDateValidate = remember { mutableStateOf(true )},
             startDateTime = remember { mutableLongStateOf(startDateTime.timeInMillis) },
             endDateTime = remember { mutableLongStateOf(endDateTime.timeInMillis) },
-            repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
-            comment = remember { mutableStateOf("") }
+            comment = remember { mutableStateOf("") },
+            routeId = null,
+            scheduleId = -1
         )
         ScheduleBottomSheet(
             closeBottomSheet = closeBottomSheet,
@@ -209,12 +295,6 @@ fun Calendar(
     )
     val coroutineScope = rememberCoroutineScope()
     updateScheduleData(currentSelectedDate)
-
-//    LaunchedEffect(pagerState.currentPage) {
-//        val addMonth = (pagerState.currentPage - currentPage).toLong()
-//        currentMonth = currentMonth.plusMonths(addMonth)
-//        currentPage = pagerState.currentPage
-//    }
 
     val onChangeMonth : @Composable (Int) -> Unit = { offset ->
         with(pagerState) {

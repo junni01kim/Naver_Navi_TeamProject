@@ -142,8 +142,18 @@ fun BottomSheetBody(
     scheduleData: ScheduleData,
     locationSheetState : MutableState<Boolean>
 ){
+    var isGuide by remember {
+        mutableStateOf(false)
+    }
+    val guideDatetime = remember { mutableLongStateOf(scheduleData.scheduledLocation.guideDatetime) }
+    val isValidateGuideDatetime = remember { mutableStateOf(true) }
     var isSearched by remember { mutableStateOf(false) }
     var locationString by remember { mutableStateOf("위치") }
+
+    LaunchedEffect(guideDatetime) {
+        scheduleData.scheduledLocation.guideDatetime = guideDatetime.longValue
+    }
+
     LaunchedEffect(scheduleData.scheduledLocation.name){
         isSearched = when(scheduleData.scheduledLocation.name){
             "" -> false
@@ -237,11 +247,64 @@ fun BottomSheetBody(
                 if(isSearched){
                     IconButton(
                         modifier = Modifier.wrapContentSize(),
-                        onClick = { isSearched = false }) {
+                        onClick = {
+                            isSearched = false
+                            isGuide = false
+                            scheduleData.scheduledLocation.isGuide = false
+                        }) {
                         Icon(
                             imageVector = Icons.Default.Cancel,
                             contentDescription = "",
                             modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
+            AnimatedVisibility(visible = scheduleData.scheduledLocation.name.isNotEmpty()) {
+                Row(
+                    modifier = itemModifier,
+                ){
+                    Text(
+                        text = "경로 안내",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                        ),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 16.dp),
+                    )
+                    Spacer(modifier = Modifier.padding(horizontal = 110.dp))
+                    Switch(
+                        checked = isGuide,
+                        onCheckedChange = {
+                            isGuide = it
+                            scheduleData.scheduledLocation.isGuide = it
+                        },
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(end = 8.dp),
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = Color(41,161,255)
+                        )
+                    )
+                }
+            }
+            AnimatedVisibility(isGuide) {
+                Column(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.primaryContainer)
+                        .fillMaxWidth()
+                ) {
+                    ExpandableSection(modifier = itemModifier, title = "시간",
+                        localDatetimeMills = guideDatetime,
+                        isDateValidate = isValidateGuideDatetime,
+                        isWholeDay = remember {
+                            mutableStateOf(false)
+                        })
+                    {
+                        scheduleData.isDateValidate.value = checkDateValidation(
+                            scheduleData.startDateTime.longValue,
+                            scheduleData.endDateTime.longValue
                         )
                     }
                 }
@@ -274,7 +337,8 @@ fun BottomSheetBody(
                         scheduleData.isWholeDay.value = it
                     },
                     modifier = Modifier
-                        .align(Alignment.CenterVertically),
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 8.dp),
                     colors = SwitchDefaults.colors(
                         checkedTrackColor = Color(41,161,255)
                     )
@@ -556,8 +620,8 @@ fun Repeat(
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                             )
                             when {
-                                selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
-                                else -> selectedItem?.let { setRepeat(scheduleData, it) }
+//                                selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
+//                                else -> selectedItem?.let { setRepeat(scheduleData, it) }
                             }
                         }
                     }
@@ -574,15 +638,15 @@ fun setRepeat(
 ){
     val items = mapOf(0 to "안 함", 1 to "매일", 2 to "매주", 3 to "2주마다", 4 to "매월", 5 to "매년")
 
-    scheduleData.repeat.value.repeatable = false
-    scheduleData.repeat.value.cycle = when(str){
-        "매일" -> CronFormatter.format(1, scheduleData.startDateTime.longValue)
-        "매주" -> CronFormatter.format(2, scheduleData.startDateTime.longValue)
-        "2주마다" -> CronFormatter.format(3, scheduleData.startDateTime.longValue)
-        "매월" -> CronFormatter.format(4, scheduleData.startDateTime.longValue)
-        "매년" -> CronFormatter.format(5, scheduleData.startDateTime.longValue)
-        else -> throw NullPointerException("Exception while to set cron")
-    }
+//    scheduleData.repeat.value.repeatable = false
+//    scheduleData.repeat.value.cycle = when(str){
+//        "매일" -> CronFormatter.format(1, scheduleData.startDateTime.longValue)
+//        "매주" -> CronFormatter.format(2, scheduleData.startDateTime.longValue)
+//        "2주마다" -> CronFormatter.format(3, scheduleData.startDateTime.longValue)
+//        "매월" -> CronFormatter.format(4, scheduleData.startDateTime.longValue)
+//        "매년" -> CronFormatter.format(5, scheduleData.startDateTime.longValue)
+//        else -> throw NullPointerException("Exception while to set cron")
+//    }
 }
 
 // TODO: 사용미정
@@ -663,8 +727,8 @@ fun Alert(
                                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                     )
                                     when {
-                                        selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
-                                        else -> selectedItem?.let {  }
+//                                        selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
+//                                        else -> selectedItem?.let {  }
                                     }
                                 }
                             }
@@ -731,15 +795,18 @@ fun preview(){
                 "",
                 address = "",
                 0.0,
-                0.0
+                0.0,
+                false,
+                0
             )
         },
         isWholeDay = remember { mutableStateOf(false) },
         isDateValidate = remember { mutableStateOf(true )},
         startDateTime = remember { mutableLongStateOf(0) },
         endDateTime = remember { mutableLongStateOf(0) },
-        repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
-        comment = remember { mutableStateOf("") }
+        comment = remember { mutableStateOf("") },
+        routeId = null,
+        scheduleId = -1
     )
     LazyColumn {
         item { BottomSheetBody(
