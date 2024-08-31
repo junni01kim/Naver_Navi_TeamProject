@@ -22,6 +22,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.LottieAnimation
@@ -51,7 +53,7 @@ fun PolicyComposable(finish:()->Unit){
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "여기에 정보 처리 방침 작성", fontSize = 32.sp)
+        Text(text = "대중교통 정보제공 아로정보기술", fontSize = 24.sp, fontStyle = FontStyle.Italic)
 
         Button(onClick = { finish() },
             modifier = Modifier.padding(24.dp),
@@ -60,4 +62,10 @@ fun PolicyComposable(finish:()->Unit){
             Text(text = "설정창으로 돌아가기", fontSize = 24.sp, color = Color.White)
         }
     }
+}
+
+@Preview
+@Composable
+fun pre(){
+    PolicyComposable({})
 }

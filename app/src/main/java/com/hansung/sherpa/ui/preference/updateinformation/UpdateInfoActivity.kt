@@ -99,7 +99,7 @@ fun UpdateInfoComposable(finish:()->Unit){
         enter = scaleIn(),
         exit = scaleOut()
     ) {
-        Text(text = "멍멍", fontSize = 12.sp)
+        //Text(text = "멍멍", fontSize = 12.sp)
     }
 
 }
