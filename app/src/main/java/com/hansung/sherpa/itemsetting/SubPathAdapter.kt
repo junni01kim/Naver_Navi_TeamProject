@@ -11,7 +11,32 @@ import com.google.gson.stream.JsonWriter
 
 class SubPathAdapter : TypeAdapter<SubPath>() {
 
-    override fun write(out: JsonWriter, value: SubPath) {}
+    override fun write(out: JsonWriter, value: SubPath) {
+        // Begin the JSON object
+        out.beginObject()
+
+        // Write trafficType
+        out.name("trafficType").value(value.trafficType)
+
+        // Write sectionInfo
+        out.name("sectionInfo")
+        val gson = GsonBuilder()
+            .registerTypeAdapter(object : TypeToken<Lane>() {}.type, LaneSerialize(value.trafficType))
+            .create()
+        when (value.sectionInfo) {
+            is SubwaySectionInfo -> gson.toJson(value.sectionInfo, SubwaySectionInfo::class.java, out)
+            is BusSectionInfo -> gson.toJson(value.sectionInfo, BusSectionInfo::class.java, out)
+            is PedestrianSectionInfo -> gson.toJson(value.sectionInfo, PedestrianSectionInfo::class.java, out)
+            else -> throw JsonParseException("Unknown sectionInfo type")
+        }
+
+        // Write sectionRoute
+        out.name("sectionRoute")
+        gson.toJson(value.sectionRoute, SectionRoute::class.java, out)
+
+        // End the JSON object
+        out.endObject()
+    }
 
     override fun read(reader: JsonReader): SubPath {
         val jsonObject = JsonParser.parseReader(reader).asJsonObject
