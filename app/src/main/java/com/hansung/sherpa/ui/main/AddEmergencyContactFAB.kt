@@ -2,6 +2,7 @@ package com.hansung.sherpa.ui.main
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,7 +36,10 @@ private val ConfirmTextStyle = TextStyle(
 fun AddEmergencyContactFAB(contactList: List<Contact>  = listOf(), onClick: (Contact) -> Unit = {}) {
     var openAlertDialog = remember { mutableStateOf(false) }
 
-    FloatingActionButton(onClick = { openAlertDialog.value = true }) {
+    FloatingActionButton(
+        onClick = { openAlertDialog.value = true },
+        containerColor = MaterialTheme.colorScheme.onSecondary
+    ) {
         CustomIcon(IconType.Resource(R.drawable.add), "")
     }
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopAppBarScreen(finish : () -> Unit, content: @Composable () -> Unit) {
+fun TopAppBarScreen(title: String = "캘린더", finish : () -> Unit, content: @Composable () -> Unit) {
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
@@ -31,7 +31,7 @@ fun TopAppBarScreen(finish : () -> Unit, content: @Composable () -> Unit) {
 
                 title = {
                     Text(
-                        text = "캘린더",
+                        text = title,
                         style = androidx.compose.ui.text.TextStyle(
                             fontFamily = FontFamily.Cursive,
                             fontSize = 18.sp,
