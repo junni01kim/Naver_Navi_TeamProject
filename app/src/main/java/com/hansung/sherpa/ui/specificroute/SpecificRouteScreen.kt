@@ -10,6 +10,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.FabPosition
 import androidx.compose.material.rememberBottomSheetScaffoldState
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -44,6 +46,7 @@ import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
+import com.hansung.sherpa.ui.theme.lightScheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
@@ -150,6 +153,7 @@ fun SpecificRouteScreen(
     BackHandler {
         goBack()
     }
+    androidx.compose.material3.MaterialTheme(colorScheme = lightScheme) {
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -166,12 +170,12 @@ fun SpecificRouteScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                          dialogFlag = true
-                          },
-                containerColor = Color(0xff8093f1),
+                    dialogFlag = true
+                },
+                containerColor = MaterialTheme.colorScheme.scrim,
                 shape = RoundedCornerShape(50.dp)
             ) {
-                Icon(imageVector = Icons.Filled.Navigation, contentDescription = "경로 안내 버튼")
+                Icon(imageVector = Icons.Filled.Navigation, contentDescription = "경로 안내 버튼", tint = MaterialTheme.colorScheme.onSecondary)
             }
         },
         sheetContent = {
@@ -279,6 +283,7 @@ fun SpecificRouteScreen(
             if(StaticValue.userInfo.role1 == "CARETAKER") DrawPathOverlay(coordParts, colorParts, passedRoute)
             else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
         }
+    }
     }
 
 
