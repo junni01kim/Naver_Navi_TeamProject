@@ -165,7 +165,9 @@ fun SpecificRouteScreen(
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { if(!startNavigation) startNavigation = true },
+                onClick = {
+                          dialogFlag = true
+                          },
                 containerColor = Color(0xff8093f1),
                 shape = RoundedCornerShape(50.dp)
             ) {
