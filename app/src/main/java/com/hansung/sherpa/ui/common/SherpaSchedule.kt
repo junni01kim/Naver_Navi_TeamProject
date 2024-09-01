@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import com.hansung.sherpa.sherpares.PretendardVariable
 
 @Composable
@@ -40,49 +41,58 @@ fun SherpaSchedule(
     dateEnd: String,
     onConfirmation: () -> Unit
 ) {
-    Card(
-        //modifier = Modifier.size(320.dp, 220.dp),
-        modifier = Modifier.width(320.dp).heightIn(min = 220.dp),
-        colors = CardColors(backgroundCardColor, backgroundCardColor, backgroundCardColor, backgroundCardColor),
-        shape = RoundedCornerShape(12.dp)
+    Dialog(
+        onDismissRequest = onConfirmation
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth().wrapContentHeight()
-                .padding(top = 30.dp, bottom = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(15.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Card(
+            //modifier = Modifier.size(320.dp, 220.dp),
+            modifier = Modifier.width(320.dp).heightIn(min = 220.dp),
+            colors = CardColors(
+                backgroundCardColor,
+                backgroundCardColor,
+                backgroundCardColor,
+                backgroundCardColor
+            ),
+            shape = RoundedCornerShape(12.dp)
         ) {
-            Text(
-                text = title,
-                color = nomalTextColor,
-                fontSize = 30.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = PretendardVariable
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth().wrapContentHeight()
+                    .padding(top = 30.dp, bottom = 10.dp),
+                verticalArrangement = Arrangement.spacedBy(15.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = title,
+                    color = nomalTextColor,
+                    fontSize = 30.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = PretendardVariable
+                )
 
-            Text(
-                modifier = Modifier.padding(horizontal = 40.dp),
-                text = description,
-                textAlign = TextAlign.Center,
-                color = lightTextColor,
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium,
-                fontFamily = PretendardVariable
-            )
+                Text(
+                    modifier = Modifier.padding(horizontal = 40.dp),
+                    text = description,
+                    textAlign = TextAlign.Center,
+                    color = lightTextColor,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = PretendardVariable
+                )
 
-            Text(
-                text = "$dateBegin ~ $dateEnd",
-                fontSize = 12.sp,
-                color = lightTextColor,
-                fontWeight = FontWeight.Medium,
-                fontFamily = PretendardVariable
-            )
+                Text(
+                    text = "$dateBegin ~ $dateEnd",
+                    fontSize = 12.sp,
+                    color = lightTextColor,
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = PretendardVariable
+                )
 
-            SherpaButton2(
-                confirmButtonText = "확인",
-                onConfirmation = onConfirmation
-            )
+                SherpaButton2(
+                    confirmButtonText = "확인",
+                    onConfirmation = onConfirmation
+                )
+            }
         }
     }
 }

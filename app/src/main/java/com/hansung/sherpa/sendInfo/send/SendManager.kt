@@ -3,8 +3,11 @@ package com.hansung.sherpa.sendInfo.send
 import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.SubPathAdapter
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.receive.ReceivePos
 import com.hansung.sherpa.sendInfo.receive.ReceiveRouteResponse
@@ -106,7 +109,8 @@ class SendManager() {
     }
 
     fun startNavigation(transportRoute: TransportRoute) {
-        val json = Gson().toJson(transportRoute)
+        val gson = GsonBuilder().registerTypeAdapter(SubPath::class.java, SubPathAdapter()).create()
+        val json = gson.toJson(transportRoute)
 
         val temp = json.toByteArray(Charsets.UTF_8)
         val request = temp.joinToString("") { String.format("%02X", it) }

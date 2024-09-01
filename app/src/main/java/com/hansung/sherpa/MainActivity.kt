@@ -172,9 +172,14 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(route = SherpaScreen.Home.name){
                             val userInfo = StaticValue.userInfo
+                            val relation = UserManager().getRelation(userInfo.userId!!).data
                             if(isCareGiver(userInfo)) {
-                                val caregiverId = UserManager().getRelation(userInfo.userId!!).data?.caretakerId.toString()
+                                val caregiverId = relation?.caretakerId.toString()
                                 addValueEventListener(caregiverId, partnerViewModel, caregiverViewModel)
+                            }
+                            else {
+                                val caretakerId = relation?.caregiverId.toString()
+                                addValueEventListener(caretakerId, partnerViewModel, caregiverViewModel)
                             }
                             MessageAlam(messageViewModel)
                             ScheduleAlam(scheduleViewModel)

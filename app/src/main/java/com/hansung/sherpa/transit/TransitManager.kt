@@ -280,7 +280,7 @@ class TransitManager {
                                 else{
                                     throw ElevatorException("Hold")
                                 }
-                            }catch (e: ElevatorException){
+                            }catch (e: ElevatorException) {
                                 Log.d("ElevatorConvertError", e.msg)
                                 tmp = PedestrianRouteRequest(
                                     startX = response.subPath[LAST_INDEX - 1].endX.toFloat(),

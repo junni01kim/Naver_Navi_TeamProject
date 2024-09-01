@@ -18,7 +18,7 @@ class AlarmSettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(this);
         setContent {
-            TopAppBarScreen(
+            TopAppBarScreen( title = "사용자 설정",
                 { finish() }, { AlarmSettingsScreen() }
             )
         }

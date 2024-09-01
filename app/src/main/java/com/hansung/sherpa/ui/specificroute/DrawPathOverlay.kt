@@ -15,7 +15,7 @@ import com.naver.maps.map.overlay.OverlayImage
 /**
  * NaverMap에 대중교통 경로를 그리는 Compose
  * ※ 무조건 NaverMap compose에서만 사용해야 한다.
- * 
+ *
  * @param transportRoute SearchScreen에서 가져온 대중교통 경로
  */
 @Composable
