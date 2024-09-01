@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -40,6 +41,7 @@ import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
 import com.hansung.sherpa.fcm.ScheduleViewModel
+import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
@@ -101,7 +103,24 @@ class MainActivity : ComponentActivity() {
             when (topic) {
                 "알림" -> messageViewModel.updateValue(title, body)
                 "일정" -> scheduleViewModel.updateSchedule(title, body)
-                //"예약경로" -> caregiverViewModel.receivePos(title, body)
+                "예약경로" -> {
+                    // TODO: 출 -> 목 경로 탐색
+                    /*
+                        1. 첫 번째 인덱스 경로 가져옴
+                        2. StaticValue 경로 값에 저장
+                        3. 경로 안내 팝업 띄우기
+                        4. Navigation specific route로 옮기기
+                    */
+                    if(StaticValue.myPos != null){
+                        val transportRoutes = Navigation().getDetailTransitRoutes(
+                            LatLng(StaticValue.myPos!!.latitude, StaticValue.myPos!!.longitude),
+                            LatLng(0.0,0.0),
+                            "", "")
+                        StaticValue.transportRoute = transportRoutes[0]
+                    }
+                    Toast.makeText(context,"경로 안내를 시작합니다.", Toast.LENGTH_LONG)
+                    navController.navigate(SherpaScreen.SpecificRoute.name)
+                }
                 "재탐색" -> {
                     Log.d("FCM LOG", "재탐색")
                     caregiverViewModel.devateRoute(title, body)

@@ -227,7 +227,6 @@ fun SpecificRouteScreen(
             ),
             onLocationChange = {
                 myPos = LatLng(it.latitude, it.longitude)
-
                 // 상대방에게 내 위치를 전송한다.
                 if(startNavigation) sendManager.sendPositionAndPassedRoute(myPos, passedRoute)
                 else sendManager.sendPosition(myPos)
