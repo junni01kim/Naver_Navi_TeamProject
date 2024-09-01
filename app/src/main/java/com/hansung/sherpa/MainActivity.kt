@@ -111,10 +111,12 @@ class MainActivity : ComponentActivity() {
                         3. 경로 안내 팝업 띄우기
                         4. Navigation specific route로 옮기기
                     */
+                    val tokens = body.split(",")
+                    val latLng = LatLng(tokens[0].toDouble(), tokens[1].toDouble())
                     if(StaticValue.myPos != null){
                         val transportRoutes = Navigation().getDetailTransitRoutes(
                             LatLng(StaticValue.myPos!!.latitude, StaticValue.myPos!!.longitude),
-                            LatLng(0.0,0.0),
+                            latLng,
                             "", "")
                         StaticValue.transportRoute = transportRoutes[0]
                     }
