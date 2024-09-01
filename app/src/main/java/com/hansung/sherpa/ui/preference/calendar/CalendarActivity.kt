@@ -123,11 +123,6 @@ fun CalendarScreen(
             val startTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateBegin).time }
             val endTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateEnd).time }
 
-            val isWholeDay = when {
-                startTime.get(java.util.Calendar.HOUR) == 0 && startTime.get(java.util.Calendar.MINUTE) == 0 && startTime.get(
-                    java.util.Calendar.SECOND) == 0 -> true
-                else -> false
-            }
             val route = runBlocking(Dispatchers.IO) {
                 run { it.routeId?.let { it1 -> routeManager.findRoute(it1) } }
             }
@@ -139,16 +134,15 @@ fun CalendarScreen(
                     startDateTime = mutableLongStateOf(startTime.timeInMillis) ,
                     endDateTime =  mutableLongStateOf(endTime.timeInMillis) ,
                     isDateValidate = mutableStateOf(true) ,
-                    isWholeDay = mutableStateOf(isWholeDay) ,
-                    scheduledLocation =
-                    if(route != null){
+                    isWholeDay = mutableStateOf(it.isWholeday),
+                    scheduledLocation = if(route != null){
                         ScheduleLocation(
                             name = route.location.name,
                             lat = route.location.latitude,
                             lon = route.location.longitude,
                             address = it.address,
-                            isGuide = if (it.guideDatetime.toLong() != 0L) true else false,
-                            guideDatetime = it.guideDatetime.toLong()
+                            isGuide = !it.guideDatetime.isNullOrEmpty(),
+                            guideDatetime = if(!it.guideDatetime.isNullOrEmpty()) it.guideDatetime.toLong() else 0L
                         )
                     } else {
                         ScheduleLocation(

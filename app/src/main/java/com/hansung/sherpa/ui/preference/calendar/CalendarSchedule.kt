@@ -40,9 +40,13 @@ import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.schedule.Location
 import com.hansung.sherpa.schedule.Route
+import com.hansung.sherpa.schedule.RouteData
 import com.hansung.sherpa.schedule.RouteManager
 import com.hansung.sherpa.schedule.ScheduleManager
 import com.hansung.sherpa.schedule.Schedules
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -172,9 +176,10 @@ fun ScheduleColumn(
         .fillMaxHeight()
 
     val modifySchedule : (ScheduleData) -> Unit = { scheduleData ->
-        if(scheduleData.routeId != null){
+        if(scheduleData.routeId != null && scheduleData.routeId != 0){
             if(scheduleData.scheduledLocation.name.isEmpty()){
                 routeManager.deleteRoute(scheduleData.routeId!!)
+                scheduleData.routeId = null
             } else {
                 routeManager.updateRoute(
                     routeId = scheduleData.routeId!!,
@@ -188,6 +193,16 @@ fun ScheduleColumn(
                     )
                 )
             }
+        } else {
+            if(scheduleData.scheduledLocation.name.isNotEmpty()){
+                var routeData : RouteData? = null
+                runBlocking {
+                    withContext(Dispatchers.IO){
+                        routeData = routeManager.insertRoute(scheduleData = scheduleData)
+                    }
+                }
+                routeData?.let { scheduleData.routeId = it.routeId }
+            }
         }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
         val start = dateFormat.format(Date(scheduleData.startDateTime.value))
@@ -197,13 +212,11 @@ fun ScheduleColumn(
                 userId = StaticValue.userInfo.userId!!,
                 routeId = scheduleData.routeId,
                 scheduleId = scheduleData.scheduleId,
-                guideDatetime = scheduleData.scheduledLocation.guideDatetime.toString(),
+                guideDatetime = if(scheduleData.scheduledLocation.isGuide) scheduleData.scheduledLocation.guideDatetime.toString()
+                    else null,
                 address = scheduleData.scheduledLocation.address,
                 description = scheduleData.comment.value,
-                isWholeDay = when(scheduleData.isWholeDay.value){
-                    true -> 1
-                    false -> 0
-                },
+                isWholeday = scheduleData.isWholeDay.value,
                 title = scheduleData.title.value,
                 dateBegin = start,
                 dateEnd = end,
@@ -298,7 +311,8 @@ fun ScheduleColumn(
                     scheduleData.title.value = item.title.value
                     scheduleData.scheduledLocation.name = item.scheduledLocation.name
                     scheduleData.scheduledLocation.lat = item.scheduledLocation.lat
-                    scheduleData.scheduledLocation.lat = item.scheduledLocation.lon
+                    scheduleData.scheduledLocation.lon = item.scheduledLocation.lon
+                    scheduleData.scheduledLocation.address = item.scheduledLocation.address
                     scheduleData.scheduledLocation.isGuide = item.scheduledLocation.isGuide
                     scheduleData.scheduledLocation.guideDatetime = item.scheduledLocation.guideDatetime
                     scheduleData.isWholeDay.value = item.isWholeDay.value

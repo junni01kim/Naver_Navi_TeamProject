@@ -1,6 +1,8 @@
 package com.hansung.sherpa.schedule
 
 import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.ui.preference.calendar.ScheduleData
@@ -13,9 +15,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 
 class ScheduleManager {
+    private val gson: Gson = GsonBuilder()
+        .registerTypeAdapter(ScheduleResponse::class.java, ScheduleDeserializer())
+        .create()
+
     private val retrofitService = Retrofit.Builder()
         .baseUrl(BuildConfig.SHERPA_URL)
-        .addConverterFactory(GsonConverterFactory.create())
+        .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
         .create(ScheduleService::class.java)
 
@@ -52,14 +58,12 @@ class ScheduleManager {
                             title = scheduleData.title.value,
                             address = scheduleData.scheduledLocation.address,
                             userId = StaticValue.userInfo.userId!!,
-                            isWholeDay = when(scheduleData.isWholeDay.value) {
-                                true -> 1
-                                false -> 0
-                            },
+                            isWholeday = scheduleData.isWholeDay.value,
                             description = scheduleData.comment.value,
                             dateBegin = start,
                             dateEnd = end,
-                            guideDatetime = scheduleData.scheduledLocation.guideDatetime.toString(),
+                            guideDatetime = if(scheduleData.scheduledLocation.isGuide)
+                                scheduleData.scheduledLocation.guideDatetime.toString() else null,
                             routeId = routeId,
                             scheduleId = null
                         )

@@ -28,9 +28,9 @@ interface RouteService {
     @POST("route")
     fun insert(@Body route : Route) : Call<RouteResponse>
 
-    @DELETE("delete/{route_id}")
+    @DELETE("route/delete/{route_id}")
     fun delete(@Path("route_id") routeId : Int) : Call<RouteResponse>
 
-    @PATCH("update/{route_id}")
-    fun update(@Path("route_id") routeId : Int, @Body route : Route) : Call<RouteResponse>
+    @PATCH("route/update/{route_id}")
+    fun update(@Path("route_id") routeId :  Int, @Body route : Route) : Call<RouteResponse>
 }

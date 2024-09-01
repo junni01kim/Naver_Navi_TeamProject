@@ -27,12 +27,12 @@ class RouteManager {
     fun insertRoute(scheduleData: ScheduleData) : RouteData?{
         val response = retrofitService.insert(
             Route(
+                cron = "",
                 location = Location(
                     name = scheduleData.scheduledLocation.name,
                     latitude = scheduleData.scheduledLocation.lat,
                     longitude = scheduleData.scheduledLocation.lon
                 ),
-                cron = ""
             )
         ).execute()
 

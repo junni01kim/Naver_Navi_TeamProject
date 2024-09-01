@@ -96,9 +96,13 @@ fun ScheduleBottomSheet(
         }
         false -> {
             scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
+                if(scheduleData.title.value.isNotEmpty())
+                    timeInMillis = scheduleData.startDateTime.longValue
                 set(Calendar.MINUTE, 0)
             }.timeInMillis
             scheduleData.endDateTime.longValue = Calendar.getInstance().apply {
+                if(scheduleData.title.value.isNotEmpty())
+                    timeInMillis = scheduleData.endDateTime.longValue
                 set(Calendar.MINUTE, 0)
             }.timeInMillis
         }
@@ -125,8 +129,8 @@ fun ScheduleBottomSheet(
                     LocationBottomSheet(locationSheetState) { items ->
                         scheduleData.scheduledLocation.name = items.title.toString()
                         scheduleData.scheduledLocation.address = items.roadAddress.toString()
-                        scheduleData.scheduledLocation.lat = items.mapx!!.toDouble()
-                        scheduleData.scheduledLocation.lon = items.mapy!!.toDouble()
+                        scheduleData.scheduledLocation.lat = insertDecimal(items.mapx!!,3).toDouble()
+                        scheduleData.scheduledLocation.lon = insertDecimal(items.mapy!!,2).toDouble()
                     }
                 }
 //                Alert(scheduleData = scheduleData)
@@ -143,14 +147,19 @@ fun BottomSheetBody(
     locationSheetState : MutableState<Boolean>
 ){
     // TODO: guideDatetime 시간이 00:00시에서 안바뀌는 문제 : 임시로 초기화
-    scheduleData.scheduledLocation.guideDatetime = scheduleData.startDateTime.longValue
-    var isGuide by remember { mutableStateOf(false) }
+    if(!scheduleData.scheduledLocation.isGuide)
+        scheduleData.scheduledLocation.guideDatetime = scheduleData.startDateTime.longValue
+
+    val isGuide = remember { mutableStateOf(scheduleData.scheduledLocation.isGuide) }
     val guideDatetime = remember { mutableLongStateOf(scheduleData.scheduledLocation.guideDatetime) }
     val isValidateGuideDatetime = remember { mutableStateOf(true) }
     var isSearched by remember { mutableStateOf(false) }
     var locationString by remember { mutableStateOf("위치") }
 
-    LaunchedEffect(guideDatetime) {
+    LaunchedEffect(isGuide.value) {
+        scheduleData.scheduledLocation.isGuide = isGuide.value
+    }
+    LaunchedEffect(guideDatetime.longValue) {
         scheduleData.scheduledLocation.guideDatetime = guideDatetime.longValue
     }
 
@@ -249,8 +258,7 @@ fun BottomSheetBody(
                         modifier = Modifier.wrapContentSize(),
                         onClick = {
                             isSearched = false
-                            isGuide = false
-                            scheduleData.scheduledLocation.isGuide = false
+                            isGuide.value = false
                         }) {
                         Icon(
                             imageVector = Icons.Default.Cancel,
@@ -275,10 +283,9 @@ fun BottomSheetBody(
                     )
                     Spacer(modifier = Modifier.padding(horizontal = 110.dp))
                     Switch(
-                        checked = isGuide,
+                        checked = isGuide.value,
                         onCheckedChange = {
-                            isGuide = it
-                            scheduleData.scheduledLocation.isGuide = it
+                            isGuide.value = it
                         },
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -289,7 +296,7 @@ fun BottomSheetBody(
                     )
                 }
             }
-            AnimatedVisibility(isGuide) {
+            AnimatedVisibility(isGuide.value) {
                 Column(
                     modifier = Modifier
                         .background(color = MaterialTheme.colorScheme.primaryContainer)
@@ -818,6 +825,19 @@ fun preview(){
 //            Alert(scheduleData = scheduleData)
             Memo(scheduleData = scheduleData)
         }
+    }
+}
+
+fun insertDecimal(number: Int, position: Int): String {
+    val numberStr = number.toString()
+    val length = numberStr.length
+
+    return if (length > position) {
+        val integerPart = numberStr.substring(0, position)
+        val decimalPart = numberStr.substring(position)
+        "$integerPart.$decimalPart"
+    } else {
+        "0.${numberStr.padStart(position, '0')}"
     }
 }
 

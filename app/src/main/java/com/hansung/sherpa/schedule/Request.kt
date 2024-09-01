@@ -11,8 +11,8 @@ data class Schedules(
     @SerializedName("description") val description : String,
     @SerializedName("routeId") val routeId : Int?,
     @SerializedName("address") val address : String,
-    @SerializedName("isWholeDay") val isWholeDay : Int,
-    @SerializedName("guideDatetime") val guideDatetime : String
+    @SerializedName("isWholeday") val isWholeday : Boolean,
+    @SerializedName("guideDatetime") val guideDatetime : String?
 )
 
 data class Location(
