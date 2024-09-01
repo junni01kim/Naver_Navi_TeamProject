@@ -28,7 +28,7 @@ class RouteDeviation(
      */
     var nowSection = 0
     var nowSubpath = 0
-    val outRouteDistance = 10.0
+    val outRouteDistance = 20.0
     var subPathWholeDistance = 0.0
 
     /**
