@@ -76,7 +76,7 @@ fun HomeScreen(
             }
         }
     }
-    val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caretakerIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_red_mdpi)
     val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_mdpi)
 
     // Jetpack Compose
@@ -125,11 +125,11 @@ fun HomeScreen(
                         sendManager.sendPosition(myPos)
                     }) {
                     if(StaticValue.userInfo.role1 == "CARETAKER"){
-                        MarkerComponent(myPos, caretakerIcon)
+                        //MarkerComponent(myPos, caretakerIcon)
                         MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
                     }
                     else {
-                        MarkerComponent(myPos, caregiverIcon)
+                        //MarkerComponent(myPos, caregiverIcon)
                         MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
                     }
                 }

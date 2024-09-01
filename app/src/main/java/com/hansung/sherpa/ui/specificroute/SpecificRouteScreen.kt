@@ -93,7 +93,7 @@ fun SpecificRouteScreen(
     val routeDivation = RouteDeviation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
 
-    val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caretakerIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_red_mdpi)
     val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_mdpi)
 
     val sendManager = SendManager()
@@ -272,11 +272,11 @@ fun SpecificRouteScreen(
             }
         ){
             if(StaticValue.userInfo.role1 == "CARETAKER"){
-                MarkerComponent(myPos, caretakerIcon)
+                //MarkerComponent(myPos, caretakerIcon)
                 MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
             }
             else {
-                MarkerComponent(myPos, caregiverIcon)
+                //MarkerComponent(myPos, caregiverIcon)
                 MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
             }
 
