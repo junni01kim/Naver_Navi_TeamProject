@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -57,8 +56,6 @@ fun PasswordModal(
         sheetState = bottomSheetState,
         onDismissRequest = { state.value = false },
         dragHandle = {},
-        modifier = Modifier
-            .fillMaxHeight(0.965f),
     ) {
         Column {
             PasswordModalHeader(state)

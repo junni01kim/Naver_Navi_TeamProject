@@ -329,7 +329,7 @@ fun ScheduleColumn(
             }
             ScheduleBottomSheet(
                 closeBottomSheet = closeBottomSheet,
-                scheduleData = cloneScheduleData(scheduleData = scheduleData) ,
+                scheduleData = cloneScheduleData(scheduleData = scheduleData),
                 scheduleModalSheetOption = ScheduleModalSheetOption.EDIT
             )
         }

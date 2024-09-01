@@ -41,12 +41,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.sendInfo.send.SendManager
-import com.hansung.sherpa.sherpares.SherpaColor
 import com.hansung.sherpa.ui.main.CustomNavigationDrawer
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
-import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
@@ -120,7 +118,7 @@ fun HomeScreen(
                     ),
                     onLocationChange = {
                         myPos = LatLng(it.latitude, it.longitude)
-
+                        StaticValue.myPos = LatLng(it.latitude, it.longitude)
                         // 상대방에게 내 위치를 전송한다.
                         sendManager.sendPosition(myPos)
                     }) {
