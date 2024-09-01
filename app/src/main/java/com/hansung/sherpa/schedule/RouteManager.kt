@@ -2,6 +2,9 @@ package com.hansung.sherpa.schedule
 
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.ui.preference.calendar.ScheduleData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -40,6 +43,19 @@ class RouteManager {
     }
 
     fun deleteRoute(routeId : Int){
-        val response = retrofitService.delete(routeId)
+        runBlocking {
+            withContext(Dispatchers.IO){
+                val response = retrofitService.delete(routeId).execute()
+            }
+        }
     }
+
+    fun updateRoute(routeId : Int, route : Route){
+        runBlocking {
+            withContext(Dispatchers.IO){
+                val response = retrofitService.update(routeId, route).execute()
+            }
+        }
+    }
+
 }

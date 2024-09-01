@@ -7,7 +7,6 @@ package com.hansung.sherpa.ui.preference.calendar
 //import org.threeten.bp.format.TextStyle
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
@@ -70,7 +69,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.schedule.RouteManager
-import com.hansung.sherpa.schedule.ScheduleFindCallback
 import com.hansung.sherpa.schedule.ScheduleManager
 import com.hansung.sherpa.schedule.Schedules
 import com.jakewharton.threetenabp.AndroidThreeTen
@@ -81,13 +79,14 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 class CalendarActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -110,90 +109,89 @@ fun CalendarScreen(
 ){
     var scheduleDataList = remember { mutableStateListOf<ScheduleData>() }
     var showBottomSheet by remember { mutableStateOf(false) }
-    val beforeSelectedLocalDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
 
     val scheduleManager = ScheduleManager()
     val routeManager = RouteManager()
 
-    var flag by remember { mutableStateOf(false) }
-    var scheduleResponse : List<Schedules>? = null
+    val currentSelectedDate = remember { mutableStateOf<LocalDateTime>(LocalDateTime.of(1970,12,12,0,0,0)) }
 
-    val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, isAdded ->
-        if(isAdded){
-            val route = runBlocking(Dispatchers.IO) {
-                withContext(Dispatchers.IO) { routeManager.insertRoute(scheduleData = item) }
-            }
-            if(route != null){
-                scheduleManager.insertSchedules(scheduleData = item, routeId = route.routeId)
-                scheduleDataList.add(item)
-            } else {
-                Log.e("Route API", "Failed to insert the data")
-            }
-        }
-        showBottomSheet = false
-    }
-    val updateScheduleData : @Composable (LocalDate) -> Unit = { changeDate ->
-        val localDatetime = changeDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
-        scheduleManager.findSchedules(SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(localDatetime)), object : ScheduleFindCallback{
-            override fun onSuccess(scheduleData: List<Schedules>) {
-                scheduleResponse = scheduleData
-                flag = true
-            }
-            override fun onFailure(message: String) {
-                Log.e("Schedule API", message)
-            }
-        })
-        if(!changeDate.isEqual(beforeSelectedLocalDate))
-            scheduleDataList.clear()
-    }
-
-    if(flag && scheduleResponse != null){
+    val updateScheduleList : (List<Schedules>?) -> Unit = { scheduleResponse ->
         scheduleDataList.clear()
-        scheduleResponse!!.forEach {
-            val time = Calendar.getInstance().apply { timeInMillis = it.dateBegin.toLong() }
+        scheduleResponse?.forEach {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
+            dateFormat.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
+            val startTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateBegin).time }
+            val endTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateEnd).time }
+
             val isWholeDay = when {
-                time.get(Calendar.HOUR) == 0 && time.get(Calendar.MINUTE) == 0 && time.get(Calendar.SECOND) == 0 -> true
+                startTime.get(java.util.Calendar.HOUR) == 0 && startTime.get(java.util.Calendar.MINUTE) == 0 && startTime.get(
+                    java.util.Calendar.SECOND) == 0 -> true
                 else -> false
             }
             val route = runBlocking(Dispatchers.IO) {
-                run { routeManager.findRoute(it.routeId) }
+                run { it.routeId?.let { it1 -> routeManager.findRoute(it1) } }
             }
 
             scheduleDataList.add(
                 ScheduleData(
-                    title = remember { mutableStateOf(it.title) },
-                    comment = remember { mutableStateOf(it.description) },
-                    startDateTime = remember { mutableLongStateOf(it.dateBegin.toLong()) },
-                    endDateTime = remember { mutableLongStateOf(it.dateEnd.toLong()) },
-                    isDateValidate = remember { mutableStateOf(true) },
-                    isWholeDay = remember { mutableStateOf(isWholeDay) },
+                    title =  mutableStateOf(it.title) ,
+                    comment = mutableStateOf(it.description) ,
+                    startDateTime = mutableLongStateOf(startTime.timeInMillis) ,
+                    endDateTime =  mutableLongStateOf(endTime.timeInMillis) ,
+                    isDateValidate = mutableStateOf(true) ,
+                    isWholeDay = mutableStateOf(isWholeDay) ,
                     scheduledLocation =
-                        if(route != null){
-                            ScheduleLocation(
-                                name = route.location.name,
-                                lat = route.location.latitude,
-                                lon = route.location.longitude,
-                                address = it.address,
-                                isGuide = if (it.guideDatetime.toLong() != 0L) true else false,
-                                guideDatetime = it.guideDatetime.toLong()
-                            )
-                        } else {
-                            ScheduleLocation(
-                                name = "",
-                                lat = 0.0,
-                                lon = 0.0,
-                                address = "",
-                                isGuide = false,
-                                guideDatetime = 0
-                            )
-                        },
+                    if(route != null){
+                        ScheduleLocation(
+                            name = route.location.name,
+                            lat = route.location.latitude,
+                            lon = route.location.longitude,
+                            address = it.address,
+                            isGuide = if (it.guideDatetime.toLong() != 0L) true else false,
+                            guideDatetime = it.guideDatetime.toLong()
+                        )
+                    } else {
+                        ScheduleLocation(
+                            name = "",
+                            lat = 0.0,
+                            lon = 0.0,
+                            address = "",
+                            isGuide = false,
+                            guideDatetime = 0
+                        )
+                    },
                     routeId = route?.routeId,
                     scheduleId = it.scheduleId!!
                 )
             )
         }
-        flag = false
+    }
+
+    // TODO: 날짜 변경 시 일정 조회
+    val updateScheduleData : (LocalDate?) -> Unit = { it ->
+        val changeDate = it ?: currentSelectedDate.value.toLocalDate()
+        val localDatetime = changeDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val scheduleResponse = scheduleManager.findSchedules(SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(localDatetime)))?.data
+        currentSelectedDate.value = changeDate.atStartOfDay()
+        updateScheduleList(scheduleResponse)
+    }
+
+    // TODO: 시트 닫았을 때 추가 버튼을 통한 닫힘이면 서버에 일정 추가
+    val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, isAdded ->
+        if(isAdded){
+            var routeId : Int? = null
+            if(item.scheduledLocation.name.isNotEmpty()) {
+                routeId = runBlocking(Dispatchers.IO) {
+                    withContext(Dispatchers.IO) { routeManager.insertRoute(scheduleData = item) }
+                }?.routeId
+            }
+            scheduleManager.insertSchedules(scheduleData = item, routeId = routeId)
+
+            currentSelectedDate.value = LocalDateTime.of(currentSelectedDate.value.year,
+                currentSelectedDate.value.monthValue, currentSelectedDate.value.dayOfMonth,
+                currentSelectedDate.value.hour, currentSelectedDate.value.minute)
+        }
+        showBottomSheet = false
     }
 
     Scaffold (
@@ -243,10 +241,13 @@ fun CalendarScreen(
     )
 
     if (showBottomSheet){
+        val mills = currentSelectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val startDateTime = android.icu.util.Calendar.getInstance().apply {
+            timeInMillis = mills
             set(android.icu.util.Calendar.MINUTE, 0)
         }
         val endDateTime = android.icu.util.Calendar.getInstance().apply {
+            timeInMillis = mills
             set(android.icu.util.Calendar.MINUTE, 0)
         }
         val scheduleData = ScheduleData(
@@ -258,7 +259,7 @@ fun CalendarScreen(
                     0.0,
                     0.0,
                     false,
-                    startDateTime.timeInMillis
+                    guideDatetime = startDateTime.timeInMillis
                 )
             },
             isWholeDay = remember { mutableStateOf(false) },
@@ -283,7 +284,7 @@ fun Calendar(
     scheduleDataList : SnapshotStateList<ScheduleData>,
     config: CalendarConfig = CalendarConfig(),
     currentDate: LocalDate = LocalDate.now(),
-    updateScheduleData: @Composable (LocalDate) -> Unit
+    updateScheduleData: (LocalDate?) -> Unit
 ) {
     val initialPage = (currentDate.year - config.yearRange.first) * 12 + currentDate.monthValue - 1
     var currentSelectedDate by remember { mutableStateOf(currentDate) }
@@ -353,7 +354,10 @@ fun Calendar(
         }
         item{
             CurrentDateColumn(currentSelectedDate)
-            ScheduleColumns(scheduleDataList = scheduleDataList)
+            ScheduleColumns(
+                scheduleDataList = scheduleDataList,
+                updateScheduleData = updateScheduleData
+            )
         }
     }
 }

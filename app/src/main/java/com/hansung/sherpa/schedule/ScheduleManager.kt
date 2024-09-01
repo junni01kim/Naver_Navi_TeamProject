@@ -9,19 +9,8 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.Date
-
-interface ScheduleFindCallback{
-    fun onSuccess(scheduleData: List<Schedules>)
-    fun onFailure(message : String)
-}
-
-interface ScheduleInsertCallback{
-    fun onSuccess(scheduleData : ScheduleResponse)
-    fun onFailure(message : String)
-}
 
 class ScheduleManager {
     private val retrofitService = Retrofit.Builder()
@@ -30,26 +19,27 @@ class ScheduleManager {
         .build()
         .create(ScheduleService::class.java)
 
-    fun findSchedules(datetime : String, callback: ScheduleFindCallback){
+    fun findSchedules(datetime : String) : ScheduleResponse? {
+        var scheduleResponse : ScheduleResponse? = null
         try {
-            runBlocking(Dispatchers.IO) {
-                run {
-                    var query = URLEncoder.encode(datetime)
+            runBlocking {
+                withContext(Dispatchers.IO) {
                     val response = retrofitService.search(userId = StaticValue.userInfo.userId!!,
-                        datetime = query).execute()
+                        datetime = datetime).execute()
 
                     when {
-                        response.isSuccessful -> response.body()?.let { callback.onSuccess(it.scheduleData)}
-                        else -> callback.onFailure(response.message())
+                        response.isSuccessful -> response.body()?.let { scheduleResponse = it}
+                        else -> scheduleResponse = null
                     }
                 }
             }
         } catch (_ : NullPointerException){
             Log.e("Schedule API", "user data is null")
         }
+        return scheduleResponse
     }
 
-    fun insertSchedules(scheduleData: ScheduleData, routeId : Int){
+    fun insertSchedules(scheduleData: ScheduleData, routeId : Int?){
         try {
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
             val start = simpleDateFormat.format(Date(scheduleData.startDateTime.longValue))
@@ -62,7 +52,10 @@ class ScheduleManager {
                             title = scheduleData.title.value,
                             address = scheduleData.scheduledLocation.address,
                             userId = StaticValue.userInfo.userId!!,
-                            isWholeDay = scheduleData.isWholeDay.value,
+                            isWholeDay = when(scheduleData.isWholeDay.value) {
+                                true -> 1
+                                false -> 0
+                            },
                             description = scheduleData.comment.value,
                             dateBegin = start,
                             dateEnd = end,
@@ -80,13 +73,21 @@ class ScheduleManager {
 
     fun deleteSchedules(scheduleId : Int){
         try {
-            runBlocking(Dispatchers.IO) {
-                run {
-                    retrofitService.delete(scheduleId)
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    retrofitService.delete(scheduleId).execute()
                 }
             }
         } catch (_ : NullPointerException){
             Log.e("Schedule API", "user data is null")
+        }
+    }
+
+    fun updateSchedule(schedules: Schedules){
+        runBlocking {
+            withContext(Dispatchers.IO) {
+                retrofitService.update(schedules).execute()
+            }
         }
     }
 }

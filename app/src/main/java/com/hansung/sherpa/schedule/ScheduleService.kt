@@ -4,6 +4,7 @@ import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -15,5 +16,8 @@ interface ScheduleService {
     fun insert(@Body schedules: Schedules) : Call<Void>
 
     @DELETE("schedules/remove/{scheduleid}")
-    fun delete(@Path("scheduleid") scheduleId : Int)
+    fun delete(@Path("scheduleid") scheduleId : Int) : Call<Void>
+
+    @PATCH("schedules/modify")
+    fun update(@Body schedules: Schedules) : Call<Void>
 }

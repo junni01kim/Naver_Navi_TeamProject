@@ -9,9 +9,9 @@ data class Schedules(
     @SerializedName("dateBegin") val dateBegin : String,
     @SerializedName("dateEnd") val dateEnd : String,
     @SerializedName("description") val description : String,
-    @SerializedName("routeId") val routeId : Int,
+    @SerializedName("routeId") val routeId : Int?,
     @SerializedName("address") val address : String,
-    @SerializedName("isWholeDay") val isWholeDay : Boolean,
+    @SerializedName("isWholeDay") val isWholeDay : Int,
     @SerializedName("guideDatetime") val guideDatetime : String
 )
 

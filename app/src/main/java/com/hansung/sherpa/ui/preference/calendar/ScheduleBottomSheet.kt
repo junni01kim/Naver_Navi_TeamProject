@@ -142,9 +142,9 @@ fun BottomSheetBody(
     scheduleData: ScheduleData,
     locationSheetState : MutableState<Boolean>
 ){
-    var isGuide by remember {
-        mutableStateOf(false)
-    }
+    // TODO: guideDatetime 시간이 00:00시에서 안바뀌는 문제 : 임시로 초기화
+    scheduleData.scheduledLocation.guideDatetime = scheduleData.startDateTime.longValue
+    var isGuide by remember { mutableStateOf(false) }
     val guideDatetime = remember { mutableLongStateOf(scheduleData.scheduledLocation.guideDatetime) }
     val isValidateGuideDatetime = remember { mutableStateOf(true) }
     var isSearched by remember { mutableStateOf(false) }
@@ -201,7 +201,7 @@ fun BottomSheetBody(
                 value = scheduleData.title.value,
                 onValueChange = { text ->
                     if (!text.contains('\t') && !text.contains('\n')) {
-                        scheduleData.title.value = text.trim()
+                        scheduleData.title.value = text
                     }
                 },
                 placeholder = {
