@@ -10,7 +10,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.FabPosition
@@ -37,9 +36,9 @@ import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.sendInfo.send.SendManager
-import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.deviation.RouteDeviation
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
@@ -49,17 +48,16 @@ import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.sendInfo.send.SendManager
 import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
-import com.hansung.sherpa.ui.theme.lightScheme
 import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.ui.theme.lightScheme
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
-import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
+
 /**
  * 경로의 세부 경로들 몇번 버스 이용, 어디서 내리기, 몇m 이동 등등의
  * 세부 정부 표현 화면
