@@ -12,10 +12,8 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -98,9 +96,13 @@ fun ScheduleBottomSheet(
         }
         false -> {
             scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
+                if(scheduleData.title.value.isNotEmpty())
+                    timeInMillis = scheduleData.startDateTime.longValue
                 set(Calendar.MINUTE, 0)
             }.timeInMillis
             scheduleData.endDateTime.longValue = Calendar.getInstance().apply {
+                if(scheduleData.title.value.isNotEmpty())
+                    timeInMillis = scheduleData.endDateTime.longValue
                 set(Calendar.MINUTE, 0)
             }.timeInMillis
         }
@@ -109,9 +111,6 @@ fun ScheduleBottomSheet(
     ModalBottomSheet(
         sheetState = bottomSheetState,
         onDismissRequest = { onClosedButtonClick(false) },
-        modifier = Modifier
-            .fillMaxHeight(0.88f)
-            .heightIn(min = 200.dp),
         dragHandle = {},
     ){
         LazyColumn {
@@ -130,8 +129,8 @@ fun ScheduleBottomSheet(
                     LocationBottomSheet(locationSheetState) { items ->
                         scheduleData.scheduledLocation.name = items.title.toString()
                         scheduleData.scheduledLocation.address = items.roadAddress.toString()
-                        scheduleData.scheduledLocation.lat = items.mapx!!.toDouble()
-                        scheduleData.scheduledLocation.lon = items.mapy!!.toDouble()
+                        scheduleData.scheduledLocation.lat = insertDecimal(items.mapx!!,3).toDouble()
+                        scheduleData.scheduledLocation.lon = insertDecimal(items.mapy!!,2).toDouble()
                     }
                 }
 //                Alert(scheduleData = scheduleData)
@@ -147,8 +146,23 @@ fun BottomSheetBody(
     scheduleData: ScheduleData,
     locationSheetState : MutableState<Boolean>
 ){
+    // TODO: guideDatetime 시간이 00:00시에서 안바뀌는 문제 : 임시로 초기화
+    if(!scheduleData.scheduledLocation.isGuide)
+        scheduleData.scheduledLocation.guideDatetime = scheduleData.startDateTime.longValue
+
+    val isGuide = remember { mutableStateOf(scheduleData.scheduledLocation.isGuide) }
+    val guideDatetime = remember { mutableLongStateOf(scheduleData.scheduledLocation.guideDatetime) }
+    val isValidateGuideDatetime = remember { mutableStateOf(true) }
     var isSearched by remember { mutableStateOf(false) }
     var locationString by remember { mutableStateOf("위치") }
+
+    LaunchedEffect(isGuide.value) {
+        scheduleData.scheduledLocation.isGuide = isGuide.value
+    }
+    LaunchedEffect(guideDatetime.longValue) {
+        scheduleData.scheduledLocation.guideDatetime = guideDatetime.longValue
+    }
+
     LaunchedEffect(scheduleData.scheduledLocation.name){
         isSearched = when(scheduleData.scheduledLocation.name){
             "" -> false
@@ -196,7 +210,7 @@ fun BottomSheetBody(
                 value = scheduleData.title.value,
                 onValueChange = { text ->
                     if (!text.contains('\t') && !text.contains('\n')) {
-                        scheduleData.title.value = text.trim()
+                        scheduleData.title.value = text
                     }
                 },
                 placeholder = {
@@ -242,11 +256,62 @@ fun BottomSheetBody(
                 if(isSearched){
                     IconButton(
                         modifier = Modifier.wrapContentSize(),
-                        onClick = { isSearched = false }) {
+                        onClick = {
+                            isSearched = false
+                            isGuide.value = false
+                        }) {
                         Icon(
                             imageVector = Icons.Default.Cancel,
                             contentDescription = "",
                             modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+            }
+            AnimatedVisibility(visible = scheduleData.scheduledLocation.name.isNotEmpty()) {
+                Row(
+                    modifier = itemModifier,
+                ){
+                    Text(
+                        text = "경로 안내",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                        ),
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(start = 16.dp),
+                    )
+                    Spacer(modifier = Modifier.padding(horizontal = 110.dp))
+                    Switch(
+                        checked = isGuide.value,
+                        onCheckedChange = {
+                            isGuide.value = it
+                        },
+                        modifier = Modifier
+                            .align(Alignment.CenterVertically)
+                            .padding(end = 8.dp),
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = Color(41,161,255)
+                        )
+                    )
+                }
+            }
+            AnimatedVisibility(isGuide.value) {
+                Column(
+                    modifier = Modifier
+                        .background(color = MaterialTheme.colorScheme.primaryContainer)
+                        .fillMaxWidth()
+                ) {
+                    ExpandableSection(modifier = itemModifier, title = "시간",
+                        localDatetimeMills = guideDatetime,
+                        isDateValidate = isValidateGuideDatetime,
+                        isWholeDay = remember {
+                            mutableStateOf(false)
+                        })
+                    {
+                        scheduleData.isDateValidate.value = checkDateValidation(
+                            scheduleData.startDateTime.longValue,
+                            scheduleData.endDateTime.longValue
                         )
                     }
                 }
@@ -279,7 +344,8 @@ fun BottomSheetBody(
                         scheduleData.isWholeDay.value = it
                     },
                     modifier = Modifier
-                        .align(Alignment.CenterVertically),
+                        .align(Alignment.CenterVertically)
+                        .padding(end = 8.dp),
                     colors = SwitchDefaults.colors(
                         checkedTrackColor = Color(41,161,255)
                     )
@@ -561,8 +627,8 @@ fun Repeat(
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                             )
                             when {
-                                selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
-                                else -> selectedItem?.let { setRepeat(scheduleData, it) }
+//                                selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
+//                                else -> selectedItem?.let { setRepeat(scheduleData, it) }
                             }
                         }
                     }
@@ -579,15 +645,15 @@ fun setRepeat(
 ){
     val items = mapOf(0 to "안 함", 1 to "매일", 2 to "매주", 3 to "2주마다", 4 to "매월", 5 to "매년")
 
-    scheduleData.repeat.value.repeatable = false
-    scheduleData.repeat.value.cycle = when(str){
-        "매일" -> CronFormatter.format(1, scheduleData.startDateTime.longValue)
-        "매주" -> CronFormatter.format(2, scheduleData.startDateTime.longValue)
-        "2주마다" -> CronFormatter.format(3, scheduleData.startDateTime.longValue)
-        "매월" -> CronFormatter.format(4, scheduleData.startDateTime.longValue)
-        "매년" -> CronFormatter.format(5, scheduleData.startDateTime.longValue)
-        else -> throw NullPointerException("Exception while to set cron")
-    }
+//    scheduleData.repeat.value.repeatable = false
+//    scheduleData.repeat.value.cycle = when(str){
+//        "매일" -> CronFormatter.format(1, scheduleData.startDateTime.longValue)
+//        "매주" -> CronFormatter.format(2, scheduleData.startDateTime.longValue)
+//        "2주마다" -> CronFormatter.format(3, scheduleData.startDateTime.longValue)
+//        "매월" -> CronFormatter.format(4, scheduleData.startDateTime.longValue)
+//        "매년" -> CronFormatter.format(5, scheduleData.startDateTime.longValue)
+//        else -> throw NullPointerException("Exception while to set cron")
+//    }
 }
 
 // TODO: 사용미정
@@ -668,8 +734,8 @@ fun Alert(
                                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                                     )
                                     when {
-                                        selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
-                                        else -> selectedItem?.let {  }
+//                                        selectedItem == items[0] -> scheduleData.repeat.value.repeatable = false
+//                                        else -> selectedItem?.let {  }
                                     }
                                 }
                             }
@@ -736,15 +802,18 @@ fun preview(){
                 "",
                 address = "",
                 0.0,
-                0.0
+                0.0,
+                false,
+                0
             )
         },
         isWholeDay = remember { mutableStateOf(false) },
         isDateValidate = remember { mutableStateOf(true )},
         startDateTime = remember { mutableLongStateOf(0) },
         endDateTime = remember { mutableLongStateOf(0) },
-        repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
-        comment = remember { mutableStateOf("") }
+        comment = remember { mutableStateOf("") },
+        routeId = null,
+        scheduleId = -1
     )
     LazyColumn {
         item { BottomSheetBody(
@@ -756,6 +825,19 @@ fun preview(){
 //            Alert(scheduleData = scheduleData)
             Memo(scheduleData = scheduleData)
         }
+    }
+}
+
+fun insertDecimal(number: Int, position: Int): String {
+    val numberStr = number.toString()
+    val length = numberStr.length
+
+    return if (length > position) {
+        val integerPart = numberStr.substring(0, position)
+        val decimalPart = numberStr.substring(position)
+        "$integerPart.$decimalPart"
+    } else {
+        "0.${numberStr.padStart(position, '0')}"
     }
 }
 

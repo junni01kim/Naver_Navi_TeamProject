@@ -68,14 +68,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hansung.sherpa.schedule.RouteManager
+import com.hansung.sherpa.schedule.ScheduleManager
+import com.hansung.sherpa.schedule.Schedules
 import com.jakewharton.threetenabp.AndroidThreeTen
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.YearMonth
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
+import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 class CalendarActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -98,19 +109,83 @@ fun CalendarScreen(
 ){
     var scheduleDataList = remember { mutableStateListOf<ScheduleData>() }
     var showBottomSheet by remember { mutableStateOf(false) }
-    val beforeSelectedLocalDate by remember { mutableStateOf<LocalDate>(LocalDate.now()) }
 
+    val scheduleManager = ScheduleManager()
+    val routeManager = RouteManager()
+
+    val currentSelectedDate = remember { mutableStateOf<LocalDateTime>(LocalDateTime.of(1970,12,12,0,0,0)) }
+
+    val updateScheduleList : (List<Schedules>?) -> Unit = { scheduleResponse ->
+        scheduleDataList.clear()
+        scheduleResponse?.forEach {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
+            dateFormat.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
+            val startTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateBegin).time }
+            val endTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateEnd).time }
+
+            val route = runBlocking(Dispatchers.IO) {
+                run { it.routeId?.let { it1 -> routeManager.findRoute(it1) } }
+            }
+
+            scheduleDataList.add(
+                ScheduleData(
+                    title =  mutableStateOf(it.title) ,
+                    comment = mutableStateOf(it.description) ,
+                    startDateTime = mutableLongStateOf(startTime.timeInMillis) ,
+                    endDateTime =  mutableLongStateOf(endTime.timeInMillis) ,
+                    isDateValidate = mutableStateOf(true) ,
+                    isWholeDay = mutableStateOf(it.isWholeday),
+                    scheduledLocation = if(route != null){
+                        ScheduleLocation(
+                            name = route.location.name,
+                            lat = route.location.latitude,
+                            lon = route.location.longitude,
+                            address = it.address,
+                            isGuide = !it.guideDatetime.isNullOrEmpty(),
+                            guideDatetime = if(!it.guideDatetime.isNullOrEmpty()) it.guideDatetime.toLong() else 0L
+                        )
+                    } else {
+                        ScheduleLocation(
+                            name = "",
+                            lat = 0.0,
+                            lon = 0.0,
+                            address = "",
+                            isGuide = false,
+                            guideDatetime = 0
+                        )
+                    },
+                    routeId = route?.routeId,
+                    scheduleId = it.scheduleId!!
+                )
+            )
+        }
+    }
+
+    // TODO: 날짜 변경 시 일정 조회
+    val updateScheduleData : (LocalDate?) -> Unit = { it ->
+        val changeDate = it ?: currentSelectedDate.value.toLocalDate()
+        val localDatetime = changeDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val scheduleResponse = scheduleManager.findSchedules(SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(localDatetime)))?.data
+        currentSelectedDate.value = changeDate.atStartOfDay()
+        updateScheduleList(scheduleResponse)
+    }
+
+    // TODO: 시트 닫았을 때 추가 버튼을 통한 닫힘이면 서버에 일정 추가
     val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, isAdded ->
         if(isAdded){
-            // TODO: 추가 API 호출
-            scheduleDataList.add(item)
+            var routeId : Int? = null
+            if(item.scheduledLocation.name.isNotEmpty()) {
+                routeId = runBlocking(Dispatchers.IO) {
+                    withContext(Dispatchers.IO) { routeManager.insertRoute(scheduleData = item) }
+                }?.routeId
+            }
+            scheduleManager.insertSchedules(scheduleData = item, routeId = routeId)
+
+            currentSelectedDate.value = LocalDateTime.of(currentSelectedDate.value.year,
+                currentSelectedDate.value.monthValue, currentSelectedDate.value.dayOfMonth,
+                currentSelectedDate.value.hour, currentSelectedDate.value.minute)
         }
         showBottomSheet = false
-    }
-    val updateScheduleData : @Composable (LocalDate) -> Unit = { changeDate ->
-        // TODO: 조회 API 호출
-        if(!changeDate.isEqual(beforeSelectedLocalDate))
-            scheduleDataList.clear()
     }
 
     Scaffold (
@@ -160,10 +235,13 @@ fun CalendarScreen(
     )
 
     if (showBottomSheet){
+        val mills = currentSelectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val startDateTime = android.icu.util.Calendar.getInstance().apply {
+            timeInMillis = mills
             set(android.icu.util.Calendar.MINUTE, 0)
         }
         val endDateTime = android.icu.util.Calendar.getInstance().apply {
+            timeInMillis = mills
             set(android.icu.util.Calendar.MINUTE, 0)
         }
         val scheduleData = ScheduleData(
@@ -173,15 +251,18 @@ fun CalendarScreen(
                     "",
                     "",
                     0.0,
-                    0.0
+                    0.0,
+                    false,
+                    guideDatetime = startDateTime.timeInMillis
                 )
             },
             isWholeDay = remember { mutableStateOf(false) },
             isDateValidate = remember { mutableStateOf(true )},
             startDateTime = remember { mutableLongStateOf(startDateTime.timeInMillis) },
             endDateTime = remember { mutableLongStateOf(endDateTime.timeInMillis) },
-            repeat = remember { mutableStateOf(Repeat(repeatable = false, cycle = "")) },
-            comment = remember { mutableStateOf("") }
+            comment = remember { mutableStateOf("") },
+            routeId = null,
+            scheduleId = -1
         )
         ScheduleBottomSheet(
             closeBottomSheet = closeBottomSheet,
@@ -197,7 +278,7 @@ fun Calendar(
     scheduleDataList : SnapshotStateList<ScheduleData>,
     config: CalendarConfig = CalendarConfig(),
     currentDate: LocalDate = LocalDate.now(),
-    updateScheduleData: @Composable (LocalDate) -> Unit
+    updateScheduleData: (LocalDate?) -> Unit
 ) {
     val initialPage = (currentDate.year - config.yearRange.first) * 12 + currentDate.monthValue - 1
     var currentSelectedDate by remember { mutableStateOf(currentDate) }
@@ -209,12 +290,6 @@ fun Calendar(
     )
     val coroutineScope = rememberCoroutineScope()
     updateScheduleData(currentSelectedDate)
-
-//    LaunchedEffect(pagerState.currentPage) {
-//        val addMonth = (pagerState.currentPage - currentPage).toLong()
-//        currentMonth = currentMonth.plusMonths(addMonth)
-//        currentPage = pagerState.currentPage
-//    }
 
     val onChangeMonth : @Composable (Int) -> Unit = { offset ->
         with(pagerState) {
@@ -273,7 +348,10 @@ fun Calendar(
         }
         item{
             CurrentDateColumn(currentSelectedDate)
-            ScheduleColumns(scheduleDataList = scheduleDataList)
+            ScheduleColumns(
+                scheduleDataList = scheduleDataList,
+                updateScheduleData = updateScheduleData
+            )
         }
     }
 }

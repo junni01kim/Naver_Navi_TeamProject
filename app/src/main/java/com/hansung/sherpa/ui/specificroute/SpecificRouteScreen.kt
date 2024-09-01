@@ -10,17 +10,17 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.FabPosition
-import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.FabPosition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
@@ -36,25 +36,28 @@ import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.sendInfo.send.SendManager
-import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.deviation.RouteDeviation
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
+import com.hansung.sherpa.sendInfo.send.SendManager
+import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
+import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.ui.theme.lightScheme
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
+
 /**
  * 경로의 세부 경로들 몇번 버스 이용, 어디서 내리기, 몇m 이동 등등의
  * 세부 정부 표현 화면
@@ -70,7 +73,9 @@ fun SpecificRouteScreen(
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
     caretakerViewModel: CaretakerViewModel,
-    goBack:()->Unit
+    goBack:()->Unit,
+    accidentProneArea: ArrayList<AccidentProneArea>,
+    centers: List<PolygonCenter>
 ){
     val context = LocalContext.current
     val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
@@ -101,6 +106,9 @@ fun SpecificRouteScreen(
     val caretakerCoordParts = caregiverViewModel.coordParts.observeAsState()
     val caretakerColorParts = caregiverViewModel.colorPart.observeAsState()
     val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
+
+
+    var section by remember { mutableIntStateOf(-1) }
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
@@ -148,6 +156,27 @@ fun SpecificRouteScreen(
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+    val accidentProneAreaAlert = Toast.makeText(LocalContext.current,"⚠ 보행자 사고 다발 구간 ⚠", Toast.LENGTH_LONG)
+    LaunchedEffect(myPos) {
+        var flag = false
+        if(centers.isNotEmpty()){
+            centers.forEachIndexed() { index, it ->
+                val distance = AccidentProneAreaManager.distanceCalculate(
+                    myPos.latitude, myPos.longitude,
+                    it.center.latitude, it.center.longitude
+                )
+                val collapseDistance = if(section == -1 || index == section) Double.MAX_VALUE
+                else AccidentProneAreaManager.distanceCalculate(centers[section].center.latitude,  centers[section].center.longitude, it.center.latitude, it.center.longitude)
+
+                if(distance <= it.radius && index != section && collapseDistance > it.radius){
+                    flag = true
+                    section = index
+                }
+            }
+        }
+        if(flag)
+            accidentProneAreaAlert.show()
+    }
 
     // 핸드폰의 뒤로가기 버튼 누를시 화면 종료(메인 화면으로 이동)
     BackHandler {
@@ -280,13 +309,14 @@ fun SpecificRouteScreen(
                 MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
             }
 
-            if(StaticValue.userInfo.role1 == "CARETAKER") DrawPathOverlay(coordParts, colorParts, passedRoute)
+            if(StaticValue.userInfo.role1 == "CARETAKER") {
+                DrawPathOverlay(coordParts, colorParts, passedRoute)
+                DrawPolygons(accidentProneAreas = accidentProneArea)
+            }
             else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
         }
     }
     }
-
-
 }
 
 

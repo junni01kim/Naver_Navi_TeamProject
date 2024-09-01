@@ -1,13 +1,10 @@
 package com.hansung.sherpa
 
 import android.Manifest
-import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.PointF
-import android.location.Location
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -19,8 +16,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -33,14 +28,14 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.android.gms.tasks.Task
+import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.getValue
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessaging
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
@@ -68,10 +63,13 @@ import com.hansung.sherpa.ui.specificroute.SpecificRouteScreen
 import com.hansung.sherpa.ui.start.StartScreen
 import com.hansung.sherpa.ui.theme.SherpaTheme
 import com.hansung.sherpa.user.UserManager
+import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.util.FusedLocationSource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -194,11 +192,37 @@ class MainActivity : ComponentActivity() {
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
                         composable(route = SherpaScreen.SpecificRoute.name){
+
+                            // TODO: 여기서 위험 지역 요청함 ㅎㅎ
+                            val list = mutableListOf<LatLng>()
+                            StaticValue.transportRoute.subPath.forEach {
+                                if(it.trafficType == 3){
+                                    for(latLng : LatLng in it.sectionRoute.routeList)
+                                        list.add(latLng)
+                                }
+                            }
+                            var result : ArrayList<AccidentProneArea> = arrayListOf()
+                            var centers : List<PolygonCenter> = listOf()
+                            runBlocking(Dispatchers.IO) {
+                                run {
+                                    AccidentProneAreaManager().request(list, object :
+                                        AccidentProneAreaCallback {
+                                        override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>, listOfCenter : List<PolygonCenter>) {
+                                            result = accidentProneAreas
+                                            centers = listOfCenter
+                                        }
+                                        override fun onFailure(message: String) {
+                                            result = arrayListOf()
+                                        }
+                                    })
+                                }
+                            }
                             SpecificRouteScreen(
                                 StaticValue.transportRoute,
                                 partnerViewModel, caregiverViewModel,
                                 caretakerViewModel,
-                                { navController.navigate(SherpaScreen.Home.name) }
+                                { navController.navigate(SherpaScreen.Home.name) },
+                                result, centers
                             )
                         }
                         composable(route = SherpaScreen.Preference.name){
