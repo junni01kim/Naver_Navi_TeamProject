@@ -2,11 +2,20 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 
 plugins {
     alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)
+    alias(libs.plugins.jetbrains.kotlin.android)
+    id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.kapt")
+    id("com.google.gms.google-services")
 }
 
-val clientId = getClientId("CLIENT_ID")
-val tmapAppKey = getTmapAppKey("TMAP_APP_KEY")
+val clientId = getLocalPropertyKey("CLIENT_ID")
+val tmapAppKey = getLocalPropertyKey("TMAP_APP_KEY")
+val searchAPIClientID = getLocalPropertyKey("SEARCH_API_CLIENT_ID")
+val searchAPIClientSecret = getLocalPropertyKey("SEARCH_API_CLIENT_SECRET")
+val odsayAppKey = getLocalPropertyKey("ODSAY_APP_KEY")
+val openDataPotalKey = getLocalPropertyKey("OPEN_DATA_POTAL_KEY")
+val sherpaUrl = getLocalPropertyKey("SHERPA_URL")
+val rtdbUrl = getLocalPropertyKey("FIREBASE_RTDB_URL")
 
 android {
 
@@ -23,12 +32,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "CLIENT_ID", clientId)
         buildConfigField("String", "TMAP_APP_KEY", tmapAppKey)
+        buildConfigField("String", "SEARCH_API_CLIENT_ID", searchAPIClientID)
+        buildConfigField("String", "SEARCH_API_CLIENT_SECRET", searchAPIClientSecret)
+        buildConfigField("String", "ODSAY_APP_KEY", odsayAppKey)
+        buildConfigField("String", "OPEN_DATA_POTAL_KEY", openDataPotalKey)
+        buildConfigField("String", "SHERPA_URL", sherpaUrl)
+        buildConfigField("String", "FIREBASE_RTDB_URL", rtdbUrl)
         manifestPlaceholders["CLIENT_ID"] = clientId
+
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        dataBinding = true
     }
 
     buildTypes {
@@ -41,35 +61,126 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "1.8"
+        jvmTarget = "11"
+    }
+    buildFeatures {
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.1"
+    }
+    packaging {
+        resources {
+            merges += "META-INF/spring.*"
+            excludes += "META-INF/license.txt"
+            excludes += "META-INF/notice.txt"
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
-fun getClientId(propertyKey : String) : String{
-    return gradleLocalProperties(rootDir).getProperty(propertyKey)
-}
-
-fun getTmapAppKey(propertyKey : String) : String{
+fun getLocalPropertyKey(propertyKey : String) : String{
     return gradleLocalProperties(rootDir).getProperty(propertyKey)
 }
 
 dependencies {
-
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.constraintlayout)
+    implementation(libs.filament.android)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.runtime.livedata)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    // for naver map SDK
     implementation("com.naver.maps:map-sdk:3.18.0")
+
     // for api request
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+
+    //for User Location
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // for Material Design 3
+    //implementation("com.google.android.material:material:1.2.1")
+    implementation("androidx.compose.material:material:1.7.0-rc01")
+    implementation("androidx.core:core-ktx:1.0.2")
+
+    // for preference category
+    implementation ("androidx.preference:preference-ktx:1.2.1")
+
+    // for Room Datanbase
+    implementation("androidx.room:room-runtime:2.6.1")
+    annotationProcessor("androidx.room:room-compiler:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    implementation ("androidx.activity:activity-ktx:1.9.0")
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
+
+    implementation("io.github.fornewid:naver-map-compose:1.7.2")
+    implementation("io.github.fornewid:naver-map-location:21.0.2")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
+    // for Compose tooling
+    // https://developer.android.com/develop/ui/compose/tooling?hl=ko
+    val composeBom = platform("androidx.compose:compose-bom:2024.06.00")
+    implementation(composeBom)
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
+
+    //Lottie Animation
+    implementation("com.airbnb.android:lottie-compose:6.5.0")
+
+    // for Barchart in Routes UI
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+    // MapStruct dependencies
+    implementation(libs.mapstruct)
+    kapt(libs.mapstruct.processor)
+
+    // spring-context
+    implementation(libs.spring.context)
+
+    // for Extendable View
+    implementation("com.github.skydoves:expandablelayout:1.0.7")
+
+    implementation ("com.github.commandiron:WheelPickerCompose:1.1.11")
+    implementation ("com.jakewharton.threetenabp:threetenabp:1.3.0")
+
+    // for FCM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-messaging-ktx:23.2.1")
+    implementation("androidx.work:work-runtime:2.9.1")
+    implementation("com.google.accompanist:accompanist-permissions:0.34.0")
+
+    // for genson
+    implementation("com.owlike:genson:1.4")
+    implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
+    implementation("com.google.firebase:firebase-database-ktx")
 }

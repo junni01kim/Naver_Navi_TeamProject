@@ -2,4 +2,37 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <color name="WALK">#000000</color>
+    <color name="BUS">#90EE90</color>
+    <color name="SUBWAY">#0d3692</color>
+    <color name="EXPRESSBUS">#FF0000</color>
+    <color name="TRAIN">#EE82EE</color>
+
+    <!-- UI Color : refer from Figma -->
+    <color name="transparent">#00ff0000</color>
+    <color name="sandy_brown">#F7A65C</color>
+    <color name="deep_carmine_pink">#FF3131</color>
+    <color name="coral_red">#FF4040</color>
+    <color name="spartan_crimson">#951616</color>
+    <color name="maximum_purple">#7A2B86</color>
+    <color name="medium_orchid">#D44BEA</color>
+    <color name="vivid_malachite">#00D816</color>
+    <color name="blue_sapphire">#1E5383</color>
+    <color name="brilliant_azure">#319CFF</color>
+    <color name="maximum_blue_green">#2FBDB4</color>
+    <color name="turquoise">#34DFD5</color>
+    <color name="bright_gray">#ECECEC</color>
+    <color name="anti_flash_white">#F3F3F3</color>
+    <color name="gray_x11">#B9B9B9</color>
+    <color name="old_silver">#858585</color>
+    <color name="davy_grey_light">#5C5C5C</color>
+    <color name="davy_grey_dark">#5D5D5D</color>
+    <color name="dark_liver">#505050</color>
+    <color name="arsenic">#424242</color>
+    <color name="raisin_black">#262626</color>
+    <color name="eerie_black">#1D1D1D</color>
+    <color name="chinese_black">#111111</color>
+
+
 </resources>
