@@ -23,20 +23,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.hansung.sherpa.SherpaScreen
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.ui.common.SherpaDialogParm
-import com.hansung.sherpa.sherpares.BmHanna
-import com.hansung.sherpa.sherpares.SherpaColor
-import com.hansung.sherpa.ui.account.module.InfomationGroup
+import com.hansung.sherpa.ui.theme.BmHanna
+import com.hansung.sherpa.ui.theme.SherpaColor
 import com.hansung.sherpa.ui.account.signup.isValidId
+import com.hansung.sherpa.user.UserManager
 
 /**
- * 보호자 로그인 구성품
+ * 로그인 화면을 구성하는 영역
+ *
+ * @param navController 홈 화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
+ * @param sherpaDialog SherpaDialog 상태 값을 가진 객체
  */
 @Composable
 fun LoginArea(
     navController: NavController,
-    sherpaDialog: MutableState<SherpaDialogParm>,
-    showDialog: (Boolean) -> Unit
+    sherpaDialog: MutableState<SherpaDialogParm>
 ) {
     val context = LocalContext.current
 
@@ -51,19 +55,25 @@ fun LoginArea(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ) {
+        /**
+         * Email Input Area 이메일 입력란
+         * Password Input Area 비밀번호 입력란
+         */
         InfomationGroup("이메일", false) {emailValue = it.trim()}
         InfomationGroup("비밀번호", false) {passwordValue = it.trim()}
 
+        /**
+         * Login Button
+         * 
+         * 로그인을 진행하는 버튼
+         */
         TextButton(
             onClick = {
-                sherpaDialog.value = refuseLogin(
-                    emailValue,
-                    passwordValue,
-                    showDialog
-                )
-
-                if(sherpaDialog.value.title != ""){
-                    showDialog(true)
+                if(!isValidId(emailValue)||!isValidId(passwordValue)){
+                    sherpaDialog.value.setParm (
+                        title = "로그인 실패",
+                        message = listOf("이메일/비밀번호를 확인해주세요")
+                    )
                     return@TextButton
                 }
 
@@ -88,21 +98,28 @@ fun LoginArea(
     }
 }
 
-fun refuseLogin(
-    emailValue: String,
-    passwordValue: String,
-    showDialog: (Boolean) -> Unit
-): SherpaDialogParm {
-    val sherpaDialog = SherpaDialogParm()
+/**
+ * 로그인을 진행하는 함수
+ *
+ * @param navController 홈 화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
+ * @param email 이메일
+ * @param password 비밀번호
+ */
+fun login(navController: NavController, email: String, password: String) : Boolean {
+    val loginResponse = UserManager().login(email, password)
 
-    if(!isValidId(emailValue)||!isValidId(passwordValue)){
-        sherpaDialog.setParm (
-            title = "로그인 실패",
-            message = listOf("이메일/비밀번호를 확인해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
-        )
+    /**
+     * 예외처리 에러 코드
+     *
+     * 에러코드 200: 로그인 성공 시 반환
+     */
+    if(loginResponse.code == 200) {
+        StaticValue.userInfo = loginResponse.data!!
+        UserManager().updateFcm()
+        navController.navigate("${SherpaScreen.Home.name}")
     }
-    return sherpaDialog
+    else {
+        return true
+    }
+    return false
 }

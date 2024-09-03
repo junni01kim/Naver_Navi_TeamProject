@@ -19,14 +19,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.hansung.sherpa.sherpares.PretendardVariable
+import com.hansung.sherpa.ui.theme.PretendardVariable
 
 val backgroundCardColor = Color(0xFFFFFFFF)
 val nomalTextColor = Color.Black
 val lightTextColor = Color(0xFF8F8F8F)
 val sherpaThemeColor = Color(0xFF34DFD5)
 
+/**
+ * SherpaDialog 객체를 하위 Area에서도 매개변수 하나로 조작할 수 있도록 만든 클래스
+ *
+ * @property show 화면을 보이게 하는 flag
+ * @property title Dialog 제목
+ * @property message Dialog 내용 ※ String 하나가 한 줄을 의미한다.
+ * @property confirmButtonText 승인 버튼 글씨
+ * @property dismissButtonText 거절 버튼 글씨
+ * @property onDismissRequest 거절 버튼 터치 혹은 Dialog 밖 터치 시 실행
+ * @property onConfirmation 승인 버튼 터치 시 실행
+ */
 data class SherpaDialogParm(
+    var show: Boolean = false,
     var title: String = "",
     var message:List<String> = listOf(),
     var confirmButtonText:String = "",
@@ -34,20 +46,31 @@ data class SherpaDialogParm(
     var onDismissRequest: () -> Unit = {},
     var onConfirmation: () -> Unit = {}
 ){
+    /**
+     * 생성할 다이얼로그의 내용을 작성하는 함수
+     *
+     * @param title Dialog 제목
+     * @param message Dialog 내용 ※ String 하나가 한 줄을 의미한다.
+     * @param confirmButtonText 승인 버튼 글씨 ※ Default: "확인"
+     * @param dismissButtonText 거절 버튼 글씨 ※ Defalut: ""(버튼이 보이지 않는다.)
+     * @param onDismissRequest 거절 버튼 터치 혹은 Dialog 밖 터치 시 실행 ※ Defalut: 화면 닫기
+     * @param onConfirmation 승인 버튼 터치 시 실행 ※ Defalut: 화면 닫기
+     */
     fun setParm(
-        title:String = "",
-        message: List<String> = listOf(),
-        confirmButtonText: String = "",
+        title:String,
+        message: List<String>,
+        confirmButtonText: String = "확인",
         dismissButtonText: String = "",
-        onDismissRequest: () -> Unit = {},
-        onConfirmation: () -> Unit = {}
+        onDismissRequest: () -> Unit = {show = false},
+        onConfirmation: () -> Unit = {show = false}
     ){
         this.title = title
         this.message = message
-        this.confirmButtonText = confirmButtonText
-        this.dismissButtonText = dismissButtonText
-        this.onDismissRequest = onDismissRequest
-        this.onConfirmation = onConfirmation
+        if(confirmButtonText != "확인") this.confirmButtonText = confirmButtonText
+        if(dismissButtonText != "") this.dismissButtonText = dismissButtonText
+        if(onDismissRequest != {show = false}) this.onDismissRequest = onDismissRequest
+        if(onConfirmation != {show = false}) this.onConfirmation = onConfirmation
+        this.show = true
     }
 }
 /**
@@ -87,6 +110,11 @@ fun SherpaDialog(
                 verticalArrangement = Arrangement.SpaceAround,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                /**
+                 * Title Text
+                 *
+                 * 다이얼로그 제목
+                 */
                 Text(
                     text = title,
                     color = nomalTextColor,
@@ -98,6 +126,11 @@ fun SherpaDialog(
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    /**
+                     * Message Text
+                     *
+                     * 함수의 내용 ※ listOf의 item 하나가 한 줄을 차지한다.
+                     */
                     for (text in message) {
                         Text(
                             text = text,
@@ -110,10 +143,21 @@ fun SherpaDialog(
                 }
 
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    /**
+                     * Dismiss Button
+                     * 
+                     * 거절 버튼
+                     * ※ 텍스트 내용이 존재하지 않다면 버튼이 보이지 않는다.
+                     */
                     if(dismissButtonText != "") SherpaButton1(
                         dismissButtonText = dismissButtonText,
                         onDismissRequest = onDismissRequest
                     )
+                    /**
+                     * Confirm Button
+                     * 
+                     * 승인 버튼
+                     */
                     SherpaButton2(
                         confirmButtonText = confirmButtonText,
                         onConfirmation = onConfirmation

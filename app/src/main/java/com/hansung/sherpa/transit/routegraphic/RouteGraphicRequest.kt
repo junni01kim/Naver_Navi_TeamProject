@@ -15,12 +15,8 @@ class ODsayGraphicRequest(
  * mapObject
  *
  * @param baseX 경도의 정수 부분만 입력
- * - 127.123456 -> 127로 입력
- * - 고정 TODO 값에 문제있으면 고정을 풀 것
  *
  * @param baseY 위도의 정수 부분만 입력
- * - 36.123456 -> 36로 입력
- * - 고정 TODO 값에 문제있으면 고정을 풀 것
  *
  * @param responseMapObject 전체 경로 중 구간에 대한 대중교통 mapObject 값
  * - ODsayTransitRouteResponse.result.path[0].info.mapObj

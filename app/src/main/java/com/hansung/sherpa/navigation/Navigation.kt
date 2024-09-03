@@ -63,6 +63,9 @@ class Navigation {
         return transportRouteList!!
     }
 
+    /**
+     * ODsay 대중교통 길찾기 API에 제공 할 정보 요청 값 필터
+     */
     private fun setODsayRouteRequest(startLatLng: LatLng, endLatLng: LatLng): ODsayTransitRouteRequest {
         return ODsayTransitRouteRequest(
             apiKey = BuildConfig.ODSAY_APP_KEY,
@@ -72,6 +75,4 @@ class Navigation {
             EY = endLatLng.latitude.toString()
         )
     }
-
-
 }

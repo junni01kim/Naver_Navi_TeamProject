@@ -15,6 +15,11 @@ import java.io.IOException
 val nncBackendUserUrl = BuildConfig.SHERPA_URL
 
 class ReceiveManager {
+    /**
+     * [Sherpa 내부 서버] 모든 경로 좌표를 받아오는 함수
+     *
+     * @return API 결과와 TransportRoute
+     */
     fun getTransportRoute():CommonResponse {
         var result: CommonResponse? = null
         runBlocking {
@@ -48,6 +53,11 @@ class ReceiveManager {
         return result?: CommonResponse(500, "에러 원인을 찾을 수 없음")
     }
 
+    /**
+     * [Sherpa 내부 서버] 모든 재갱신된 경로를 받아오는 함수
+     *
+     * @return API 결과와 ReceiveRouteResponse
+     */
     fun getRoute(): CommonResponse {
         var result: CommonResponse? = null
         runBlocking {

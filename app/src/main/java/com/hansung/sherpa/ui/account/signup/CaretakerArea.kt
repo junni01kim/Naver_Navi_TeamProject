@@ -31,20 +31,35 @@ import androidx.navigation.NavController
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.ui.common.SherpaDialogParm
-import com.hansung.sherpa.sherpares.BmHanna
-import com.hansung.sherpa.sherpares.SherpaColor
-import com.hansung.sherpa.ui.account.module.InfomationGroupDarkMode
-import com.hansung.sherpa.ui.account.module.ViewTOS
+import com.hansung.sherpa.ui.theme.BmHanna
+import com.hansung.sherpa.ui.theme.SherpaColor
+import com.hansung.sherpa.ui.account.login.InfomationGroupDarkMode
+import com.hansung.sherpa.ui.account.login.ViewTOS
 import com.hansung.sherpa.user.CreateUserRequest
 import com.hansung.sherpa.user.UserManager
 import java.sql.Timestamp
 import java.util.Calendar
 
 /**
- * 사용자 회원가입 구성품
+ * 사용자 회원가입을 구성하는 영역
+ *
+ * @param navController 홈 화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
+ * @param sherpaDialog SherpaDialog 상태 값을 가진 객체
  */
 @Composable
-fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<SherpaDialogParm>, showDialog: (Boolean) -> Unit) {
+fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<SherpaDialogParm>) {
+    /**
+     * @property emailValue 이메일
+     * @property passwordValue 비밀번호
+     * @property confirmPasswordValue 비밀번호 확인
+     * @property userNameValue 보호자 이름
+     * @property telValue 전화번호
+     * @property addressValue 주소
+     * @property detailAddressValue 상세주소
+     * @property caregiverId 보호자 userId
+     * @property caregiverEmail 보호자 이메일
+     * @property caregiverRelation 보호자 관계(이름)
+     */
     var emailValue by remember { mutableStateOf("") }
     var passwordValue by remember { mutableStateOf("") }
     var confirmPasswordValue by remember { mutableStateOf("") }
@@ -56,10 +71,19 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
     var caregiverEmail by remember { mutableStateOf("-1") }
     var caregiverRelation by remember { mutableStateOf("보호자") }
 
+    /**
+     * @property tosChecked 이용 약관 확인
+     * @property marketingChecked 마케팅 약관 확인
+     * @property allChecked 전체 약관 확인
+     */
     var tosChecked by remember { mutableStateOf(false) }
     var marketingChecked by remember { mutableStateOf(false) }
     var allChecked by remember { mutableStateOf(false) }
 
+    /**
+     * @property isEmailDuplicate 이메일 중복 확인
+     * @property isTelNumDuplicate 전화번호 중복 확인
+     */
     var isEmailDuplicate by remember { mutableStateOf(false) }
     var isTelNumDuplicate by remember { mutableStateOf(false) }
 
@@ -71,6 +95,11 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        /**
+         * Infomation Area Text
+         *
+         * 정보 입력 텍스트
+         */
         Text(
             text ="정보 입력",
             fontFamily = BmHanna,
@@ -78,59 +107,64 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
             style = TextStyle(SherpaColor)
         )
 
+        /**
+         * Infomation Area
+         *
+         * 정보 입력 영역
+         */
         InfomationGroupDarkMode("이메일", true, "중복검사", {
+            /**
+             * 이메일 중복 검사 로직
+             *
+             * 에러처리 에러 코드
+             *
+             * 에러코드 200: API 연결은 성공했으나, 이메일이 중복된 경우
+             * 에러코드 201: 이메일 이용가능
+             */
             val code = UserManager().verificatonEmail(emailValue).code
             if(code == 200) {
                 sherpaDialog.value.setParm(
                     title = "이메일 중복",
-                    message =listOf("이미 등록된 이메일입니다"),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf("이미 등록된 이메일입니다")
                 )
-                showDialog(true)
                 isEmailDuplicate = false
             }
             else if(code == 201) {
                 sherpaDialog.value.setParm(
                     title = "이메일 승인",
-                    message =listOf("사용가능한 이메일입니다"),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf("사용가능한 이메일입니다")
                 )
-                showDialog(true)
                 isEmailDuplicate = true
             }
-        }) { emailValue = it.trim() }
+        }) { emailValue = it.trim() } // 이메일 텍스트 변경 시 양 끝 공백 제거
         InfomationGroupDarkMode("비밀번호", false) { passwordValue = it.trim() }
         InfomationGroupDarkMode("비밀번호\n확인", false) { confirmPasswordValue = it.trim() }
         InfomationGroupDarkMode("이름", false) { userNameValue = it }
         InfomationGroupDarkMode("전화번호", true, "인증하기", {
+            /**
+             * 전화번호 중복 검사 로직
+             *
+             * 에러처리 에러 코드
+             *
+             * 에러코드 200: API 연결은 성공했으나, 전화번호가 중복된 경우
+             * 에러코드 201: 전화번호 이용가능
+             */
             val code = UserManager().verificatonTelNum(telValue).code
             if(code == 200) {
                 sherpaDialog.value.setParm(
                     title = "전화번호 중복",
-                    message =listOf("이미 등록된 전화번호입니다"),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf("이미 등록된 전화번호입니다")
                 )
-                showDialog(true)
                 isTelNumDuplicate = false
             }
             else if(code == 201) {
                 sherpaDialog.value.setParm(
                     title = "전화번호 승인",
-                    message =listOf("사용가능한 전화번호입니다"),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf("사용가능한 전화번호입니다")
                 )
-                showDialog(true)
                 isTelNumDuplicate = true
             }
-        }) { telValue = it.trim() }
+        }) { telValue = it.trim() } // 전화번호 텍스트 변경 시 양 끝 공백 제거
         InfomationGroupDarkMode("주소", true, "주소검색", {/* 주소 검색 API */}) { addressValue = it }
         InfomationGroupDarkMode("상세주소", false) { detailAddressValue = it }
         InfomationGroupDarkMode("보호자\n이메일", true, "연동하기" ,{
@@ -138,47 +172,39 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
 
             val caregiverUserResponse = UserManager().linkPermission(caregiverEmail)
 
+            /**
+             * 에러처리 에러 코드
+             *
+             * 에러코드 200: 보호자 연동 성공
+             * 에러코드 201: API 접속은 성공했으나, 일치하는 보호자 이메일이 존재하지 않음
+             * 에러코드 404: 알 수 없는 이유로 이메일 연결을 실패
+             * 에러코드 421: 알 수 없는 이유로 이메일 연결을 실패
+             */
             if(caregiverUserResponse.code == 200) {
                 sherpaDialog.value.setParm(
                     title = "연동 성공",
-                    message =listOf("보호자 연동이 완료되었습니다."),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf("보호자 연동이 완료되었습니다.")
                 )
-                showDialog(true)
             }
             else if(caregiverUserResponse.code == 201){
                 sherpaDialog.value.setParm(
                     title = "연동 실패",
-                    message =listOf("일치하는 보호자 아이디가 없습니다."),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf("일치하는 보호자 이메일이 없습니다.")
                 )
-                showDialog(true)
                 return@InfomationGroupDarkMode
             }
             else if(caregiverUserResponse.code == 404) {
                 sherpaDialog.value.setParm(
                     title = "전송 실패",
-                    message =listOf("다시 한번 전송해주세요."),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf("다시 한번 전송해주세요.")
                 )
-                showDialog(true)
                 return@InfomationGroupDarkMode
             }
             else if(caregiverUserResponse.code == 421) {
                 sherpaDialog.value.setParm(
                     title = "연동 실패",
-                    message =listOf(caregiverUserResponse.message?:"None"),
-                    confirmButtonText = "확인",
-                    onConfirmation = { showDialog(false) },
-                    onDismissRequest = { showDialog(false) }
+                    message =listOf(caregiverUserResponse.message?:"None")
                 )
-                showDialog(true)
                 return@InfomationGroupDarkMode
             }
 
@@ -187,16 +213,18 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
             caregiverId = caregiverUserResponse.data!!
 
             caregiverRelation = "연동 로직 구현 시에는 이거도 같이 반환 받아야 함."
-        }) { caregiverEmail = it.trim() }
+        }) { caregiverEmail = it.trim() }  // 보호자 이메일 텍스트 변경 시 양 끝 공백 제거
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        /**
+         * TOS Area
+         *
+         * 약관 확인 영역
+         */
         ViewTOS(
             tosText = "이용약관에 동의합니다.",
             checked = tosChecked,
-            modifier = Modifier
-                .width(250.dp)
-                .wrapContentHeight(),
             textColor = Color.White,
             onCheckedChange = {
                 tosChecked = it
@@ -206,9 +234,6 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
         ViewTOS(
             tosText = "마케팅에 동의합니다.",
             checked = marketingChecked,
-            modifier = Modifier
-                .width(250.dp)
-                .wrapContentHeight(),
             textColor = Color.White,
             onCheckedChange = {
                 marketingChecked = it
@@ -218,9 +243,6 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
         ViewTOS(
             tosText = "해당 약관에 모두 동의합니다.",
             checked = allChecked,
-            modifier = Modifier
-                .width(250.dp)
-                .wrapContentHeight(),
             textColor = Color.White,
             onCheckedChange = {
                 allChecked = it
@@ -232,21 +254,18 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
         Spacer(modifier = Modifier.height(10.dp))
         TextButton(
             onClick = {
-                sherpaDialog.value = refuseSignup(
-                    emailValue,
-                    passwordValue,
-                    confirmPasswordValue,
-                    userNameValue,
-                    telValue,
-                    addressValue,
-                    detailAddressValue,
-                    caregiverId,
-                    allChecked,
-                    showDialog
-                )
-
-                if(sherpaDialog.value.title != ""){
-                    showDialog(true)
+                if(refuseSignup(
+                        sherpaDialog,
+                        emailValue,
+                        passwordValue,
+                        confirmPasswordValue,
+                        userNameValue,
+                        telValue,
+                        addressValue,
+                        detailAddressValue,
+                        caregiverId,
+                        allChecked
+                    )){
                     return@TextButton
                 }
 
@@ -269,12 +288,8 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
                 else {
                     sherpaDialog.value.setParm(
                         title = "회원가입 실패",
-                        message =listOf("계정 생성을 실패하였습니다"),
-                        confirmButtonText = "확인",
-                        onConfirmation = { showDialog(false) },
-                        onDismissRequest = { showDialog(false) }
+                        message =listOf("계정 생성을 실패하였습니다")
                     )
-                    showDialog(true)
                 }
             },
             colors= ButtonColors(
@@ -294,6 +309,7 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
 }
 
 fun refuseSignup(
+    sherpaDialog: MutableState<SherpaDialogParm>,
     emailValue: String,
     passwordValue: String,
     confirmPasswordValue: String,
@@ -302,120 +318,95 @@ fun refuseSignup(
     addressValue: String,
     detailAddressValue: String,
     caregiverId: Int,
-    allChecked: Boolean,
-    showDialog: (Boolean) -> Unit
-): SherpaDialogParm {
-    val sherpaDialog = SherpaDialogParm()
-
+    allChecked: Boolean
+): Boolean {
     if(caregiverId == -1) {
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "회원가입 실패",
-            message =listOf("보호자 연동이 되지 않았습니다"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("보호자 연동이 되지 않았습니다")
         )
+        return true
     }
 
     if(passwordValue != confirmPasswordValue){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "회원가입 실패",
-            message =listOf("비밀번호가 다릅니다"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("비밀번호가 다릅니다")
         )
+        return true
     }
 
     if(!isValidId(passwordValue)){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "회원가입 실패",
-            message =listOf("비밀번호 서식을 확인해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("비밀번호 서식을 확인해주세요")
         )
+        return true
     }
 
     if(!isValidId(emailValue)){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "회원가입 실패",
-            message =listOf("이메일 서식을 확인해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("이메일 서식을 확인해주세요")
         )
+        return true
     }
 
     if(telValue == "") {
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "필수 입력",
-            message =listOf("전화번호를 기입해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("전화번호를 기입해주세요")
         )
+        return true
     }
 
     if(addressValue == ""){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "필수 입력",
-            message =listOf("주소를 기입해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("주소를 기입해주세요")
         )
+        return true
     }
 
     if(userNameValue == ""){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "필수 입력",
-            message =listOf("이름을 기입해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("이름을 기입해주세요")
         )
+        return true
     }
 
     if(confirmPasswordValue == ""){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "필수 입력",
-            message =listOf("비밀번호 확인을 기입해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("비밀번호 확인을 기입해주세요")
         )
+        return true
     }
 
     if(passwordValue == "") {
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "필수 입력",
-            message =listOf("비밀번호를 기입해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("비밀번호를 기입해주세요")
         )
+        return true
     }
 
     if(emailValue == ""){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "필수 입력",
-            message =listOf("이메일을 기입해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("이메일을 기입해주세요")
         )
+        return true
     }
 
     if(!allChecked){
-        sherpaDialog.setParm(
+        sherpaDialog.value.setParm(
             title = "회원가입 실패",
-            message =listOf("약관을 모두 동의해주세요"),
-            confirmButtonText = "확인",
-            onConfirmation = { showDialog(false) },
-            onDismissRequest = { showDialog(false) }
+            message =listOf("약관을 모두 동의해주세요")
         )
+        return true
     }
 
-    return sherpaDialog
+    return false
 }

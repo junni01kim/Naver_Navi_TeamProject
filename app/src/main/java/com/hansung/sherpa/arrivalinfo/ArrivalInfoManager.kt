@@ -42,6 +42,11 @@ class ArrivalInfoManager {
         return result
     }
 
+    /**
+     * 정류소 별 특정 노선 버스 도착 예정 정보, 목록 조회 API를 사용해 경로 데이터를 가져와 역 직렬화하는 함수
+     *
+     * @param request ODsay API에 전송할 데이터
+     */
     fun getODsayArrivalInfoList(request: ODsayArrivalInfoRequest): ODsayArrivalInfoResponse? {
         var result: ODsayArrivalInfoResponse? = null
         runBlocking {

@@ -5,8 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,7 +27,7 @@ import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.searchlocation.SearchLoactionCallBack
 import com.hansung.sherpa.searchlocation.SearchLocation
 import com.hansung.sherpa.searchlocation.SearchLocationResponse
-import com.hansung.sherpa.sherpares.PretendardVariable
+import com.hansung.sherpa.ui.theme.PretendardVariable
 
 /**
  * 검색 키워드를 통해 장소를 선택하기 위한 영역

@@ -72,13 +72,13 @@ fun SpecificRouteScreen(
     response: TransportRoute,
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
-    caretakerViewModel: CaretakerViewModel,
+    //caretakerViewModel: CaretakerViewModel,
     goBack:()->Unit,
     accidentProneArea: ArrayList<AccidentProneArea>,
     centers: List<PolygonCenter>
 ){
     val context = LocalContext.current
-    val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
+    //val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     /**
@@ -182,7 +182,7 @@ fun SpecificRouteScreen(
     BackHandler {
         goBack()
     }
-    androidx.compose.material3.MaterialTheme(colorScheme = lightScheme) {
+    MaterialTheme(colorScheme = lightScheme) {
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -247,6 +247,7 @@ fun SpecificRouteScreen(
                                 passedRoute[i] = 1.0
                             }
                             startNavigation = false
+                            // TODO: 보호자는 삭제되지 않으니, 보호자 화면에서 삭제하는 기능 추가 필요
                             SendManager().deleteNavigation()
                         }
                         0 -> {

@@ -54,7 +54,7 @@ import com.hansung.sherpa.itemsetting.SubPath
 import com.hansung.sherpa.itemsetting.SubwayLane
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.sherpares.PretendardVariable
+import com.hansung.sherpa.ui.theme.PretendardVariable
 import com.hansung.sherpa.ui.chart.ThickChart
 import com.hansung.sherpa.ui.chart.typeOfColor
 import java.text.SimpleDateFormat

@@ -15,21 +15,31 @@ import com.hansung.sherpa.MainActivity
 import com.hansung.sherpa.R
 import kotlin.random.Random
 
+/**
+ * FCM(Firebase Cloud Messaging) 서비스 통신 매체
+ *
+ */
 class SherpaFirebaseMessagingService : FirebaseMessagingService() {
 
+    /**
+     * 메세지 서비스를 생성한다.
+     *
+     */
     override fun onCreate() {
         super.onCreate()
     }
 
     /**
      * FCM token이 만료되어 재발급이 되는 경우에 해당 메서드를 통해 새로운 token을 받게 된다.
+     *
      */
     override fun onNewToken(token: String){
         Log.d("FCMLog", "Refreshed token: $token");
     }
 
     /**
-     * 메세지가 들어오는 공간
+     * 해당 클라이언트에 메세지가 도착할 때 실행되는 리스너 함수
+     *
      */
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         Log.d("FCMLog", "onMessageReceived")

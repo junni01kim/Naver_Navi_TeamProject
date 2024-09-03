@@ -93,16 +93,13 @@ class MainActivity : ComponentActivity() {
             val head = intent?.getStringExtra("title") ?: ""
             val body = intent?.getStringExtra("body") ?: ""
 
-            //Log.i("FCM Log: Success", "branch 메서드: 수신 완료")
-            //Log.i("FCM Log: Data", "$head, $body")
-
             val parts = head.split("/")
             val topic = parts[0]
             val title = parts[1]
 
             when (topic) {
                 "알림" -> messageViewModel.updateValue(title, body)
-                "일정" -> scheduleViewModel.updateSchedule(title, body)
+                "일정" -> scheduleViewModel.updateSchedule(body)
                 "예약경로" -> {
                     // TODO: 출 -> 목 경로 탐색
                     /*
@@ -125,11 +122,11 @@ class MainActivity : ComponentActivity() {
                 }
                 "재탐색" -> {
                     Log.d("FCM LOG", "재탐색")
-                    caregiverViewModel.devateRoute(title, body)
+                    caregiverViewModel.devateRoute()
                 }
                 "시작" -> {
                     Log.d("FCM LOG", "시작 전송")
-                    caregiverViewModel.startNavigation(title, body)
+                    caregiverViewModel.startNavigation()
                     navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
 
@@ -194,7 +191,7 @@ class MainActivity : ComponentActivity() {
                         composable(route = SherpaScreen.Home.name){
                             val userInfo = StaticValue.userInfo
                             val relation = UserManager().getRelation(userInfo.userId!!).data
-                            if(isCareGiver(userInfo)) {
+                            if(isCareGiver()) {
                                 val caregiverId = relation?.caretakerId.toString()
                                 addValueEventListener(caregiverId, partnerViewModel, caregiverViewModel)
                             }
@@ -241,7 +238,7 @@ class MainActivity : ComponentActivity() {
                             SpecificRouteScreen(
                                 StaticValue.transportRoute,
                                 partnerViewModel, caregiverViewModel,
-                                caretakerViewModel,
+                                //caretakerViewModel,
                                 { navController.navigate(SherpaScreen.Home.name) },
                                 result, centers
                             )

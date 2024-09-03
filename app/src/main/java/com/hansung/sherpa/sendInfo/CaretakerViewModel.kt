@@ -8,30 +8,9 @@ import com.hansung.sherpa.itemsetting.Info
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.Navigation
 
-class CaretakerViewModel : ViewModel() {
-    private val _transportRoute = MutableLiveData(TransportRoute(Info(0.0,0,0,0), listOf()))
-    val transportRoute: LiveData<TransportRoute> get() = _transportRoute
-
-    fun updateTransportRoute(transportRoute: TransportRoute) {
-        _transportRoute.postValue(transportRoute)
-        //navigate()
-    }
-
-    fun receivePos(title: String, body: String) {
-        if(StaticValue.myPos != null){
-            val transportRoutes = Navigation().getDetailTransitRoutes(
-                com.naver.maps.geometry.LatLng(StaticValue.myPos!!.latitude, StaticValue.myPos!!.longitude),
-                com.naver.maps.geometry.LatLng(0.0,0.0),
-                "", "")
-            StaticValue.transportRoute = transportRoutes[0]
-
-        }
-        // TODO: 출 -> 목 경로 탐색
-        /*
-            1. 첫 번째 인덱스 경로 가져옴
-            2. StaticValue 경로 값에 저장
-            3. 경로 안내 팝업 띄우기
-            4. Navigation specific route로 옮기기
-        */
-    }
-}
+/**
+ * 사용자가 FCM을 통해 '전달받은' 정보들을 관리하는 ViewModel
+ *
+ * ※ 2024-09-03 아직은 사용하지 않는다.
+ */
+class CaretakerViewModel : ViewModel() {}
