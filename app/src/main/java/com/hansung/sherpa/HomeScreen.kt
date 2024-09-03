@@ -39,13 +39,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.hansung.sherpa.sendInfo.CaretakerPosViewModel
-import com.hansung.sherpa.sendInfo.SendPos.SendManager
+import com.hansung.sherpa.sendInfo.PartnerViewModel
+import com.hansung.sherpa.sendInfo.send.SendManager
 import com.hansung.sherpa.ui.main.CustomNavigationDrawer
 import com.hansung.sherpa.ui.main.ExtendedFABContainer
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
-import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.CameraPositionState
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
@@ -58,12 +57,13 @@ import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun HomeScreen(
     navController: NavHostController = rememberNavController(), // rememberNavController()은 Preview를 생성하기 위함
     modifier: Modifier = Modifier,
-    caretakerPosViewModel: CaretakerPosViewModel
+    partnerViewModel: PartnerViewModel
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -74,7 +74,7 @@ fun HomeScreen(
             }
         }
     }
-    val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caretakerIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_red_mdpi)
     val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_mdpi)
 
     // Jetpack Compose
@@ -98,7 +98,7 @@ fun HomeScreen(
 
     // TODO: 김명준이 추가한 부분
     val sendManager = SendManager()
-    val partnerPos = caretakerPosViewModel.latLng.observeAsState()
+    val partnerPos = partnerViewModel.latLng.observeAsState()
     // TODO: 김명준 끝----
 
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
@@ -118,16 +118,16 @@ fun HomeScreen(
                     ),
                     onLocationChange = {
                         myPos = LatLng(it.latitude, it.longitude)
-
+                        StaticValue.myPos = LatLng(it.latitude, it.longitude)
                         // 상대방에게 내 위치를 전송한다.
-                        sendManager.sendPos(myPos)
+                        sendManager.sendPosition(myPos)
                     }) {
                     if(StaticValue.userInfo.role1 == "CARETAKER"){
-                        MarkerComponent(myPos, caretakerIcon)
+                        //MarkerComponent(myPos, caretakerIcon)
                         MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
                     }
                     else {
-                        MarkerComponent(myPos, caregiverIcon)
+                        //MarkerComponent(myPos, caregiverIcon)
                         MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
                     }
                 }
@@ -145,6 +145,7 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceAround,
                         modifier = Modifier
                             .fillMaxWidth()
+                            .padding(top = 20.dp)
                     ) {
 
                         /**
@@ -168,6 +169,8 @@ fun HomeScreen(
                             singleLine = true,
                             placeholder = { Text("검색어를 입력하세요") },
                             colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.White,
+                                unfocusedContainerColor = Color.White,
                                 focusedIndicatorColor = Color.Transparent,
                                 unfocusedIndicatorColor = Color.Transparent
                             ),
@@ -183,7 +186,7 @@ fun HomeScreen(
                                 .width(66.dp)
                                 .height(55.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(Color.Black),
+                            colors = ButtonDefaults.buttonColors(Color(0xFF34DFD5)),
                             onClick = {
                                 navController.navigate("${SherpaScreen.Search.name}/${if (destinationValue == "") "아무것도 전달되지 않았음" else destinationValue}")
                             }

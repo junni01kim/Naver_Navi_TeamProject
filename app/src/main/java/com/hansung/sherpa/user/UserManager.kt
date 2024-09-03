@@ -38,7 +38,7 @@ class UserManager {
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
                         Log.e("API Log:response(Null)", "UserManager.create: 'response is null'")
-                        result = UserResponse(404, result?.message)
+                        result = UserResponse(404, "UserManager.create: 'response is null'")
                     }
                     else {
                         Log.i("API Log: Success", "create 함수 실행 성공 ${result?.message}")

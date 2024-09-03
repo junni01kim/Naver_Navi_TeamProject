@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.ChevronLeft
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,6 +58,7 @@ import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.emergency.EmergencyManager
+import com.hansung.sherpa.ui.theme.SherpaTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -133,6 +135,7 @@ fun CustomExtendedFAB(
     FloatingActionButton(
         onClick = onClick,
         modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.onSecondary
     ) {
         val startPadding = if (expanded.value) ExtendedFabStartIconPadding else 0.dp
         val endPadding = if (expanded.value) ExtendedFabTextPadding else 0.dp
@@ -215,7 +218,7 @@ fun FabExtendedResource() {
         name = "아버지",
         phone = "전화하기: 010-0000-0000",
         icon = IconType.Resource(R.drawable.medical),
-        expanded = remember { mutableStateOf(false) }
+        expanded = remember { mutableStateOf(true) }
     )
 }
 
@@ -228,65 +231,69 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
     val bookmarkList = remember { mutableStateListOf<Contact>() }
     val visibleList = remember { mutableStateListOf<MutableState<Boolean>>() }
     val imgList = listOf(R.drawable._1, R.drawable._2, R.drawable._3, R.drawable._4, R.drawable._5)
+    val userId = StaticValue.userInfo.userId ?: 27
+    if(userId != null) {
+        // 긴급연락처 리스트 가져오는 작업 - 백그라운드로 진행
+        LaunchedEffect(Unit) {
+            val apiList = withContext(Dispatchers.IO) {
+                val result = EmergencyManager().getAllEmergency(userId).data
+                result?.mapIndexed { index, emergency ->
+                    val byteArray = decodeFileData(emergency.fileData)
+                    Contact(
+                        emergencyId = emergency.emergencyId,
+                        name = emergency.name,
+                        phone = emergency.telNum,
+                        image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).asImageBitmap(), // 인덱스 초과 시 기본 이미지 설정
+                        address = emergency.address,
+                        bookmarkYn = emergency.bookmarkYn
+                    )
+                } ?: emptyList()
+            }
 
-    // 긴급연락처 리스트 가져오는 작업 - 백그라운드로 진행
-    LaunchedEffect(Unit) {
-        val apiList = withContext(Dispatchers.IO) {
-            val result = EmergencyManager().getAllEmergency(StaticValue.userInfo.userId!!).data
-            result?.mapIndexed { index, emergency ->
-                val byteArray = decodeFileData(emergency.fileData)
-                Contact(
-                    emergencyId = emergency.emergencyId,
-                    name = emergency.name,
-                    phone = emergency.telNum,
-                    image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).asImageBitmap(), // 인덱스 초과 시 기본 이미지 설정
-                    address = emergency.address,
-                    bookmarkYn = emergency.bookmarkYn
-                )
-            } ?: emptyList()
+            // UI 업데이트는 메인 스레드에서 진행
+            emrgList.addAll(apiList)
+            bookmarkList.addAll(emrgList.filter { it.bookmarkYn == "Y" })
+            visibleList.addAll(bookmarkList.map { mutableStateOf(false) })
         }
-
-        // UI 업데이트는 메인 스레드에서 진행
-        emrgList.addAll(apiList)
-        bookmarkList.addAll(emrgList.filter { it.bookmarkYn == "Y" })
-        visibleList.addAll(bookmarkList.map { mutableStateOf(false) })
     }
     if (isVisible) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.End
-        ) {
-            LazyColumn(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+        SherpaTheme {
+            Column(
                 modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(vertical = 8.dp)
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.End
             ) {
-                items(bookmarkList.size) { index ->
-                    val item = bookmarkList[index]
-                    val openDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
-                    if (openDialog.value) {
-                        EmergencyOptionModal(openDialog ,item)
+                LazyColumn(
+                    horizontalAlignment = Alignment.End,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .padding(vertical = 8.dp)
+                ) {
+                    items(bookmarkList.size) { index ->
+                        val item = bookmarkList[index]
+                        val openDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
+                        if (openDialog.value) {
+                            EmergencyOptionModal(openDialog ,item)
+                        }
+                        CustomExtendedFAB(
+                            name = item.name,
+                            phone = item.phone,
+                            icon = IconType.Bitmap(item.image),
+                            expanded = visibleList[index],
+                            openDialog = openDialog
+                        )
                     }
-                    CustomExtendedFAB(
-                        name = item.name,
-                        phone = item.phone,
-                        icon = IconType.Bitmap(item.image),
-                        expanded = visibleList[index],
-                        openDialog = openDialog
-                    )
                 }
-            }
-            AddEmergencyContactFAB(emrgList.filter { it.bookmarkYn == "N" }) {
-                contact ->
-                coroutineScope.launch(Dispatchers.IO) {  // 코루틴 실행
-                    EmergencyManager().updateEmergencyBookmark(contact.emergencyId)
+                AddEmergencyContactFAB(emrgList.filter { it.bookmarkYn == "N" }) {
+                    contact ->
+                    coroutineScope.launch(Dispatchers.IO) {  // 코루틴 실행
+                        EmergencyManager().updateEmergencyBookmark(contact.emergencyId)
+                    }
+                    bookmarkList.add(contact)
+                    visibleList.add(mutableStateOf(false))
                 }
-                bookmarkList.add(contact)
-                visibleList.add(mutableStateOf(false))
             }
         }
     }

@@ -37,6 +37,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,6 +48,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -66,9 +68,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
+import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.ui.common.SherpaDialogParm
 import com.hansung.sherpa.ui.preference.TopAppBarScreen
 import com.hansung.sherpa.ui.preference.caregiver.carousel.MultiBrowseCarousel
 import com.hansung.sherpa.ui.preference.caregiver.carousel.rememberCarouselState
+import com.hansung.sherpa.ui.theme.lightScheme
+import com.hansung.sherpa.user.UserManager
 import com.jakewharton.threetenabp.AndroidThreeTen
 
 data class CarouselItem(
@@ -85,9 +91,11 @@ class CaregiverSyncActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(this);
         setContent {
-            TopAppBarScreen(
-                { finish() }, { CaregiverSyncScreen() }
-            )
+            MaterialTheme(colorScheme = lightScheme) {
+                TopAppBarScreen( title = "보호자 연동",
+                    { finish() }, { CaregiverSyncScreen() }
+                )
+            }
         }
     }
 }
@@ -100,10 +108,10 @@ fun CaregiverSyncScreen() {
     // sample data 값
     val items =
         listOf(
-            CarouselItem(0, R.drawable._1, R.string.float_icon_1, "홍길동", "abcd1234@gmail.com"),
-            CarouselItem(1, R.drawable._2, R.string.float_icon_2, "홍김동", "abcd12345@gmail.com"),
-            CarouselItem(2, R.drawable._3, R.string.float_icon_3, "홍길돌", "abcd1233@gmail.com"),
-            CarouselItem(3, R.drawable._4, R.string.float_icon_4, "홀길돌", "abcd1222@gmail.com"),
+            CarouselItem(0, R.drawable._1, R.string.float_icon_1, "보호자", "useruser1"),
+            CarouselItem(1, R.drawable._2, R.string.float_icon_2, "사용자", "useruser2"),
+            CarouselItem(2, R.drawable._3, R.string.float_icon_3, "보호자3", "useruser3"),
+            CarouselItem(3, R.drawable._4, R.string.float_icon_4, "사용자4", "useruser4"),
             CarouselItem(4, R.drawable._5, R.string.float_icon_5, "홈길동", "aaad1234@gmail.com"),
             CarouselItem(5, R.drawable._6, R.string.float_icon_5, "홍길동동", "accbd1234@gmail.com"),
             CarouselItem(6, R.drawable._7, R.string.float_icon_5, "홍동길", "abcd14@gmail.com"),
@@ -151,10 +159,10 @@ fun CaregiverSyncScreen() {
         MultiBrowseCarousel(
             state = rememberCarouselState { items.count() },
             modifier = Modifier
-                .width(300.dp)
+                .width(350.dp)
                 .fillMaxHeight(),
             itemSpacing = 8.dp,
-            preferredItemWidth = 250.dp,
+            preferredItemWidth = 240.dp,
             orientation = Orientation.Vertical,
             contentPadding = PaddingValues(vertical = 6.dp),
         ) { i ->
@@ -164,7 +172,7 @@ fun CaregiverSyncScreen() {
                         modifier = Modifier
                             .width(250.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .clickable{ selectedItem = item }
+                            .clickable { selectedItem = item }
                     ) {
                         Image(
                             painter = painterResource(id = item.imageResId),
@@ -204,13 +212,16 @@ fun CaregiverSyncScreen() {
 
 @Composable
 fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
+    val sherpaDialog = remember { mutableStateOf(SherpaDialogParm())}
+    var showDialog = remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = { Text("보호자 연동", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
         text = {
             Box(
                 modifier = Modifier
-                    .width(350.dp).height(200.dp)
+                    .width(350.dp)
+                    .height(200.dp)
                     .clip(RoundedCornerShape(16.dp))
             ) {
                 Image(
@@ -246,11 +257,30 @@ fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
             }
         },
         confirmButton = {
-            Button(onClick = { onDismiss() }) {
+            Button(onClick = {
+                requestCareGiver(item.email, sherpaDialog, showDialog)
+            }
+                , colors = ButtonColors(
+                    contentColor = MaterialTheme.colorScheme.surface,
+                    containerColor = MaterialTheme.colorScheme.scrim,
+                    disabledContentColor = MaterialTheme.colorScheme.scrim,
+                    disabledContainerColor = MaterialTheme.colorScheme.secondary
+                )
+            ) {
                 Text("요청하기")
             }
         }
     )
+    if(showDialog.value) {
+        SherpaDialog(
+            title = sherpaDialog.value.title,
+            message = sherpaDialog.value.message,
+            confirmButtonText = sherpaDialog.value.confirmButtonText,
+            dismissButtonText = sherpaDialog.value.dismissButtonText,
+            onConfirmation = sherpaDialog.value.onConfirmation,
+            onDismissRequest = sherpaDialog.value.onDismissRequest
+        )
+    }
 }
 
 @SuppressLint("RememberReturnType")
@@ -352,5 +382,51 @@ fun SearchBarPreview() {
                 onSearch = { query -> println("Search query: $query") }
             )
         }
+    }
+}
+
+fun requestCareGiver(caregiverEmail: String, sherpaDialog: MutableState<SherpaDialogParm>, showDialog: MutableState<Boolean>) {
+    // TODO: ※ (2024-08-12) 지금은 테스트용으로 보호자 승인 없이 DB에서 바로 받아옴. 진행
+    val caregiverUserResponse = UserManager().linkPermission(caregiverEmail)
+
+    if (caregiverUserResponse.code == 200) {
+        sherpaDialog.value.setParm(
+            title = "연동 성공",
+            message =listOf("보호자 연동이 완료되었습니다."),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog.value = false },
+            onDismissRequest = { showDialog.value = false }
+        )
+        showDialog.value = true
+    }
+    else if(caregiverUserResponse.code == 201){
+        sherpaDialog.value.setParm(
+            title = "연동 실패",
+            message =listOf("일치하는 보호자 아이디가 없습니다."),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog.value = false },
+            onDismissRequest = { showDialog.value = false }
+        )
+        showDialog.value = true
+    }
+    else if(caregiverUserResponse.code == 404) {
+        sherpaDialog.value.setParm(
+            title = "전송 실패",
+            message =listOf("다시 한번 전송해주세요."),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog.value = false },
+            onDismissRequest = { showDialog.value = false }
+        )
+        showDialog.value = true
+    }
+    else if(caregiverUserResponse.code == 421) {
+        sherpaDialog.value.setParm(
+            title = "연동 실패",
+            message =listOf(caregiverUserResponse.message?:"None"),
+            confirmButtonText = "확인",
+            onConfirmation = { showDialog.value = false },
+            onDismissRequest = { showDialog.value = false }
+        )
+        showDialog.value = true
     }
 }

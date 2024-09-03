@@ -24,7 +24,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,9 +37,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.schedule.Location
+import com.hansung.sherpa.schedule.Route
+import com.hansung.sherpa.schedule.RouteData
+import com.hansung.sherpa.schedule.RouteManager
+import com.hansung.sherpa.schedule.ScheduleManager
+import com.hansung.sherpa.schedule.Schedules
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -79,52 +89,35 @@ fun CurrentDateColumn(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScheduleColumns(
-    scheduleDataList: SnapshotStateList<ScheduleData>
+    scheduleDataList: SnapshotStateList<ScheduleData>,
+    updateScheduleData : (LocalDate?) -> Unit
 ){
     var isEmpty by remember { mutableStateOf(true) }
     var currentVisibleColumnsCount by remember { mutableIntStateOf(scheduleDataList.size) }
     var beforeListSize by remember { mutableIntStateOf(scheduleDataList.size) }
-    val isDeleted = remember { mutableStateMapOf<ScheduleData, Boolean>() }
+    val routeManager = RouteManager()
+    val scheduleManager = ScheduleManager()
+
     scheduleDataList.sortWith(
         compareBy<ScheduleData> { !it.isWholeDay.value }
             .thenBy { if (it.isWholeDay.value) it.title.value else "" }
             .thenBy { if (!it.isWholeDay.value) it.startDateTime.longValue else Long.MAX_VALUE }
     )
-    for (scheduleData in scheduleDataList){
-        if(isDeleted[scheduleData] == null){
-            isDeleted[scheduleData] = true
-        }
-    }
 
     val onDelete : (ScheduleData) -> Unit = { deleteItem ->
         // TODO: 삭제한 deleteItem -> 서버에서도 삭제
-        isDeleted[deleteItem] = false
-        currentVisibleColumnsCount--
+        scheduleManager.deleteSchedules(deleteItem.scheduleId)
+        if(deleteItem.routeId != null)
+            routeManager.deleteRoute(deleteItem.routeId!!)
+
+        updateScheduleData(null)
     }
 
     LaunchedEffect(scheduleDataList.size) {
-        when {
-            // 일정 추가 시
-            scheduleDataList.size > beforeListSize -> {
-                currentVisibleColumnsCount++
-                beforeListSize = scheduleDataList.size
-                for(scheduleData in scheduleDataList){
-                    if(isDeleted[scheduleData] == null){
-                        isDeleted[scheduleData] = true
-                    }
-                }
-            }
-            // 날짜 변경 시
-            beforeListSize != 0 && scheduleDataList.size == 0 -> {
-                beforeListSize = 0
-                currentVisibleColumnsCount = 0
-                isDeleted.clear()
-            }
+        isEmpty = when(scheduleDataList.size){
+            0 -> true
+            else -> false
         }
-    }
-    // item 삭제 시
-    LaunchedEffect(currentVisibleColumnsCount) {
-        isEmpty = currentVisibleColumnsCount == 0
     }
 
     when(isEmpty){
@@ -146,9 +139,12 @@ fun ScheduleColumns(
                 .fillMaxWidth()
                 .padding(bottom = 80.dp)
             ){
-                items(scheduleDataList) { item ->
-                    if(isDeleted[item]!!)
-                        ScheduleColumn(onDelete = onDelete, scheduleData = item)
+                items(scheduleDataList, key = { it.scheduleId }) { item ->
+                    ScheduleColumn(
+                        updateScheduleData = updateScheduleData,
+                        onDelete = onDelete,
+                        scheduleData = item
+                    )
                 }
             }
         }
@@ -158,9 +154,13 @@ fun ScheduleColumns(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScheduleColumn(
+    updateScheduleData: (LocalDate?) -> Unit,
     scheduleData: ScheduleData,
     onDelete : (ScheduleData) -> Unit
 ){
+    val scheduleManager = ScheduleManager()
+    val routeManager = RouteManager()
+
     val openDialogCustom = remember { mutableStateOf(false) }
     var state by remember { mutableStateOf(true) }
     var showEditSheet by remember { mutableStateOf(false) }
@@ -174,6 +174,56 @@ fun ScheduleColumn(
             vertical = 8.dp
         )
         .fillMaxHeight()
+
+    val modifySchedule : (ScheduleData) -> Unit = { scheduleData ->
+        if(scheduleData.routeId != null && scheduleData.routeId != 0){
+            if(scheduleData.scheduledLocation.name.isEmpty()){
+                routeManager.deleteRoute(scheduleData.routeId!!)
+                scheduleData.routeId = null
+            } else {
+                routeManager.updateRoute(
+                    routeId = scheduleData.routeId!!,
+                    Route(
+                        cron = "",
+                        location = Location(
+                            name = scheduleData.scheduledLocation.name,
+                            latitude = scheduleData.scheduledLocation.lat,
+                            longitude = scheduleData.scheduledLocation.lon
+                        )
+                    )
+                )
+            }
+        } else {
+            if(scheduleData.scheduledLocation.name.isNotEmpty()){
+                var routeData : RouteData? = null
+                runBlocking {
+                    withContext(Dispatchers.IO){
+                        routeData = routeManager.insertRoute(scheduleData = scheduleData)
+                    }
+                }
+                routeData?.let { scheduleData.routeId = it.routeId }
+            }
+        }
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
+        val start = dateFormat.format(Date(scheduleData.startDateTime.value))
+        val end = dateFormat.format(Date(scheduleData.endDateTime.value))
+        scheduleManager.updateSchedule(
+            Schedules(
+                userId = StaticValue.userInfo.userId!!,
+                routeId = scheduleData.routeId,
+                scheduleId = scheduleData.scheduleId,
+                guideDatetime = if(scheduleData.scheduledLocation.isGuide) scheduleData.scheduledLocation.guideDatetime.toString()
+                    else null,
+                address = scheduleData.scheduledLocation.address,
+                description = scheduleData.comment.value,
+                isWholeday = scheduleData.isWholeDay.value,
+                title = scheduleData.title.value,
+                dateBegin = start,
+                dateEnd = end,
+            )
+        )
+        updateScheduleData(null)
+    }
 
     if(openDialogCustom.value){
         ScheduleDeleteDialog(openDialogCustom = openDialogCustom){ onDeleteClick ->
@@ -261,20 +311,25 @@ fun ScheduleColumn(
                     scheduleData.title.value = item.title.value
                     scheduleData.scheduledLocation.name = item.scheduledLocation.name
                     scheduleData.scheduledLocation.lat = item.scheduledLocation.lat
-                    scheduleData.scheduledLocation.lat = item.scheduledLocation.lon
+                    scheduleData.scheduledLocation.lon = item.scheduledLocation.lon
+                    scheduleData.scheduledLocation.address = item.scheduledLocation.address
+                    scheduleData.scheduledLocation.isGuide = item.scheduledLocation.isGuide
+                    scheduleData.scheduledLocation.guideDatetime = item.scheduledLocation.guideDatetime
                     scheduleData.isWholeDay.value = item.isWholeDay.value
                     scheduleData.startDateTime.longValue = item.startDateTime.longValue
                     scheduleData.endDateTime.longValue = item.endDateTime.longValue
                     scheduleData.comment.value = item.comment.value
-                    scheduleData.repeat.value.repeatable = item.repeat.value.repeatable
-                    scheduleData.repeat.value.cycle = item.repeat.value.cycle
+                    scheduleData.routeId = item.routeId
+//                    scheduleData.repeat.value.repeatable = item.repeat.value.repeatable
+//                    scheduleData.repeat.value.cycle = item.repeat.value.cycle
                     // TODO: 일정 수정 API 호출
+                    modifySchedule(scheduleData)
                 }
                 showEditSheet = false
             }
             ScheduleBottomSheet(
                 closeBottomSheet = closeBottomSheet,
-                scheduleData = cloneScheduleData(scheduleData = scheduleData) ,
+                scheduleData = cloneScheduleData(scheduleData = scheduleData),
                 scheduleModalSheetOption = ScheduleModalSheetOption.EDIT
             )
         }
@@ -291,14 +346,17 @@ fun cloneScheduleData(scheduleData: ScheduleData): ScheduleData {
                 scheduleData.scheduledLocation.address,
                 scheduleData.scheduledLocation.lat,
                 scheduleData.scheduledLocation.lon,
+                scheduleData.scheduledLocation.isGuide,
+                scheduleData.scheduledLocation.guideDatetime
             )
         },
         isWholeDay = remember { mutableStateOf(scheduleData.isWholeDay.value) },
         isDateValidate = remember { mutableStateOf(true )},
         startDateTime = remember { mutableLongStateOf(scheduleData.startDateTime.longValue) },
         endDateTime = remember { mutableLongStateOf(scheduleData.endDateTime.longValue) },
-        repeat = remember { mutableStateOf(Repeat(repeatable = scheduleData.repeat.value.repeatable, cycle = scheduleData.repeat.value.cycle)) },
-        comment = remember { mutableStateOf(scheduleData.comment.value) }
+        comment = remember { mutableStateOf(scheduleData.comment.value) },
+        routeId = scheduleData.routeId,
+        scheduleId = -1
     )
 }
 
