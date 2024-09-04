@@ -88,6 +88,13 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
+
+/**
+ * @author 6-keem
+ *
+ * 사용자 일정 관리를 위한 캘린더 액티비티
+ */
+
 class CalendarActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,6 +107,13 @@ class CalendarActivity : ComponentActivity() {
         }
     }
 }
+
+
+/**
+ * @param finish : 뒤로가기 클릭 시 callback되는 람다 함수
+ * 캘린더 화면을 구성하는 Composable
+ *
+ */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -115,6 +129,13 @@ fun CalendarScreen(
 
     val currentSelectedDate = remember { mutableStateOf<LocalDateTime>(LocalDateTime.of(1970,12,12,0,0,0)) }
 
+    /**
+     * 일정 추가,수정,삭제 시 호출하여 스케줄 현재 scheduleDataList를 관리하는 람다 함수
+     *
+     * 1. 선택된 날짜에 해당하는 스케줄 목록(scheduleResponse)가 매개변수로 전달됨
+     * 2. 리스트의 모든 값을 삭제하고 각 스케줄에 대해 예약 경로가 있는지 확인함
+     * 3. 스케줄과 예약 경로를 합쳐 scheduleList에 추가함
+     */
     val updateScheduleList : (List<Schedules>?) -> Unit = { scheduleResponse ->
         scheduleDataList.clear()
         scheduleResponse?.forEach {
@@ -161,9 +182,16 @@ fun CalendarScreen(
         }
     }
 
-    // TODO: 날짜 변경 시 일정 조회
-    val updateScheduleData : (LocalDate?) -> Unit = { it ->
-        val changeDate = it ?: currentSelectedDate.value.toLocalDate()
+    /**
+     * 날짜가 변경되면 호출되는 람다 함수
+     *
+     * 1. changeDate로 null or 변경된 날짜가 전달 됨
+     * 2. 변경된 날짜에 대해 서버에 저장된 스케줄을 가져옴
+     *      if changeDate == null -> 현재 날짜
+     * 3. updateScheduleList 함수를 호출하여 scheduleList를 최신화함
+     */
+    val updateScheduleData : (LocalDate?) -> Unit = { changedDate ->
+        val changeDate = changedDate ?: currentSelectedDate.value.toLocalDate()
         val localDatetime = changeDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val scheduleResponse = scheduleManager.findSchedules(SimpleDateFormat("yyyy-MM-dd HH:mm").format(Date(localDatetime)))?.data
         currentSelectedDate.value = changeDate.atStartOfDay()
@@ -171,6 +199,17 @@ fun CalendarScreen(
     }
 
     // TODO: 시트 닫았을 때 추가 버튼을 통한 닫힘이면 서버에 일정 추가
+    /**
+     * 시트가 닫힐 때 callback 되는 람다 함수
+     *
+     * @param item : ScheduleData
+     * @param isAdded : Boolean -> 추가 버튼을 눌렀는지
+     *
+     * if scheduleData 내 위치 설정이 되어 있으면
+     *      Server DB Route table에 추가
+     * 스케줄을 서버에 추가
+     *
+     */
     val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, isAdded ->
         if(isAdded){
             var routeId : Int? = null
@@ -190,6 +229,7 @@ fun CalendarScreen(
 
     Scaffold (
         topBar = {
+            // 중앙 정렬 Topbar
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     titleContentColor = Color.DarkGray
@@ -204,6 +244,7 @@ fun CalendarScreen(
                             fontWeight = FontWeight.Bold)
                     )
                 },
+                // 뒤로가기 버튼 클릭 시 finish 람다 함수 호출
                 navigationIcon = {
                     IconButton(onClick = { finish() }) {
                         Icon(
@@ -213,6 +254,10 @@ fun CalendarScreen(
                 },
             )
         },
+        /**
+         *  하단에 고정되는 일정 추가 버튼
+         *  추가 버튼 클릭 시 showBottomSheet = true
+         */
         floatingActionButton = {
             FloatingActionButton(onClick = { showBottomSheet = true },
                 modifier = Modifier
@@ -234,6 +279,10 @@ fun CalendarScreen(
         }
     )
 
+    /**
+     *  일정 추가 버튼을 누르면 껍데기 scheduleDate 객체 생성
+     *  생성 후 ModalBottomSheet 객체에 너허준다.
+     */
     if (showBottomSheet){
         val mills = currentSelectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
         val startDateTime = android.icu.util.Calendar.getInstance().apply {
@@ -272,6 +321,14 @@ fun CalendarScreen(
     }
 }
 
+/**
+ * CalendarScreen의 Calendar 출력하는 부분
+ * @param scheduleDataList : 선택된 날짜의 스케줄이 저장되어 있는 리스트
+ * @param config : 캘린더 기본 설정 정보 객체
+ * @param currentDate : 선택된 현재 날짜
+ * @param updateScheduleData : 날짜가 바뀌면 호출되는 callback
+ */
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Calendar(
@@ -291,6 +348,10 @@ fun Calendar(
     val coroutineScope = rememberCoroutineScope()
     updateScheduleData(currentSelectedDate)
 
+    /**
+     * 월이 바뀌면 호출되는 함수
+     * @param offset : 월을 얼마나 변경할 지
+     */
     val onChangeMonth : @Composable (Int) -> Unit = { offset ->
         with(pagerState) {
             LaunchedEffect(key1 = currentPage) {
@@ -299,6 +360,7 @@ fun Calendar(
                         page = (currentPage + offset).mod(pageCount)
                     )
                 }
+                // 각 변수 초기화
                 currentMonth = currentMonth.plusMonths(offset.toLong())
                 currentPage = pagerState.currentPage
                 val yearMonth = YearMonth.now()
@@ -310,14 +372,19 @@ fun Calendar(
         }
     }
 
+    /**
+     * 실제 달력이 출력되는 부분
+     */
     LazyColumn(modifier = Modifier) {
         val headerText = currentMonth.format(DateTimeFormatter.ofPattern("yyyy년 M월"))
+        // < yyyy.MM > 출력되는 캘린더 header 부분
         item{
             CalendarHeader(
                 onChangeMonth = onChangeMonth,
                 text = headerText,
             )
         }
+        // 캘린더 몸체 부분
         item {
             HorizontalPager(
                 state = pagerState,
@@ -347,6 +414,10 @@ fun Calendar(
             }
         }
         item{
+            /**
+             *  현재 선택된 날짜 문자열
+             *  선택된 날짜의 스케줄 출력 부분
+             */
             CurrentDateColumn(currentSelectedDate)
             ScheduleColumns(
                 scheduleDataList = scheduleDataList,
