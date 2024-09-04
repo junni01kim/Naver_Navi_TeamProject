@@ -112,6 +112,8 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
              *
              * 에러코드 200: API 연결은 성공했으나, 이메일이 중복된 경우
              * 에러코드 201: 이메일 이용가능
+             *
+             * // TODO: 에러처리 추가
              */
             val code = UserManager().verificatonEmail(emailValue).code
             if(code == 200) {
@@ -140,6 +142,7 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
              *
              * 에러코드 200: API 접속은 성공했으나, 전화번호가 중복된 경우
              * 에러코드 201: 전화번호 이용가능
+             * // TODO: 에러처리 추가
              */
             val code = UserManager().verificatonTelNum(telValue).code
             if(code == 200) {
@@ -232,6 +235,7 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
                  * 에러처리 에러 코드
                  *
                  * 에러코드 200: 보호자 생성 성공 시 반환
+                 * // TODO: 에러처리 추가
                  */
                 val user1 = UserManager().create(createUserRequest)
                 if(user1.code == 200) navController.navigate(SherpaScreen.Login.name)

@@ -71,8 +71,8 @@ fun LocationList(locationValue:String, update: (String, LatLng) -> Unit) {
                 .fillMaxWidth()
                 .padding(8.dp)
                 .clickable {
-                    val x = it.mapx?.toDouble()?.div(10000000)?:-1.0 // 경도 (lon)
-                    val y = it.mapy?.toDouble()?.div(10000000)?:-1.0 // 위도 (lat)
+                    val x = it.mapx?.toDouble()?.div(10000000)?:-1.0 // 경도 (lon) // TODO: 이건 왜 -1.0?? 조금 더 예외 처리 구체화 하기
+                    val y = it.mapy?.toDouble()?.div(10000000)?:-1.0 // 위도 (lat) // TODO: 이건 왜 -1.0?? 조금 더 예외 처리 구체화 하기
 
                     update(it.title?:"Null",LatLng(y,x))
 

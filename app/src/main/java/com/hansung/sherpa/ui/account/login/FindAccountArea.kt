@@ -55,7 +55,7 @@ fun FindAccountArea(navController: NavController) {
          * 회원가입 화면 이동 버튼
          */
         TextButton(
-            onClick = {navController.navigate("${SherpaScreen.SignUp.name}")},
+            onClick = {navController.navigate(SherpaScreen.SignUp.name)},
             colors= ButtonColors(
                 contentColor = Color(0xFF34DFD5),
                 containerColor = Color.Transparent,

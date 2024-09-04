@@ -112,11 +112,12 @@ fun login(navController: NavController, email: String, password: String) : Boole
      * 예외처리 에러 코드
      *
      * 에러코드 200: 로그인 성공 시 반환
+     * TODO: 에러처리 추가
      */
     if(loginResponse.code == 200) {
         StaticValue.userInfo = loginResponse.data!!
         UserManager().updateFcm()
-        navController.navigate("${SherpaScreen.Home.name}")
+        navController.navigate(SherpaScreen.Home.name)
     }
     else {
         return true

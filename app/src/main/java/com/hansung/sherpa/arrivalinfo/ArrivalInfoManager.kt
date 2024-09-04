@@ -2,9 +2,6 @@ package com.hansung.sherpa.arrivalinfo
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoRequest
-import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoResponse
-import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -18,7 +15,7 @@ class ArrivalInfoManager {
      *
      * @param request ODsay API에 전송할 데이터
      */
-    fun getODsayArrivalInfoList(request: ODsayArrivalInfoRequest): ODsayArrivalInfoResponse? {
+    fun getODsayArrivalInfoList(request: ODsayArrivalInfoRequest): ODsayArrivalInfoResponse {
         var result: ODsayArrivalInfoResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
@@ -29,12 +26,25 @@ class ArrivalInfoManager {
                         .build()
                         .create(ODsayArrivalInfoService::class.java)
                         .getODsayArrivalInfoService(request.getMap()).execute()
-                    result = Gson().fromJson(response.body()!!.string(), ODsayArrivalInfoResponse::class.java)
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "getODsayArrivalInfoList: 'response is null'")
+                        result = ODsayArrivalInfoResponse()
+                    }
+                    else {
+                        Log.i("API Log: Success", "getODsayArrivalInfoList 함수 실행 성공")
+                        result = Gson().fromJson(
+                            jsonString,
+                            ODsayArrivalInfoResponse::class.java
+                        )
+                    }
                 } catch(e:IOException){
                     Log.e("API Log: IOException", "getODsayArrivalInfoList: ${e.message}(e.message)")
                 }
             }
         }
-        return result
+        return result?: ODsayArrivalInfoResponse()
     }
 }
