@@ -2,16 +2,13 @@ package com.hansung.sherpa.emergency
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.BuildConfig
-import com.hansung.sherpa.user.UserResponse
+import com.hansung.sherpa.Url
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
-
-val nncBackendEmergencyUrl = BuildConfig.SHERPA_URL
 
 class EmergencyManager {
     /**
@@ -36,7 +33,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
@@ -82,7 +79,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
@@ -132,7 +129,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
@@ -182,7 +179,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)

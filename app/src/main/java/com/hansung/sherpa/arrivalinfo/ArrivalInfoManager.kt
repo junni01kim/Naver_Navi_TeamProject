@@ -2,6 +2,7 @@ package com.hansung.sherpa.arrivalinfo
 
 import android.util.Log
 import com.google.gson.Gson
+import com.hansung.sherpa.Url
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -21,7 +22,7 @@ class ArrivalInfoManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(ODsayArrivalInfoService::class.java)

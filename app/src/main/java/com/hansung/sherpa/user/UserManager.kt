@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.Url
 import com.hansung.sherpa.user.updateFcm.UpdateFcmRequest
 import com.hansung.sherpa.user.updateFcm.UpdateFcmResponse
 import com.hansung.sherpa.user.updateFcm.UpdateFcmService
@@ -13,10 +14,6 @@ import kotlinx.coroutines.runBlocking
 import okio.IOException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-
-val nncBackendUserUrl = BuildConfig.SHERPA_URL+"user/"
-val nncBackendFcmUrl = BuildConfig.SHERPA_URL+"fcm/"
-val nncBackendRelationUrl = BuildConfig.SHERPA_URL+"userRelation/"
 
 class UserManager {
     /**
@@ -37,7 +34,7 @@ class UserManager {
             launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UserService::class.java)
@@ -86,7 +83,7 @@ class UserManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UserService::class.java)
@@ -131,7 +128,7 @@ class UserManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UserService::class.java)
@@ -176,7 +173,7 @@ class UserManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UserService::class.java)
@@ -222,7 +219,7 @@ class UserManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendRelationUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UserService::class.java)
@@ -268,7 +265,7 @@ class UserManager {
             launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendFcmUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UpdateFcmService::class.java)
@@ -314,7 +311,7 @@ class UserManager {
             launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UserService::class.java)
@@ -360,7 +357,7 @@ class UserManager {
             launch(Dispatchers.IO) {
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendUserUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(UserService::class.java)
