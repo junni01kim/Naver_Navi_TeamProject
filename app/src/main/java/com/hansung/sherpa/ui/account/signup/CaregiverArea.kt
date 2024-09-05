@@ -234,11 +234,13 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
                 /**
                  * 에러처리 에러 코드
                  *
-                 * 에러코드 200: 보호자 생성 성공 시 반환
-                 * // TODO: 에러처리 추가
+                 * 200: API 요청 성공
+                 * 404: UserManager.create: Null 값 반환
+                 * 404: IOException: 네트워크 연결 실패
+                 * 500: 에러 원인을 찾을 수 없음
                  */
-                val user1 = UserManager().create(createUserRequest)
-                if(user1.code == 200) navController.navigate(SherpaScreen.Login.name)
+                val response = UserManager().create(createUserRequest)
+                if(response.code == 200) navController.navigate(SherpaScreen.Login.name)
                 else {
                     sherpaDialog.value.setParm(
                         title = "회원가입 실패",

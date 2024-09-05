@@ -286,8 +286,16 @@ fun CaretakerArea(navController: NavController, sherpaDialog: MutableState<Sherp
                     updatedAt = Timestamp(Calendar.getInstance().timeInMillis)
                 )
 
-                val userResponse = UserManager().create(createUserRequest)
-                if(userResponse.code == 200) navController.navigate(SherpaScreen.Login.name)
+                /**
+                 * 에러처리 에러 코드
+                 *
+                 * 200: API 요청 성공
+                 * 404: UserManager.create: Null 값 반환
+                 * 404: IOException: 네트워크 연결 실패
+                 * 500: 에러 원인을 찾을 수 없음
+                 */
+                val response = UserManager().create(createUserRequest)
+                if(response.code == 200) navController.navigate(SherpaScreen.Login.name)
                 else {
                     sherpaDialog.value.setParm(
                         title = "회원가입 실패",

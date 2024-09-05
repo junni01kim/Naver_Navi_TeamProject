@@ -21,6 +21,15 @@ val nncBackendRelationUrl = BuildConfig.SHERPA_URL+"userRelation/"
 class UserManager {
     /**
      * 계정을 생성하는 함수
+     *
+     * ### 상태 코드
+     * 200: API 요청 성공
+     * 
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun create(request: CreateUserRequest): UserResponse {
         var result: UserResponse? = null
@@ -38,7 +47,7 @@ class UserManager {
                     // 반환 실패에 대한 에러처리
                     if(jsonString == "response is null") {
                         Log.e("API Log:response(Null)", "UserManager.create: 'response is null'")
-                        result = UserResponse(404, "UserManager.create: 'response is null'")
+                        result = UserResponse(404, "UserManager.create: 응답없음")
                     }
                     else {
                         Log.i("API Log: Success", "create 함수 실행 성공 ${result?.message}")
@@ -58,6 +67,17 @@ class UserManager {
 
     /**
      * 계정 로그인(사용자 인증)하는 함수
+     *
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
+     *
+     * 401: 로그인 실패
      */
     fun login(email:String, password:String): UserResponse {
         val loginRequest = LoginRequest(email,password)
@@ -96,6 +116,14 @@ class UserManager {
 
     /**
      * 사용자 정보를 얻는 함수
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun getUser(userId:Int): UserResponse {
         var result: UserResponse? = null
@@ -133,6 +161,14 @@ class UserManager {
 
     /**
      * 보호자 인증을 요청하는 함수
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun linkPermission(caregiverEmail: String):LinkPermissionResponse {
         var result: LinkPermissionResponse? = null
@@ -171,6 +207,14 @@ class UserManager {
 
     /**
      * 사용자와 보호자의 관계를 얻는 함수
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun getRelation(userId:Int): RelationResponse {
         var result: RelationResponse? = null
@@ -208,6 +252,14 @@ class UserManager {
 
     /**
      * 사용자 정보를 얻는 함수
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun updateFcm() {
         val updateFcmRequest = UpdateFcmRequest()
@@ -243,6 +295,19 @@ class UserManager {
         }
     }
 
+    /**
+     * 이메일 중복 검사
+     * ### 상태 코드
+     * 200: API 요청 성공 (이메일 중복)
+     *
+     * 201: API 요청 성공 (이메일 중복 X)
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
+     */
     fun verificatonEmail(email: String): UserResponse{
         var result: UserResponse? = null
         runBlocking {
@@ -276,6 +341,19 @@ class UserManager {
         return result?: UserResponse(500, "에러 원인을 찾을 수 없음")
     }
 
+    /**
+     * 전화번호 중복 확인
+     * ### 상태 코드
+     * 200: API 요청 성공 (전화번호 중복)
+     *
+     * 201: API 요청 성공 (전화번호 중복 X)
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
+     */
     fun verificatonTelNum(telNum: String): UserResponse{
         var result: UserResponse? = null
         runBlocking {
