@@ -145,7 +145,23 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
  * 회원가입 서식 확인하는 함수
  */
 fun isValidId(id: String): Boolean {
-    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}$".toRegex()
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
+    return regex.matches(id)
+}
+
+/**
+ * 회원가입 이메일 서식을 확인하는 함수
+ */
+fun isValidEmail(email: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
+    return regex.matches(email)
+}
+
+/**
+ * 회원가입 비밀번호 서식을 확인하는 함수
+ */
+fun isValidPassword(id: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
     return regex.matches(id)
 }
 

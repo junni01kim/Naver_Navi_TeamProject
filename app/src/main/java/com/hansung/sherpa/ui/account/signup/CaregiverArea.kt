@@ -292,6 +292,7 @@ fun refuseSignup(
         return true
     }
 
+    //if(!isValidPassword(passwordValue)){
     if(!isValidId(passwordValue)){
         sherpaDialog.value.setParm(
             title = "회원가입 실패",
@@ -300,6 +301,7 @@ fun refuseSignup(
         return true
     }
 
+    //if(!isValidEmail(emailValue)){
     if(!isValidId(emailValue)){
         sherpaDialog.value.setParm(
             title = "회원가입 실패",

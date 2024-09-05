@@ -69,6 +69,7 @@ fun LoginArea(
          */
         TextButton(
             onClick = {
+                //if(!isValidEmail(emailValue)||!isValidPassword(passwordValue)){
                 if(!isValidId(emailValue)||!isValidId(passwordValue)){
                     sherpaDialog.value.setParm (
                         title = "로그인 실패",
