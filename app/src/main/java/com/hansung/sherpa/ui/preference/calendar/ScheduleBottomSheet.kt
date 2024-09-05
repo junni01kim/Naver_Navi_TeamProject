@@ -88,23 +88,25 @@ fun ScheduleBottomSheet(
         }
     }
 
-    when(scheduleData.isWholeDay.value){
-        true -> {
-            scheduleData.startDateTime.longValue = resetToMidnight(scheduleData.startDateTime.longValue)
-            scheduleData.endDateTime.longValue = resetToMidnight(scheduleData.endDateTime.longValue)
-            scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
-        }
-        false -> {
-            scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
-                if(scheduleData.title.value.isNotEmpty())
-                    timeInMillis = scheduleData.startDateTime.longValue
-                set(Calendar.MINUTE, 0)
-            }.timeInMillis
-            scheduleData.endDateTime.longValue = Calendar.getInstance().apply {
-                if(scheduleData.title.value.isNotEmpty())
-                    timeInMillis = scheduleData.endDateTime.longValue
-                set(Calendar.MINUTE, 0)
-            }.timeInMillis
+    LaunchedEffect(scheduleData.isWholeDay.value){
+        when(scheduleData.isWholeDay.value){
+            true -> {
+                scheduleData.startDateTime.longValue = resetToMidnight(scheduleData.startDateTime.longValue)
+                scheduleData.endDateTime.longValue = resetToMidnight(scheduleData.endDateTime.longValue)
+                scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
+            }
+            false -> {
+                scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
+                    if(scheduleData.title.value.isNotEmpty())
+                        timeInMillis = scheduleData.startDateTime.longValue
+                    set(Calendar.MINUTE, 0)
+                }.timeInMillis
+                scheduleData.endDateTime.longValue = Calendar.getInstance().apply {
+                    if(scheduleData.title.value.isNotEmpty())
+                        timeInMillis = scheduleData.endDateTime.longValue
+                    set(Calendar.MINUTE, 0)
+                }.timeInMillis
+            }
         }
     }
 

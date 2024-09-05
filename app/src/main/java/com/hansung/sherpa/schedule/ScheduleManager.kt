@@ -1,6 +1,8 @@
 package com.hansung.sherpa.schedule
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
@@ -45,11 +47,12 @@ class ScheduleManager {
         return scheduleResponse
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     fun insertSchedules(scheduleData: ScheduleData, routeId : Int?){
         try {
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
-            val start = simpleDateFormat.format(Date(scheduleData.startDateTime.longValue))
-            val end = simpleDateFormat.format(Date(scheduleData.endDateTime.longValue))
+            val simpleDateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
+            val start = simpleDateFormatter.format(Date(scheduleData.startDateTime.longValue))
+            val end = simpleDateFormatter.format(Date(scheduleData.endDateTime.longValue))
 
             runBlocking {
                 withContext(Dispatchers.IO) {
