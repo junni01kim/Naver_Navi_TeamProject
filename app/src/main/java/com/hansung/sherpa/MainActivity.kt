@@ -126,8 +126,7 @@ class MainActivity : ComponentActivity() {
                 }
                 "시작" -> {
                     Log.d("FCM LOG", "시작 전송")
-                    caregiverViewModel.startNavigation()
-                    navController.navigate(SherpaScreen.SpecificRoute.name)
+                    if(caregiverViewModel.startNavigation()) navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
 
                 else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")

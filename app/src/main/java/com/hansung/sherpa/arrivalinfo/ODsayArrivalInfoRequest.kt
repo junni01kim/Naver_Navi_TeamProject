@@ -1,4 +1,4 @@
-package com.hansung.sherpa.arrivalinfo.odsay
+package com.hansung.sherpa.arrivalinfo
 
 import com.google.gson.annotations.SerializedName
 import com.hansung.sherpa.BuildConfig

@@ -3,6 +3,7 @@ package com.hansung.sherpa.geocoding
 
 import android.net.Uri
 import com.hansung.sherpa.BuildConfig
+import com.hansung.sherpa.Url
 import com.hansung.sherpa.convert.Coordinate
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -14,14 +15,14 @@ interface GeocodingAPICallBack{
 
 class GeocodingAPI(){
     val retrofitService = Retrofit.Builder()
-        .baseUrl("https://apis.openapi.sk.com/")
+        .baseUrl(Url.TMAP)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(GeocodingService::class.java)
     fun request(address : String, geocodingAPICallBack: GeocodingAPICallBack){
         val encodedAddress : String = Uri.encode(address)
 
-        retrofitService.geocoding(BuildConfig.TMAP_APP_KEY, "1", encodedAddress)
+        retrofitService.geocoding(Url.TMAP, "1", encodedAddress)
             .execute()
             .also { response ->
                 if(response.isSuccessful){

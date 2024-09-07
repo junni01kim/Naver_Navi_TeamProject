@@ -43,7 +43,6 @@ import com.hansung.sherpa.deviation.RouteDeviation
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
-import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
 import com.hansung.sherpa.sendInfo.send.SendManager
 import com.hansung.sherpa.transit.TransitManager
@@ -93,7 +92,7 @@ fun SpecificRouteScreen(
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
     val coordParts = remember { setCoordParts(response) }
-    val colorParts = setColerParts(response)
+    val colorParts = setColorParts(response)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeDivation = RouteDeviation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
