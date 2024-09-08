@@ -17,9 +17,10 @@ import com.hansung.sherpa.user.table.Role1
 import com.hansung.sherpa.user.table.User1
 import com.naver.maps.geometry.LatLng
 
-fun isCareGiver(user: User1): Boolean {
-    return StaticValue.userInfo.role1 == Role1.CAREGIVER.toString()
-}
+/**
+ * 이용자가 보호자인지 판단하는 함수
+ */
+fun isCareGiver() = StaticValue.userInfo.role1 == Role1.CAREGIVER.toString()
 
 fun addValueEventListener(
     caregiverId: String?,

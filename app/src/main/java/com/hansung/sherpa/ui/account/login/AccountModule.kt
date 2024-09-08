@@ -1,11 +1,18 @@
-package com.hansung.sherpa.ui.account.module
+package com.hansung.sherpa.ui.account.login
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,11 +26,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hansung.sherpa.sherpares.BmHanna
-import com.hansung.sherpa.sherpares.SherpaColor
+import com.hansung.sherpa.ui.theme.BmHanna
+import com.hansung.sherpa.ui.theme.SherpaCheckBoxColor
+import com.hansung.sherpa.ui.theme.SherpaColor
 
 /**
- * 나중에 로그인 만드실 분 생각해서 모듈화해둠 알아서 변경해서 쓸 것
+ * account 패키지에서 빈번하게 사용되는 디자인들을 모듈화 시켜둔 파일
+ *
+ */
+val rowWidth = 250.dp
+val rowHeight = 30.dp
+val titleTextWidth = 50.dp
+val buttonWidth = 50.dp
+val spacerWidth = 10.dp
+
+/**
+ * 정보 입력란을 모듈화 한 Composable
  *
  * @param titleText
  * @param buttonToggle
@@ -34,12 +52,6 @@ import com.hansung.sherpa.sherpares.SherpaColor
  *
  * @sample InfomationGroupSample
  */
-val rowWidth = 250.dp
-val rowHeight = 30.dp
-val titleTextWidth = 50.dp
-val buttonWidth = 50.dp
-val spacerWidth = 10.dp
-
 @Composable
 fun InfomationGroup(titleText:String, buttonToggle:Boolean = false, buttonText:String = "", buttonClick: (String) -> Unit = {}, modifier: Modifier = Modifier, update: (String) -> Unit) {
 
@@ -122,5 +134,80 @@ fun InfomationGroupDarkMode(titleText:String, buttonToggle:Boolean = false, butt
                 buttonClick(value)
             }
         }
+    }
+}
+
+@Composable
+fun AccountTextField(value:String, onValueChange: (String) -> Unit, modifier: Modifier) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier.border(1.dp, Color.Black, RoundedCornerShape(10.dp))
+    ){
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            singleLine = true,
+            modifier = modifier
+                .wrapContentHeight()
+                .padding(horizontal = 10.dp)
+        )
+    }
+}
+
+
+@Composable
+fun AccountButton(buttonText:String, buttonColor: Color, modifier: Modifier, onClick: () -> Unit){
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .clip(RoundedCornerShape(10.dp))
+            .border(1.dp, Color.Gray, RoundedCornerShape(10.dp))
+            .background(buttonColor)
+            .clickable { onClick() }
+    ){
+        Text(
+            text = buttonText,
+            fontSize = 10.sp,
+            fontFamily = BmHanna
+        )
+    }
+}
+
+/**
+ * 이용약관 창 디자인을 모듈화 한 Composable
+ *
+ * @param tosText 이용약관 내용
+ * @param checked 이용약관 버튼의 선택 여부
+ * @param textColor 이용약관의 글씨 색상
+ * @param onCheckedChange 체크 시 수행될 동작
+ */
+@Composable
+fun ViewTOS(tosText:String, checked:Boolean, textColor: Color = Color.Black, onCheckedChange: (Boolean) -> Unit) {
+    val fontSize = 12.sp
+    Row(
+        modifier = Modifier
+            .width(250.dp)
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = tosText,
+            color = textColor,
+            fontSize = fontSize
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            text = "약관 보기",
+            fontSize = fontSize,
+            color = SherpaColor,
+            modifier = Modifier.clickable { /*TODO: 약관 보기*/ }
+        )
+        Spacer(modifier = Modifier.width(10.dp))
+        Checkbox(
+            checked = checked,
+            onCheckedChange = { onCheckedChange(it) },
+            modifier = Modifier.size(20.dp),
+            colors = SherpaCheckBoxColor
+        )
     }
 }

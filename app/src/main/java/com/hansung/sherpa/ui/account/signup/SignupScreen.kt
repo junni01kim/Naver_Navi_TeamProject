@@ -30,15 +30,20 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.ui.common.SherpaDialogParm
-import com.hansung.sherpa.sherpares.BmHanna
-import com.hansung.sherpa.sherpares.SherpaColor
-import com.hansung.sherpa.ui.account.module.rowWidth
+import com.hansung.sherpa.ui.theme.BmHanna
+import com.hansung.sherpa.ui.theme.SherpaColor
+import com.hansung.sherpa.ui.account.login.rowWidth
 
+/**
+ * 회원가입을 진행하는 화면
+ *
+ * @param navController 홈 화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
+ * @property careToggle 회원가입 대상이 설정 될 Role1 (true: 사용자, false: 보호자)
+ */
 @Composable
 fun SignupScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier){
     var careToggle by remember { mutableStateOf(false) }
     val sherpaDialog = remember { mutableStateOf(SherpaDialogParm())}
-    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -46,8 +51,12 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
             .fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
-        // 알림 메세지 작성 구역
-        if(showDialog) {
+        /**
+         * Sherpa Dialog
+         *
+         * 알림 메세지
+         */
+        if(sherpaDialog.value.show) {
             SherpaDialog(
                 title = sherpaDialog.value.title,
                 message = sherpaDialog.value.message,
@@ -57,7 +66,6 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
                 onDismissRequest = sherpaDialog.value.onDismissRequest
             )
         }
-        // 핵심 내용
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Bottom
@@ -84,10 +92,9 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
             Spacer(modifier = Modifier.height(50.dp))
             TitleArea()
 
-            // 보호자 입력란
             Column {
                 Row(
-                    modifier = Modifier.width(rowWidth+20.dp),
+                    modifier = Modifier.width(rowWidth +20.dp),
                     horizontalArrangement = Arrangement.End
                 ){
                     Box(modifier = Modifier
@@ -121,15 +128,40 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
                         )
                     }
                 }
-                if (careToggle) CaretakerArea(navController, sherpaDialog) {showDialog = it}
-                else CaregiverArea(navController, sherpaDialog) {showDialog = it}
+                /**
+                 * 사용자 회원가입을 구성하는 영역 
+                 */
+                if (careToggle) CaretakerArea(navController, sherpaDialog)
+                /**
+                 * 보호자 회원가입을 구성하는 영역
+                 */
+                else CaregiverArea(navController, sherpaDialog)
             }
         }
     }
 }
 
+/**
+ * 회원가입 서식 확인하는 함수
+ */
 fun isValidId(id: String): Boolean {
-    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}$".toRegex()
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
+    return regex.matches(id)
+}
+
+/**
+ * 회원가입 이메일 서식을 확인하는 함수
+ */
+fun isValidEmail(email: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
+    return regex.matches(email)
+}
+
+/**
+ * 회원가입 비밀번호 서식을 확인하는 함수
+ */
+fun isValidPassword(id: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
     return regex.matches(id)
 }
 

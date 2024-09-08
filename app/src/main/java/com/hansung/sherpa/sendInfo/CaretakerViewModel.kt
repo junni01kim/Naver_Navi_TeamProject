@@ -1,20 +1,16 @@
 package com.hansung.sherpa.sendInfo
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
+import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.itemsetting.Info
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.naver.maps.geometry.LatLng
+import com.hansung.sherpa.navigation.Navigation
 
-class CaretakerViewModel : ViewModel() {
-    private val _transportRoute = MutableLiveData(TransportRoute(Info(0.0,0,0,0), listOf()))
-    val transportRoute: LiveData<TransportRoute> get() = _transportRoute
-
-    fun updateTransportRoute(transportRoute: TransportRoute) {
-        _transportRoute.postValue(transportRoute)
-        //navigate()
-    }
-}
+/**
+ * 사용자가 FCM을 통해 '전달받은' 정보들을 관리하는 ViewModel
+ *
+ * ※ 2024-09-03 아직은 사용하지 않는다.
+ */
+class CaretakerViewModel : ViewModel() {}

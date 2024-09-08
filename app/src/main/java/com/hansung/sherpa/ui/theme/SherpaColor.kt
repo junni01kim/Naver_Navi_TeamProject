@@ -1,4 +1,4 @@
-package com.hansung.sherpa.sherpares
+package com.hansung.sherpa.ui.theme
 
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CheckboxColors

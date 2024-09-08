@@ -34,7 +34,7 @@ class TransitManager {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -62,7 +62,7 @@ class TransitManager {
                 try {
                     Log.d("reqlocation","" + routeRequest.startY +", "+ routeRequest.startX+"    "+routeRequest.endY+", "+routeRequest.endX)
                     val response = Retrofit.Builder()
-                        .baseUrl("https://apis.openapi.sk.com/")
+                        .baseUrl(Url.TMAP)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
@@ -79,7 +79,7 @@ class TransitManager {
                         try {
                             val options = setOSRMRequestToMap()
                             val response = Retrofit.Builder()
-                                .baseUrl("https://routing.openstreetmap.de/")
+                                .baseUrl(Url.OSRM)
                                 .addConverterFactory(GsonConverterFactory.create())
                                 .build()
                                 .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -108,7 +108,7 @@ class TransitManager {
                 try {
                     val options = setOSRMRequestToMap()
                     val response = Retrofit.Builder()
-                        .baseUrl("https://routing.openstreetmap.de/")
+                        .baseUrl(Url.OSRM)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -139,7 +139,7 @@ class TransitManager {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(TransitRouteService::class.java)
@@ -223,7 +223,7 @@ class TransitManager {
         var targetEX:Float = 0.0f
         var targetEY:Float = 0.0f
 
-        var ELEVATOR_PRIMARY_SETTING = StaticValue.userInfo.userSetting!!.elevatorFirst // 지하철 우선 안내 ON/OFF
+        val ELEVATOR_PRIMARY_SETTING = StaticValue.userInfo.userSetting!!.elevatorFirst // 지하철 우선 안내 ON/OFF
 
         response.subPath.forEachIndexed { index, it ->
             if (it.trafficType == PEDESTRINAN_CODE) {
@@ -233,9 +233,9 @@ class TransitManager {
                             try {
                                 if(ELEVATOR_PRIMARY_SETTING == true && response.subPath[index+1].trafficType==1) {
 
-                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index+1].startName)
+                                    val elevatorLocation = getSubwayElevLocation(response.subPath[index+1].startName)
 
-                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(response.subPath[index+1].startY, response.subPath[index+1].startX))
+                                    val minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(response.subPath[index+1].startY, response.subPath[index+1].startX))
 
                                     tmp = PedestrianRouteRequest(
                                         startX = start.longitude.toFloat(),
@@ -263,9 +263,9 @@ class TransitManager {
                         LAST_INDEX -> {
                             try {
                                 if(ELEVATOR_PRIMARY_SETTING == true && response.subPath[index-1].trafficType==1){
-                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index-1].endName)
+                                    val elevatorLocation = getSubwayElevLocation(response.subPath[index-1].endName)
 
-                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(end.latitude, end.longitude))
+                                    val minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(end.latitude, end.longitude))
 
                                     tmp = PedestrianRouteRequest(
                                         startX = minLoc.longitude.toFloat(),
@@ -297,14 +297,14 @@ class TransitManager {
                             targetEX = response.subPath[index + 1].startX.toFloat()
                             targetEY = response.subPath[index + 1].startY.toFloat()
 
-                            var beforeTransit = response.subPath[index-1]
-                            var afterTransit = response.subPath[index+1]
+                            val beforeTransit = response.subPath[index-1]
+                            val afterTransit = response.subPath[index+1]
 
                             if(ELEVATOR_PRIMARY_SETTING==true){
                                 if(beforeTransit.trafficType==1) {
                                     try {
-                                        var elevLocation = getSubwayElevLocation(beforeTransit.endName)
-                                        var minLoc = findMinDistanceLatLng(elevLocation, LatLng(afterTransit.startY, afterTransit.startX))
+                                        val elevLocation = getSubwayElevLocation(beforeTransit.endName)
+                                        val minLoc = findMinDistanceLatLng(elevLocation, LatLng(afterTransit.startY, afterTransit.startX))
 
                                         targetSX = minLoc.longitude.toFloat()
                                         targetSY = minLoc.latitude.toFloat()
@@ -315,8 +315,8 @@ class TransitManager {
 
                                 if(afterTransit.trafficType==1) {
                                     try {
-                                        var elevatorLocation = getSubwayElevLocation(afterTransit.startName)
-                                        var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(beforeTransit.endY, beforeTransit.endX))
+                                        val elevatorLocation = getSubwayElevLocation(afterTransit.startName)
+                                        val minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(beforeTransit.endY, beforeTransit.endX))
 
                                         targetEX = minLoc.longitude.toFloat()
                                         targetEY = minLoc.latitude.toFloat()
@@ -444,9 +444,9 @@ class TransitManager {
         var mindist = 100000000000.0
 
         for (i in elevatorLocation.data){
-            var slicing = i.location.split(",")
-            var lat = slicing[0].toDouble()
-            var lng = slicing[1].toDouble()
+            val slicing = i.location.split(",")
+            val lat = slicing[0].toDouble()
+            val lng = slicing[1].toDouble()
 
             target = LatLng(lat, lng)
 

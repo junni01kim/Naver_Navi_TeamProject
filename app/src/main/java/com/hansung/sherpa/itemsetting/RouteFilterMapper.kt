@@ -118,7 +118,6 @@ class RouteFilterMapper {
         }
     }
 
-    // 해당 타입이 교통수단인지 확인하는 함수
     private fun isTransport(trafficType: Int): Boolean {
         return when (trafficType) {
             TrafficType.SUBWAY.value, TrafficType.BUS.value ->

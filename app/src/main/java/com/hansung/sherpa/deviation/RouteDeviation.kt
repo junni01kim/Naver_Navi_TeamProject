@@ -28,7 +28,7 @@ class RouteDeviation(
      */
     var nowSection = 0
     var nowSubpath = 0
-    val outRouteDistance = 10.0
+    val outRouteDistance = 20.0
     var subPathWholeDistance = 0.0
 
     /**
@@ -116,7 +116,7 @@ class RouteDeviation(
             // 다음 섹션 이동
             if(lastSection){
                 Log.d("RouteControl", "환승구간: ${nowSubpath}")
-                //passedRoute[nowSubpath] = 1.0
+                passedRoute[nowSubpath] = 1.0
                 nowSection = 0
                 nowSubpath++
             } else {

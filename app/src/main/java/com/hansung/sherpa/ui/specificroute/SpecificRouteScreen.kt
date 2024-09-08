@@ -11,14 +11,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.FabPosition
-import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.BottomSheetScaffold
+import androidx.compose.material.FabPosition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Navigation
+import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
@@ -34,24 +36,27 @@ import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.transit.TransitManager
-import com.hansung.sherpa.sendInfo.send.SendManager
-import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
+import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.deviation.RouteDeviation
 import com.hansung.sherpa.itemsetting.RouteFilterMapper
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
-import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
+import com.hansung.sherpa.sendInfo.send.SendManager
+import com.hansung.sherpa.transit.TransitManager
 import com.hansung.sherpa.transit.pedestrian.PedestrianRouteRequest
+import com.hansung.sherpa.ui.common.SherpaDialog
+import com.hansung.sherpa.ui.theme.lightScheme
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.map.R.drawable.navermap_location_overlay_icon
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
+
 /**
  * 경로의 세부 경로들 몇번 버스 이용, 어디서 내리기, 몇m 이동 등등의
  * 세부 정부 표현 화면
@@ -66,8 +71,10 @@ fun SpecificRouteScreen(
     response: TransportRoute,
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
-    caretakerViewModel: CaretakerViewModel,
-    goBack:()->Unit
+    //caretakerViewModel: CaretakerViewModel,
+    goBack:()->Unit,
+    accidentProneArea: ArrayList<AccidentProneArea>,
+    centers: List<PolygonCenter>
 ){
     val context = LocalContext.current
 
@@ -84,12 +91,12 @@ fun SpecificRouteScreen(
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
     val coordParts = remember { setCoordParts(response) }
-    val colorParts = setColerParts(response)
+    val colorParts = setColorParts(response)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeDivation = RouteDeviation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
 
-    val caretakerIcon = OverlayImage.fromResource(navermap_location_overlay_icon)
+    val caretakerIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_red_mdpi)
     val caregiverIcon = OverlayImage.fromResource(R.drawable.navermap_location_overlay_icon_green_mdpi)
 
     val sendManager = SendManager()
@@ -97,6 +104,9 @@ fun SpecificRouteScreen(
     val caretakerCoordParts = caregiverViewModel.coordParts.observeAsState()
     val caretakerColorParts = caregiverViewModel.colorPart.observeAsState()
     val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
+
+
+    var section by remember { mutableIntStateOf(-1) }
 
     /**
      * 보호자일 경우 사용자에게 검색한 경로를 전송할지 묻는 다이얼로그
@@ -108,8 +118,7 @@ fun SpecificRouteScreen(
     if(dialogFlag) {
         SherpaDialog(title = "안내 시작", message = listOf("사용자 경로 안내를","시작하시겠습니까?"), confirmButtonText = "안내", dismissButtonText = "취소") {
             if(StaticValue.userInfo.role1 == "CAREGIVER"){
-                // TODO: 사용자에게 경로값 전송
-                //StaticValue.transportRoute 이걸로
+                sendManager.startNavigation(response)
                 dialogFlag = false
             }
             else {
@@ -145,11 +154,33 @@ fun SpecificRouteScreen(
     // TODO: 김명준이 코드 추가한 부분 끝 ----------
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState()
+    val accidentProneAreaAlert = Toast.makeText(LocalContext.current,"⚠ 보행자 사고 다발 구간 ⚠", Toast.LENGTH_LONG)
+    LaunchedEffect(myPos) {
+        var flag = false
+        if(centers.isNotEmpty()){
+            centers.forEachIndexed() { index, it ->
+                val distance = AccidentProneAreaManager.distanceCalculate(
+                    myPos.latitude, myPos.longitude,
+                    it.center.latitude, it.center.longitude
+                )
+                val collapseDistance = if(section == -1 || index == section) Double.MAX_VALUE
+                else AccidentProneAreaManager.distanceCalculate(centers[section].center.latitude,  centers[section].center.longitude, it.center.latitude, it.center.longitude)
+
+                if(distance <= it.radius && index != section && collapseDistance > it.radius){
+                    flag = true
+                    section = index
+                }
+            }
+        }
+        if(flag)
+            accidentProneAreaAlert.show()
+    }
 
     // 핸드폰의 뒤로가기 버튼 누를시 화면 종료(메인 화면으로 이동)
     BackHandler {
         goBack()
     }
+    MaterialTheme(colorScheme = lightScheme) {
 
     BottomSheetScaffold(
         scaffoldState = bottomSheetScaffoldState,
@@ -165,11 +196,13 @@ fun SpecificRouteScreen(
         floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { if(!startNavigation) startNavigation = true },
-                containerColor = Color(0xff8093f1),
+                onClick = {
+                    dialogFlag = true
+                },
+                containerColor = MaterialTheme.colorScheme.scrim,
                 shape = RoundedCornerShape(50.dp)
             ) {
-                Icon(imageVector = Icons.Filled.Navigation, contentDescription = "경로 안내 버튼")
+                Icon(imageVector = Icons.Filled.Navigation, contentDescription = "경로 안내 버튼", tint = MaterialTheme.colorScheme.onSecondary)
             }
         },
         sheetContent = {
@@ -192,7 +225,6 @@ fun SpecificRouteScreen(
             ),
             onLocationChange = {
                 myPos = LatLng(it.latitude, it.longitude)
-
                 // 상대방에게 내 위치를 전송한다.
                 if(startNavigation) sendManager.sendPositionAndPassedRoute(myPos, passedRoute)
                 else sendManager.sendPosition(myPos)
@@ -213,6 +245,7 @@ fun SpecificRouteScreen(
                                 passedRoute[i] = 1.0
                             }
                             startNavigation = false
+                            // TODO: 보호자는 삭제되지 않으니, 보호자 화면에서 삭제하는 기능 추가 필요
                             SendManager().deleteNavigation()
                         }
                         0 -> {
@@ -266,20 +299,22 @@ fun SpecificRouteScreen(
             }
         ){
             if(StaticValue.userInfo.role1 == "CARETAKER"){
-                MarkerComponent(myPos, caretakerIcon)
+                //MarkerComponent(myPos, caretakerIcon)
                 MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caregiverIcon)
             }
             else {
-                MarkerComponent(myPos, caregiverIcon)
+                //MarkerComponent(myPos, caregiverIcon)
                 MarkerComponent(partnerPos.value?:LatLng(0.0,0.0), caretakerIcon)
             }
 
-            if(StaticValue.userInfo.role1 == "CARETAKER") DrawPathOverlay(coordParts, colorParts, passedRoute)
+            if(StaticValue.userInfo.role1 == "CARETAKER") {
+                DrawPathOverlay(coordParts, colorParts, passedRoute)
+                DrawPolygons(accidentProneAreas = accidentProneArea)
+            }
             else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
         }
     }
-
-
+    }
 }
 
 

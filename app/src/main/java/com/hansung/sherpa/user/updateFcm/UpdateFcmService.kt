@@ -6,6 +6,6 @@ import retrofit2.http.Body
 import retrofit2.http.PATCH
 
 interface UpdateFcmService {
-    @PATCH("updateFcm")
+    @PATCH("fcm/updateFcm")
     fun patchUpdateFcmService(@Body body: UpdateFcmRequest): Call<ResponseBody>
 }

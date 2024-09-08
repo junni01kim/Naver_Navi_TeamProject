@@ -12,7 +12,9 @@ data class ScheduleLocation (
     var name : String,
     var address : String,
     var lon: Double,
-    var lat: Double
+    var lat: Double,
+    var isGuide: Boolean,
+    var guideDatetime : Long
 )
 
 data class ScheduleData(
@@ -22,6 +24,8 @@ data class ScheduleData(
     var isDateValidate : MutableState<Boolean>,
     var startDateTime: MutableLongState,
     var endDateTime: MutableLongState,
-    var repeat: MutableState<Repeat>,
+//    var repeat: MutableState<Repeat>,
     var comment : MutableState<String>,
+    var routeId : Int?,
+    var scheduleId : Int
 )

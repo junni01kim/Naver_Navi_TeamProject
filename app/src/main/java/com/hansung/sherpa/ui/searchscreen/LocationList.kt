@@ -5,8 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -29,7 +27,7 @@ import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.searchlocation.SearchLoactionCallBack
 import com.hansung.sherpa.searchlocation.SearchLocation
 import com.hansung.sherpa.searchlocation.SearchLocationResponse
-import com.hansung.sherpa.sherpares.PretendardVariable
+import com.hansung.sherpa.ui.theme.PretendardVariable
 
 /**
  * 검색 키워드를 통해 장소를 선택하기 위한 영역
@@ -73,8 +71,8 @@ fun LocationList(locationValue:String, update: (String, LatLng) -> Unit) {
                 .fillMaxWidth()
                 .padding(8.dp)
                 .clickable {
-                    val x = it.mapx?.toDouble()?.div(10000000)?:-1.0 // 경도 (lon)
-                    val y = it.mapy?.toDouble()?.div(10000000)?:-1.0 // 위도 (lat)
+                    val x = it.mapx?.toDouble()?.div(10000000)?:-1.0 // 경도 (lon) // TODO: 이건 왜 -1.0?? 조금 더 예외 처리 구체화 하기
+                    val y = it.mapy?.toDouble()?.div(10000000)?:-1.0 // 위도 (lat) // TODO: 이건 왜 -1.0?? 조금 더 예외 처리 구체화 하기
 
                     update(it.title?:"Null",LatLng(y,x))
 

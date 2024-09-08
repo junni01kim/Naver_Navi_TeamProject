@@ -25,13 +25,17 @@ import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.ui.common.SherpaDialogParm
-import com.hansung.sherpa.sherpares.SherpaColor
+import com.hansung.sherpa.ui.theme.SherpaColor
 import com.hansung.sherpa.user.UserManager
 
+/**
+ * 로그인을 진행하는 화면
+ *
+ * @param navController 홈 화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
+ */
 @Composable
 fun LoginScreen(navController: NavController = rememberNavController(), modifier: Modifier = Modifier) {
     val sherpaDialog = remember { mutableStateOf(SherpaDialogParm())}
-    var showDialog by remember { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
@@ -39,8 +43,12 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
             .fillMaxSize(),
         contentAlignment = Alignment.Center
     ){
-        // 알림 메세지 작성 구역
-        if(showDialog) {
+        /**
+         * Sherpa Dialog
+         *
+         * 알림 메세지
+         */
+        if(sherpaDialog.value.show) {
             SherpaDialog(
                 title = sherpaDialog.value.title,
                 message = sherpaDialog.value.message,
@@ -72,25 +80,22 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
             verticalArrangement = Arrangement.spacedBy(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
+            /**
+             * Screen 명칭이 나오는 영역
+             */
             TitleArea()
-            LoginArea(navController, sherpaDialog) {showDialog = it}
+
+            /**
+             * 보호자 로그인 화면을 구성하는 영역
+             */
+            LoginArea(navController, sherpaDialog)
+
+            /**
+             * 비밀번호 찾기와 회원가입하기 버튼을 디자인한 영역
+             */
             FindAccountArea(navController)
         }
     }
-}
-
-fun login(navController: NavController, email: String, password: String) : Boolean {
-    val loginResponse = UserManager().login(email, password)
-
-    if(loginResponse.code == 200) {
-        StaticValue.userInfo = loginResponse.data!!
-        UserManager().updateFcm()
-        navController.navigate("${SherpaScreen.Home.name}")
-    }
-    else {
-        return true
-    }
-    return false
 }
 
 @Composable
