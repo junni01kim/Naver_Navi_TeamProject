@@ -45,7 +45,7 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
-import com.hansung.sherpa.sendInfo.receive.addValueEventListener
+import com.hansung.sherpa.sendInfo.receive.onChangedRTDBListener
 import com.hansung.sherpa.sendInfo.receive.isCareGiver
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
@@ -192,11 +192,11 @@ class MainActivity : ComponentActivity() {
                             val relation = UserManager().getRelation(userInfo.userId!!).data
                             if(isCareGiver()) {
                                 val caregiverId = relation?.caretakerId.toString()
-                                addValueEventListener(caregiverId, partnerViewModel, caregiverViewModel)
+                                onChangedRTDBListener(caregiverId, partnerViewModel, caregiverViewModel)
                             }
                             else {
                                 val caretakerId = relation?.caregiverId.toString()
-                                addValueEventListener(caretakerId, partnerViewModel, caregiverViewModel)
+                                onChangedRTDBListener(caretakerId, partnerViewModel, caregiverViewModel)
                             }
                             MessageAlam(messageViewModel)
                             ScheduleAlam(scheduleViewModel)
