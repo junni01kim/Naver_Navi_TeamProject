@@ -72,9 +72,7 @@ import com.hansung.sherpa.schedule.RouteManager
 import com.hansung.sherpa.schedule.ScheduleManager
 import com.hansung.sherpa.schedule.Schedules
 import com.jakewharton.threetenabp.AndroidThreeTen
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -85,7 +83,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
 
 /**
@@ -138,21 +135,18 @@ fun CalendarScreen(
     val updateScheduleList : (List<Schedules>?) -> Unit = { scheduleResponse ->
         scheduleDataList.clear()
         scheduleResponse?.forEach {
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
-            dateFormat.timeZone = TimeZone.getTimeZone(ZoneId.systemDefault())
-            val startTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateBegin).time }
-            val endTime = java.util.Calendar.getInstance().apply { timeInMillis = dateFormat.parse(it.dateEnd).time }
 
-            val route = runBlocking(Dispatchers.IO) {
-                run { it.routeId?.let { it1 -> routeManager.findRoute(it1) } }
-            }
+            val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            val startTime = sdf.parse(it.dateBegin)
+            val endTime = sdf.parse(it.dateEnd)
+            val route = it.routeId?.let { it1 -> routeManager.findRoute(it1) }
 
             scheduleDataList.add(
                 ScheduleData(
                     title =  mutableStateOf(it.title) ,
                     comment = mutableStateOf(it.description) ,
-                    startDateTime = mutableLongStateOf(startTime.timeInMillis) ,
-                    endDateTime =  mutableLongStateOf(endTime.timeInMillis) ,
+                    startDateTime = mutableLongStateOf(startTime.time) ,
+                    endDateTime =  mutableLongStateOf(endTime.time) ,
                     isDateValidate = mutableStateOf(true) ,
                     isWholeDay = mutableStateOf(it.isWholeday),
                     scheduledLocation = if(route != null){
@@ -278,7 +272,7 @@ fun CalendarScreen(
 
     /**
      *  일정 추가 버튼을 누르면 껍데기 scheduleDate 객체 생성
-     *  생성 후 ModalBottomSheet 객체에 너허준다.
+     *  생성 후 ModalBottomSheet 객체에 넣어준다.
      */
     if (showBottomSheet){
         val mills = currentSelectedDate.value.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
@@ -625,7 +619,6 @@ fun CalendarHeader(
         }
     }
 }
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview

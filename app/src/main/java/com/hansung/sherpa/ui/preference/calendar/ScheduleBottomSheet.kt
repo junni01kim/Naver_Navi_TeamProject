@@ -114,16 +114,18 @@ fun ScheduleBottomSheet(
             }
             // 아닌 경우 현재 시간에서 분만 0 으로 바꿔줌
             false -> {
-                scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
-                    if(scheduleData.title.value.isNotEmpty())
-                        timeInMillis = scheduleData.startDateTime.longValue
-                    set(Calendar.MINUTE, 0)
-                }.timeInMillis
-                scheduleData.endDateTime.longValue = Calendar.getInstance().apply {
-                    if(scheduleData.title.value.isNotEmpty())
-                        timeInMillis = scheduleData.endDateTime.longValue
-                    set(Calendar.MINUTE, 0)
-                }.timeInMillis
+                if(scheduleData.title.value == "") {
+                    scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
+                        if (scheduleData.title.value.isNotEmpty())
+                            timeInMillis = scheduleData.startDateTime.longValue
+                        set(Calendar.MINUTE, 0)
+                    }.timeInMillis
+                    scheduleData.endDateTime.longValue = Calendar.getInstance().apply {
+                        if (scheduleData.title.value.isNotEmpty())
+                            timeInMillis = scheduleData.endDateTime.longValue
+                        set(Calendar.MINUTE, 0)
+                    }.timeInMillis
+                }
             }
         }
     }
