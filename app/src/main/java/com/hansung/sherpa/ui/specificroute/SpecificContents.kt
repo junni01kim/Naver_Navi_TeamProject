@@ -31,11 +31,9 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.hansung.sherpa.R
-import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SectionInfo
@@ -96,7 +94,7 @@ fun SpecificContents(sectionInfo:SectionInfo, lineColor:Color, expand:Boolean){
  *
  * @param lineColor 이동 수단의 색상 
  * 
- * 보행자 : 점선,
+ * 보행자 : 점선
  * 
  * 대중교통 : 버스, 호선의 색상
  * */
@@ -204,17 +202,4 @@ fun DrawTransitLineContents(lineColor:Color, contentsSize:Float){
             )
         }
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SpecificRouteContentsPreview(){
-    var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
-        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장", "200m 직진")),
-        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(
-            BusLane("","성북02",0,0,"0",0)
-        ), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
-        PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
-    )
-    SpecificContents(showRouteDetails[0], Color.Black, true)
 }

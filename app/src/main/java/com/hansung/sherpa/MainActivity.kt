@@ -237,7 +237,6 @@ class MainActivity : ComponentActivity() {
                             SpecificRouteScreen(
                                 StaticValue.transportRoute,
                                 partnerViewModel, caregiverViewModel,
-                                //caretakerViewModel,
                                 { navController.navigate(SherpaScreen.Home.name) },
                                 result, centers
                             )
