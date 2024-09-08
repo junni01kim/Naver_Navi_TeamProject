@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.FabPosition
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationSearching
+import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material3.Button
@@ -36,12 +38,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -65,6 +69,7 @@ import com.hansung.sherpa.ui.common.SherpaDialog
 import com.hansung.sherpa.ui.theme.lightScheme
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
@@ -236,11 +241,14 @@ fun SpecificRouteScreen(
                 }
             }
         ) {
+            val trackingMode = remember { mutableStateListOf(LocationTrackingMode.NoFollow, LocationTrackingMode.Follow, LocationTrackingMode.Face) }
+
+            var trackingModeIndex by remember { mutableStateOf(0) }
 
             NaverMap(
                 locationSource = rememberFusedLocationSource(isCompassEnabled = true),
                 properties = MapProperties(
-                    locationTrackingMode = com.naver.maps.map.compose.LocationTrackingMode.Follow
+                    locationTrackingMode = trackingMode[trackingModeIndex]
                 ),
                 uiSettings = MapUiSettings(
                     isLocationButtonEnabled = false
@@ -338,7 +346,9 @@ fun SpecificRouteScreen(
 
             Box(modifier = Modifier.fillMaxSize()){
                 ElevatedButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        trackingModeIndex = (trackingModeIndex + 1) % trackingMode.size
+                    },
                     modifier = Modifier
                         .padding(start = 8.dp, bottom = 90.dp)
                         .align(Alignment.BottomStart)
@@ -352,9 +362,11 @@ fun SpecificRouteScreen(
                         contentColor = Color.Black
                     )
                 ) {
-                    Icon(imageVector = Icons.Filled.LocationSearching,
+                    Icon(imageVector = Icons.Filled.MyLocation,
                         contentDescription = "트랙킹모드버튼",
-                        modifier = Modifier.size(50.dp)
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .scale(3.5f)
                     )
                 }
             }
