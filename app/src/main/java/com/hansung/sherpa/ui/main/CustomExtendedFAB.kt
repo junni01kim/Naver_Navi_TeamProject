@@ -76,6 +76,10 @@ private val ExtendedFabTextPadding = 20.dp
 
 private val ExtendedFabMinimumWidth = 40.dp
 
+/**
+ * IconType 이미지 유형별로 분류해서 이미지 추가할 수 있도록
+ *
+ */
 sealed class IconType {
     data class Vector(val imageVector: ImageVector) : IconType()
     data class Resource(val resId: Int) : IconType()
@@ -83,6 +87,9 @@ sealed class IconType {
     data class Bitmap(val imageBitmap: ImageBitmap): IconType()
 }
 
+/**
+ * Extend FAB 축소 애니메이션
+ */
 private val ExtendedFabCollapseAnimation = fadeOut(
     animationSpec = tween(
         durationMillis = MotionTokens.DurationShort2.toInt(),
@@ -96,6 +103,9 @@ private val ExtendedFabCollapseAnimation = fadeOut(
     shrinkTowards = Alignment.Start,
 )
 
+/**
+ * Extend FAB 확장 애니메이션
+ */
 private val ExtendedFabExpandAnimation = fadeIn(
     animationSpec = tween(
         durationMillis = MotionTokens.DurationShort4.toInt(),
@@ -111,15 +121,20 @@ private val ExtendedFabExpandAnimation = fadeIn(
 )
 
 /**
+ * 기조는 ExtendedFAB와 같으므로 공식문서 참고.
+ *
  * 기존 FAB에서 반전시킨 UI :
  * before : 아이콘 -> 텍스트
  * after : 텍스트 -> 아이콘
  *
- * @param onClick
- * @param text
- * @param icon
- * @param contentDescription
  * @param modifier
+ * @param name
+ * @param phone
+ * @param icon
+ * @param expanded
+ * @param onClick
+ * @param contentDescription
+ * @param openDialog < 클릭 여부
  */
 @Composable
 fun CustomExtendedFAB(
@@ -173,6 +188,12 @@ fun CustomExtendedFAB(
     }
 }
 
+/**
+ * IconType에 따라 Icon에 이미지를 추가하는 함수
+ *
+ * @param icon
+ * @param contentDescription
+ */
 @Composable
 fun CustomIcon(icon: IconType, contentDescription: String?) {
     val modifier = Modifier
@@ -227,34 +248,32 @@ fun FabExtendedResource() {
 @Composable
 fun ExtendedFABContainer(isVisible: Boolean = true) {
     val coroutineScope = rememberCoroutineScope()
-    val emrgList = remember { mutableStateListOf<Contact>() }
-    val bookmarkList = remember { mutableStateListOf<Contact>() }
-    val visibleList = remember { mutableStateListOf<MutableState<Boolean>>() }
-    val imgList = listOf(R.drawable._1, R.drawable._2, R.drawable._3, R.drawable._4, R.drawable._5)
-    val userId = StaticValue.userInfo.userId ?: 27
-    if(userId != null) {
-        // 긴급연락처 리스트 가져오는 작업 - 백그라운드로 진행
-        LaunchedEffect(Unit) {
-            val apiList = withContext(Dispatchers.IO) {
-                val result = EmergencyManager().getAllEmergency(userId).data
-                result?.mapIndexed { index, emergency ->
-                    val byteArray = decodeFileData(emergency.fileData)
-                    Contact(
-                        emergencyId = emergency.emergencyId,
-                        name = emergency.name,
-                        phone = emergency.telNum,
-                        image = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size).asImageBitmap(), // 인덱스 초과 시 기본 이미지 설정
-                        address = emergency.address,
-                        bookmarkYn = emergency.bookmarkYn
-                    )
-                } ?: emptyList()
-            }
-
-            // UI 업데이트는 메인 스레드에서 진행
-            emrgList.addAll(apiList)
-            bookmarkList.addAll(emrgList.filter { it.bookmarkYn == "Y" })
-            visibleList.addAll(bookmarkList.map { mutableStateOf(false) })
+    val contactList = remember { mutableStateListOf<Contact>() } // 조회된 긴급 연락처 리스트
+    val bookmarkList = remember { mutableStateListOf<Contact>() } // 북마크(메인 화면에 띄워지는) 연락처 리스트
+    val isExpandList = remember { mutableStateListOf<MutableState<Boolean>>() } // 북마크 리스트에서 확장되어 있는 것들의 리스트
+    val userId = StaticValue.userInfo.userId ?: 0
+    LaunchedEffect(Unit) {
+        val apiList = withContext(Dispatchers.IO) {
+            val result = EmergencyManager().getAllEmergency(userId).data // 현재 userId의 긴급연락처 리스트 가져오기
+            result?.mapIndexed { _, emergency ->
+                val byteArray = decodeFileData(emergency.fileData)
+                Contact(
+                    emergencyId     = emergency.emergencyId,
+                    name            = emergency.name,
+                    phone           = emergency.telNum,
+                    image           = BitmapFactory
+                        .decodeByteArray(byteArray, 0, byteArray.size)
+                        .asImageBitmap(), // 인덱스 초과 시 기본 이미지 설정
+                    address         = emergency.address,
+                    bookmarkYn      = emergency.bookmarkYn
+                )
+            } ?: emptyList()
         }
+
+        // UI 업데이트는 메인 스레드에서 진행
+        contactList.addAll(apiList)
+        bookmarkList.addAll(contactList.filter { it.bookmarkYn == "Y" })
+        isExpandList.addAll(bookmarkList.map { mutableStateOf(false) })
     }
     if (isVisible) {
         SherpaTheme {
@@ -274,31 +293,37 @@ fun ExtendedFABContainer(isVisible: Boolean = true) {
                     items(bookmarkList.size) { index ->
                         val item = bookmarkList[index]
                         val openDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
-                        if (openDialog.value) {
-                            EmergencyOptionModal(openDialog ,item)
-                        }
+                        if (openDialog.value) EmergencyOptionModal(openDialog ,item)
+
                         CustomExtendedFAB(
-                            name = item.name,
-                            phone = item.phone,
-                            icon = IconType.Bitmap(item.image),
-                            expanded = visibleList[index],
-                            openDialog = openDialog
+                            name        = item.name,
+                            phone       = item.phone,
+                            icon        = IconType.Bitmap(item.image),
+                            expanded    = isExpandList[index],
+                            openDialog  = openDialog
                         )
                     }
                 }
-                AddEmergencyContactFAB(emrgList.filter { it.bookmarkYn == "N" }) {
+                AddEmergencyContactFAB(contactList.filter { it.bookmarkYn == "N" }) {
                     contact ->
-                    coroutineScope.launch(Dispatchers.IO) {  // 코루틴 실행
+                    // 화면은 UI로 먼저 보여주고, 따로 백그라운드로 업데이트
+                    coroutineScope.launch(Dispatchers.IO) {
                         EmergencyManager().updateEmergencyBookmark(contact.emergencyId)
                     }
                     bookmarkList.add(contact)
-                    visibleList.add(mutableStateOf(false))
+                    isExpandList.add(mutableStateOf(false))
                 }
             }
         }
     }
 }
 
+/**
+ * 인코딩된, 아미지 데이터 디코딩
+ *
+ * @param base64String 인코딩 byte 값
+ * @return
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 fun decodeFileData(base64String: String): ByteArray {
     return Base64.getDecoder().decode(base64String)
