@@ -64,6 +64,14 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 
+
+/**
+ * 일정 추가 수정 sheet
+ *
+ * @param closeBottomSheet sheet 닫을 때 callback
+ * @param scheduleData 껍데기 스케줄 정보 객체
+ * @param scheduleModalSheetOption 추가인지 수정인지
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -77,10 +85,15 @@ fun ScheduleBottomSheet(
     val locationSheetState = remember { mutableStateOf(false) }
     val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
+
+    /**
+     * 닫을 때 유효성 검사
+     */
     val onClosedButtonClick : (Boolean) -> Unit = { flag ->
         when {
             flag && !scheduleData.isDateValidate.value -> invalidDateToast.show()
             flag && scheduleData.title.value.isEmpty() -> invalidTitleToast.show()
+            // 추가하거나 수정
             else -> coroutineScope.launch {
                 bottomSheetState.hide()
                 closeBottomSheet(scheduleData, flag)
@@ -88,13 +101,18 @@ fun ScheduleBottomSheet(
         }
     }
 
+    /**
+     * 일정이 하루 중일인 경우
+     */
     LaunchedEffect(scheduleData.isWholeDay.value){
         when(scheduleData.isWholeDay.value){
+            // 시간을 자정으로 바꿔줌
             true -> {
                 scheduleData.startDateTime.longValue = resetToMidnight(scheduleData.startDateTime.longValue)
                 scheduleData.endDateTime.longValue = resetToMidnight(scheduleData.endDateTime.longValue)
                 scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
             }
+            // 아닌 경우 현재 시간에서 분만 0 으로 바꿔줌
             false -> {
                 scheduleData.startDateTime.longValue = Calendar.getInstance().apply {
                     if(scheduleData.title.value.isNotEmpty())
@@ -110,6 +128,9 @@ fun ScheduleBottomSheet(
         }
     }
 
+    /**
+     * 스케줄 추가 | 수정창 출력
+     */
     ModalBottomSheet(
         sheetState = bottomSheetState,
         onDismissRequest = { onClosedButtonClick(false) },
@@ -142,13 +163,19 @@ fun ScheduleBottomSheet(
     }
 }
 
+/**
+ * 일정 수정 | 추가 sheet의 몸통 내용
+ *
+ * @param scheduleData 스케줄 정보가 저장되는 객체
+ * @param locationSheetState 위치 검색 창의 on | off 상태 변수
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun BottomSheetBody(
     scheduleData: ScheduleData,
     locationSheetState : MutableState<Boolean>
 ){
-    // TODO: guideDatetime 시간이 00:00시에서 안바뀌는 문제 : 임시로 초기화
+    // 경로 안내 변수 == true 면 시간 대입
     if(!scheduleData.scheduledLocation.isGuide)
         scheduleData.scheduledLocation.guideDatetime = scheduleData.startDateTime.longValue
 
@@ -158,19 +185,24 @@ fun BottomSheetBody(
     var isSearched by remember { mutableStateOf(false) }
     var locationString by remember { mutableStateOf("위치") }
 
+    // 경로 안내 변수가 바뀌면
     LaunchedEffect(isGuide.value) {
         scheduleData.scheduledLocation.isGuide = isGuide.value
     }
+    // 경로 안내 시간이 바뀌면
     LaunchedEffect(guideDatetime.longValue) {
         scheduleData.scheduledLocation.guideDatetime = guideDatetime.longValue
     }
 
+    // 위치가 업데이트 되면 isSearched 변수가 true or false
     LaunchedEffect(scheduleData.scheduledLocation.name){
         isSearched = when(scheduleData.scheduledLocation.name){
             "" -> false
             else -> true
         }
     }
+
+    // isSearched 변수가 바뀌면 동작
     LaunchedEffect(isSearched) {
        when(isSearched){
            true -> {
@@ -203,6 +235,7 @@ fun BottomSheetBody(
         modifier = Modifier
             .padding(horizontal = 20.dp)
     ) {
+        // 제목 부분
         Column(modifier = Modifier
             .clip(RoundedCornerShape(12.dp))
             .background(lightGrayColor)
@@ -354,12 +387,14 @@ fun BottomSheetBody(
                 )
             }
 
+            // 스케줄 시작 날짜 및 시간 출력 부분
             ExpandableSection(modifier = itemModifier, title = "시작",
                 localDatetimeMills = scheduleData.startDateTime,
                 isDateValidate = scheduleData.isDateValidate,
                 isWholeDay = scheduleData.isWholeDay){
                 scheduleData.isDateValidate.value = checkDateValidation(scheduleData.startDateTime.longValue, scheduleData.endDateTime.longValue)
             }
+            // 스케줄 종료 날짜 및 시간 출력 부분
             ExpandableSection(modifier = itemModifier, title = "종료",
                 localDatetimeMills = scheduleData.endDateTime,
                 isDateValidate = scheduleData.isDateValidate,
@@ -371,11 +406,27 @@ fun BottomSheetBody(
     }
 }
 
+/**
+ * 설정한 날짜가 유효한 날짜 인지
+ *
+ * @param start
+ * @param end
+ */
 @RequiresApi(Build.VERSION_CODES.N)
 fun checkDateValidation(start : Long, end : Long) : Boolean {
     return (end - start) >= 0
 }
 
+
+/**
+ * 시간 설정하는 창이 출력 되는 부분
+ *
+ * @param title 해당 Composable의 타이틀
+ * @param localDatetimeMills 설정된 시간을 저장하는 변수
+ * @param isDateValidate 설정 시간이 유효한지
+ * @param isWholeDay 스케줄이 하루 종일인지
+ * @param onChangedDateTime 시간이 변하면 callback
+ */
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -395,10 +446,14 @@ fun ExpandableSection(
 
     var isDateExpanded by rememberSaveable { mutableStateOf(false) }
     var isTimeExpanded by rememberSaveable { mutableStateOf(false) }
+
+    // 하루 종일이면 시간 설정창이 없어짐
     if(isWholeDay.value)
         isTimeExpanded = false
 
+    // 날짜가 바뀌면
     val onDateChanged : (LocalDate) -> Unit = { snappedDate ->
+        // 현재 local 캘린더 변수를 바꾸고 localDatetimeMills에 적용한다
         localDateTime.apply {
             set(Calendar.YEAR, snappedDate.year)
             set(Calendar.MONTH, snappedDate.monthValue - 1)
@@ -408,7 +463,10 @@ fun ExpandableSection(
             onChangedDateTime()
         }
     }
+
+    // 시간이 바뀌면
     val onTimeChanged : (LocalTime) -> Unit = { snappedTime ->
+        // 현재 local 캘린더 변수를 바꾸고 localDatetimeMills에 적용한다
         localDateTime.apply {
             timeInMillis = localDatetimeMills.longValue
             set(Calendar.HOUR_OF_DAY, snappedTime.hour)
@@ -457,10 +515,12 @@ fun ExpandableSection(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
                     ) {
+                        // 날짜와 시간 변경 창이 중첩되어 출력되지 않게 함
                         if (isTimeExpanded)
                             isTimeExpanded = false
                         isDateExpanded = !isDateExpanded
                     },
+                // 유효성 여부에 따라 색깔이 바뀜
                 color = when{
                     !isDateValidate.value -> Color.Red
                     isDateExpanded -> Color(41,161,255)
@@ -504,6 +564,12 @@ fun ExpandableSection(
             )
         }
     }
+
+    /**
+     * 날짜와 시간을 설정하는 창이 나타날 때 애니메이션 효과 적용
+     *
+     * visible = true면 나타남
+     */
     Column(
         modifier = Modifier
             .background(color = MaterialTheme.colorScheme.primaryContainer)
@@ -534,6 +600,9 @@ fun ExpandableSection(
     }
 }
 
+/**
+ * 날짜 설정
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ExpandableCalendar(
@@ -551,6 +620,9 @@ fun ExpandableCalendar(
     }
 }
 
+/**
+ * 시간 설정
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ExpandableTime(
@@ -568,6 +640,11 @@ fun ExpandableTime(
 }
 
 
+/**
+ * 일정 반복 설정을 위한 부분
+ *
+ * 사용 여부 미정
+ */
 @RequiresApi(Build.VERSION_CODES.N)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -748,6 +825,12 @@ fun Alert(
         }
     }
 }
+
+/**
+ * 스케줄에 대한 설명 작성 부분
+ *
+ * @param scheduleData 스케줄 정보 객체
+ */
 @Composable
 fun Memo(
     scheduleData: ScheduleData
@@ -777,6 +860,8 @@ fun Memo(
                     .height(140.dp)
                     .background(lightGrayColor),
                 value = scheduleData.comment.value,
+
+                // 엔터와 탭 필터링
                 onValueChange = { text ->
                     if((text.length.toDouble() / 26) <= 4 && !text.contains('\t') && !text.contains('\n'))
                         scheduleData.comment.value = text
@@ -830,6 +915,10 @@ fun preview(){
     }
 }
 
+/**
+ * 지역 검색 Api에서
+ */
+
 fun insertDecimal(number: Int, position: Int): String {
     val numberStr = number.toString()
     val length = numberStr.length
@@ -843,6 +932,9 @@ fun insertDecimal(number: Int, position: Int): String {
     }
 }
 
+/**
+ * 시간을 자정으로 바꾸는 함수
+ */
 @RequiresApi(Build.VERSION_CODES.N)
 fun resetToMidnight(timeInMillis: Long): Long {
     val calendar = Calendar.getInstance()

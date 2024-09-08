@@ -427,6 +427,13 @@ fun Calendar(
     }
 }
 
+/**
+ * 캘린더 내 일 출력 부분
+ * @param modifier : Optional<
+ * @param currentDate 현재 날짜
+ * @param selectedDate 선택된 날짜
+ * @param onSelectedDate 날짜 변경 시 callback 함수
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarMonthItem(
@@ -458,6 +465,8 @@ fun CalendarMonthItem(
                 val isSelected = remember(selectedDate) {
                     selectedDate.compareTo(date) == 0
                 }
+
+                // 각 날짜 1일, 2일, 3일...
                 CalendarDay(
                     modifier = Modifier.padding(top = 10.dp),
                     date = date,
@@ -470,6 +479,15 @@ fun CalendarMonthItem(
     }
 }
 
+/**
+ * 각 날짜 출력되는 Composable
+ * @param modifier : Optional
+ * @param date 날짜
+ * @param isToday 현재 날짜인지
+ * @param isSelected 선택된 날짜인지
+ * @param hasEvent 등록된 이벤트가 있을 경우
+ * @param onSelectedDate 날짜가 선택될 경우 callback 함수
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CalendarDay(
@@ -530,6 +548,10 @@ fun CalendarDay(
     }
 }
 
+
+/**
+ * 캘린더 위에 나타나는 일 월 화 수 목 금 토 출력하는 Composable
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DayOfWeek(
@@ -562,6 +584,12 @@ fun DayOfWeek(
     }
 }
 
+/**
+ * 캘린더 상단 < yyyy.MM > 출력되는 Comopsable
+ *
+ * @param onChangeMonth 버튼 클릭 시 callback 함수
+ * @param text 상단에 표시 할 text
+ */
 @Composable
 fun CalendarHeader(
     onChangeMonth : @Composable (Int) -> Unit,
