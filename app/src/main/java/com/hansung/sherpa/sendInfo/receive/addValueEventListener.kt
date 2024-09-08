@@ -56,7 +56,7 @@ fun onChangedRTDBListener(
                 Log.d("RTDB_CP", "current_position Value is: $value")
                 if(value == null) return
                 // 변경시 수행되는 로직 * getLatLng() 내부에서 역직렬화 수행 *
-                partnerViewModel.getLatLng("", value)
+                partnerViewModel.getLatLng(value)
             }
 
             override fun onCancelled(error: DatabaseError) {
