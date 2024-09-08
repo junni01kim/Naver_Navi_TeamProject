@@ -23,11 +23,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.searchlocation.SearchLoactionCallBack
 import com.hansung.sherpa.searchlocation.SearchLocation
 import com.hansung.sherpa.searchlocation.SearchLocationResponse
 import com.hansung.sherpa.ui.theme.PretendardVariable
+import com.naver.maps.geometry.LatLng
 
 /**
  * 검색 키워드를 통해 장소를 선택하기 위한 영역

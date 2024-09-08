@@ -46,9 +46,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.Navigation
+import com.naver.maps.geometry.LatLng
 
 val searchScreenUiColor = Color.White
 val iconColor = Color(0xFF82878B)
