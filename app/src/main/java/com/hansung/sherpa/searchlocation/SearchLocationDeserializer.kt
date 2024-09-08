@@ -37,8 +37,8 @@ class SearchLocationDeserializer : JsonDeserializer<SearchLocationResponse> {
                         telephone = itemObject["telephone"].asString,
                         address = itemObject["address"].asString,
                         roadAddress = itemObject["roadAddress"].asString,
-                        mapx = itemObject["mapx"].asInt,
-                        mapy = itemObject["mapy"].asInt
+                        mapx = insertDecimal(itemObject["mapx"].asInt,3).toDouble(),
+                        mapy = insertDecimal(itemObject["mapy"].asInt,2).toDouble()
                     )
                 )
             }
@@ -54,5 +54,18 @@ class SearchLocationDeserializer : JsonDeserializer<SearchLocationResponse> {
             display = jsonObject["display"]?.asInt,
             items = itemsList.toCollection(ArrayList())
         )
+    }
+}
+
+fun insertDecimal(number: Int, position: Int): String {
+    val numberStr = number.toString()
+    val length = numberStr.length
+
+    return if (length > position) {
+        val integerPart = numberStr.substring(0, position)
+        val decimalPart = numberStr.substring(position)
+        "$integerPart.$decimalPart"
+    } else {
+        "0.${numberStr.padStart(position, '0')}"
     }
 }
