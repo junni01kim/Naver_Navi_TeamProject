@@ -53,7 +53,7 @@ import com.hansung.sherpa.itemsetting.SubwaySectionInfo
  * @param expand 화면 펼치기 유무
  * */
 @Composable
-fun SpecificContents(sectionInfo:SectionInfo,lineColor:Color, expand:Boolean){
+fun SpecificContents(sectionInfo:SectionInfo, lineColor:Color, expand:Boolean){
     AnimatedVisibility(
         visible = expand,
         enter = slideInVertically(),
@@ -68,14 +68,15 @@ fun SpecificContents(sectionInfo:SectionInfo,lineColor:Color, expand:Boolean){
                 .padding(8.dp)
                 .background(Color.White)
         ){
+            // 보여질 세부 경로가...
             when(sectionInfo){
-                is PedestrianSectionInfo ->{
+                is PedestrianSectionInfo ->{ // 보행자인 경우
                     SpecificRouteContentsUI(sectionInfo.contents.toList(), lineColor)
                 }
-                is BusSectionInfo ->{
+                is BusSectionInfo ->{ // 버스인 경우
                     SpecificRouteContentsUI(sectionInfo.stationNames, lineColor)
                 }
-                is SubwaySectionInfo ->{
+                is SubwaySectionInfo ->{ // 지하철인 경우
                     SpecificRouteContentsUI(sectionInfo.stationNames, lineColor)
                 }
             }
@@ -85,17 +86,19 @@ fun SpecificContents(sectionInfo:SectionInfo,lineColor:Color, expand:Boolean){
 
 /**
  * 경로의 세부 내용을 보여주는 UI 
+
+ * @param contents 경로의 세부 내용들
  * 
  * 보행자 : 이동 방법 (우회전, 좌회전, 횡단보도)
  * 
  * 버스, 지하철 : 정류장 이름들
  *
- * @param contents
+ *
  * @param lineColor 이동 수단의 색상 
  * 
- * (보행자 : 점선, 
+ * 보행자 : 점선,
  * 
- * 대중교통 : 버스, 호선의 색상)
+ * 대중교통 : 버스, 호선의 색상
  * */
 @Composable
 fun SpecificRouteContentsUI(contents:List<String>, lineColor: Color){
@@ -111,12 +114,13 @@ fun SpecificRouteContentsUI(contents:List<String>, lineColor: Color){
                     composableSize = layoutCoordinates.size.height.toFloat()
                 },
         ) {
-            // 이동 내용, 정류장 이름 표시
+            // 이동 방법 또는 정류장 이름 표시
             for(content in contents){
                 Row(
                     modifier = Modifier.padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // 라인 색상이 검은색인 경우 보행자
                     if(lineColor==Color.Black){
                         SetContentsImage(content)
                     }

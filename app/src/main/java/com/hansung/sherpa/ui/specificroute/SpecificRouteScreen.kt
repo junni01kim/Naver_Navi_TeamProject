@@ -70,7 +70,6 @@ fun SpecificRouteScreen(
     goBack:()->Unit
 ){
     val context = LocalContext.current
-    val totalTime by remember { mutableIntStateOf(response.info.totalTime ?: 0) }
 
     // TODO: 김명준이 코드 추가한 부분 시작 ----------
     /**
@@ -178,7 +177,7 @@ fun SpecificRouteScreen(
                 verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (Card의 최 상단 부분)
+                SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (BottomSheetScaffold의 최상단 부분)
                 SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
             }
         }

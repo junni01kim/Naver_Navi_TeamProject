@@ -12,11 +12,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
 /**
- *
  * DB의 elevator_subway_location 테이블에 접근
  *
- * @param 역이름 (EX : 한성대입구역)
- *
+ * @param stationName 역 이름(EX : 한성대입구)
  * */
 
 fun getSubwayElevLocation(stationName: String): ElevatorLocResponse {

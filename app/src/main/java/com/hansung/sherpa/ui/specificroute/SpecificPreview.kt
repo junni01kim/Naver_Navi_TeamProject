@@ -37,6 +37,8 @@ import java.time.LocalDateTime
  * 전체 이동 시간 적인 내용을 프로그래스바로 표현
  * 
  * (총 이동 시간, 지하철 몇분 이동, 도보 몇분 이동...)
+ *
+ * @param response 경로 요청 값 원본 (TransportRoute)
  */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -65,11 +67,4 @@ fun SpecificPreview(response: TransportRoute){
     }
 
 
-}
-
-@Preview(showBackground = true)
-@Composable
-fun pre(){
-    val progress by remember { mutableStateOf(0.5f) }
-    //SpecificPreview(progressPercentage = progress)
 }
