@@ -56,7 +56,7 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
          *
          * 알림 메세지
          */
-        if(sherpaDialog.value.show) {
+        if(sherpaDialog.value.show.value) {
             SherpaDialog(
                 title = sherpaDialog.value.title,
                 message = sherpaDialog.value.message,
@@ -141,7 +141,7 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
     }
 }
 
-/**
+/**ㅂㅈ
  * 회원가입 서식 확인하는 함수
  */
 fun isValidId(id: String): Boolean {
