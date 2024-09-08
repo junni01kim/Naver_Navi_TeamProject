@@ -145,7 +145,7 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
  * 회원가입 서식 확인하는 함수
  */
 fun isValidId(id: String): Boolean {
-    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}$".toRegex()
     return regex.matches(id)
 }
 
