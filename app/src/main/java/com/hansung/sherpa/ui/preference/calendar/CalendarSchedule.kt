@@ -43,9 +43,6 @@ import com.hansung.sherpa.schedule.RouteData
 import com.hansung.sherpa.schedule.RouteManager
 import com.hansung.sherpa.schedule.ScheduleManager
 import com.hansung.sherpa.schedule.Schedules
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -236,12 +233,7 @@ fun ScheduleColumn(
         else {
             // 위치가 새로 등록된 경우
             if(updatedScheduleData.scheduledLocation.name.isNotEmpty()){
-                var routeData : RouteData? = null
-                runBlocking {
-                    withContext(Dispatchers.IO){
-                        routeData = routeManager.insertRoute(scheduleData = updatedScheduleData)
-                    }
-                }
+                val routeData : RouteData? = routeManager.insertRoute(scheduleData = updatedScheduleData)
                 routeData?.let { updatedScheduleData.routeId = it.routeId }
             }
         }

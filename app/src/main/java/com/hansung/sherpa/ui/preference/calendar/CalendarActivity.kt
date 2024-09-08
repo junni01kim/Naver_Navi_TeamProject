@@ -75,7 +75,6 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -214,9 +213,7 @@ fun CalendarScreen(
         if(isAdded){
             var routeId : Int? = null
             if(item.scheduledLocation.name.isNotEmpty()) {
-                routeId = runBlocking(Dispatchers.IO) {
-                    withContext(Dispatchers.IO) { routeManager.insertRoute(scheduleData = item) }
-                }?.routeId
+                routeId = routeManager.insertRoute(scheduleData = item)?.routeId
             }
             scheduleManager.insertSchedules(scheduleData = item, routeId = routeId)
 

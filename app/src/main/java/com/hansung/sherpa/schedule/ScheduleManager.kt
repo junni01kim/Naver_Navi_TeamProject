@@ -1,8 +1,6 @@
 package com.hansung.sherpa.schedule
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
@@ -16,6 +14,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.text.SimpleDateFormat
 import java.util.Date
 
+/**
+ * @author 6-keem
+ *
+ * 스케줄 데이터 추가, 수정, 삭제를 수행하는 클래스
+ */
 class ScheduleManager {
     private val gson: Gson = GsonBuilder()
         .registerTypeAdapter(ScheduleResponse::class.java, ScheduleDeserializer())
@@ -27,6 +30,11 @@ class ScheduleManager {
         .build()
         .create(ScheduleService::class.java)
 
+    /**
+     * 스케줄 찾기
+     *
+     * @param datetime
+     */
     fun findSchedules(datetime : String) : ScheduleResponse? {
         var scheduleResponse : ScheduleResponse? = null
         try {
@@ -47,7 +55,11 @@ class ScheduleManager {
         return scheduleResponse
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+    /**
+     * 스케줄 삽입
+     *
+     * @param datetime
+     */
     fun insertSchedules(scheduleData: ScheduleData, routeId : Int?){
         try {
             val simpleDateFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm")
@@ -78,6 +90,11 @@ class ScheduleManager {
         }
     }
 
+    /**
+     * 스케줄 삭제
+     *
+     * @param scheduleId
+     */
     fun deleteSchedules(scheduleId : Int){
         try {
             runBlocking {
@@ -90,6 +107,11 @@ class ScheduleManager {
         }
     }
 
+    /**
+     * 스케줄 수정
+     *
+     * @param schedules
+     */
     fun updateSchedule(schedules: Schedules){
         runBlocking {
             withContext(Dispatchers.IO) {
