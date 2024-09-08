@@ -11,6 +11,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,7 +40,7 @@ val sherpaThemeColor = Color(0xFF34DFD5)
  * @property onConfirmation 승인 버튼 터치 시 실행
  */
 data class SherpaDialogParm(
-    var show: Boolean = false,
+    var show: MutableState<Boolean> = mutableStateOf(false),
     var title: String = "",
     var message:List<String> = listOf(),
     var confirmButtonText:String = "",
@@ -61,16 +63,16 @@ data class SherpaDialogParm(
         message: List<String>,
         confirmButtonText: String = "확인",
         dismissButtonText: String = "",
-        onDismissRequest: () -> Unit = {show = false},
-        onConfirmation: () -> Unit = {show = false}
+        onDismissRequest: () -> Unit = {show.value = false},
+        onConfirmation: () -> Unit = {show.value = false}
     ){
         this.title = title
         this.message = message
-        if(confirmButtonText != "확인") this.confirmButtonText = confirmButtonText
+        this.confirmButtonText = confirmButtonText
         if(dismissButtonText != "") this.dismissButtonText = dismissButtonText
-        if(onDismissRequest != {show = false}) this.onDismissRequest = onDismissRequest
-        if(onConfirmation != {show = false}) this.onConfirmation = onConfirmation
-        this.show = true
+        if(onDismissRequest != {show.value = false}) this.onDismissRequest = onDismissRequest
+        if(onConfirmation != {show.value = false}) this.onConfirmation = onConfirmation
+        this.show.value = true
     }
 }
 /**

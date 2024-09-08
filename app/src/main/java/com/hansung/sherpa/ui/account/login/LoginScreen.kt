@@ -48,7 +48,7 @@ fun LoginScreen(navController: NavController = rememberNavController(), modifier
          *
          * 알림 메세지
          */
-        if(sherpaDialog.value.show) {
+        if(sherpaDialog.value.show.value) {
             SherpaDialog(
                 title = sherpaDialog.value.title,
                 message = sherpaDialog.value.message,
