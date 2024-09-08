@@ -54,7 +54,7 @@ private val TitleStyle = TextStyle(
 /**
  * < 화살표를 눌렀을 때 띄워지는 긴급 연락처의 모달창
  * - 전화하기 : 해당 연락처의 주인으로 전화 화면으로 넘어간다.
- * - 이동하기 : 해당 연랃처의 주인으로 네비게이션 안내를 해준다.
+ * - 이동하기 : 해당 연락처의 주인으로 네비게이션 안내를 해준다.
  *
  * @param openDialog
  * @param contact
@@ -76,7 +76,12 @@ fun EmergencyOptionModal(openDialog: MutableState<Boolean> = remember { mutableS
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(modifier = Modifier.fillMaxWidth(),text = contact.name, textAlign = TextAlign.Center, style =  TitleStyle)
+                Text(
+                    modifier    = Modifier.fillMaxWidth(),
+                    text        = contact.name,
+                    textAlign   = TextAlign.Center,
+                    style       = TitleStyle
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -86,7 +91,7 @@ fun EmergencyOptionModal(openDialog: MutableState<Boolean> = remember { mutableS
                 ) {
                     Text(text = "연락처: ${contact.phone}")
                     Text(text = "주소: ${contact.address}", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(text = "설명: 아버지입니다.")
+                    Text(text = "설명: ${contact.name}입니다.") // TODO 관계를 받아와야 됨.
                 }
                 EmergencyOptionButton(onDismissRequest, contact.phone)
             }
@@ -94,6 +99,13 @@ fun EmergencyOptionModal(openDialog: MutableState<Boolean> = remember { mutableS
     }
 }
 
+/**
+ * < 눌렀을 때 나오는 모달창
+ * 전화하기, 이동하기 모달
+ *
+ * @param onDismissRequest
+ * @param phone
+ */
 @Composable
 fun EmergencyOptionButton(onDismissRequest: () -> Unit = {}, phone: String = "010-0000-0000") {
     val context = LocalContext.current
