@@ -24,6 +24,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.hansung.sherpa.ui.theme.PurpleGrey40
 
+/**
+ * 스케줄 길게 누르면
+ */
 @Composable
 fun ScheduleDeleteDialog(
     openDialogCustom: MutableState<Boolean>,

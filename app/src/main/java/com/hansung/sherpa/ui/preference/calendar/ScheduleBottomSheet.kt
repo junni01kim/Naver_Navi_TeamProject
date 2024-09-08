@@ -152,8 +152,8 @@ fun ScheduleBottomSheet(
                     LocationBottomSheet(locationSheetState) { items ->
                         scheduleData.scheduledLocation.name = items.title.toString()
                         scheduleData.scheduledLocation.address = items.roadAddress.toString()
-                        scheduleData.scheduledLocation.lat = insertDecimal(items.mapx!!,3).toDouble()
-                        scheduleData.scheduledLocation.lon = insertDecimal(items.mapy!!,2).toDouble()
+                        scheduleData.scheduledLocation.lat = items.mapx!!
+                        scheduleData.scheduledLocation.lon = items.mapy!!
                     }
                 }
 //                Alert(scheduleData = scheduleData)
@@ -912,23 +912,6 @@ fun preview(){
 //            Alert(scheduleData = scheduleData)
             Memo(scheduleData = scheduleData)
         }
-    }
-}
-
-/**
- * 지역 검색 Api에서
- */
-
-fun insertDecimal(number: Int, position: Int): String {
-    val numberStr = number.toString()
-    val length = numberStr.length
-
-    return if (length > position) {
-        val integerPart = numberStr.substring(0, position)
-        val decimalPart = numberStr.substring(position)
-        "$integerPart.$decimalPart"
-    } else {
-        "0.${numberStr.padStart(position, '0')}"
     }
 }
 
