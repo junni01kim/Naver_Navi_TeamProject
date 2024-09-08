@@ -46,9 +46,9 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.itemsetting.LatLng
 import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.Navigation
+import com.naver.maps.geometry.LatLng
 
 val searchScreenUiColor = Color.White
 val iconColor = Color(0xFF82878B)
@@ -100,7 +100,6 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
     val rowMargin = 20.dp
     val bigSpace = 10.dp
     val middleSpace = 5.dp
-    val smallSpace = 2.dp
     Column {
         Row(
             horizontalArrangement = Arrangement.SpaceAround,
@@ -178,24 +177,20 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
                     SherpaButton(Icons.Default.Search) {
                         /**
                          * 각 TextField의 장소가 LocationList를 통해 저장되었는지 확인하는 함수
+                         * // TODO: 이건 왜 -1.0?? 조금 더 예외 처리 구체화 하기
                          */
                         if(departureLatLng == LatLng(-1.0,-1.0) || departureValue == ""){
-                            departureLatLng == LatLng(-1.0,-1.0)
-                            departureValue == ""
+                            departureLatLng = LatLng(-1.0,-1.0)
+                            departureValue = ""
                             departureFocusRequester.requestFocus()
                             return@SherpaButton
                         }
                         if(destinationLatLng == LatLng(-1.0,-1.0) || destinationValue == ""){
-                            destinationLatLng == LatLng(-1.0,-1.0)
-                            destinationValue == ""
+                            destinationLatLng = LatLng(-1.0,-1.0)
+                            destinationValue = ""
                             destinationFocusRequester.requestFocus()
                             return@SherpaButton
                         }
-
-//                            if(StaticValue.userInfo.role1 == "CARETAKER" && !StaticValue.searchPermission) {
-//                                dialogToggle.value = true
-//                                return@SherpaButton
-//                            }
 
                         /**
                          * 출발지와 목적지에 대한 경로를 요청하는 함수
@@ -219,6 +214,7 @@ fun SearchArea(navController: NavController, _destinationValue: String, dialogTo
 
                         /**
                          * TextField 값 초기화
+                         * // TODO: 이건 왜 -1.0?? 조금 더 예외 처리 구체화 하기
                          */
                         departureValue = ""
                         departureLatLng = LatLng(-1.0,-1.0)

@@ -112,6 +112,8 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
              *
              * 에러코드 200: API 연결은 성공했으나, 이메일이 중복된 경우
              * 에러코드 201: 이메일 이용가능
+             *
+             * // TODO: 에러처리 추가
              */
             val code = UserManager().verificatonEmail(emailValue).code
             if(code == 200) {
@@ -140,6 +142,7 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
              *
              * 에러코드 200: API 접속은 성공했으나, 전화번호가 중복된 경우
              * 에러코드 201: 전화번호 이용가능
+             * // TODO: 에러처리 추가
              */
             val code = UserManager().verificatonTelNum(telValue).code
             if(code == 200) {
@@ -231,10 +234,13 @@ fun CaregiverArea(navController: NavController, sherpaDialog: MutableState<Sherp
                 /**
                  * 에러처리 에러 코드
                  *
-                 * 에러코드 200: 보호자 생성 성공 시 반환
+                 * 200: API 요청 성공
+                 * 404: UserManager.create: Null 값 반환
+                 * 404: IOException: 네트워크 연결 실패
+                 * 500: 에러 원인을 찾을 수 없음
                  */
-                val user1 = UserManager().create(createUserRequest)
-                if(user1.code == 200) navController.navigate(SherpaScreen.Login.name)
+                val response = UserManager().create(createUserRequest)
+                if(response.code == 200) navController.navigate(SherpaScreen.Login.name)
                 else {
                     sherpaDialog.value.setParm(
                         title = "회원가입 실패",
@@ -288,6 +294,7 @@ fun refuseSignup(
         return true
     }
 
+    //if(!isValidPassword(passwordValue)){
     if(!isValidId(passwordValue)){
         sherpaDialog.value.setParm(
             title = "회원가입 실패",
@@ -296,6 +303,7 @@ fun refuseSignup(
         return true
     }
 
+    //if(!isValidEmail(emailValue)){
     if(!isValidId(emailValue)){
         sherpaDialog.value.setParm(
             title = "회원가입 실패",

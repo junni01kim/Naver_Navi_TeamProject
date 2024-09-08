@@ -61,10 +61,6 @@ fun SearchScreen(
         verticalArrangement = Arrangement.spacedBy(4.dp)) {
         // 검색 항목을 구현한 Composable
         // 출발지와 도착지를 입력하고, 입력 값을 기반으로 경로를 요청하는 영역
-//        SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
-//            routeList = childRouteList
-//            searchingTime = childSearchingTime
-//        }
         SearchArea(navController, destinationValue, dialogToggle){ childRouteList, childSearchingTime ->
             routeList = childRouteList
             searchingTime = childSearchingTime

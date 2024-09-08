@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.Url
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.subwayelevator.ElevatorException
 import com.hansung.sherpa.subwayelevator.ElevatorLocResponse
@@ -36,7 +37,7 @@ class TransitManager {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -64,7 +65,7 @@ class TransitManager {
                 try {
                     Log.d("reqlocation","" + routeRequest.startY +", "+ routeRequest.startX+"    "+routeRequest.endY+", "+routeRequest.endX)
                     val response = Retrofit.Builder()
-                        .baseUrl("https://apis.openapi.sk.com/")
+                        .baseUrl(Url.TMAP)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
@@ -81,7 +82,7 @@ class TransitManager {
                         try {
                             val options = setOSRMRequestToMap()
                             val response = Retrofit.Builder()
-                                .baseUrl("https://routing.openstreetmap.de/")
+                                .baseUrl(Url.OSRM)
                                 .addConverterFactory(GsonConverterFactory.create())
                                 .build()
                                 .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -110,7 +111,7 @@ class TransitManager {
                 try {
                     val options = setOSRMRequestToMap()
                     val response = Retrofit.Builder()
-                        .baseUrl("https://routing.openstreetmap.de/")
+                        .baseUrl(Url.OSRM)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -141,7 +142,7 @@ class TransitManager {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(TransitRouteService::class.java)
@@ -451,7 +452,7 @@ class TransitManager {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://apis.openapi.sk.com/")
+                        .baseUrl(Url.TMAP)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(TmapPoiService::class.java).getTmapPoi(

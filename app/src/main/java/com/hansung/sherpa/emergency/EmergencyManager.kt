@@ -2,8 +2,7 @@ package com.hansung.sherpa.emergency
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.BuildConfig
-import com.hansung.sherpa.user.UserResponse
+import com.hansung.sherpa.Url
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -11,15 +10,22 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.io.IOException
 
-val nncBackendEmergencyUrl = BuildConfig.SHERPA_URL
-
 class EmergencyManager {
     /**
      * [Sherpa 내부 서버] 긴급 연락처 추가 함수
      *
      * @param request 추가할 Emergency 객체
      *
-     * @return ※ data는 무조건 null을 반환한다.
+     * @return data는 무조건 null을 반환한다.
+     *
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun insertEmergency(request: Emergency):EmergencyResponse {
         var result: EmergencyResponse? = null
@@ -27,7 +33,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
@@ -57,7 +63,15 @@ class EmergencyManager {
      *
      * @param emergencyId 삭제할 긴급 연락처 emergancyId
      *
-     * @return ※ data는 무조건 null을 반환한다.
+     * @return data는 무조건 null을 반환한다.
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun deleteEmergency(emergencyId:Int):DeleteEmergencyResponse {
         var result: DeleteEmergencyResponse? = null
@@ -65,7 +79,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
@@ -99,6 +113,15 @@ class EmergencyManager {
      * @param userId 조회할 사용자의 Id
      *
      * @return userId 사용자의 모든 긴급연락처
+     *
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun getAllEmergency(userId:Int):EmergencyListResponse{
         var result: EmergencyListResponse? = null
@@ -106,7 +129,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)
@@ -140,6 +163,15 @@ class EmergencyManager {
      * @param emergencyId 홈화면에서 이용할 긴급 연락처 emergencyId
      *
      * @return ???
+     *
+     * ### 상태 코드
+     * 200: API 요청 성공
+     *
+     * 404: Null 값 반환
+     *
+     * 404: 네트워크 연결 실패
+     *
+     * 500: 에러 원인을 찾을 수 없음
      */
     fun updateEmergencyBookmark(emergencyId: Int): EmergencyResponse {
         var result: EmergencyResponse? = null
@@ -147,7 +179,7 @@ class EmergencyManager {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl(nncBackendEmergencyUrl)
+                        .baseUrl(Url.SHERPA)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(EmergencyService::class.java)

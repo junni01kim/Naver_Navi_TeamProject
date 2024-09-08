@@ -3,6 +3,7 @@ package com.hansung.sherpa.searchlocation
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
+import com.hansung.sherpa.Url
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
@@ -39,7 +40,7 @@ class SearchLocation {
         .create()
 
     private val retrofitService = Retrofit.Builder()
-            .baseUrl("https://openapi.naver.com")
+            .baseUrl(Url.NAVER)
             .client(interceptor)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

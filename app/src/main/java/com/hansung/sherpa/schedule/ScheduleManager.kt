@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.Url
 import com.hansung.sherpa.ui.preference.calendar.ScheduleData
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -25,7 +26,7 @@ class ScheduleManager {
         .create()
 
     private val retrofitService = Retrofit.Builder()
-        .baseUrl(BuildConfig.SHERPA_URL)
+        .baseUrl(Url.SHERPA)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
         .create(ScheduleService::class.java)

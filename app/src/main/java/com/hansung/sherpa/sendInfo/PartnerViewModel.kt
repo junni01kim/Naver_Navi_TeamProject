@@ -25,10 +25,11 @@ class PartnerViewModel : ViewModel()  {
     }
 
     /**
-     * ???
+     * 문자열로 받은 좌표를 역직렬화 후
+     * [updateLatLng] 에 전달
      */
-    fun getLatLng(title: String, body: String) {
-        val caretakerLatLng = Gson().fromJson(body, LatLng::class.java)
+    fun getLatLng(coordinate: String) {
+        val caretakerLatLng = Gson().fromJson(coordinate, LatLng::class.java)
         updateLatLng(caretakerLatLng)
     }
 }

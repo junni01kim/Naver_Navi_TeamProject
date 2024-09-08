@@ -100,6 +100,10 @@ class CaregiverSyncActivity : ComponentActivity() {
     }
 }
 
+/**
+ * 보호자 연동 요청 화면
+ *
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CaregiverSyncScreen() {
@@ -139,11 +143,12 @@ fun CaregiverSyncScreen() {
     ) {
         MaterialTheme(
             colorScheme = lightColorScheme(
-                primary = Color(0xFF6200EE),
+                primary = MaterialTheme.colorScheme.primary,
                 onBackground = Color.Black,
                 onSurfaceVariant = Color.Gray
             )
         ) {
+            // 검색창
             Surface(shape = RoundedCornerShape(20.dp)) {
                 SearchBar(
                     onSearch = {
@@ -168,42 +173,44 @@ fun CaregiverSyncScreen() {
         ) { i ->
             if (i < filteredItems.size) {
                 val item = filteredItems[i]
-                    Box(
+                Box(
+                    modifier = Modifier
+                        .width(250.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { selectedItem = item }
+                ) {
+                    // 배경 이미지(프로필 사진)
+                    Image(
+                        painter = painterResource(id = item.imageResId),
+                        contentDescription = stringResource(item.contentDescriptionResId),
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
-                            .width(250.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .clickable { selectedItem = item }
-                    ) {
-                        Image(
-                            painter = painterResource(id = item.imageResId),
-                            contentDescription = stringResource(item.contentDescriptionResId),
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                        )
+                            .fillMaxSize()
+                    )
 
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomCenter)
-                                .padding(16.dp)
-                        ) {
-                            Text(
-                                text = item.name,
-                                modifier = Modifier.align(Alignment.CenterHorizontally),
-                                style = TextStyle(
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
+                    // 이름, 이메일
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = item.name,
+                            modifier = Modifier.align(Alignment.CenterHorizontally),
+                            style = TextStyle(
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             )
-                            Text(
-                                text = item.email,
-                                style = TextStyle(
-                                    color = Color.White
-                                ),
-                                modifier = Modifier.align(Alignment.CenterHorizontally)
-                            )
-                        }
+                        )
+                        Text(
+                            text = item.email,
+                            style = TextStyle(
+                                color = Color.White
+                            ),
+                            modifier = Modifier.align(Alignment.CenterHorizontally)
+                        )
+                    }
                 }
             }
         }
@@ -213,7 +220,7 @@ fun CaregiverSyncScreen() {
 @Composable
 fun ItemDetailDialog(item: CarouselItem, onDismiss: () -> Unit) {
     val sherpaDialog = remember { mutableStateOf(SherpaDialogParm())}
-    var showDialog = remember { mutableStateOf(false) }
+    val showDialog = remember { mutableStateOf(false) }
     AlertDialog(
         onDismissRequest = { onDismiss() },
         title = { Text("보호자 연동", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },

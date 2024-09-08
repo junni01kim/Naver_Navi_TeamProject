@@ -3,6 +3,7 @@ package com.hansung.sherpa.accidentpronearea
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.hansung.sherpa.BuildConfig
+import com.hansung.sherpa.Url
 import com.naver.maps.geometry.LatLng
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -34,7 +35,7 @@ class AccidentProneAreaManager {
         .create()
 
     private val retrofitService = Retrofit.Builder()
-        .baseUrl(BuildConfig.SHERPA_URL)
+        .baseUrl(Url.SHERPA)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
         .create(SearchAccidentProneAreaService::class.java)

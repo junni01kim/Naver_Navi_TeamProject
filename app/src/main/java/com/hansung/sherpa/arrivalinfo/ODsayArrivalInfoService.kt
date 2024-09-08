@@ -1,4 +1,4 @@
-package com.hansung.sherpa.arrivalinfo.odsay
+package com.hansung.sherpa.arrivalinfo
 
 import okhttp3.ResponseBody
 import retrofit2.Call

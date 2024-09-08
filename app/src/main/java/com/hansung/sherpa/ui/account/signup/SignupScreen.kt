@@ -56,7 +56,7 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
          *
          * 알림 메세지
          */
-        if(sherpaDialog.value.show) {
+        if(sherpaDialog.value.show.value) {
             SherpaDialog(
                 title = sherpaDialog.value.title,
                 message = sherpaDialog.value.message,
@@ -141,11 +141,27 @@ fun SignupScreen(navController: NavController = rememberNavController(), modifie
     }
 }
 
-/**
+/**ㅂㅈ
  * 회원가입 서식 확인하는 함수
  */
 fun isValidId(id: String): Boolean {
     val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}$".toRegex()
+    return regex.matches(id)
+}
+
+/**
+ * 회원가입 이메일 서식을 확인하는 함수
+ */
+fun isValidEmail(email: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
+    return regex.matches(email)
+}
+
+/**
+ * 회원가입 비밀번호 서식을 확인하는 함수
+ */
+fun isValidPassword(id: String): Boolean {
+    val regex = "^[a-zA-Z0-9!@#\$%^&*()_+\\-=]{8,20}@[a-zA-Z0-9.-]{2,}+\\.[a-zA-Z]{2,}\$\n".toRegex()
     return regex.matches(id)
 }
 

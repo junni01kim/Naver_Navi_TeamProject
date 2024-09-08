@@ -69,16 +69,14 @@ fun LoginArea(
          */
         TextButton(
             onClick = {
+                //if(!isValidEmail(emailValue)||!isValidPassword(passwordValue)){
                 if(!isValidId(emailValue)||!isValidId(passwordValue)){
-                    sherpaDialog.value.setParm (
-                        title = "로그인 실패",
-                        message = listOf("이메일/비밀번호를 확인해주세요")
-                    )
+                    sherpaDialog.value.setParm (title = "로그인 실패", message = listOf("이메일/비밀번호를 확인해주세요"))
                     return@TextButton
                 }
 
                 if(login(navController, emailValue, passwordValue)) {
-                    Toast.makeText(context,"로그인 실패!\n아이디 비밀번호를 확인해주세요", Toast.LENGTH_SHORT).show()
+                    sherpaDialog.value.setParm("로그인 실패", listOf("아이디 비밀번호를 확인해주세요"))
                     return@TextButton
                 }
                       },
@@ -116,7 +114,7 @@ fun login(navController: NavController, email: String, password: String) : Boole
     if(loginResponse.code == 200) {
         StaticValue.userInfo = loginResponse.data!!
         UserManager().updateFcm()
-        navController.navigate("${SherpaScreen.Home.name}")
+        navController.navigate(SherpaScreen.Home.name)
     }
     else {
         return true

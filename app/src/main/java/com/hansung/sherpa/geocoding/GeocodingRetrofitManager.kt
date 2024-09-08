@@ -1,5 +1,6 @@
 package com.hansung.sherpa.geocoding
 
+import com.hansung.sherpa.Url
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -12,7 +13,7 @@ class GeocodingRetrofitManager private constructor() {
                 synchronized(this) {
                     if (instance == null) {
                         instance = Retrofit.Builder()
-                            .baseUrl("https://apis.openapi.sk.com/")
+                            .baseUrl(Url.TMAP)
                             .addConverterFactory(GsonConverterFactory.create())
                             .build().also { instance = it }
                     }

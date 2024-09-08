@@ -1,4 +1,4 @@
-package com.hansung.sherpa.arrivalinfo.odsay
+package com.hansung.sherpa.arrivalinfo
 
 /**
  * ODsay 실시간 버스 도착정보 조회 API 반환 값
