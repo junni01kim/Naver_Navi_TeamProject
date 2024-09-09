@@ -15,6 +15,11 @@ data class RouteResponse (
     @SerializedName("data"    ) var data    : RouteData
 )
 
+/**
+ * @param routeId 경로 아이디
+ * @param location 위치 정보
+ * @param cron 크론 -> 미정
+ */
 data class RouteData(
     @SerializedName("routeId") val routeId : Int,
     @SerializedName("location") val location : Location,
