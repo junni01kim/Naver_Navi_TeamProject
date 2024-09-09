@@ -1,5 +1,3 @@
 package com.hansung.sherpa.subwayelevator
 
-class ElevatorException(val msg:String):Exception(msg) {
-
-}
+class ElevatorException(val msg:String):Exception(msg) {  }
