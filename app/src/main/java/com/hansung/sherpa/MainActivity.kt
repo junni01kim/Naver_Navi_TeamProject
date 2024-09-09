@@ -208,7 +208,10 @@ class MainActivity : ComponentActivity() {
                             val destinationValue = it.arguments?.getString("destinationValue")!!
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
-                        composable(route = SherpaScreen.SpecificRoute.name){
+                        composable(route = "${SherpaScreen.SpecificRoute.name}/{route}",
+                            arguments = listOf(navArgument("route"){type = NavType.StringType})
+                        ){
+                            val route = it.arguments?.getString("route")
 
                             // TODO: 여기서 위험 지역 요청함 ㅎㅎ
                             val list = mutableListOf<LatLng>()
