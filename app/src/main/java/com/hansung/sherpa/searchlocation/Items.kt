@@ -12,7 +12,7 @@ data class Items (
   @SerializedName("telephone"   ) var telephone   : String? = null,
   @SerializedName("address"     ) var address     : String? = null,
   @SerializedName("roadAddress" ) var roadAddress : String? = null,
-  @SerializedName("mapx"        ) var mapx        : Int? = null,
-  @SerializedName("mapy"        ) var mapy        : Int? = null
+  @SerializedName("mapx"        ) var mapx        : Double? = null,
+  @SerializedName("mapy"        ) var mapy        : Double? = null
 
 )
