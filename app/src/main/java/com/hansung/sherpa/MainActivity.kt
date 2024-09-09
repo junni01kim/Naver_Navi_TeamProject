@@ -33,10 +33,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessaging
-import com.hansung.sherpa.accidentpronearea.AccidentProneArea
-import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
-import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
-import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
@@ -45,8 +41,8 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
-import com.hansung.sherpa.sendInfo.receive.onChangedRTDBListener
 import com.hansung.sherpa.sendInfo.receive.isCareGiver
+import com.hansung.sherpa.sendInfo.receive.onChangedRTDBListener
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.common.MessageAlam
@@ -70,8 +66,6 @@ import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.util.FusedLocationSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -109,7 +103,7 @@ class MainActivity : ComponentActivity() {
                         4. Navigation specific route로 옮기기
                     */
                     val tokens = body.split(",")
-                    val latLng = LatLng(tokens[0].toDouble(), tokens[1].toDouble())
+                    val latLng = LatLng(tokens[1].toDouble(), tokens[0].toDouble())
                     if(StaticValue.myPos != null){
                         val transportRoutes = Navigation().getDetailTransitRoutes(
                             LatLng(StaticValue.myPos!!.latitude, StaticValue.myPos!!.longitude),
@@ -117,7 +111,7 @@ class MainActivity : ComponentActivity() {
                             "", "")
                         StaticValue.transportRoute = transportRoutes[0]
                     }
-                    Toast.makeText(context,"경로 안내를 시작합니다.", Toast.LENGTH_LONG)
+                    Toast.makeText(context,"경로 안내를 시작합니다.", Toast.LENGTH_LONG).show()
                     navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
                 "재탐색" -> {
@@ -213,35 +207,10 @@ class MainActivity : ComponentActivity() {
                         ){
                             val route = it.arguments?.getString("route")
 
-                            // TODO: 여기서 위험 지역 요청함 ㅎㅎ
-                            val list = mutableListOf<LatLng>()
-                            StaticValue.transportRoute.subPath.forEach {
-                                if(it.trafficType == 3){
-                                    for(latLng : LatLng in it.sectionRoute.routeList)
-                                        list.add(latLng)
-                                }
-                            }
-                            var result : ArrayList<AccidentProneArea> = arrayListOf()
-                            var centers : List<PolygonCenter> = listOf()
-                            runBlocking(Dispatchers.IO) {
-                                run {
-                                    AccidentProneAreaManager().request(list, object :
-                                        AccidentProneAreaCallback {
-                                        override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>, listOfCenter : List<PolygonCenter>) {
-                                            result = accidentProneAreas
-                                            centers = listOfCenter
-                                        }
-                                        override fun onFailure(message: String) {
-                                            result = arrayListOf()
-                                        }
-                                    })
-                                }
-                            }
                             SpecificRouteScreen(
                                 StaticValue.transportRoute,
                                 partnerViewModel, caregiverViewModel,
-                                { navController.navigate(SherpaScreen.Home.name) },
-                                result, centers
+                                { navController.navigate(SherpaScreen.Home.name) }
                             )
                         }
                         composable(route = SherpaScreen.Preference.name){

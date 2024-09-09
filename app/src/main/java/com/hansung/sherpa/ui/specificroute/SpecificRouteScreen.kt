@@ -6,28 +6,21 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.FabPosition
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationSearching
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FloatingActionButton
@@ -47,14 +40,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
 import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
 import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.deviation.RouteDeviation
@@ -75,6 +67,8 @@ import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 /**
  * 경로의 세부 경로들 몇번 버스 이용, 어디서 내리기, 몇m 이동 등등의
@@ -90,9 +84,7 @@ fun SpecificRouteScreen(
     response: TransportRoute,
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
-    goBack:()->Unit,
-    accidentProneArea: ArrayList<AccidentProneArea>,
-    centers: List<PolygonCenter>
+    goBack:()->Unit
 ){
     val context = LocalContext.current
 
@@ -123,6 +115,29 @@ fun SpecificRouteScreen(
     val caretakerColorParts = caregiverViewModel.colorPart.observeAsState()
     val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
 
+    val list = mutableListOf<LatLng>()
+    StaticValue.transportRoute.subPath.forEach {
+        if(it.trafficType == 3){
+            for(latLng : LatLng in it.sectionRoute.routeList)
+                list.add(latLng)
+        }
+    }
+    var accidentProneAreaList : ArrayList<AccidentProneArea> = arrayListOf()
+    var centers : List<PolygonCenter> = listOf()
+    runBlocking(Dispatchers.IO) {
+        run {
+            AccidentProneAreaManager().request(list, object :
+                AccidentProneAreaCallback {
+                override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>, listOfCenter : List<PolygonCenter>) {
+                    accidentProneAreaList = accidentProneAreas
+                    centers = listOfCenter
+                }
+                override fun onFailure(message: String) {
+                    accidentProneAreaList = arrayListOf()
+                }
+            })
+        }
+    }
 
     var section by remember { mutableIntStateOf(-1) }
 
@@ -339,7 +354,7 @@ fun SpecificRouteScreen(
 
                 if(StaticValue.userInfo.role1 == "CARETAKER") {
                     DrawPathOverlay(coordParts, colorParts, passedRoute)
-                    DrawPolygons(accidentProneAreas = accidentProneArea)
+                    DrawPolygons(accidentProneAreas = accidentProneAreaList)
                 }
                 else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
             }
