@@ -81,7 +81,7 @@ import kotlinx.coroutines.runBlocking
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun SpecificRouteScreen(
-    response: TransportRoute,
+    transportRoute: TransportRoute,
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
     goBack:()->Unit
@@ -100,8 +100,8 @@ fun SpecificRouteScreen(
      */
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
-    val coordParts = remember { setCoordParts(response) }
-    val colorParts = setColorParts(response)
+    val coordParts = remember { setCoordParts(transportRoute) }
+    val colorParts = setColorParts(transportRoute)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeDivation = RouteDeviation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
@@ -116,7 +116,7 @@ fun SpecificRouteScreen(
     val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
 
     val list = mutableListOf<LatLng>()
-    StaticValue.transportRoute.subPath.forEach {
+    transportRoute.subPath.forEach {
         if(it.trafficType == 3){
             for(latLng : LatLng in it.sectionRoute.routeList)
                 list.add(latLng)
@@ -156,7 +156,7 @@ fun SpecificRouteScreen(
             dismissButtonText = "취소"
         ){
             if(StaticValue.userInfo.role1 == "CAREGIVER"){
-                sendManager.startNavigation(response)
+                sendManager.startNavigation(transportRoute)
                 dialogFlag = false
             }
             else {
@@ -184,7 +184,7 @@ fun SpecificRouteScreen(
                 startNavigation = true
                 dialogFlag = false
 
-                sendManager.startNavigation(response)
+                sendManager.startNavigation(transportRoute)
                 sendManager.devateRoute(coordParts, colorParts)
             }
         }
@@ -251,8 +251,8 @@ fun SpecificRouteScreen(
                     verticalArrangement = Arrangement.Top,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (BottomSheetScaffold의 최상단 부분)
-                    SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
+                    SpecificPreview(transportRoute) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (BottomSheetScaffold의 최상단 부분)
+                    SpecificList(transportRoute) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
                 }
             }
         ) {
@@ -303,7 +303,7 @@ fun SpecificRouteScreen(
                                  */
                                 val nowSubPath = routeDivation.nowSubpath
 
-                                if (response.subPath[nowSubPath].trafficType == 3) {
+                                if (transportRoute.subPath[nowSubPath].trafficType == 3) {
                                     Log.d("RouteControl", "경로이탈")
                                     // 너무 많이나와서 잠궈 둠
                                     //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()

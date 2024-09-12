@@ -33,10 +33,14 @@ import com.google.firebase.Firebase
 import com.google.firebase.FirebaseApp
 import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.gson.GsonBuilder
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
 import com.hansung.sherpa.fcm.ScheduleViewModel
+import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.SubPathAdapter
+import com.hansung.sherpa.itemsetting.TransportRoute
 import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
@@ -204,13 +208,13 @@ class MainActivity : ComponentActivity() {
                             val destinationValue = it.arguments?.getString("destinationValue")!!
                             SearchScreen(navController, destinationValue, Modifier.padding(innerPadding))
                         }
-                        composable(route = "${SherpaScreen.SpecificRoute.name}/{route}",
-                            arguments = listOf(navArgument("route"){type = NavType.StringType})
+                        composable(route = "${SherpaScreen.SpecificRoute.name}/{transportRouteEncodingJson}",
+                            arguments = listOf(navArgument("transportRouteEncodingJson"){type = NavType.StringType})
                         ){
-                            val route = it.arguments?.getString("route")
-
+                            val transportRouteEncodingJson = it.arguments?.getString("transportRouteEncodingJson")
+                            val transportRoute = fromTransportRouteJson(transportRouteEncodingJson!!)
                             SpecificRouteScreen(
-                                StaticValue.transportRoute,
+                                transportRoute,
                                 partnerViewModel, caregiverViewModel,
                                 { navController.navigate(SherpaScreen.Home.name) }
                             )
@@ -296,7 +300,7 @@ class MainActivity : ComponentActivity() {
         unregisterReceiver(messageReceiver)
     }
 
-    fun fromTransportRouteJson(encodingJson:String):TransportRoute {
+    fun fromTransportRouteJson(encodingJson:String): TransportRoute {
         // 디코딩 작업 (transportRoute는 디코딩되어 전달된다.)
         val json = encodingJson
             .substring(0, encodingJson.length)
