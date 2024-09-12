@@ -103,16 +103,17 @@ class MainActivity : ComponentActivity() {
                         4. Navigation specific route로 옮기기
                     */
                     val tokens = body.split(",")
-                    val latLng = LatLng(tokens[1].toDouble(), tokens[0].toDouble())
+                    val latLng = LatLng(tokens[0].toDouble(), tokens[1].toDouble())
                     if(StaticValue.myPos != null){
                         val transportRoutes = Navigation().getDetailTransitRoutes(
                             LatLng(StaticValue.myPos!!.latitude, StaticValue.myPos!!.longitude),
                             latLng,
                             "", "")
-                        StaticValue.transportRoute = transportRoutes[0]
+                        transportRoutes[0]
+
+                        Toast.makeText(context,"경로 안내를 시작합니다.", Toast.LENGTH_LONG)
+                        navController.navigate(SherpaScreen.SpecificRoute.name)
                     }
-                    Toast.makeText(context,"경로 안내를 시작합니다.", Toast.LENGTH_LONG).show()
-                    navController.navigate(SherpaScreen.SpecificRoute.name)
                 }
                 "재탐색" -> {
                     Log.d("FCM LOG", "재탐색")
@@ -120,7 +121,8 @@ class MainActivity : ComponentActivity() {
                 }
                 "시작" -> {
                     Log.d("FCM LOG", "시작 전송")
-                    if(caregiverViewModel.startNavigation()) navController.navigate(SherpaScreen.SpecificRoute.name)
+                    val transportRoute = caregiverViewModel.startNavigation()
+                    if(transportRoute != null) navController.navigate("${SherpaScreen.SpecificRoute.name}/$transportRoute")
                 }
 
                 else -> Log.e("FCM Log: Error", "FCM: message 형식 오류")
@@ -292,5 +294,24 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(messageReceiver)
+    }
+
+    fun fromTransportRouteJson(encodingJson:String):TransportRoute {
+        // 디코딩 작업 (transportRoute는 디코딩되어 전달된다.)
+        val json = encodingJson
+            .substring(0, encodingJson.length)
+            .chunked(2)
+            .map { Integer.parseInt(it, 16).toByte() }
+            .toByteArray()
+            .toString(Charsets.UTF_8)
+
+        // transportRoute는 interface로 제작되어 있어 추가적인 타입 변환 어댑터가 필요하다.
+        val gson = GsonBuilder()
+            .registerTypeAdapter(SubPath::class.java, SubPathAdapter())
+            .create()
+
+        // 정상화된 json 객체 파싱 진행
+        Log.d("API Log", "반환: ${json}")
+        return gson.fromJson(json, TransportRoute::class.java)
     }
 }

@@ -9,8 +9,7 @@ import com.naver.maps.geometry.LatLng
 
 class StaticValue {
     companion object{
-        lateinit var FcmToken: String
-        lateinit var transportRoute: TransportRoute
+        lateinit var FcmToken: String // TODO: 서버에서 조회하도록 수정
         var userInfo: User1 = User1(role1 = "ADMIN")
         var searchPermission = false
         var ref: DatabaseReference = Firebase.database.reference
