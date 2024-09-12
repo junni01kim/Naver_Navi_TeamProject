@@ -6,28 +6,21 @@ import android.os.Build
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.FabPosition
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationSearching
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FloatingActionButton
@@ -47,14 +40,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.MarkerComponent
 import com.hansung.sherpa.R
 import com.hansung.sherpa.StaticValue
 import com.hansung.sherpa.accidentpronearea.AccidentProneArea
+import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
 import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
 import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.deviation.RouteDeviation
@@ -75,6 +67,8 @@ import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 
 /**
  * 경로의 세부 경로들 몇번 버스 이용, 어디서 내리기, 몇m 이동 등등의
@@ -87,12 +81,10 @@ import com.naver.maps.map.overlay.OverlayImage
 @OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun SpecificRouteScreen(
-    response: TransportRoute,
+    transportRoute: TransportRoute,
     partnerViewModel: PartnerViewModel,
     caregiverViewModel: CaregiverViewModel,
-    goBack:()->Unit,
-    accidentProneArea: ArrayList<AccidentProneArea>,
-    centers: List<PolygonCenter>
+    goBack:()->Unit
 ){
     val context = LocalContext.current
 
@@ -108,8 +100,8 @@ fun SpecificRouteScreen(
      */
     var myPos by remember { mutableStateOf(LatLng(37.532600, 127.024612)) }
 
-    val coordParts = remember { setCoordParts(response) }
-    val colorParts = setColorParts(response)
+    val coordParts = remember { setCoordParts(transportRoute) }
+    val colorParts = setColorParts(transportRoute)
     val passedRoute = remember { SnapshotStateList<Double>().apply { repeat(coordParts.size) { add(0.0) } } }
     val routeDivation = RouteDeviation(coordParts, passedRoute)
     var startNavigation by remember { mutableStateOf(false)}
@@ -123,6 +115,29 @@ fun SpecificRouteScreen(
     val caretakerColorParts = caregiverViewModel.colorPart.observeAsState()
     val caretakerPassedRoute = caregiverViewModel.passedRoute.observeAsState()
 
+    val list = mutableListOf<LatLng>()
+    transportRoute.subPath.forEach {
+        if(it.trafficType == 3){
+            for(latLng : LatLng in it.sectionRoute.routeList)
+                list.add(latLng)
+        }
+    }
+    var accidentProneAreaList : ArrayList<AccidentProneArea> = arrayListOf()
+    var centers : List<PolygonCenter> = listOf()
+    runBlocking(Dispatchers.IO) {
+        run {
+            AccidentProneAreaManager().request(list, object :
+                AccidentProneAreaCallback {
+                override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>, listOfCenter : List<PolygonCenter>) {
+                    accidentProneAreaList = accidentProneAreas
+                    centers = listOfCenter
+                }
+                override fun onFailure(message: String) {
+                    accidentProneAreaList = arrayListOf()
+                }
+            })
+        }
+    }
 
     var section by remember { mutableIntStateOf(-1) }
 
@@ -141,7 +156,7 @@ fun SpecificRouteScreen(
             dismissButtonText = "취소"
         ){
             if(StaticValue.userInfo.role1 == "CAREGIVER"){
-                sendManager.startNavigation(response)
+                sendManager.startNavigation(transportRoute)
                 dialogFlag = false
             }
             else {
@@ -169,7 +184,7 @@ fun SpecificRouteScreen(
                 startNavigation = true
                 dialogFlag = false
 
-                sendManager.startNavigation(response)
+                sendManager.startNavigation(transportRoute)
                 sendManager.devateRoute(coordParts, colorParts)
             }
         }
@@ -236,8 +251,8 @@ fun SpecificRouteScreen(
                     verticalArrangement = Arrangement.Top,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    SpecificPreview(response) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (BottomSheetScaffold의 최상단 부분)
-                    SpecificList(response) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
+                    SpecificPreview(transportRoute) // 경로에 대한 프로그래스바 및 총 걸리는 시간 표시 (BottomSheetScaffold의 최상단 부분)
+                    SpecificList(transportRoute) // 각 이동 수단에 대한 도착지, 출발지, 시간을 표시 (여기서 Expand 수행)
                 }
             }
         ) {
@@ -288,7 +303,7 @@ fun SpecificRouteScreen(
                                  */
                                 val nowSubPath = routeDivation.nowSubpath
 
-                                if (response.subPath[nowSubPath].trafficType == 3) {
+                                if (transportRoute.subPath[nowSubPath].trafficType == 3) {
                                     Log.d("RouteControl", "경로이탈")
                                     // 너무 많이나와서 잠궈 둠
                                     //Toast.makeText(context, "경로를 이탈하였습니다.\n경로를 재설정합니다.", Toast.LENGTH_SHORT).show()
@@ -339,7 +354,7 @@ fun SpecificRouteScreen(
 
                 if(StaticValue.userInfo.role1 == "CARETAKER") {
                     DrawPathOverlay(coordParts, colorParts, passedRoute)
-                    DrawPolygons(accidentProneAreas = accidentProneArea)
+                    DrawPolygons(accidentProneAreas = accidentProneAreaList)
                 }
                 else DrawPathOverlay(caretakerCoordParts.value!!, caretakerColorParts.value!!, caretakerPassedRoute.value!!)
             }

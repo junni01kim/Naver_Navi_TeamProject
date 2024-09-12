@@ -6,6 +6,9 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonSyntaxException
 import java.lang.reflect.Type
 
+/**
+ * HTML 태그 없애는 정규식
+ */
 fun stripHTMLTags(html: String): String {
     val tagRegex = Regex("<[^>]*>")
     var processedHtml = html.replace(Regex("</?b>"), "")

@@ -2,7 +2,19 @@ package com.hansung.sherpa.searchlocation
 
 import com.google.gson.annotations.SerializedName
 
-
+/**
+ * @author 6-keem
+ *
+ * @param title 장소명
+ * @param link 링크
+ * @param category 카테고리 ex) 음식점
+ * @param telephone 전화번호
+ * @param description 상세정보
+ * @param address 주소
+ * @param roadAddress 도로명 주소
+ * @param mapx longitude
+ * @param mapy latitude
+ */
 data class Items (
 
   @SerializedName("title"       ) var title       : String? = null,

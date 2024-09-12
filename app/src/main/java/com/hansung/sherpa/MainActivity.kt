@@ -34,10 +34,6 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.database.database
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.GsonBuilder
-import com.hansung.sherpa.accidentpronearea.AccidentProneArea
-import com.hansung.sherpa.accidentpronearea.AccidentProneAreaCallback
-import com.hansung.sherpa.accidentpronearea.AccidentProneAreaManager
-import com.hansung.sherpa.accidentpronearea.PolygonCenter
 import com.hansung.sherpa.fcm.MessageViewModel
 import com.hansung.sherpa.fcm.PermissionDialog
 import com.hansung.sherpa.fcm.RationaleDialog
@@ -49,9 +45,8 @@ import com.hansung.sherpa.navigation.Navigation
 import com.hansung.sherpa.sendInfo.CaregiverViewModel
 import com.hansung.sherpa.sendInfo.CaretakerViewModel
 import com.hansung.sherpa.sendInfo.PartnerViewModel
-import com.hansung.sherpa.sendInfo.receive.ReceiveManager
-import com.hansung.sherpa.sendInfo.receive.onChangedRTDBListener
 import com.hansung.sherpa.sendInfo.receive.isCareGiver
+import com.hansung.sherpa.sendInfo.receive.onChangedRTDBListener
 import com.hansung.sherpa.ui.account.login.LoginScreen
 import com.hansung.sherpa.ui.account.signup.SignupScreen
 import com.hansung.sherpa.ui.common.MessageAlam
@@ -75,8 +70,6 @@ import com.naver.maps.map.LocationTrackingMode
 import com.naver.maps.map.NaverMap
 import com.naver.maps.map.NaverMapSdk
 import com.naver.maps.map.util.FusedLocationSource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -219,38 +212,11 @@ class MainActivity : ComponentActivity() {
                             arguments = listOf(navArgument("transportRouteEncodingJson"){type = NavType.StringType})
                         ){
                             val transportRouteEncodingJson = it.arguments?.getString("transportRouteEncodingJson")
-
                             val transportRoute = fromTransportRouteJson(transportRouteEncodingJson!!)
-
-                            // TODO: 여기서 위험 지역 요청함 ㅎㅎ
-                            val list = mutableListOf<LatLng>()
-                            transportRoute.subPath.forEach {
-                                if(it.trafficType == 3){
-                                    for(latLng : LatLng in it.sectionRoute.routeList)
-                                        list.add(latLng)
-                                }
-                            }
-                            var result : ArrayList<AccidentProneArea> = arrayListOf()
-                            var centers : List<PolygonCenter> = listOf()
-                            runBlocking(Dispatchers.IO) {
-                                run {
-                                    AccidentProneAreaManager().request(list, object :
-                                        AccidentProneAreaCallback {
-                                        override fun onSuccess(accidentProneAreas: ArrayList<AccidentProneArea>, listOfCenter : List<PolygonCenter>) {
-                                            result = accidentProneAreas
-                                            centers = listOfCenter
-                                        }
-                                        override fun onFailure(message: String) {
-                                            result = arrayListOf()
-                                        }
-                                    })
-                                }
-                            }
                             SpecificRouteScreen(
                                 transportRoute,
                                 partnerViewModel, caregiverViewModel,
-                                { navController.navigate(SherpaScreen.Home.name) },
-                                result, centers
+                                { navController.navigate(SherpaScreen.Home.name) }
                             )
                         }
                         composable(route = SherpaScreen.Preference.name){
@@ -334,7 +300,7 @@ class MainActivity : ComponentActivity() {
         unregisterReceiver(messageReceiver)
     }
 
-    fun fromTransportRouteJson(encodingJson:String):TransportRoute {
+    fun fromTransportRouteJson(encodingJson:String): TransportRoute {
         // 디코딩 작업 (transportRoute는 디코딩되어 전달된다.)
         val json = encodingJson
             .substring(0, encodingJson.length)
