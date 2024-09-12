@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.searchscreen
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -43,6 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.gson.GsonBuilder
 import com.hansung.sherpa.R
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
@@ -52,6 +54,7 @@ import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.SubPathAdapter
 import com.hansung.sherpa.itemsetting.SubwayLane
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
@@ -152,8 +155,14 @@ fun ExpandableCard(navController:NavController, route: TransportRoute, searching
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.clickable {
-                    StaticValue.transportRoute = route
-                    navController.navigate(SherpaScreen.SpecificRoute.name)
+                        val gson = GsonBuilder().registerTypeAdapter(SubPath::class.java, SubPathAdapter()).create()
+                        val json = gson.toJson(route)
+
+                        val temp = json.toByteArray(Charsets.UTF_8)
+                        val encoding = temp.joinToString("") { String.format("%02X", it) }
+
+                        Log.d("test", "json: $encoding")
+                        navController.navigate("${SherpaScreen.SpecificRoute.name}/$encoding")
                 }) {
                     route.subPath.forEachIndexed { index, it ->
                         ExpandItem(it, timerFlag)

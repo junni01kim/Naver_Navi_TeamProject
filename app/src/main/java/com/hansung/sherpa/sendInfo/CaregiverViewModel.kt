@@ -54,16 +54,15 @@ class CaregiverViewModel : ViewModel()  {
      * 해당 함수는 사용자가 경로 안내를 시작했다는 알림 받는 함수로, 해당 알림이 오면 [Sherpa 내부 서버]의 navigation.transport_route를 가져온다.
      * 예외처리: [Sherpa 내부 서버]에서 transportRoute가 조회 완료된 경우에만 화면 이동
      */
-    fun startNavigation():Boolean {
+    fun startNavigation():TransportRoute? {
         // 이용자가 수정한 transportRoute를 조회한다.
         val response = receiveManager.getTransportRoute()
 
         // TODO: 예외 추가할 것 (알림 달기)
         if(response.code == 200) {
-            StaticValue.transportRoute = receiveManager.fromTransportRouteJson(response.data!!)
-            return true
+            return receiveManager.fromTransportRouteJson(response.data!!)
         }
-        return false
+        return null
     }
 
     /**
