@@ -29,50 +29,6 @@ import com.hansung.sherpa.itemsetting.TransportRoute
 
 /**
  * 대중교통의 정보를 요약해서 표현하기 위한 차트이다.
- *
- * @param routeList 차트를 작성할 경로 정보
- * @param fullTime 전체 경로 소요시간 기반으로 비율 측정
- */
-@Composable
-fun Chart(routeList:List<SubPath>, fullTime:Int) {
-    // 차트의 너비
-    val width = 400.dp
-    
-    Box {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(15.dp)
-                .clip(CircleShape)
-                .background(Color.LightGray)
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(15.dp)
-        ) {
-            routeList.forEachIndexed { index, it ->
-                Box(modifier = Modifier
-                    .width((width.value * it.sectionInfo.sectionTime!! / fullTime).dp)
-                    .fillMaxHeight()
-                    .clip(CircleShape)
-                    .background(typeOfColor(it)),
-                    contentAlignment = Alignment.Center) {
-                    Text(
-                        text = "${it.sectionInfo.sectionTime}분",
-                        modifier = Modifier.align(Alignment.Center),
-                        fontSize = 10.sp,
-                        lineHeight = 10.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-        }
-    }
-}
-
-/**
- * 대중교통의 정보를 요약해서 표현하기 위한 차트이다.
  * 전체 경로 소요시간 기반으로 비율을 측정한다.
  *
  * @param transportRoute 차트를 작성할 전체 경로 정보
@@ -169,6 +125,7 @@ fun ThickChart(transportRoute: TransportRoute) {
  * 대중교통 종류에 맞는 색상을 반환한다.
  *
  * @param subPath 대중교통
+ * // TODO: 준희 테마색으로 변경
  */
 fun typeOfColor(subPath: SubPath):Color {
     var color:Color? = null

@@ -47,6 +47,13 @@ import com.hansung.sherpa.searchlocation.SearchLoactionCallBack
 import com.hansung.sherpa.searchlocation.SearchLocation
 import com.hansung.sherpa.searchlocation.SearchLocationResponse
 
+
+/**
+ * 위치 검색하는 ModalBottomSheet
+ *
+ * @param locationSheetStatus 해당 bottomsheet 열고 닫는 상태 변수
+ * @param onSelectedLocation 선택 되었을 때 해당 아이템 callback
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LocationBottomSheet(
@@ -74,6 +81,13 @@ fun LocationBottomSheet(
     }
 }
 
+/**
+ * 검색창 부분
+ *
+ * @param text 검색창에 입력한 문자열 다른 함수에서도 사용 해야 함
+ * @param onSearch 검색한 경우 상태가 바뀜
+ *
+ */
 @Composable
 fun LocationTextField(
     text : MutableState<String>,
@@ -134,6 +148,15 @@ fun LocationTextField(
     }
 }
 
+/**
+ * 검색 시 위치가 표시 되는 부분
+ *
+ * @param text 사용자가 입력한 위치 문자열
+ * @param onSearch 사용자가 검색한 경우 상태가 바뀜
+ * @param locationSheetStatus 해당 bottomsheet 열고 닫는 상태 변수
+ * @param onSelectedLocation 선택 되었을 때 해당 아이템 callback
+ */
+
 @Composable
 fun LocationList(
     text: MutableState<String>,
@@ -145,6 +168,9 @@ fun LocationList(
     val isValidItems = remember { mutableStateListOf<Boolean>() }
     val itemList = remember { mutableStateOf(ArrayList<Items>()) }
 
+    /**
+     * 검색 되었을 때만 표시함
+     */
     LaunchedEffect(onSearch.value) {
         if (onSearch.value && text.value.isNotEmpty()) {
             locationItems.clear()
@@ -175,11 +201,13 @@ fun LocationList(
 
     Column(modifier = Modifier.padding(horizontal = 20.dp)) {
         LazyColumn(modifier = Modifier.heightIn(max = 700.dp)) {
+            // list의 사이즈만큼 출력
             items(locationItems.size) { index ->
                 LocationColumn(
                     index = index,
                     locationText = remember { mutableStateOf(locationItems[index]) },
                     isValid = remember { mutableStateOf(isValidItems[index]) }
+                    // 아이템을 선택한 경우 수행
                 ){ selectedIndex ->
                     text.value = itemList.value[selectedIndex].title.toString()
                     locationSheetStatus.value = false
@@ -190,6 +218,14 @@ fun LocationList(
     }
 }
 
+/**
+ * 화면에 표시되는 각각의 위치
+ *
+ * @param index 몇 번째 아이템 인지
+ * @param locationText Pair<위치 이름?, 주소?>
+ * @param isValid 유효한 아이템 인지
+ * @param selectLocation 선택된 아이템의 index 번호 callback
+ */
 @Composable
 fun LocationColumn(
     index : Int,

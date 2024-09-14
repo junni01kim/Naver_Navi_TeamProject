@@ -2,12 +2,7 @@ package com.hansung.sherpa.arrivalinfo
 
 import android.util.Log
 import com.google.gson.Gson
-import com.hansung.sherpa.arrivalinfo.common.ArrivalInfoRequest
-import com.hansung.sherpa.arrivalinfo.common.ArrivalInfoResponse
-import com.hansung.sherpa.arrivalinfo.common.ArrivalInfoService
-import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoRequest
-import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoResponse
-import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoService
+import com.hansung.sherpa.Url
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -17,48 +12,40 @@ import java.io.IOException
 
 class ArrivalInfoManager {
     /**
-     * 정류소별특정노선버스 도착예정정보 목록조회 API를 사용해 경로 데이터를 가져와 역직렬화하는 함수
+     * 정류소 별 특정 노선 버스 도착 예정 정보, 목록 조회 API를 사용해 경로 데이터를 가져와 역 직렬화하는 함수
      *
-     * @param request 요청할 정보 객체
-     * @return BusArrivalInfoResponse
+     * @param request ODsay API에 전송할 데이터
      */
-    fun getArrivalInfoList(request: ArrivalInfoRequest): ArrivalInfoResponse? {
-        var result: ArrivalInfoResponse? = null
-        runBlocking {
-            launch(Dispatchers.IO) {
-                try {
-                    val response = Retrofit.Builder()
-                        .baseUrl("https://apis.data.go.kr/1613000/ArvlInfoInqireService/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                        .create(ArrivalInfoService::class.java)
-                        .getService(request.getMap()).execute()
-                    result = Gson().fromJson(response.body()!!.string(), ArrivalInfoResponse::class.java)
-                } catch (e: IOException) {
-                    Log.e("API Log: IOException", "getArrivalInfoList: ${e.message}(e.message)")
-                }
-            }
-        }
-        return result
-    }
-
-    fun getODsayArrivalInfoList(request: ODsayArrivalInfoRequest): ODsayArrivalInfoResponse? {
+    fun getODsayArrivalInfoList(request: ODsayArrivalInfoRequest): ODsayArrivalInfoResponse {
         var result: ODsayArrivalInfoResponse? = null
         runBlocking {
             launch(Dispatchers.IO){
                 try{
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(ODsayArrivalInfoService::class.java)
                         .getODsayArrivalInfoService(request.getMap()).execute()
-                    result = Gson().fromJson(response.body()!!.string(), ODsayArrivalInfoResponse::class.java)
+                    val jsonString = response.body()?.string()?:"response is null"
+
+                    // 반환 실패에 대한 에러처리
+                    if(jsonString == "response is null") {
+                        Log.e("API Log:response(Null)", "getODsayArrivalInfoList: 'response is null'")
+                        result = ODsayArrivalInfoResponse()
+                    }
+                    else {
+                        Log.i("API Log: Success", "getODsayArrivalInfoList 함수 실행 성공")
+                        result = Gson().fromJson(
+                            jsonString,
+                            ODsayArrivalInfoResponse::class.java
+                        )
+                    }
                 } catch(e:IOException){
                     Log.e("API Log: IOException", "getODsayArrivalInfoList: ${e.message}(e.message)")
                 }
             }
         }
-        return result
+        return result?: ODsayArrivalInfoResponse()
     }
 }

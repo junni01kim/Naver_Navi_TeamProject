@@ -64,45 +64,44 @@ fun AddEmergencyScreen(
     openDialog: MutableState<Boolean> = remember { mutableStateOf(true) },
     onClick: (Contact) -> Unit = {}
 ) {
-    val dialogWidth = 800.dp
-    val dialogHeight = 300.dp
-    var isAddContact by remember { mutableStateOf(true) }
-    var isOpenContacts by remember { mutableStateOf(false) }
-    var isEnabled by remember { mutableStateOf(false) }
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    val dialogWidth     = 800.dp
+    val dialogHeight    = 300.dp
+
+    var isAddContact        by remember { mutableStateOf(false) }   // 긴급 연락처 불러오기 모달 Boolean
+    var isOpenContactList   by remember { mutableStateOf(false) }   // 리스트 조회 후 연락처 선택하는 모달 Boolean
+    var isAddButtonEnabled  by remember { mutableStateOf(false) }   // 추가하기 버튼 활성화
+    var selectedIndex       by remember { mutableIntStateOf(0) }    // 전화번호 리스트 중 선택한 index
+
     val onDismissRequest = { openDialog.value = false }
+
+    // 다이얼로그
+    val dialogCardModifier      = Modifier.height(dialogHeight).width(dialogWidth)
+    // 추가한 연락처 Wrapper
+    val contactWrapperModifier  = Modifier.fillMaxWidth().padding(10.dp)
+    // 추가한 연락처 지우는 Icon
+    val closeIconModifier       = Modifier
+        .offset(x = (-5).dp, y = 5.dp)
+        .zIndex(1f)
+        .clip(RoundedCornerShape(50.dp))
+        .clickable {
+            isAddContact = true
+            isAddButtonEnabled = false
+        }
+
     if (openDialog.value) {
         Dialog(
             onDismissRequest = onDismissRequest
         ) {
-            Card(modifier = Modifier
-                .height(dialogHeight)
-                .width(dialogWidth),
+            // 카드 형식으로 Wrapping
+            Card(modifier = dialogCardModifier,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(20.dp)
                 ) {
-                if(isAddContact) {
-                    AddContactButton { isOpenContacts = true }
-                }
-                else {
-                    isEnabled = true
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp)
-                    ) {
-                        ContactCard(contactList[selectedIndex])
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.TopEnd)
-                                .offset(x = (-5).dp, y = 5.dp) // Image와 겹치도록 위치 조정
-                                .zIndex(1f) // Icon이 이미지 위로 오도록 설정
-                                .clip(RoundedCornerShape(50.dp))
-                                .clickable {
-                                    isAddContact = true
-                                    isEnabled = false
-                                }
-                        ) {
+                if(isAddContact) { // 연락처를 선택한 경우
+                    isAddButtonEnabled = true
+                    Box(modifier = contactWrapperModifier) {
+                        ContactCard(contactList[selectedIndex]) // 선택한 연락처
+                        Box(modifier = closeIconModifier.align(Alignment.TopEnd)) { // 지우기 ICON
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 tint = MaterialTheme.colorScheme.onSecondary,
@@ -114,21 +113,31 @@ fun AddEmergencyScreen(
 
                     }
                 }
-                AddEmergencyButton(isEnabled = isEnabled, onDismissRequest) {
+                else { // 연락처를 선택하지 않은 경우
+                    AddContactButton { isOpenContactList = true }
+                }
+                // 취소하기/추가하기
+                AddEmergencyButton(isEnabled = isAddButtonEnabled, onDismissRequest) {
                     onClick(contactList[selectedIndex])
                 }
             }
         }
     }
-    if (isOpenContacts) {
-        SelectContactDialog(contactList, {
-            isOpenContacts = false
-            isAddContact = true
-        }) {
-            it -> selectedIndex = it
-            isOpenContacts = false
-            isAddContact = false
-        }
+    if (isOpenContactList) { // 연락처 리스트 모달을 연 경우
+        SelectContactDialog(
+            contactList, // 연락처 리스트
+            {
+                // 모달을 닫은 경우
+                isOpenContactList = false // 현재 모달을 닫고,
+                isAddContact = false // 연락처를 선택하지 않은 화면으로 돌아간다.
+            },
+            {
+                // 특정한 연락처를 선택한 경우
+                selectedIndex = it // 선택한 index를 저장하고,
+                isOpenContactList = false // 현재 모달을 닫고,
+                isAddContact = true // 연락처를 선택한 화면으로 넘긴다.
+            }
+        )
     }
 }
 
@@ -149,9 +158,7 @@ fun AddContactButton(onClick: () -> Unit) {
         val iconSize = 50.dp
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                modifier = Modifier
-                    .width(iconSize)
-                    .height(iconSize),
+                modifier = Modifier.width(iconSize).height(iconSize),
                 imageVector = Icons.Default.Add, contentDescription = "연락처 추가 버튼",
                 tint = MaterialTheme.colorScheme.outline
             )
@@ -162,10 +169,8 @@ fun AddContactButton(onClick: () -> Unit) {
 
 // 추가하기 버튼
 @Composable
-fun AddEmergencyButton(isEnabled: Boolean,onDismissRequest: () -> Unit = {}, onClick: () -> Unit = {}) {
-    MaterialTheme(
-        colorScheme = lightScheme
-    ) {
+fun AddEmergencyButton(isEnabled: Boolean, onDismissRequest: () -> Unit = {}, onClick: () -> Unit = {}) {
+    MaterialTheme(colorScheme = lightScheme) {
         Row(
             modifier = Modifier
                 .fillMaxWidth(),
@@ -182,8 +187,8 @@ fun AddEmergencyButton(isEnabled: Boolean,onDismissRequest: () -> Unit = {}, onC
                 {
                     onClick()
                     onDismissRequest()
-                }
-                , enabled = isEnabled,
+                },
+                enabled = isEnabled,
                 colors = ButtonColors(
                     containerColor = MaterialTheme.colorScheme.scrim,
                     contentColor = MaterialTheme.colorScheme.surface,
@@ -197,6 +202,11 @@ fun AddEmergencyButton(isEnabled: Boolean,onDismissRequest: () -> Unit = {}, onC
     }
 }
 
+/**
+ * 연락처를 선택했을 때 보여주는 컴포저블
+ *
+ * @param contact 선택한 연락처
+ */
 @Composable
 fun ContactCard(contact: Contact) {
     Card(modifier = Modifier
@@ -207,7 +217,7 @@ fun ContactCard(contact: Contact) {
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer,
-    )
+        )
     ) {
         Row(modifier = Modifier
             .fillMaxWidth()
@@ -292,6 +302,13 @@ data class Contact(
     val image: ImageBitmap
 )
 
+/**
+ * 리스트를 보여주고, 연락처를 선택하는 다이얼로그
+ *
+ * @param list 조회된 연락처 리스트
+ * @param onDismissRequest 취소 로직
+ * @param onClick 연락처 클릭시 로직
+ */
 @Composable
 fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onClick: (Int) -> Unit = {}) {
     Dialog(onDismissRequest = onDismissRequest) {
@@ -310,6 +327,9 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
                 ,
                 tint = MaterialTheme.colorScheme.secondary,
                 imageVector = Icons.Default.Close, contentDescription = "연락처 리스트 닫기")
+            /**
+             * 연락처 리스트 렌더링
+             */
             LazyColumn(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.background)
@@ -318,7 +338,7 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(list.size) { index ->
-                    val item = list[index]
+                    val item = list[index] // Contact
                     Card(
                         modifier = Modifier
                             .aspectRatio(2.8f) // 카드의 가로세로 비율을 설정
@@ -329,13 +349,11 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .padding(8.dp),
+                            modifier = Modifier.padding(8.dp)
                         ) {
                             Box(
                                 contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .aspectRatio(1f)
+                                modifier = Modifier.aspectRatio(1f)
                             ) {
                                 Image(
                                     bitmap = item.image,
@@ -347,7 +365,7 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
                                 )
                             }
                             Column {
-                                Text(text = item.name, style = ContentStyle+ TextStyle(fontWeight = FontWeight.ExtraBold))
+                                Text(text = item.name, style = ContentStyle + TextStyle(fontWeight = FontWeight.ExtraBold))
                                 Text(text = item.phone, style = ContentStyle)
                                 Text(text = item.address,
                                     style = ContentStyle,
@@ -363,6 +381,13 @@ fun SelectContactDialog(list: List<Contact>, onDismissRequest: () -> Unit, onCli
     }
 
 }
+
+
+
+/**
+ * Preview 모음 (코드에 영향 없음)
+ *
+ */
 
 @Preview
 @Composable

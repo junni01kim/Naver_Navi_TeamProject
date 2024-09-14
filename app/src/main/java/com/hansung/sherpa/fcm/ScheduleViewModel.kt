@@ -6,6 +6,16 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import com.hansung.sherpa.schedule.Schedule
 
+/**
+ * Fcm을 통해 스케쥴이 도착하였을 때 전송할 스케쥴 ViewModel
+ *
+ * @property showDialog ScheduleDialog를 띄우기 위한 flag 함수
+ * @property title 일정 제목
+ * @property description 일정 설명
+ * @property dateBegin 일정 시작
+ * @property dateEnd 일정 종료
+ *
+ */
 class ScheduleViewModel : ViewModel() {
     private val _showDialog = MutableLiveData(false)
     val showDialog: LiveData<Boolean> get() = _showDialog
@@ -22,7 +32,12 @@ class ScheduleViewModel : ViewModel() {
     private val _dateEnd = MutableLiveData("")
     val dateEnd: LiveData<String> get() = _dateEnd
 
-    fun updateSchedule(title: String, body: String){
+    /**
+     * SherpaFirebaseMessageService를 통해 받은 알림을 새로운 Schedule 알림으로 디코딩하는 함수
+     *
+     * @param body 전송 받은 메세지의 내용(Schedule 클래스 json 반환)
+     */
+    fun updateSchedule(body: String){
         val schedule = Gson().fromJson(body, Schedule::class.java)
 
         _showDialog.postValue(true)
@@ -32,7 +47,11 @@ class ScheduleViewModel : ViewModel() {
         _dateEnd.postValue("${schedule.dateEnd}")
     }
 
-    fun onDialogDismiss() {
+    /**
+     * ScheduleDialog를 닫기 위한 함수
+     *
+     */
+    fun dialogClose() {
         _showDialog.postValue(false)
     }
 }

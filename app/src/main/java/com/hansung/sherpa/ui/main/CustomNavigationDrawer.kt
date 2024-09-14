@@ -1,6 +1,5 @@
 package com.hansung.sherpa.ui.main
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,13 +29,21 @@ import com.hansung.sherpa.ui.preference.Divider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+/**
+ * 메인화면 사이드 네비게이션
+ *
+ * @param modifier
+ * @param navController 아이템들 클릭시 이동을 위한 Controller
+ * @param drawerState 네비게이션 open/close 상태
+ * @param scope
+ * @param content
+ */
 @Composable
 fun CustomNavigationDrawer(
     modifier: Modifier = Modifier,
-    navController: NavController = rememberNavController(),
-    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
-    scope: CoroutineScope = rememberCoroutineScope(),
+    navController: NavController    = rememberNavController(),
+    drawerState: DrawerState        = rememberDrawerState(initialValue = DrawerValue.Closed),
+    scope: CoroutineScope           = rememberCoroutineScope(),
     content: @Composable () -> Unit = {},
 ) {
     Box(
@@ -52,26 +59,26 @@ fun CustomNavigationDrawer(
             }
     ) {
         ModalNavigationDrawer(
-            modifier = modifier,
-            drawerState = drawerState,
+            modifier        = modifier,
+            drawerState     = drawerState,
             gesturesEnabled = false,
-            drawerContent = {
+            drawerContent   = {
                 ModalDrawerSheet(
                     modifier = Modifier.fillMaxWidth(0.6F)
                 ) {
                     Text("메뉴 이동하기", modifier = Modifier.padding(16.dp))
                     Divider("")
                     NavigationDrawerItem(
-                        label = { Text(text = "캘린더") },
-                        selected = false,
-                        icon = { Icon(Icons.Filled.CalendarMonth, contentDescription = "캘린더 아이콘") },
-                        onClick = { navController.navigate(SherpaScreen.CALENDAR.name) }
+                        label       = { Text(text = "캘린더") },
+                        selected    = false,
+                        icon        = { Icon(Icons.Filled.CalendarMonth, contentDescription = "캘린더 아이콘") },
+                        onClick     = { navController.navigate(SherpaScreen.CALENDAR.name) }
                     )
                     NavigationDrawerItem(
-                        label = { Text(text = "설정") },
-                        selected = false,
-                        icon = { Icon(Icons.Filled.Settings, contentDescription = "설정 아이콘") },
-                        onClick = { navController.navigate(SherpaScreen.Preference.name) }
+                        label       = { Text(text = "설정") },
+                        selected    = false,
+                        icon        = { Icon(Icons.Filled.Settings, contentDescription = "설정 아이콘") },
+                        onClick     = { navController.navigate(SherpaScreen.Preference.name) }
                     )
                 }
             }

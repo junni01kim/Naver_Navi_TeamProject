@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat
  * @param searchingTime 경로를 요청한 시간
  * 
  * ※ Preview는 SearchScreen에서 실행할 것
+ * // TODO: 기능 추가하기
  */
 @Composable
 fun SortingArea(searchingTime:Long) {
