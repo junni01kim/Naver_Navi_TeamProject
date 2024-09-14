@@ -1,4 +1,4 @@
-# Annotation, Pull Request, Convention 양식
+# Pull Request, Annotation, Convention 양식
 ## PR 양식  
 __Pull Request는 다음과 같은 구성으로 작성한다.__  
 <br>
