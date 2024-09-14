@@ -22,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,14 +43,14 @@ import com.hansung.sherpa.schedule.RouteData
 import com.hansung.sherpa.schedule.RouteManager
 import com.hansung.sherpa.schedule.ScheduleManager
 import com.hansung.sherpa.schedule.Schedules
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
 
+/**
+ * 캘린더 하단 현재 날짜에 해당하는 날짜 출력
+ */
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CurrentDateColumn(
@@ -86,6 +85,13 @@ fun CurrentDateColumn(
     }
 }
 
+/**
+ * 캘린더 하단에 스케줄 출력되는 Composable
+ *
+ * @param scheduleDataList 스케줄 리스트
+ * @param updateScheduleData 스케줄 업데이트 시 callback
+ */
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScheduleColumns(
@@ -93,26 +99,33 @@ fun ScheduleColumns(
     updateScheduleData : (LocalDate?) -> Unit
 ){
     var isEmpty by remember { mutableStateOf(true) }
-    var currentVisibleColumnsCount by remember { mutableIntStateOf(scheduleDataList.size) }
-    var beforeListSize by remember { mutableIntStateOf(scheduleDataList.size) }
     val routeManager = RouteManager()
     val scheduleManager = ScheduleManager()
 
+    /**
+     * 하루 종일 스케줄 -> 제일 상단
+     * it not -> 시간 순
+     */
     scheduleDataList.sortWith(
         compareBy<ScheduleData> { !it.isWholeDay.value }
             .thenBy { if (it.isWholeDay.value) it.title.value else "" }
             .thenBy { if (!it.isWholeDay.value) it.startDateTime.longValue else Long.MAX_VALUE }
     )
 
+    /**
+     * 일정 삭제 시 callback
+     */
     val onDelete : (ScheduleData) -> Unit = { deleteItem ->
         // TODO: 삭제한 deleteItem -> 서버에서도 삭제
         scheduleManager.deleteSchedules(deleteItem.scheduleId)
         if(deleteItem.routeId != null)
             routeManager.deleteRoute(deleteItem.routeId!!)
-
         updateScheduleData(null)
     }
 
+    /**
+     * isEmpty = (스케줄 사이즈 == 0)
+     */
     LaunchedEffect(scheduleDataList.size) {
         isEmpty = when(scheduleDataList.size){
             0 -> true
@@ -121,6 +134,7 @@ fun ScheduleColumns(
     }
 
     when(isEmpty){
+        // 스케줄 리스트가 비었을 때 텍스트 출력
         true -> {
             Row(
                 modifier = Modifier
@@ -132,6 +146,7 @@ fun ScheduleColumns(
                 Text(text = "등록된 일정이 없습니다.")
             }
         }
+        // 비지 않았을 때 스케줄 출력
         false -> {
             LazyColumn(modifier = Modifier
                 .heightIn(max = 700.dp)
@@ -151,6 +166,14 @@ fun ScheduleColumns(
     }
 }
 
+/**
+ * 날짜에 해당하는 스케줄
+ *
+ * @param updateScheduleData 스케줄 업데이트 시 callback
+ * @param scheduleData 각 스케줄 데이터
+ * @param onDelete 삭제 시 호출할 callback
+ */
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ScheduleColumn(
@@ -158,12 +181,13 @@ fun ScheduleColumn(
     scheduleData: ScheduleData,
     onDelete : (ScheduleData) -> Unit
 ){
+    // API 클래스
     val scheduleManager = ScheduleManager()
     val routeManager = RouteManager()
 
-    val openDialogCustom = remember { mutableStateOf(false) }
-    var state by remember { mutableStateOf(true) }
-    var showEditSheet by remember { mutableStateOf(false) }
+    val scheduleDeleteDialog = remember { mutableStateOf(false) } // 삭제 모달 flag
+    var state by remember { mutableStateOf(true) } // 스케줄 있으면 true 없으면 false
+    var showEditSheet by remember { mutableStateOf(false) } // 수정 창 on / off
     val textStyle = androidx.compose.ui.text.TextStyle(
         fontSize = 16.sp,
         fontWeight = FontWeight.Bold
@@ -175,58 +199,73 @@ fun ScheduleColumn(
         )
         .fillMaxHeight()
 
-    val modifySchedule : (ScheduleData) -> Unit = { scheduleData ->
-        if(scheduleData.routeId != null && scheduleData.routeId != 0){
-            if(scheduleData.scheduledLocation.name.isEmpty()){
-                routeManager.deleteRoute(scheduleData.routeId!!)
-                scheduleData.routeId = null
-            } else {
+    /**
+     * 스케줄 수정하였을 때 callback 하는 함수
+     */
+    val modifySchedule : (ScheduleData) -> Unit = { updatedScheduleData ->
+        /**
+         * 원래 경로 안내가 등록 되어 있었을 경우
+         */
+        if(updatedScheduleData.routeId != null && updatedScheduleData.routeId != 0){
+            // 삭제한 경우
+            if(updatedScheduleData.scheduledLocation.name.isEmpty()){
+                routeManager.deleteRoute(updatedScheduleData.routeId!!)
+                updatedScheduleData.routeId = null
+            }
+            // 갱신된 경우
+            else if(scheduleData.scheduledLocation.name != updatedScheduleData.scheduledLocation.name) {
                 routeManager.updateRoute(
-                    routeId = scheduleData.routeId!!,
+                    routeId = updatedScheduleData.routeId!!,
                     Route(
                         cron = "",
                         location = Location(
-                            name = scheduleData.scheduledLocation.name,
-                            latitude = scheduleData.scheduledLocation.lat,
-                            longitude = scheduleData.scheduledLocation.lon
+                            name = updatedScheduleData.scheduledLocation.name,
+                            latitude = updatedScheduleData.scheduledLocation.lat,
+                            longitude = updatedScheduleData.scheduledLocation.lon
                         )
                     )
                 )
             }
-        } else {
-            if(scheduleData.scheduledLocation.name.isNotEmpty()){
-                var routeData : RouteData? = null
-                runBlocking {
-                    withContext(Dispatchers.IO){
-                        routeData = routeManager.insertRoute(scheduleData = scheduleData)
-                    }
-                }
-                routeData?.let { scheduleData.routeId = it.routeId }
+        }
+        /**
+         * 원래 경로가 없었을 경우
+         */
+        else {
+            // 위치가 새로 등록된 경우
+            if(updatedScheduleData.scheduledLocation.name.isNotEmpty()){
+                val routeData : RouteData? = routeManager.insertRoute(scheduleData = updatedScheduleData)
+                routeData?.let { updatedScheduleData.routeId = it.routeId }
             }
         }
+
+        /**
+         * 수정된 스케줄 내용도 업데이트
+         */
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm")
-        val start = dateFormat.format(Date(scheduleData.startDateTime.value))
-        val end = dateFormat.format(Date(scheduleData.endDateTime.value))
+        val start = dateFormat.format(Date(updatedScheduleData.startDateTime.value))
+        val end = dateFormat.format(Date(updatedScheduleData.endDateTime.value))
         scheduleManager.updateSchedule(
             Schedules(
                 userId = StaticValue.userInfo.userId!!,
-                routeId = scheduleData.routeId,
-                scheduleId = scheduleData.scheduleId,
-                guideDatetime = if(scheduleData.scheduledLocation.isGuide) scheduleData.scheduledLocation.guideDatetime.toString()
+                routeId = updatedScheduleData.routeId,
+                scheduleId = updatedScheduleData.scheduleId,
+                guideDatetime = if(updatedScheduleData.scheduledLocation.isGuide) updatedScheduleData.scheduledLocation.guideDatetime.toString()
                     else null,
-                address = scheduleData.scheduledLocation.address,
-                description = scheduleData.comment.value,
-                isWholeday = scheduleData.isWholeDay.value,
-                title = scheduleData.title.value,
+                address = updatedScheduleData.scheduledLocation.address,
+                description = updatedScheduleData.comment.value,
+                isWholeday = updatedScheduleData.isWholeDay.value,
+                title = updatedScheduleData.title.value,
                 dateBegin = start,
                 dateEnd = end,
             )
         )
+        // null 이면 현재 날짜로 스케줄 다시 가져옴
         updateScheduleData(null)
     }
 
-    if(openDialogCustom.value){
-        ScheduleDeleteDialog(openDialogCustom = openDialogCustom){ onDeleteClick ->
+    // 삭제 다이얼로그
+    if(scheduleDeleteDialog.value){
+        ScheduleDeleteDialog(openDialogCustom = scheduleDeleteDialog){ onDeleteClick ->
             when(onDeleteClick) {
                 true -> {
                     state = false
@@ -237,6 +276,7 @@ fun ScheduleColumn(
         }
     }
 
+    // 해당 날짜에 스케줄이 있을 때
     if (state){
         Row(
             modifier = Modifier
@@ -249,9 +289,13 @@ fun ScheduleColumn(
                 .fillMaxWidth()
                 .height(70.dp)
                 .pointerInput(Unit) {
+                    /**
+                     * 길게 누르면 삭제 모달 true
+                     * 짧게 누르면 EditSheet 보이게
+                     */
                     detectTapGestures(
                         onLongPress = {
-                            openDialogCustom.value = true
+                            scheduleDeleteDialog.value = true
                         },
                         onTap = {
                             showEditSheet = true
@@ -259,14 +303,17 @@ fun ScheduleColumn(
                     )
                 }
         ){
+            /**
+             * 시간이 출력되는 부분
+             * scheduleData.isWholeDay == true 면 하루종일 이라는 문자열 출력
+             */
             Column(
                 modifier = columnModifier.width(70.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 when(scheduleData.isWholeDay.value){
-                    true ->
-                        Text(
+                    true -> Text(
                             text = "하루종일",
                             fontWeight = FontWeight.Bold
                         )
@@ -306,6 +353,9 @@ fun ScheduleColumn(
             }
         }
         if (showEditSheet){
+            /**
+             * item 내용을 원본 객체에 대입
+             */
             val closeBottomSheet : (ScheduleData, Boolean) -> Unit = { item, flag ->
                 if (flag){
                     scheduleData.title.value = item.title.value
@@ -327,6 +377,9 @@ fun ScheduleColumn(
                 }
                 showEditSheet = false
             }
+            /**
+             * 객체를 전달하면 취소를 눌러도 값이 수정되기에 Deep Copy하여 전달
+             */
             ScheduleBottomSheet(
                 closeBottomSheet = closeBottomSheet,
                 scheduleData = cloneScheduleData(scheduleData = scheduleData),
@@ -336,6 +389,9 @@ fun ScheduleColumn(
     }
 }
 
+/**
+ * DeepCopy
+ */
 @Composable
 fun cloneScheduleData(scheduleData: ScheduleData): ScheduleData {
     return ScheduleData(

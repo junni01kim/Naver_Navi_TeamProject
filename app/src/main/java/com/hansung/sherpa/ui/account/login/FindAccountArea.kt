@@ -14,14 +14,24 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.hansung.sherpa.SherpaScreen
-import com.hansung.sherpa.sherpares.BmHanna
+import com.hansung.sherpa.ui.theme.BmHanna
 
+/**
+ * 비밀번호 찾기와 회원가입하기 버튼을 디자인한 영역
+ *
+ * @param navController 홈화면 navController 원형, ※ 화면을 이동한다면, 매개변수로 지정 필수
+ */
 @Composable
 fun FindAccountArea(navController: NavController) {
     // 비밀번호 찾기, 회원가입 이동
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        /**
+         * FindAccount Transfer Button
+         *
+         * 아이디/비밀번호 찾기 화면 이동 버튼
+         */
         TextButton(
             onClick = {},
             colors= ButtonColors(
@@ -39,8 +49,13 @@ fun FindAccountArea(navController: NavController) {
                 style = TextStyle(textDecoration = TextDecoration.Underline)
             )
         }
+        /**
+         * Signup Transfer Button
+         *
+         * 회원가입 화면 이동 버튼
+         */
         TextButton(
-            onClick = {navController.navigate("${SherpaScreen.SignUp.name}")},
+            onClick = {navController.navigate(SherpaScreen.SignUp.name)},
             colors= ButtonColors(
                 contentColor = Color(0xFF34DFD5),
                 containerColor = Color.Transparent,

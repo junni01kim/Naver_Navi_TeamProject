@@ -1,5 +1,6 @@
 package com.hansung.sherpa.ui.searchscreen
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -42,19 +44,21 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.gson.GsonBuilder
 import com.hansung.sherpa.R
 import com.hansung.sherpa.SherpaScreen
 import com.hansung.sherpa.StaticValue
-import com.hansung.sherpa.arrivalinfo.odsay.ODsayArrivalInfoRequest
+import com.hansung.sherpa.arrivalinfo.ODsayArrivalInfoRequest
 import com.hansung.sherpa.arrivalinfo.ArrivalInfoManager
 import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SubPath
+import com.hansung.sherpa.itemsetting.SubPathAdapter
 import com.hansung.sherpa.itemsetting.SubwayLane
 import com.hansung.sherpa.itemsetting.SubwaySectionInfo
 import com.hansung.sherpa.itemsetting.TransportRoute
-import com.hansung.sherpa.sherpares.PretendardVariable
+import com.hansung.sherpa.ui.theme.PretendardVariable
 import com.hansung.sherpa.ui.chart.ThickChart
 import com.hansung.sherpa.ui.chart.typeOfColor
 import java.text.SimpleDateFormat
@@ -151,8 +155,14 @@ fun ExpandableCard(navController:NavController, route: TransportRoute, searching
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.clickable {
-                    StaticValue.transportRoute = route
-                    navController.navigate(SherpaScreen.SpecificRoute.name)
+                        val gson = GsonBuilder().registerTypeAdapter(SubPath::class.java, SubPathAdapter()).create()
+                        val json = gson.toJson(route)
+
+                        val temp = json.toByteArray(Charsets.UTF_8)
+                        val encoding = temp.joinToString("") { String.format("%02X", it) }
+
+                        Log.d("test", "json: $encoding")
+                        navController.navigate("${SherpaScreen.SpecificRoute.name}/$encoding")
                 }) {
                     route.subPath.forEachIndexed { index, it ->
                         ExpandItem(it, timerFlag)
@@ -235,7 +245,7 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
              *
              * 상위 Composable에서 timerFlag가 변경된다면 해당 영역(도착정보 텍스트 갱신)이 실행된다.
              */
-            var waitingTime by remember { mutableStateOf(-1) }
+            var waitingTime by remember { mutableIntStateOf(ErrorCode.WATING_TIME_IS_NULL.code) }
             LaunchedEffect(timerFlag) {
 
                 /**
@@ -260,13 +270,14 @@ fun ExpandItem(subPath: SubPath, timerFlag:Boolean) {
                 /**
                  * 도보의 경우 정보가 없어 -1을 반환한다.
                  * ※ -1은 "도착 정보 없음"을 의미한다. 하단 minuteOfSecond() 함수 참고
+                 * ※ -2는 "조회된 정보가 없음"을 의미한다.
                  */
                 waitingTime =
                     if(subPath.trafficType != 3)
                         ArrivalInfoManager().getODsayArrivalInfoList(
                             ODsayArrivalInfoRequest(stationID = stationID,routeIDs = routeID)
-                        )?.result?.real?.get(0)?.arrival1?.arrivalSec?:-2
-                    else -1
+                        ).result?.real?.get(0)?.arrival1?.arrivalSec?: ErrorCode.WATING_TIME_NO_INFO.code
+                    else ErrorCode.WATING_TIME_IS_NULL.code
             }
 
             /**
@@ -310,7 +321,7 @@ fun getStationLaneName(subPath: SubPath): Pair<String,String>{
 
     when(subPath.trafficType){
         // 지하철
-        1 -> {
+        TrafficType.SUBWAY.ordinal -> {
             val subway = subPath.sectionInfo as SubwaySectionInfo
             val subwayLane = subway.lane[0] as SubwayLane
             stationName = "${subway.startName}역"
@@ -319,17 +330,17 @@ fun getStationLaneName(subPath: SubPath): Pair<String,String>{
 
         // 버스 <- 지역마다 색상이 달라서, 경기 서울 기준으로 색 부여
         // https://librewiki.net/wiki/%ED%8B%80:%EB%B2%84%EC%8A%A4_%EB%85%B8%EC%84%A0%EC%83%89
-        2 -> {
+        TrafficType.BUS.ordinal -> {
             val bus = subPath.sectionInfo as BusSectionInfo
             val busLane = bus.lane[0] as BusLane
             stationName = "${bus.startName}"
             laneName = "${busLane.busNo}번"
         }
         // 도보
-        3 -> {
+        TrafficType.WALK.ordinal -> {
             val pedestrian = subPath.sectionInfo as PedestrianSectionInfo
             stationName = pedestrian.startName?:"도보"
-            laneName = pedestrian.endName?:"${Math.round(pedestrian.distance?:-1.0)}m 이동"
+            laneName = pedestrian.endName?:"${Math.round(pedestrian.distance?:-1.0)}m 이동" // TODO: 이건 왜 -1.0?? 조금 더 예외 처리 구체화 하기
         }
     }
     return Pair(stationName!!, laneName!!)
@@ -344,11 +355,11 @@ fun getStationLaneName(subPath: SubPath): Pair<String,String>{
 fun typeOfIcon(trafficType: Int) =
     when(trafficType) {
         // 지하철
-        1 -> ImageVector.vectorResource(R.drawable.subway)
+        TrafficType.SUBWAY.ordinal -> ImageVector.vectorResource(R.drawable.subway)
         // 버스
-        2 -> ImageVector.vectorResource(R.drawable.express_bus)
+        TrafficType.BUS.ordinal -> ImageVector.vectorResource(R.drawable.express_bus)
         // 도보
-        3 -> ImageVector.vectorResource(R.drawable.walk)
+        TrafficType.WALK.ordinal -> ImageVector.vectorResource(R.drawable.walk)
         else -> ImageVector.vectorResource(R.drawable.close)
     }
 
@@ -373,8 +384,8 @@ fun hourOfMinute(minute:Int) =
  * @return 시간에 대한 서식 ex) "n분 전", "곧 도착", "정보 없음"(예외 처리)
  */
 fun minuteOfSecond(second:Int) =
-    if(second == -1) ""
-    else if(second == -2) "정보 없음"
+    if(second == ErrorCode.WATING_TIME_IS_NULL.code) ""
+    else if(second == ErrorCode.WATING_TIME_NO_INFO.code) "정보 없음"
     else if(second >= 60) "${second/60}분 전"
     else "곧 도착"
 

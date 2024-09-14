@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.hansung.sherpa.BuildConfig
 import com.hansung.sherpa.StaticValue
+import com.hansung.sherpa.Url
 import com.hansung.sherpa.convert.Convert
 import com.hansung.sherpa.subwayelevator.ElevatorException
 import com.hansung.sherpa.subwayelevator.ElevatorLocResponse
@@ -18,8 +19,6 @@ import com.hansung.sherpa.transit.osrm.ShortWalkResponse
 import com.hansung.sherpa.transit.routegraphic.ODsayGraphicRequest
 import com.hansung.sherpa.transit.routegraphic.ODsayMapObject
 import com.hansung.sherpa.transit.routegraphic.RouteGraphicResponse
-import com.hansung.sherpa.transit.tmappoi.TmapPoiResponse
-import com.hansung.sherpa.transit.tmappoi.TmapPoiService
 import com.naver.maps.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -36,7 +35,7 @@ class TransitManager {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -64,7 +63,7 @@ class TransitManager {
                 try {
                     Log.d("reqlocation","" + routeRequest.startY +", "+ routeRequest.startX+"    "+routeRequest.endY+", "+routeRequest.endX)
                     val response = Retrofit.Builder()
-                        .baseUrl("https://apis.openapi.sk.com/")
+                        .baseUrl(Url.TMAP)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<PedestrianRouteService?>(PedestrianRouteService::class.java)
@@ -81,7 +80,7 @@ class TransitManager {
                         try {
                             val options = setOSRMRequestToMap()
                             val response = Retrofit.Builder()
-                                .baseUrl("https://routing.openstreetmap.de/")
+                                .baseUrl(Url.OSRM)
                                 .addConverterFactory(GsonConverterFactory.create())
                                 .build()
                                 .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -110,7 +109,7 @@ class TransitManager {
                 try {
                     val options = setOSRMRequestToMap()
                     val response = Retrofit.Builder()
-                        .baseUrl("https://routing.openstreetmap.de/")
+                        .baseUrl(Url.OSRM)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create<TransitRouteService?>(TransitRouteService::class.java)
@@ -141,7 +140,7 @@ class TransitManager {
             launch(Dispatchers.IO) {
                 try {
                     val response = Retrofit.Builder()
-                        .baseUrl("https://api.odsay.com/v1/api/")
+                        .baseUrl(Url.ODSAY)
                         .addConverterFactory(GsonConverterFactory.create())
                         .build()
                         .create(TransitRouteService::class.java)
@@ -191,7 +190,7 @@ class TransitManager {
      * ODsay 대중교통 길찾기 후 대중교통 구간에 대한 좌표 값 받아오는 함수
      *
      * @param response
-     * @return
+     * @return 보행자 경로
      */
     fun requestCoordinateForRoute(start: LatLng, end: LatLng, response: ODsayPath?): List<PedestrianResponse> {
         var pedestrianResponse: PedestrianResponse = PedestrianResponse()
@@ -212,20 +211,20 @@ class TransitManager {
 
             return listOfNotNull(pedestrianResponse)
         }
-        val PEDESTRINAN_CODE = 3 // trafficType이 3일때
+        val PEDESTRINAN_CODE = 3 // trafficType이 3일때 - 도보 구간
         val FIRST_INDEX = 0 // 경로에서 첫 번째 구간이 도보일 때
         val LAST_INDEX = response.subPath.size - 1 // 경로에서 마지막 구간이 도보일 떄
 
         val routeCoordinateList: MutableList<PedestrianRouteRequest> = mutableListOf()
 
-        var tmp:PedestrianRouteRequest = PedestrianRouteRequest(0.0f,0.0f,0.0f,0.0f)
+        var tmp:PedestrianRouteRequest
 
-        var targetSX:Float = 0.0f
-        var targetSY:Float = 0.0f
-        var targetEX:Float = 0.0f
-        var targetEY:Float = 0.0f
+        var targetSX:Float
+        var targetSY:Float
+        var targetEX:Float
+        var targetEY:Float
 
-        var ELEVATOR_PRIMARY_SETTING = StaticValue.userInfo.userSetting!!.elevatorFirst // 지하철 우선 안내 ON/OFF
+        val ELEVATOR_PRIMARY_SETTING = StaticValue.userInfo.userSetting!!.elevatorFirst // 지하철 우선 안내 ON/OFF
 
         response.subPath.forEachIndexed { index, it ->
             if (it.trafficType == PEDESTRINAN_CODE) {
@@ -233,11 +232,14 @@ class TransitManager {
                     when (index) {
                         FIRST_INDEX -> {
                             try {
+                                // 처음 구간(FIRST_INDEX)이 도보 이고, 다음 구간(index + 1)이 지하철 인경우(trafficType==1)
                                 if(ELEVATOR_PRIMARY_SETTING == true && response.subPath[index+1].trafficType==1) {
 
-                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index+1].startName)
+                                    // 지하철 경로의 시작역 이름을 조회하여 엘리베이터 좌표 요청
+                                    val elevatorLocation = getSubwayElevLocation(response.subPath[index+1].startName)
 
-                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(response.subPath[index+1].startY, response.subPath[index+1].startX))
+                                    // 가져온 엘리베이터 좌표 중 도보의 마지막 좌표와 가장 가까운 엘리베이터 좌표 찾기 
+                                    val minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(response.subPath[index+1].startY, response.subPath[index+1].startX))
 
                                     tmp = PedestrianRouteRequest(
                                         startX = start.longitude.toFloat(),
@@ -251,6 +253,7 @@ class TransitManager {
                                     throw ElevatorException("Hold")
                                 }
                             }catch (e: ElevatorException){
+                                // 만약 엘리베이터 좌표 또는 역이름이 존재 하지 않는 경우 지하철 역 위치와 이어주는 작업 수행
                                 Log.d("ElevatorConvertError",e.msg)
                                 tmp = PedestrianRouteRequest(
                                     startX = start.longitude.toFloat(),
@@ -264,10 +267,14 @@ class TransitManager {
                         }
                         LAST_INDEX -> {
                             try {
+                                // 마지막 구간(LAST_INDEX)이 도보이고, 그 전 구간(index-1)이 지하철인 경우(trafficType==1)
                                 if(ELEVATOR_PRIMARY_SETTING == true && response.subPath[index-1].trafficType==1){
-                                    var elevatorLocation = getSubwayElevLocation(response.subPath[index-1].endName)
+                                    
+                                    // 지하철 경로의 끝역 이름을 조회하여 엘리베이터 좌표 요청
+                                    val elevatorLocation = getSubwayElevLocation(response.subPath[index-1].endName)
 
-                                    var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(end.latitude, end.longitude))
+                                    // 가져온 엘리베이터 좌표 중 도보의 시작 좌표와 가장 가까운 엘리베이터 좌표 찾기
+                                    val minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(end.latitude, end.longitude))
 
                                     tmp = PedestrianRouteRequest(
                                         startX = minLoc.longitude.toFloat(),
@@ -299,14 +306,19 @@ class TransitManager {
                             targetEX = response.subPath[index + 1].startX.toFloat()
                             targetEY = response.subPath[index + 1].startY.toFloat()
 
-                            var beforeTransit = response.subPath[index-1]
-                            var afterTransit = response.subPath[index+1]
+                            // 해당 부분은 Elevator 요청에서 쓰임
+                            val beforeTransit = response.subPath[index-1] // 전 지하철 경로
+                            val afterTransit = response.subPath[index+1] // 이후 지하철 경로
 
+                            // 지하철과 지하철 사이를 도보로 이동하는 경우
                             if(ELEVATOR_PRIMARY_SETTING==true){
+                                // 이전 지하철의 엘리베이터를 좌표를 알아 오기 위함
                                 if(beforeTransit.trafficType==1) {
                                     try {
-                                        var elevLocation = getSubwayElevLocation(beforeTransit.endName)
-                                        var minLoc = findMinDistanceLatLng(elevLocation, LatLng(afterTransit.startY, afterTransit.startX))
+                                        // 이전 지하철 경로의 끝 지하철을 기준으로 엘리베이터 좌표 알아옴
+                                        val elevLocation = getSubwayElevLocation(beforeTransit.endName) 
+                                        // 다음 지하철 경로의 시작점과 가장 가까운 엘리베이터 좌표를 찾음
+                                        val minLoc = findMinDistanceLatLng(elevLocation, LatLng(afterTransit.startY, afterTransit.startX)) 
 
                                         targetSX = minLoc.longitude.toFloat()
                                         targetSY = minLoc.latitude.toFloat()
@@ -315,10 +327,13 @@ class TransitManager {
                                     }
                                 }
 
+                                // 다음 지하철의 엘리베이터를 좌표를 알아 오기 위함
                                 if(afterTransit.trafficType==1) {
                                     try {
-                                        var elevatorLocation = getSubwayElevLocation(afterTransit.startName)
-                                        var minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(beforeTransit.endY, beforeTransit.endX))
+                                        // 다음 지하철 경로의 시작 지하철을 기준으로 엘리베이터 좌표를 알아옴
+                                        val elevatorLocation = getSubwayElevLocation(afterTransit.startName)
+                                        // 이전 지하철 경로의 끝점과 가장 가까운 엘리베이터 좌표를 찾음
+                                        val minLoc = findMinDistanceLatLng(elevatorLocation, LatLng(beforeTransit.endY, beforeTransit.endX))
 
                                         targetEX = minLoc.longitude.toFloat()
                                         targetEY = minLoc.latitude.toFloat()
@@ -437,60 +452,33 @@ class TransitManager {
             "overview" to overview,
         )
     }
-
+    
+    
     /**
-     * @param keyword 검색하고자 하는 위치의 키워드 (EX : 한성대입구역 2번출구)
-     * @param currLat 현재 Lat 위치
-     * @param currLon 현재 Lon 위치
-     *
+     * 특정 좌표와 가장 가까운 엘리베이터 좌표를 찾음
+     * 
+     * @param elevatorLocation 엘리베이터 Response
+     * @param pedestrianLoc 특정 좌표
+     * 
      * */
-
-    fun getTmapPois(keyword:String, currLat:Double, currLon:Double): TmapPoiResponse? {
-        var rr: TmapPoiResponse? = null
-        runBlocking<Job> {
-            launch(Dispatchers.IO) {
-                try {
-                    val response = Retrofit.Builder()
-                        .baseUrl("https://apis.openapi.sk.com/")
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                        .create(TmapPoiService::class.java).getTmapPoi(
-                            BuildConfig.TMAP_APP_KEY,
-                            keyword,
-                            currLat,
-                            currLon
-                        ).execute()
-                    rr = Gson().fromJson(response.body()!!.string(), TmapPoiResponse::class.java)
-                } catch (e: IOException) {
-                    Log.e("Error", "Transit API Exception ${rr}")
-                    println(rr)
-                }
-            }
-        }
-        return rr
-    }
-
     fun findMinDistanceLatLng(elevatorLocation: ElevatorLocResponse, pedestrianLoc: LatLng):LatLng{
-        Log.d("minDist","pede : " + pedestrianLoc.latitude + "," + pedestrianLoc.longitude + "\n")
 
         var target:LatLng
         lateinit var ret:LatLng
-        var mindist = 100000000000.0
+        var minDist = 100000000000.0
 
         for (i in elevatorLocation.data){
-            var slicing = i.location.split(",")
-            var lat = slicing[0].toDouble()
-            var lng = slicing[1].toDouble()
+            val slicing = i.location.split(",")
+            val lat = slicing[0].toDouble()
+            val lng = slicing[1].toDouble()
 
             target = LatLng(lat, lng)
 
-            if(target.distanceTo(pedestrianLoc)<mindist){
-                mindist = target.distanceTo(pedestrianLoc)
+            if(target.distanceTo(pedestrianLoc)<minDist){
+                minDist = target.distanceTo(pedestrianLoc)
                 ret = target
             }
         }
-
-        Log.d("minDist", "ret : " + ret.latitude + ", " + ret.longitude)
 
         return ret
     }

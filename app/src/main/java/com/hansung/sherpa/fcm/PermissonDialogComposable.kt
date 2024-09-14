@@ -19,7 +19,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hansung.sherpa.R.string as AppText
 
-// 푸시 알림 권한 여부를 묻는 다이얼로그
+/**
+ * 푸시 알림 권한 여부를 묻는 다이얼로그
+ */
 @Composable
 fun PermissionDialog(onRequestPermission: () -> Unit) {
     var showWarningDialog by remember { mutableStateOf(true) }
@@ -47,6 +49,10 @@ fun PermissionDialog(onRequestPermission: () -> Unit) {
     }
 }
 
+/**
+ * 푸시 알림 권한을 거절 시 나오는 다이얼로그??
+ *
+ */
 @Composable
 fun RationaleDialog() {
     var showWarningDialog by remember { mutableStateOf(true) }

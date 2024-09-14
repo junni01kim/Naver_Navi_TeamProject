@@ -30,10 +30,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.hansung.sherpa.itemsetting.BusLane
 import com.hansung.sherpa.itemsetting.BusSectionInfo
 import com.hansung.sherpa.itemsetting.PedestrianSectionInfo
 import com.hansung.sherpa.itemsetting.SectionInfo
@@ -77,7 +75,7 @@ fun SpecificList(showRouteDetails:TransportRoute){
             if(value.distance==0.0 || value.sectionTime==0){ // 이동 수단간 바로 환승 하는 경우(UI로 표시X)
                 return@items
             }
-            when(value){ // 업 다운 케스팅을 통한 이동 수단에 따른 화면 UI 자동 생성
+            when(value){ // 업, 다운 케스팅을 통한 이동 수단에 따른 화면 UI 자동 생성
                 is PedestrianSectionInfo ->{
                     SpecificListItem(toPedestrian, value.startName, value.endName, value.distance?.toInt(), value.sectionTime, value)
                 }
@@ -94,6 +92,8 @@ fun SpecificList(showRouteDetails:TransportRoute){
 }
 
 /**
+ * 이동 수단에 따른 세부 정보를 보여주는 UI
+ *
  * @param drawType 점선 or 직선
  * @param fromName 출발지 이름
  * @param toName 도착지 이름
@@ -127,7 +127,7 @@ fun SpecificListItem(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(// 좌측 부분 (전체 이동 시간, 대중교통 : 이동 정류장 수(보행자 : 이동 거리), 출발지 이름)
+            Box(// 좌측 부분 (전체 이동 시간, 대중교통 : 이동 정류장 수, 보행자 : 이동 거리, 출발지 이름)
                 modifier = Modifier.wrapContentSize()
             ){
                 Row(
@@ -235,17 +235,4 @@ fun DrawTransitLine(drawType: Float, lineNum:Color){
             )
         }
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun previewSpecificList(){
-    var showRouteDetails:MutableList<SectionInfo> = mutableListOf(
-        PedestrianSectionInfo(200.0, 20, "한성대공학관", "한성대학교 정문",0.0,0.0,0.0,0.0,mutableListOf("200m 직진후 횡단보도", "500m 우회전", "50m 앞 공사현장", "200m 직진")),
-        BusSectionInfo(1600.0, 30, "한성대학교정문", "한성대입구역",0.0,0.0,0.0,0.0, listOf(
-            BusLane("","성북02",0,0,"0",0)
-        ), 6, 0,0,0,"null",0,0,0,"null",mutableListOf("한성대입구역", "화정역", "은평구", "어쩌구 저쩌구", "등등")),
-        PedestrianSectionInfo(200.0, 5, "한성대입구역", "한성대입구역2번출구",0.0,0.0,0.0,0.0,mutableListOf("200m 직진", "500m 우회전","200m 좌회전", "500m 로롤","200m 직진", "500m 우회전"))
-    )
-    //SpecificList(showRouteDetails)
 }

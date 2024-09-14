@@ -47,7 +47,6 @@ fun RouteListArea(navController: NavHostController, routeList:List<TransportRout
      *
      * 이동할 수 있는 전체 대중교통 리스트가 나온다.
      */
-    //var expandedState by remember { mutableStateOf(false) }
     val expandedStateList = remember { mutableStateListOf<Boolean>()}
     routeList.forEach { expandedStateList.add(false) }
     LazyColumn(
